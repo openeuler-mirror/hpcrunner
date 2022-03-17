@@ -1,0 +1,6 @@
+perf*
+kperf.data.*
+env.sh
+hostfile
+.vscode
+test.*
