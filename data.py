@@ -48,8 +48,8 @@ https://www.cp2k.org/static/downloads/fftw-3.3.8.tar.gz
             contents = file_obj.read()
             return contents.strip()
 
-    def is_empty(self, str):
-        return len(str) == 0 or str.isspace() or str == '\n'
+    def is_empty(self, content):
+        return len(content) == 0 or content.isspace() or content == '\n'
 
     def read_rows(self, rows, start_row):
         data = ''

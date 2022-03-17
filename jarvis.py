@@ -68,7 +68,7 @@ class Execute:
         else:
             print(f"successfully executed at {self.end_time}, congradulations!!!".upper())
         print(f"total time used: {self.get_duration()}s")
-        logger.info("ENDED: " + cmd)
+        logger.info(cmd)
 
     def exec_raw(self, rows):
         self.exec_list(self.tool.gen_list(rows))
@@ -235,7 +235,7 @@ perf report  -i perf.data -F period,sample,overhead,symbol,dso,comm -s overhead 
 '''
         self.exe.exec_raw(perf_cmd)
 
-    def gen_wget_url(out_dir='./downloads', url=''):
+    def gen_wget_url(self, out_dir='./downloads', url=''):
         head = "wget --no-check-certificate"
         out_para = "-P"
         if not os.path.exists(out_dir):
