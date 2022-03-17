@@ -1,0 +1,188 @@
+diff -uNr components/cam/src/dynamics/fv/mapz_module.F90 components_modify/cam/src/dynamics/fv/mapz_module.F90
+--- components/cam/src/dynamics/fv/mapz_module.F90	2021-09-27 23:43:43.844314000 +0800
++++ components_modify/cam/src/dynamics/fv/mapz_module.F90	2022-09-27 03:09:05.026601000 +0800
+@@ -724,15 +724,18 @@
+       km1 = km - 1
+        it = i2 - i1 + 1
+ 
+-      do k=2,km
++
++
+          do i=i1,i2
+-            delq(i,k-1) =   a4(1,i,k) - a4(1,i,k-1)
+-              d4(i,k  ) = delp(i,k-1) + delp(i,k)
+-         enddo
+-      enddo
++            delq(i,2-1) =   a4(1,i,2) - a4(1,i,2-1)
++              d4(i,2  ) = delp(i,2-1) + delp(i,2)
++        enddo
+ 
+-      do k=2,km1
++       k=2
+          do i=i1,i2
++
++            delq(i,k-1+1) =   a4(1,i,k+1) - a4(1,i,k-1+1)
++              d4(i,k +1 ) = delp(i,k-1+1) + delp(i,k+1)
+             c1  = (delp(i,k-1)+D0_5*delp(i,k))/d4(i,k+1)
+             c2  = (delp(i,k+1)+D0_5*delp(i,k))/d4(i,k)
+             tmp = delp(i,k)*(c1*delq(i,k) + c2*delq(i,k-1)) /      &
+@@ -742,23 +745,40 @@
+              dc(i,k) = sign(min(abs(tmp),qmax,qmin), tmp)
+             df2(i,k) = tmp
+          enddo
+-      enddo
++
++      do k=3,km1
++         
++         do i=i1,i2
++
++            delq(i,k-1+1) =   a4(1,i,k+1) - a4(1,i,k-1+1)
++              d4(i,k +1 ) = delp(i,k-1+1) + delp(i,k+1)
++            c1  = (delp(i,k-1)+D0_5*delp(i,k))/d4(i,k+1)
++            c2  = (delp(i,k+1)+D0_5*delp(i,k))/d4(i,k)
++            tmp = delp(i,k)*(c1*delq(i,k) + c2*delq(i,k-1)) /      &
++                                    (d4(i,k)+delp(i,k+1))
++            qmax = max(a4(1,i,k-1),a4(1,i,k),a4(1,i,k+1)) - a4(1,i,k)
++            qmin = a4(1,i,k) - min(a4(1,i,k-1),a4(1,i,k),a4(1,i,k+1))
++             dc(i,k) = sign(min(abs(tmp),qmax,qmin), tmp)
++            df2(i,k) = tmp
+ 
+ !****6***0*********0*********0*********0*********0*********0**********72
+ ! 4th order interpolation of the provisional cell edge value
+ !****6***0*********0*********0*********0*********0*********0**********72
+ 
+-      do k=3,km1
+-      do i=i1,i2
+-      c1 = delq(i,k-1)*delp(i,k-1) / d4(i,k)
++                  c1 = delq(i,k-1)*delp(i,k-1) / d4(i,k)
+       a1 = d4(i,k-1) / (d4(i,k) + delp(i,k-1))
+       a2 = d4(i,k+1) / (d4(i,k) + delp(i,k))
+       a4(2,i,k) = a4(1,i,k-1) + c1 + D2_0/(d4(i,k-1)+d4(i,k+1)) *    &
+                 ( delp(i,k)*(c1*(a1 - a2)+a2*dc(i,k-1)) -          &
+                                 delp(i,k-1)*a1*dc(i,k  ) )
+-      enddo
++
++                                
++         enddo
+       enddo
+ 
++
++
++
+       call steepz(i1, i2, km, a4, df2, dc, delq, delp, d4)
+ 
+ ! Area preserving cubic with 2nd deriv. = 0 at the boundaries
+@@ -1236,29 +1256,46 @@
+ !BOC
+ !
+ ! !LOCAL VARIABLES:
+-      integer i, k
++      integer i, k, inc
+       real(r8) alfa(i1:i2,km)
+       real(r8)    f(i1:i2,km)
+       real(r8)  rat(i1:i2,km)
+       real(r8)  dg2
+ 
+ ! Compute ratio of dq/dp
+-      do k=2,km
++
++        k = 2
+          do i=i1,i2
+             rat(i,k) = dq(i,k-1) / d4(i,k)
+          enddo
+-      enddo
+ 
+-! Compute F
+-      do k=2,km-1
++      inc = 1
++
++
++         k = 3
+          do i=i1,i2
++! Compute ratio of dq/dp
++            rat(i,k + inc) = dq(i,k-1 + inc) / d4(i,k +inc)
++
++! Compute F
+             f(i,k) = (rat(i,k+1) - rat(i,k))                             &
+                      / ( dp(i,k-1)+dp(i,k)+dp(i,k+1) )
+          enddo
+-      enddo
+ 
+-      do k=3,km-2
++     
++     inc = inc+1
++
++
++         k=3
+          do i=i1,i2
++! Compute ratio of dq/dp
++            rat(i,k + inc) = dq(i,k-1 + inc) / d4(i,k +inc)
++
++! Compute F
++            f(i,k + inc - 1) = (rat(i,k+1+ inc - 1) - rat(i,k+ inc - 1))                             &
++                     / ( dp(i,k-1+ inc - 1)+dp(i,k+ inc - 1)+dp(i,k+1+ inc - 1) )
++
++
+          if(f(i,k+1)*f(i,k-1)<D0_0 .and. df2(i,k)/=D0_0) then
+             dg2 = (f(i,k+1)-f(i,k-1))*((dp(i,k+1)-dp(i,k-1))**2          &
+                    + d4(i,k)*d4(i,k+1) )
+@@ -1267,10 +1304,30 @@
+             alfa(i,k) = D0_0
+          endif
+          enddo
+-      enddo
++
++
++
++
+ 
+       do k=4,km-2
+          do i=i1,i2
++
++         ! Compute ratio of dq/dp
++            rat(i,k + inc) = dq(i,k-1 + inc) / d4(i,k +inc)
++
++! Compute F
++            f(i,k + inc - 1) = (rat(i,k+1+ inc - 1) - rat(i,k+ inc - 1))                             &
++                     / ( dp(i,k-1+ inc - 1)+dp(i,k+ inc - 1)+dp(i,k+1+ inc - 1) )
++
++
++         if(f(i,k+1)*f(i,k-1)<D0_0 .and. df2(i,k)/=D0_0) then
++            dg2 = (f(i,k+1)-f(i,k-1))*((dp(i,k+1)-dp(i,k-1))**2          &
++                   + d4(i,k)*d4(i,k+1) )
++            alfa(i,k) = max(D0_0, min(D0_5, -D0_1875*dg2/df2(i,k))) 
++         else
++            alfa(i,k) = D0_0
++         endif
++
+             a4(2,i,k) = (D1_0-alfa(i,k-1)-alfa(i,k)) * a4(2,i,k) +         &
+                         alfa(i,k-1)*(a4(1,i,k)-dm(i,k))    +             &
+                         alfa(i,k)*(a4(1,i,k-1)+dm(i,k-1))
+@@ -1283,3 +1340,4 @@
+ !----------------------------------------------------------------------- 
+ 
+ end module mapz_module
++
+diff -uNr components/cam/src/dynamics/fv/trac2d.F90 components_modify/cam/src/dynamics/fv/trac2d.F90
+--- components/cam/src/dynamics/fv/trac2d.F90	2021-09-27 23:43:43.939233000 +0800
++++ components_modify/cam/src/dynamics/fv/trac2d.F90	2022-09-27 03:09:05.041299000 +0800
+@@ -380,6 +380,7 @@
+ #if (!defined USE_OMP) 
+ !CSD$ PARALLEL DO PRIVATE (I, J, K, KQ, FX, FY, A2)
+ #endif
++!$omp parallel do private(i,j,k,kq,fx,fy,a2)
+         do 5000 k=kfirst,kend
+            if ( it <= nsplt(k) ) then
+               call tp2c(a2, va(1,jfirst,k), q_r8(1:,jfirst-ng:,k,cur),  &
+diff -uNr components/cam/src/physics/cam/clubb_intr.F90 components_modify/cam/src/physics/cam/clubb_intr.F90
+--- components/cam/src/physics/cam/clubb_intr.F90	2021-09-27 23:43:39.299931000 +0800
++++ components_modify/cam/src/physics/cam/clubb_intr.F90	2022-09-27 03:09:58.032998000 +0800
+@@ -1533,7 +1533,7 @@
+ 
+    do k=1,pver
+      do i=1,ncol
+-       exner_clubb(i,k) = 1._r8/((state1%pmid(i,k)/p0_clubb)**(rair/cpair))
++       exner_clubb(i,k) = (p0_clubb/state1%pmid(i,k))**(rair/cpair)
+      enddo
+    enddo
+    
