@@ -1,0 +1,240 @@
+diff -uprN NEMO/source/ARCH/arch-flang.fcm NEMO-optimized/source/ARCH/arch-flang.fcm
+--- NEMO/source/ARCH/arch-flang.fcm	1970-01-01 08:00:00.000000000 +0800
++++ NEMO-optimized/source/ARCH/arch-flang.fcm	2021-12-10 17:23:58.264938000 +0800
+@@ -0,0 +1,50 @@
++# mpi gfortran compiler options for ATHENA using XIOS parallel writer server
++#
++#
++# NCDF_HOME   root directory containing lib and include subdirectories for netcdf4
++# HDF5_HOME   root directory containing lib and include subdirectories for HDF5
++# XIOS_HOME   root directory containing lib for XIOS
++# OASIS_HOME  root directory containing lib for OASIS
++#
++# NCDF_INC    netcdf4 include file
++# NCDF_LIB    netcdf4 library
++# XIOS_INC    xios include file    (taken into accound only if key_iomput is activated)
++# XIOS_LIB    xios library         (taken into accound only if key_iomput is activated)
++# OASIS_INC   oasis include file   (taken into accound only if key_oasis3 is activated)
++# OASIS_LIB   oasis library        (taken into accound only if key_oasis3 is activated)
++#
++# FC          Fortran compiler command
++# FCFLAGS     Fortran compiler flags
++# FFLAGS      Fortran 77 compiler flags
++# LD          linker
++# LDFLAGS     linker flags, e.g. -L<lib dir> if you have libraries
++# FPPFLAGS    pre-processing flags
++# AR          assembler
++# ARFLAGS     assembler flags
++# MK          make
++# USER_INC    complete list of include files
++# USER_LIB    complete list of libraries to pass to the linker
++#
++# Note that:
++#  - unix variables "$..." are accpeted and will be evaluated before calling fcm.
++#  - fcm variables are starting with a % (and not a $)
++#
++
++%NCDF_HOME           /path/to/netcdf
++
++%NCDF_INC            -I%NCDF_HOME/include
++%NCDF_LIB            -L%NCDF_HOME/lib
++
++%CPP                 cpp -Dkey_nosignedzero
++%FC                  mpif90 -c -cpp
++%FCFLAGS             -fdefault-real-8 -fno-second-underscore -Dgfortran -ffree-line-length-none
++%FFLAGS              %FCFLAGS
++%LD                  %FC
++%LDFLAGS
++%FPPFLAGS            -x f77-cpp-input
++%AR                  gcc-ar
++%ARFLAGS             rs
++%MK                  gmake
++%USER_INC            %NCDF_INC
++%USER_LIB            %NCDF_LIB -lnetcdf -L/path/to/libnonosc.so -lnonosc-bs
++
+diff -uprN NEMO/source/ARCH/arch-gfortran.fcm NEMO-optimized/source/ARCH/arch-gfortran.fcm
+--- NEMO/source/ARCH/arch-gfortran.fcm	2021-12-10 15:04:45.208988000 +0800
++++ NEMO-optimized/source/ARCH/arch-gfortran.fcm	2021-12-10 15:58:21.364914000 +0800
+@@ -30,19 +30,19 @@
+ #  - fcm variables are starting with a % (and not a $)
+ #
+ 
+-%NCDF_HOME           /WORK/home/qhyc1/zhangyu/soft_gcc/netcdf_3_6_3
++%NCDF_HOME           /path/to/netcdf
+ 
+ %NCDF_INC            -I%NCDF_HOME/include
+ %NCDF_LIB            -L%NCDF_HOME/lib
+ 
+-%CPP                 cpp
+-%FC                  mpif90
++%CPP                 cpp -Dkey_nosignedzero
++%FC                  mpif90 -c -cpp
+ %FCFLAGS             -fdefault-real-8 -fno-second-underscore -Dgfortran -ffree-line-length-none
+ %FFLAGS              %FCFLAGS
+ %LD                  %FC
+ %LDFLAGS
+ %FPPFLAGS            -x f77-cpp-input
+-%AR                  ar
++%AR                  gcc-ar
+ %ARFLAGS             rs
+ %MK                  gmake
+ %USER_INC            %NCDF_INC
+diff -uprN NEMO/source/NEMO/OPA_SRC/TRA/traadv_tvd.F90 NEMO-optimized/source/NEMO/OPA_SRC/TRA/traadv_tvd.F90
+--- NEMO/source/NEMO/OPA_SRC/TRA/traadv_tvd.F90	2021-12-10 15:04:38.186792000 +0800
++++ NEMO-optimized/source/NEMO/OPA_SRC/TRA/traadv_tvd.F90	2021-12-10 15:36:49.848020000 +0800
+@@ -599,79 +599,85 @@ CONTAINS
+       !
+       CALL wrk_alloc( jpi, jpj, jpk, zbetup, zbetdo, zbup, zbdo )
+       !
+-      zbig  = 1.e+40_wp
+-      zrtrn = 1.e-15_wp
+-      zbetup(:,:,:) = 0._wp   ;   zbetdo(:,:,:) = 0._wp
+-
+-      ! Search local extrema
+-      ! --------------------
+-      ! max/min of pbef & paft with large negative/positive value (-/+zbig) inside land
+-      zbup = MAX( pbef * tmask - zbig * ( 1._wp - tmask ),   &
+-         &        paft * tmask - zbig * ( 1._wp - tmask )  )
+-      zbdo = MIN( pbef * tmask + zbig * ( 1._wp - tmask ),   &
+-         &        paft * tmask + zbig * ( 1._wp - tmask )  )
+-
+-      DO jk = 1, jpkm1
+-         ikm1 = MAX(jk-1,1)
+-         z2dtt = p2dt(jk)
+-         DO jj = 2, jpjm1
+-            DO ji = fs_2, fs_jpim1   ! vector opt.
+-
+-               ! search maximum in neighbourhood
+-               zup = MAX(  zbup(ji  ,jj  ,jk  ),   &
+-                  &        zbup(ji-1,jj  ,jk  ), zbup(ji+1,jj  ,jk  ),   &
+-                  &        zbup(ji  ,jj-1,jk  ), zbup(ji  ,jj+1,jk  ),   &
+-                  &        zbup(ji  ,jj  ,ikm1), zbup(ji  ,jj  ,jk+1)  )
+-
+-               ! search minimum in neighbourhood
+-               zdo = MIN(  zbdo(ji  ,jj  ,jk  ),   &
+-                  &        zbdo(ji-1,jj  ,jk  ), zbdo(ji+1,jj  ,jk  ),   &
+-                  &        zbdo(ji  ,jj-1,jk  ), zbdo(ji  ,jj+1,jk  ),   &
+-                  &        zbdo(ji  ,jj  ,ikm1), zbdo(ji  ,jj  ,jk+1)  )
+-
+-               ! positive part of the flux
+-               zpos = MAX( 0., paa(ji-1,jj  ,jk  ) ) - MIN( 0., paa(ji  ,jj  ,jk  ) )   &
+-                  & + MAX( 0., pbb(ji  ,jj-1,jk  ) ) - MIN( 0., pbb(ji  ,jj  ,jk  ) )   &
+-                  & + MAX( 0., pcc(ji  ,jj  ,jk+1) ) - MIN( 0., pcc(ji  ,jj  ,jk  ) )
+-
+-               ! negative part of the flux
+-               zneg = MAX( 0., paa(ji  ,jj  ,jk  ) ) - MIN( 0., paa(ji-1,jj  ,jk  ) )   &
+-                  & + MAX( 0., pbb(ji  ,jj  ,jk  ) ) - MIN( 0., pbb(ji  ,jj-1,jk  ) )   &
+-                  & + MAX( 0., pcc(ji  ,jj  ,jk  ) ) - MIN( 0., pcc(ji  ,jj  ,jk+1) )
+-
+-               ! up & down beta terms
+-               zbt = e1t(ji,jj) * e2t(ji,jj) * fse3t(ji,jj,jk) / z2dtt
+-               zbetup(ji,jj,jk) = ( zup            - paft(ji,jj,jk) ) / ( zpos + zrtrn ) * zbt
+-               zbetdo(ji,jj,jk) = ( paft(ji,jj,jk) - zdo            ) / ( zneg + zrtrn ) * zbt
+-            END DO
+-         END DO
+-      END DO
++!      zbig  = 1.e+40_wp
++!      zrtrn = 1.e-15_wp
++!      zbetup(:,:,:) = 0._wp   ;   zbetdo(:,:,:) = 0._wp
++!
++!      ! Search local extrema
++!      ! --------------------
++!      ! max/min of pbef & paft with large negative/positive value (-/+zbig) inside land
++!      zbup = MAX( pbef * tmask - zbig * ( 1._wp - tmask ),   &
++!         &        paft * tmask - zbig * ( 1._wp - tmask )  )
++!      zbdo = MIN( pbef * tmask + zbig * ( 1._wp - tmask ),   &
++!         &        paft * tmask + zbig * ( 1._wp - tmask )  )
++!
++!      DO jk = 1, jpkm1
++!         ikm1 = MAX(jk-1,1)
++!         z2dtt = p2dt(jk)
++!         DO jj = 2, jpjm1
++!            DO ji = fs_2, fs_jpim1   ! vector opt.
++!
++!               ! search maximum in neighbourhood
++!               zup = MAX(  zbup(ji  ,jj  ,jk  ),   &
++!                  &        zbup(ji-1,jj  ,jk  ), zbup(ji+1,jj  ,jk  ),   &
++!                  &        zbup(ji  ,jj-1,jk  ), zbup(ji  ,jj+1,jk  ),   &
++!                  &        zbup(ji  ,jj  ,ikm1), zbup(ji  ,jj  ,jk+1)  )
++!
++!               ! search minimum in neighbourhood
++!               zdo = MIN(  zbdo(ji  ,jj  ,jk  ),   &
++!                  &        zbdo(ji-1,jj  ,jk  ), zbdo(ji+1,jj  ,jk  ),   &
++!                  &        zbdo(ji  ,jj-1,jk  ), zbdo(ji  ,jj+1,jk  ),   &
++!                  &        zbdo(ji  ,jj  ,ikm1), zbdo(ji  ,jj  ,jk+1)  )
++!
++!               ! positive part of the flux
++!               zpos = MAX( 0., paa(ji-1,jj  ,jk  ) ) - MIN( 0., paa(ji  ,jj  ,jk  ) )   &
++!                  & + MAX( 0., pbb(ji  ,jj-1,jk  ) ) - MIN( 0., pbb(ji  ,jj  ,jk  ) )   &
++!                  & + MAX( 0., pcc(ji  ,jj  ,jk+1) ) - MIN( 0., pcc(ji  ,jj  ,jk  ) )
++!
++!               ! negative part of the flux
++!               zneg = MAX( 0., paa(ji  ,jj  ,jk  ) ) - MIN( 0., paa(ji-1,jj  ,jk  ) )   &
++!                  & + MAX( 0., pbb(ji  ,jj  ,jk  ) ) - MIN( 0., pbb(ji  ,jj-1,jk  ) )   &
++!                  & + MAX( 0., pcc(ji  ,jj  ,jk  ) ) - MIN( 0., pcc(ji  ,jj  ,jk+1) )
++!
++!               ! up & down beta terms
++!               zbt = e1t(ji,jj) * e2t(ji,jj) * fse3t(ji,jj,jk) / z2dtt
++!               zbetup(ji,jj,jk) = ( zup            - paft(ji,jj,jk) ) / ( zpos + zrtrn ) * zbt
++!               zbetdo(ji,jj,jk) = ( paft(ji,jj,jk) - zdo            ) / ( zneg + zrtrn ) * zbt
++!            END DO
++!         END DO
++!      END DO
++#if defined key_vvl
++      CALL nonosc_p1(zbetup, zbetdo, zbup, zbdo, pbef, paft, paa, pbb, pcc, e1t, e2t, e3t_n, tmask, p2dt, jpi, jpj, jpk)
++#else
++      CALL nonosc_p1(zbetup, zbetdo, zbup, zbdo, pbef, paft, paa, pbb, pcc, e1t, e2t, e3t_0, tmask, p2dt, jpi, jpj, jpk)
++#endif
+       CALL lbc_lnk( zbetup, 'T', 1. )   ;   CALL lbc_lnk( zbetdo, 'T', 1. )   ! lateral boundary cond. (unchanged sign)
+ 
+       ! 3. monotonic flux in the i & j direction (paa & pbb)
+       ! ----------------------------------------
+-      DO jk = 1, jpkm1
+-         DO jj = 2, jpjm1
+-            DO ji = fs_2, fs_jpim1   ! vector opt.
+-               zau = MIN( 1._wp, zbetdo(ji,jj,jk), zbetup(ji+1,jj,jk) )
+-               zbu = MIN( 1._wp, zbetup(ji,jj,jk), zbetdo(ji+1,jj,jk) )
+-               zcu =       ( 0.5  + SIGN( 0.5 , paa(ji,jj,jk) ) )
+-               paa(ji,jj,jk) = paa(ji,jj,jk) * ( zcu * zau + ( 1._wp - zcu) * zbu )
+-
+-               zav = MIN( 1._wp, zbetdo(ji,jj,jk), zbetup(ji,jj+1,jk) )
+-               zbv = MIN( 1._wp, zbetup(ji,jj,jk), zbetdo(ji,jj+1,jk) )
+-               zcv =       ( 0.5  + SIGN( 0.5 , pbb(ji,jj,jk) ) )
+-               pbb(ji,jj,jk) = pbb(ji,jj,jk) * ( zcv * zav + ( 1._wp - zcv) * zbv )
+-
+-      ! monotonic flux in the k direction, i.e. pcc
+-      ! -------------------------------------------
+-               za = MIN( 1., zbetdo(ji,jj,jk+1), zbetup(ji,jj,jk) )
+-               zb = MIN( 1., zbetup(ji,jj,jk+1), zbetdo(ji,jj,jk) )
+-               zc =       ( 0.5  + SIGN( 0.5 , pcc(ji,jj,jk+1) ) )
+-               pcc(ji,jj,jk+1) = pcc(ji,jj,jk+1) * ( zc * za + ( 1._wp - zc) * zb )
+-            END DO
+-         END DO
+-      END DO
++      CALL nonosc_p2(zbetdo, zbetup, paa, pbb, pcc, jpi, jpj, jpk)
++      !DO jk = 1, jpkm1
++      !   DO jj = 2, jpjm1
++      !      DO ji = fs_2, fs_jpim1   ! vector opt.
++      !         zau = MIN( 1._wp, zbetdo(ji,jj,jk), zbetup(ji+1,jj,jk) )
++      !         zbu = MIN( 1._wp, zbetup(ji,jj,jk), zbetdo(ji+1,jj,jk) )
++      !         zcu =       ( 0.5  + SIGN( 0.5 , paa(ji,jj,jk) ) )
++      !         paa(ji,jj,jk) = paa(ji,jj,jk) * ( zcu * zau + ( 1._wp - zcu) * zbu )
++
++      !         zav = MIN( 1._wp, zbetdo(ji,jj,jk), zbetup(ji,jj+1,jk) )
++      !         zbv = MIN( 1._wp, zbetup(ji,jj,jk), zbetdo(ji,jj+1,jk) )
++      !         zcv =       ( 0.5  + SIGN( 0.5 , pbb(ji,jj,jk) ) )
++      !         pbb(ji,jj,jk) = pbb(ji,jj,jk) * ( zcv * zav + ( 1._wp - zcv) * zbv )
++
++      !! monotonic flux in the k direction, i.e. pcc
++      !! -------------------------------------------
++      !         za = MIN( 1., zbetdo(ji,jj,jk+1), zbetup(ji,jj,jk) )
++      !         zb = MIN( 1., zbetup(ji,jj,jk+1), zbetdo(ji,jj,jk) )
++      !         zc =       ( 0.5  + SIGN( 0.5 , pcc(ji,jj,jk+1) ) )
++      !         pcc(ji,jj,jk+1) = pcc(ji,jj,jk+1) * ( zc * za + ( 1._wp - zc) * zb )
++      !      END DO
++      !   END DO
++      !END DO
+       CALL lbc_lnk( paa, 'U', -1. )   ;   CALL lbc_lnk( pbb, 'V', -1. )   ! lateral boundary condition (changed sign)
+       !
+       CALL wrk_dealloc( jpi, jpj, jpk, zbetup, zbetdo, zbup, zbdo )
+Binary files NEMO/source/optlib/libnonosc-bs.so and NEMO-optimized/source/optlib/libnonosc-bs.so differ

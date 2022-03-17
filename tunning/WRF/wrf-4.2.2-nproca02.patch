@@ -1,0 +1,132 @@
+diff -uprN wrf-4.2.2/external/RSL_LITE/module_dm.F wrf-4.2.2-patch/external/RSL_LITE/module_dm.F
+--- wrf-4.2.2/external/RSL_LITE/module_dm.F	2021-01-16 01:21:58.000000000 +0800
++++ wrf-4.2.2-patch/external/RSL_LITE/module_dm.F	2021-09-26 08:47:56.525060245 +0800
+@@ -109,22 +109,34 @@ CONTAINS
+    SUBROUTINE MPASPECT( P, MINM, MINN, PROCMIN_M, PROCMIN_N )
+       IMPLICIT NONE
+       INTEGER P, M, N, MINI, MINM, MINN, PROCMIN_M, PROCMIN_N
+-      MINI = 2*P
+-      MINM = 1
+-      MINN = P
+-      DO M = 1, P
+-        IF ( MOD( P, M ) .EQ. 0 ) THEN
+-          N = P / M
+-          IF ( ABS(M-N) .LT. MINI                &
+-               .AND. M .GE. PROCMIN_M            &
+-               .AND. N .GE. PROCMIN_N            &
+-             ) THEN
+-            MINI = ABS(M-N)
+-            MINM = M
+-            MINN = N
+-          END IF
+-        END IF
+-      END DO
++      INTEGER i, j, k, size, max_nx, select_number
++      i = sqrt( real(P) )
++      do j = i, 1, -1
++          if( mod(P,j) .eq. 0 ) then
++            max_nx = j
++            exit
++          endif
++      end do
++
++      size = 0
++      do j = 4, max_nx, 1
++          if( mod(P,j) .eq. 0 ) then
++            size = size + 1
++          endif
++      end do
++      select_number = size / 2 + 1
++
++      k = 0
++      do j = 4, max_nx, 1
++          if( mod(P,j) .eq. 0 ) then
++            k = k + 1
++            if ( k .eq. select_number) then
++                MINM = j
++                MINN = P / j
++                exit
++            endif
++          endif
++      end do
+       IF ( MINM .LT. PROCMIN_M .OR. MINN .LT. PROCMIN_N ) THEN
+         WRITE( wrf_err_message , * )'MPASPECT: UNABLE TO GENERATE PROCESSOR MESH.  STOPPING.'
+         CALL wrf_message ( TRIM ( wrf_err_message ) )
+diff -uprN wrf-4.2.2/share/module_check_a_mundo.F wrf-4.2.2-patch/share/module_check_a_mundo.F
+--- wrf-4.2.2/share/module_check_a_mundo.F	2021-01-16 01:21:58.000000000 +0800
++++ wrf-4.2.2-patch/share/module_check_a_mundo.F	2021-09-26 08:47:52.275060093 +0800
+@@ -2490,40 +2490,40 @@
+       ENDDO
+ #endif
+ 
+-#if ( ( EM_CORE == 1) && ( defined(DM_PARALLEL) )&& ( ! defined(STUBMPI) ) )
+-!-----------------------------------------------------------------------
+-! Did the user ask for too many MPI tasks, or are those tasks poorly distributed.
+-!-----------------------------------------------------------------------
+-
+-      oops = 0
+-      DO i = 1, model_config_rec % max_dom
+-         IF ( .NOT. model_config_rec % grid_allowed(i) ) CYCLE
+-         IF ( ( model_config_rec % e_we(i) /  model_config_rec % nproc_x .LT. 10 ) .OR. &
+-              ( model_config_rec % e_sn(i) /  model_config_rec % nproc_y .LT. 10 ) ) THEN
+-            WRITE ( wrf_err_message , * ) 'For domain ',i,', the domain size is too small for this many processors, ', & 
+-                                          'or the decomposition aspect ratio is poor.'
+-            CALL wrf_debug ( 0, TRIM( wrf_err_message ) )
+-            WRITE ( wrf_err_message , * ) 'Minimum decomposed computational patch size, either x-dir or y-dir, is 10 grid cells.'
+-            CALL wrf_debug ( 0, TRIM( wrf_err_message ) )
+-            WRITE ( wrf_err_message , fmt='(a,i5,a,i4,a,i4)' ) &
+-                                          'e_we = ', model_config_rec % e_we(i),', nproc_x = ',model_config_rec % nproc_x, &
+-                                          ', with cell width in x-direction = ', &
+-                                          model_config_rec % e_we(i) /  model_config_rec % nproc_x
+-            CALL wrf_debug ( 0, TRIM( wrf_err_message ) )
+-            WRITE ( wrf_err_message , fmt='(a,i5,a,i4,a,i4)' ) &
+-                                          'e_sn = ', model_config_rec % e_sn(i),', nproc_y = ',model_config_rec % nproc_y, &
+-                                          ', with cell width in y-direction = ', &
+-                                          model_config_rec % e_sn(i) /  model_config_rec % nproc_y
+-            CALL wrf_debug ( 0, TRIM( wrf_err_message ) )
+-            wrf_err_message = '--- ERROR: Reduce the MPI rank count, or redistribute the tasks.'
+-            CALL wrf_debug ( 0, TRIM( wrf_err_message ) )
+-            oops = oops + 1
+-         END IF
+-      ENDDO
+-      IF ( oops .GT. 0 ) THEN
+-         count_fatal_error = count_fatal_error + 1
+-      END IF
+-#endif
++!#if ( ( EM_CORE == 1) && ( defined(DM_PARALLEL) )&& ( ! defined(STUBMPI) ) )
++!!-----------------------------------------------------------------------
++!! Did the user ask for too many MPI tasks, or are those tasks poorly distributed.
++!!-----------------------------------------------------------------------
++!
++!      oops = 0
++!      DO i = 1, model_config_rec % max_dom
++!         IF ( .NOT. model_config_rec % grid_allowed(i) ) CYCLE
++!         IF ( ( model_config_rec % e_we(i) /  model_config_rec % nproc_x .LT. 10 ) .OR. &
++!              ( model_config_rec % e_sn(i) /  model_config_rec % nproc_y .LT. 10 ) ) THEN
++!            WRITE ( wrf_err_message , * ) 'For domain ',i,', the domain size is too small for this many processors, ', & 
++!                                          'or the decomposition aspect ratio is poor.'
++!            CALL wrf_debug ( 0, TRIM( wrf_err_message ) )
++!            WRITE ( wrf_err_message , * ) 'Minimum decomposed computational patch size, either x-dir or y-dir, is 10 grid cells.'
++!            CALL wrf_debug ( 0, TRIM( wrf_err_message ) )
++!            WRITE ( wrf_err_message , fmt='(a,i5,a,i4,a,i4)' ) &
++!                                          'e_we = ', model_config_rec % e_we(i),', nproc_x = ',model_config_rec % nproc_x, &
++!                                          ', with cell width in x-direction = ', &
++!                                          model_config_rec % e_we(i) /  model_config_rec % nproc_x
++!            CALL wrf_debug ( 0, TRIM( wrf_err_message ) )
++!            WRITE ( wrf_err_message , fmt='(a,i5,a,i4,a,i4)' ) &
++!                                          'e_sn = ', model_config_rec % e_sn(i),', nproc_y = ',model_config_rec % nproc_y, &
++!                                          ', with cell width in y-direction = ', &
++!                                          model_config_rec % e_sn(i) /  model_config_rec % nproc_y
++!            CALL wrf_debug ( 0, TRIM( wrf_err_message ) )
++!            wrf_err_message = '--- ERROR: Reduce the MPI rank count, or redistribute the tasks.'
++!            CALL wrf_debug ( 0, TRIM( wrf_err_message ) )
++!            oops = oops + 1
++!         END IF
++!      ENDDO
++!      IF ( oops .GT. 0 ) THEN
++!         count_fatal_error = count_fatal_error + 1
++!      END IF
++!#endif
+ 
+ 
+ 
