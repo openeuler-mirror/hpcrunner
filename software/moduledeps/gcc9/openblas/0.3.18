@@ -1,0 +1,12 @@
+#%Module1.0#####################################################################
+set rootdir $::env(JARVIS_ROOT)
+set prefix $rootdir/software/libs/gcc9/openblas/0.3.18
+set     version             0.3.18
+
+prepend-path    PATH                $prefix/bin
+prepend-path    INCLUDE             $prefix/include
+prepend-path    LD_LIBRARY_PATH     $prefix/lib
+
+setenv          OPENBLAS_DIR        $prefix
+setenv          OPENBLAS_LIB        $prefix/lib
+setenv          OPENBLAS_INC        $prefix/include

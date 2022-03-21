@@ -4,3 +4,6 @@ env.sh
 hostfile
 .vscode
 test.*
+porting*
+HPC-info*
+tmp
