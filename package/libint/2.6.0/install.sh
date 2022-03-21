@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 set -e
 cd ${JARVIS_TMP}
 export GCC_LIBS=/home/HT3/HPCRunner2/software/libs/kgcc9

@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 set -e
 cd ${JARVIS_TMP}
 tar -xvf ${JARVIS_DOWNLOAD}/boost_1_72_0.tar.gz

@@ -55,5 +55,5 @@ int main()
 {
     FLOAT_T **Q = get2Darr(ROWS, COLS);
     gramSchmidt_gpu(Q);
-    return 1;
+    return;
 }

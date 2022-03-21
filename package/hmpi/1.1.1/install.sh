@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 set -e
 cd ${JARVIS_TMP}
 yum install -y perl-Data-Dumper autoconf automake libtool binutils

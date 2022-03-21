@@ -16,6 +16,7 @@ class Execute:
         self.end_time = ''
         self.tool = Tool()
         self.flags = '*' * 80
+        self.end_flag = 'END: '
 
     # tools function
     def join_cmd(self, arrs):
@@ -49,7 +50,7 @@ class Execute:
         state = os.system(cmd)
         self.end_time = self.tool.get_time_stamp()
         print(f"total time used: {self.get_duration()}s")
-        logger.info("ENDED: " + cmd)
+        logger.info(self.end_flag + cmd)
         if state:
             print(f"failed at {self.end_time}:{state}".upper())
             return False

@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 set -e
 cd ${JARVIS_TMP}
 rpm -e boostkit-kml

@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 set -e
 cd ${JARVIS_TMP}
 tar -xvf ${JARVIS_DOWNLOAD}/openmpi-4.1.2.tar.gz

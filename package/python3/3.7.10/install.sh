@@ -1,4 +1,6 @@
 #!/bin/bash
+# https://repo.huaweicloud.com/python/3.7.10/Python-3.7.10.tgz
+set -x
 set -e
 cd ${JARVIS_TMP}
 yum -y install zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel gcc make libffi-devel

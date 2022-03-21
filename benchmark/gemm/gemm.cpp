@@ -11,12 +11,6 @@
 #endif
 using namespace std;
 
-// void CheckStatus(MPI_Status &status) {
-//     if (status.MPI_ERROR != MPI_SUCCESS) {
-//         cout << MPI::Get_error_class(status.MPI_ERROR);
-//     }
-// }
-
 void randMat(int rows, int cols, float *&Mat) {
   Mat = new float[rows * cols];
   for (int i = 0; i < rows; i++)
@@ -75,8 +69,6 @@ void mpi_sgemm(int m, int n, int k, float *&leftMat, float *&rightMat,
         rightMat[r * n + c] = buf[r * n + c];
       }
     }
-
-    delete buf;
 
     MPI_Request sendRequest[2 * worldsize];
     MPI_Status status[2 * worldsize];

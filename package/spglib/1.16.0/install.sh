@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 set -e
 cd ${JARVIS_TMP}
 tar -xvf ${JARVIS_DOWNLOAD}/spglib-1.16.0.tar.gz

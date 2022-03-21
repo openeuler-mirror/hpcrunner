@@ -39,12 +39,12 @@ class Install:
 
     # some command don't generate output, must redirect to a tmp file
     def get_cmd_output(self, cmd):
-        self.tmp_path = os.path.join(self.ROOT, 'tmp')
-        self.tmp_file = os.path.join(self.tmp_path, 'tmp.txt')
-        self.tool.mkdirs(self.tmp_path)
-        cmd += f' &> {self.tmp_file}'
+        tmp_path = os.path.join(self.ROOT, 'tmp')
+        tmp_file = os.path.join(tmp_path, 'tmp.txt')
+        self.tool.mkdirs(tmp_path)
+        cmd += f' &> {tmp_file}'
         self.exe.exec_popen(cmd, False)
-        info_list = self.tool.read_file(self.tmp_file).split('\n')
+        info_list = self.tool.read_file(tmp_file).split('\n')
         return info_list
 
     def get_gcc_info(self):
