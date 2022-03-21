@@ -1,0 +1,5 @@
+#%Module1.0#####################################################################
+set rootdir $::env(JARVIS_ROOT)
+set     version			 2.1.0
+
+prepend-path	LD_LIBRARY_PATH	    $rootdir/software/libs/gcc9/openmpi4/scalapack/2.1.0

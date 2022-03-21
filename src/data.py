@@ -3,10 +3,13 @@
 import os
 import platform
 
+from tool import Tool
+
 class Data:
     # Hardware Info
     avail_ips=''
     # Dependent Software environment Info
+    dependency = ''
     module_content=''
     env_file = 'env.sh'
     # Application Info
@@ -23,33 +26,36 @@ class Data:
     batch_cmd = ''
     #Other Info
     meta_file = '.meta'
-    download_urls = '''
-https://www.cp2k.org/static/downloads/libxc-5.1.4.tar.gz
-https://www.cp2k.org/static/downloads/fftw-3.3.8.tar.gz
-'''
-    
+    root_path = os.getcwd()
+    download_info = ''
+    #perf info
+    kperf_para = ''
+    perf_para = ''
+    nsys_para = ''
+    ncu_para = ''
+    def get_abspath(self, relpath):
+        return os.path.join(Data.root_path, relpath)
+
     def __init__(self):
         self.isARM = platform.machine() == 'aarch64'
+        self.tool = Tool()
         self.data_process()
 
     def get_file_name(self):
         file_name = 'data.config'
         if not os.path.exists(Data.meta_file):
-            if not self.isARM:
-                file_name = 'data.X86.config'
             return file_name
-        with open(Data.meta_file, encoding='utf-8') as file_obj:
-            contents = file_obj.read()
-            return contents.strip()
+        return self.tool.read_file(Data.meta_file)
 
     def get_data_config(self):
         file_name = self.get_file_name()
-        with open(file_name, encoding='utf-8') as file_obj:
+        file_path = self.get_abspath(file_name)
+        with open(file_path, encoding='utf-8') as file_obj:
             contents = file_obj.read()
             return contents.strip()
 
-    def is_empty(self, content):
-        return len(content) == 0 or content.isspace() or content == '\n'
+    def is_empty(self, str):
+        return len(str) == 0 or str.isspace() or str == '\n'
 
     def read_rows(self, rows, start_row):
         data = ''
@@ -81,6 +87,12 @@ https://www.cp2k.org/static/downloads/fftw-3.3.8.tar.gz
         Data.build_dir = data['build_dir']
         Data.binary_dir = data['binary_dir']
         Data.case_dir = data['case_dir']
+    
+    def set_perf_info(self, data):
+        Data.kperf_para = data['kperf']
+        Data.perf_para = data['perf']
+        Data.nsys_para = data['nsys']
+        Data.ncu_para = data['ncu']
 
     def split_two_part(self, data):
         split_list = data.split(' ', 1)
@@ -95,10 +107,15 @@ https://www.cp2k.org/static/downloads/fftw-3.3.8.tar.gz
         rows = contents.split('\n')
         rowIndex = 0
         data = {}
+        perf_data = {}
         while rowIndex < len(rows):
             row = rows[rowIndex].strip()
             if row == '[SERVER]':
                 rowIndex, Data.avail_ips = self.read_rows(rows, rowIndex+1)
+            elif row == '[DOWNLOAD]':
+                rowIndex, Data.download_info = self.read_rows(rows, rowIndex+1)
+            elif row == '[DEPENDENCY]':
+                rowIndex, Data.dependency = self.read_rows(rows, rowIndex+1)
             elif row == '[ENV]':
                 rowIndex, Data.module_content = self.read_rows(rows, rowIndex+1)
             elif row == '[APP]':
@@ -112,6 +129,9 @@ https://www.cp2k.org/static/downloads/fftw-3.3.8.tar.gz
                 rowIndex, Data.run_cmd = self.read_rows_kv(rows, rowIndex+1)
             elif row == '[BATCH]':
                 rowIndex, Data.batch_cmd = self.read_rows(rows, rowIndex+1)
+            elif row == '[PERF]':
+                rowIndex, perf_data = self.read_rows_kv(rows, rowIndex+1)
+                self.set_perf_info(perf_data)
             else:
                 rowIndex += 1
         Data.binary_file, Data.binary_para = self.split_two_part(Data.run_cmd['binary'])
@@ -121,9 +141,14 @@ https://www.cp2k.org/static/downloads/fftw-3.3.8.tar.gz
 cd {Data.build_dir}
 {Data.clean_cmd}
 '''
+    def get_env(self):
+        return f'''
+./jarvis -e
+source ./{Data.env_file}'''
 
     def get_build_cmd(self):
         return f'''
+{self.get_env()}
 cd {Data.build_dir}
 {Data.build_cmd}
 '''
@@ -141,6 +166,7 @@ cd {Data.build_dir}
 
     def get_run_cmd(self):
         return  f'''
+{self.get_env()}
 cd {Data.case_dir}
 {self.get_run()}
 '''
