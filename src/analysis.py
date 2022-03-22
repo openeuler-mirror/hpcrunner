@@ -545,7 +545,10 @@ yum makecache
                 continue
             download_url = self.gen_wget_url(self.download_path, url)
             self.tool.prt_content("DOWNLOAD " + filename)
-            os.popen(download_url)
+            output = os.popen(download_url)
+            data = output.read()
+            output.close()
+
         if not download_flag:
             print("The download list is empty!")
 class Test:

@@ -7,3 +7,7 @@ test.*
 porting*
 HPC-info*
 tmp
+downloads/*
+runner.log
+depend_install.sh
+.meta
