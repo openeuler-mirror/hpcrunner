@@ -3,7 +3,7 @@
 
 ### 项目背景
 
-因为HPC应用的复杂性，其依赖安装、环境配置、编译、运行、CPU/GPU性能采集分析的门槛比较高，导致迁移和调优的工作量大，不同的人在不同的机器上跑同样的应用和算例基本上是重头开始，费时费力，而且很多情况下需要同时部署鲲鹏/X86两套环境进行验证，增加了很多的重复性工作，无法聚焦软件算法优化。
+因为HPC应用的复杂性，其依赖安装、环境配置、编译、运行、CPU/GPU性能采集分析的门槛比较高，导致迁移和调优的工作量大，不同的人在不同的机器上跑同样的应用和算例基本上是重头开始，费时费力，而且很多情况下需要同时部署ARM/X86两套环境进行验证，增加了很多的重复性工作，无法聚焦软件算法优化。
 
 ### 项目特色
 
@@ -11,7 +11,6 @@
 - 根据HPC配置一键生成环境脚本、一键编译、一键运行、一键性能采集、一键Benchmark.
 - 所有配置仅用一个文件记录，HPC应用部署到不同的机器仅需修改配置文件.
 - 日志管理系统自动记录HPC应用部署过程中的所有信息.
-- 常用HPC工具软件开箱即用.
 - 软件本身无需编译开箱即用，仅依赖Python环境.
 - (未来) 集成HPC领域常用性能调优手段、核心算法.
 - (未来) 集群性能分析工具.
@@ -93,22 +92,33 @@ source init.sh
 
 option支持列表如下所示
 
-| 选项值             | 解释                          | 安装目录                |
-| ------------------ | ----------------------------- | ----------------------- |
-| gcc                | 使用当前gcc进行编译           | software/libs/gcc       |
-| gcc+mpi            | 使用当前gcc+当前mpi进行编译   | software/libs/gcc/mpi   |
-| clang(bisheng)     | 使用当前clang进行编译         | software/libs/clang     |
-| clang(bisheng)+mpi | 使用当前clang+当前mpi进行编译 | software/libs/clang/mpi |
-| nvc                | 使用当前nvc进行编译           | software/libs/nvc       |
-| nvc+mpi            | 使用当前nvc+当前mpi进行编译   | software/libs/nvc/mpi   |
-| icc                | 使用当前icc进行编译           | software/libs/icc       |
-| icc+mpi            | 使用当前icc+当前mpi进行编译   | software/libs/icc/mpi   |
-| com                | 安装编译器                    | software/compiler       |
-| any                | 安装工具软件                  | software/compiler/utils |
+| 选项值      | 解释                          | 安装目录                  |
+| ----------- | ----------------------------- | ------------------------- |
+| gcc         | 使用当前gcc进行编译           | software/libs/gcc         |
+| gcc+mpi     | 使用当前gcc+当前mpi进行编译   | software/libs/gcc/mpi     |
+| clang       | 使用当前clang进行编译         | software/libs/clang       |
+| clang+mpi   | 使用当前clang+当前mpi进行编译 | software/libs/clang/mpi   |
+| bisheng     | 使用毕晟进行编译              | software/libs/bisheng     |
+| bisheng+mpi | 使用毕晟+当前mpi进行编译      | software/libs/bisheng/mpi |
+| nvc         | 使用当前nvc进行编译           | software/libs/nvc         |
+| nvc+mpi     | 使用当前nvc+当前mpi进行编译   | software/libs/nvc/mpi     |
+| icc         | 使用当前icc进行编译           | software/libs/icc         |
+| icc+mpi     | 使用当前icc+当前mpi进行编译   | software/libs/icc/mpi     |
+| com         | 安装编译器                    | software/compiler         |
+| any         | 安装工具软件                  | software/compiler/utils   |
 
 注意，如果软件为MPI通信软件（如hmpi、openmpi），会安装到software/mpi目录
 
-(eg: ./jarvis -install fftw/3.3.8 gcc)
+eg: 
+
+```
+./jarvis -install bisheng/2.1.0 com   #安装毕晟编译器
+./jarvis -install fftw/3.3.8 gcc+mpi   #使用gcc和mpi编译fftw 3.3.8版本
+./jarvis -install openmpi/4.1.2 gcc   #使用gcc编译openmpi 4.1.2版本
+```
+
+
+
 5.一键安装所有依赖
 
 ```
@@ -139,25 +149,19 @@ option支持列表如下所示
 ./jarvis -p
 ```
 
-10.一键Kperf性能采集(生成TopDown)
-
-```
-./jarvis -kp
-```
-
-11.一键GPU性能采集(需安装nsys、ncu)
+10.一键GPU性能采集(需安装nsys、ncu)
 
 ```
 ./jarvis -gp
 ```
 
-12.一键输出服务器信息(包括CPU、网卡、OS、内存等)
+11.一键输出服务器信息(包括CPU、网卡、OS、内存等)
 
 ```
 ./jarvis -i
 ```
 
-13.一键服务器性能评测(包括MPI、OMP、P2P等)
+12.一键服务器性能评测(包括MPI、OMP、P2P等)
 
 ```
 ./jarvis -bench all    #运行所有benchmark
@@ -166,13 +170,13 @@ option支持列表如下所示
 ./jarvis -bench gemm   #运行矩阵运算 benchmark
 ```
 
-14.切换配置
+13.切换配置
 
 ```
 ./jarvis -use XXX.config
 ```
 
-15.其它功能查看（网络检测）
+14.其它功能查看（网络检测）
 
 ```
 ./jarvis -h
@@ -184,7 +188,7 @@ option支持列表如下所示
 
 贾维斯项目欢迎您的专业技能和热情参与！
 
-小的改进或修复总是值得赞赏的；先从文档开始可能是一个很好的起点。如果您正在考虑对源代码的更大贡献，请先提交一个issue或者在maillist进行讨论。
+小的改进或修复总是值得赞赏的；先从文档开始可能是一个很好的起点。如果您正在考虑做出更大贡献，请提交一个issue或者在hpc.openeuler.org进行讨论。
 
 编写代码并不是为贾维斯做出贡献的唯一方法。您还可以：
 
