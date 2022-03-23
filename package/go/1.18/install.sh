@@ -1,5 +1,5 @@
 #!/bin/bash
-#Download: https://go.dev/d1/
+#Download: https://go.dev/dl/
 set -x
 set -e
 cd ${JARVIS_TMP}
