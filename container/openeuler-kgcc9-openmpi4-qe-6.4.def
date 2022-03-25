@@ -1,0 +1,27 @@
+BootStrap: docker
+From: openeuler/openeuler
+
+%post
+# Install the necessary development environment
+yum install -y environment-modules git dmidecode pciutils wget vim
+# Install base gcc
+yum install -y gcc gcc-c++ gcc-gfortran glibc-devel make libgfortran
+# install network package
+yum install tcsh tcl lsof tk -y
+source /etc/profile || true
+git config --global http.sslVerify false
+git clone https://gitee.com/iotwins/hpcrunner
+cd hpcrunner
+git checkout fix-case
+source ./init.sh
+./jarvis -i
+cp ./templates/qe/6.4/data.qe.container.config .
+wget --no-check-certificate https://github.com/QEF/q-e/archive/refs/tags/qe-6.4.1.tar.gz
+tar -xzvf qe-6.4.1.tar.gz
+# Modify the path
+./jarvis -use data.qe.container.config
+./jarvis -d
+./jarvis -dp
+./jarvis -b
+./jarvis -r
+rm -rf downloads tmp
