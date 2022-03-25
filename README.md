@@ -60,23 +60,23 @@
 1.下载包解压之后初始化
 
 ```
-source init.sh
+source ./init.sh
 ```
 
 2.修改data.config或者套用现有模板，各配置项说明如下所示：
 
-|    配置项    | 说明                                                       | 示例                                                         |
-| :----------: | :--------------------------------------------------------- | :----------------------------------------------------------- |
-|   [SERVER]   | 服务器节点列表，多节点时用于自动生成hostfile，每行一个节点 | 11.11.11.11                                                  |
-|  [DOWNLOAD]  | 每行一个软件的版本和下载链接，默认下载到downloads目录      | cmake/3.16.4 https://cmake.org/files/v3.16/cmake-3.16.4.tar.gz |
-| [DEPENDENCY] | HPC应用依赖安装脚本                                        | ./jarvis -install gcc/9.3.1 com<br>module use ./software/modulefiles<br>module load gcc9 |
-|    [ENV]     | HPC应用编译运行环境配置                                    | source env.sh                                                |
-|    [APP]     | HPC应用信息，包括应用名、构建路径、二进制路径、算例路径    | app_name = CP2K<br/>build_dir = /home/cp2k-8.2/<br/>binary_dir = /home/CP2K/cp2k-8.2/bin/<br/>case_dir = /home/CP2K/cp2k-8.2/benchmarks/QS/ |
-|   [BUILD]    | HPC应用构建脚本                                            | make -j 128                                                  |
-|   [CLEAN]    | HPC应用编译清理脚本                                        | make -j 128 clean                                            |
-|    [RUN]     | HPC应用运行配置，包括前置命令、应用命令和节点个数          | run = mpi <br/>binary = cp2k.psmp H2O-256.inp<br/>nodes = 1  |
-|   [BATCH]    | HPC应用批量运行命令                                        | #!/bin/bash<br/>nvidia-smi -pm 1<br/>nvidia-smi -ac 1215,1410 |
-|    [PERF]    | 性能工具额外参数                                           |                                                              |
+|    配置项    | 说明                                                         | 示例                                                         |
+| :----------: | :----------------------------------------------------------- | :----------------------------------------------------------- |
+|   [SERVER]   | 服务器节点列表，多节点时用于自动生成hostfile，每行一个节点   | 11.11.11.11                                                  |
+|  [DOWNLOAD]  | 每行一个软件的版本和下载链接，默认下载到downloads目录(可设置别名) | cmake/3.16.4 https://cmake.org/files/v3.16/cmake-3.16.4.tar.gz 别名 |
+| [DEPENDENCY] | HPC应用依赖安装脚本                                          | ./jarvis -install gcc/9.3.1 com<br>module use ./software/modulefiles<br>module load gcc9 |
+|    [ENV]     | HPC应用编译运行环境配置                                      | source env.sh                                                |
+|    [APP]     | HPC应用信息，包括应用名、构建路径、二进制路径、算例路径      | app_name = CP2K<br/>build_dir = /home/cp2k-8.2/<br/>binary_dir = /home/CP2K/cp2k-8.2/bin/<br/>case_dir = /home/CP2K/cp2k-8.2/benchmarks/QS/ |
+|   [BUILD]    | HPC应用构建脚本                                              | make -j 128                                                  |
+|   [CLEAN]    | HPC应用编译清理脚本                                          | make -j 128 clean                                            |
+|    [RUN]     | HPC应用运行配置，包括前置命令、应用命令和节点个数            | run = mpi <br/>binary = cp2k.psmp H2O-256.inp<br/>nodes = 1  |
+|   [BATCH]    | HPC应用批量运行命令                                          | #!/bin/bash<br/>nvidia-smi -pm 1<br/>nvidia-smi -ac 1215,1410 |
+|    [PERF]    | 性能工具额外参数                                             |                                                              |
 
 3.一键下载依赖（仅针对无需鉴权的链接，否则需要自行下载）
 
@@ -116,8 +116,6 @@ eg:
 ./jarvis -install fftw/3.3.8 gcc+mpi   #使用gcc和mpi编译fftw 3.3.8版本
 ./jarvis -install openmpi/4.1.2 gcc   #使用gcc编译openmpi 4.1.2版本
 ```
-
-
 
 5.一键安装所有依赖
 
