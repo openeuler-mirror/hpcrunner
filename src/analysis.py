@@ -513,8 +513,8 @@ yum makecache
 
     def gen_wget_url(self, out_dir='./downloads', url='', filename=''):
         head = "wget --no-check-certificate"
-        out_para = "-P"
-        download_url = f'{head} {out_para} {out_dir} {url} -O {filename}'
+        file_path = os.path.join(out_dir, filename)
+        download_url = f'{head} {url} -O {file_path}'
         return download_url
 
     def download(self):
