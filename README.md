@@ -12,10 +12,10 @@
 - 所有配置仅用一个文件记录，HPC应用部署到不同的机器仅需修改配置文件.
 - 日志管理系统自动记录HPC应用部署过程中的所有信息.
 - 软件本身无需编译开箱即用，仅依赖Python环境.
+- HPC应用容器化-目前QE已经实现，参考container目录.
 - (未来) 集成HPC领域常用性能调优手段、核心算法.
 - (未来) 集群性能分析工具.
 - (未来) 智能调优.
-- (未来) HPC应用[容器化](https://catalog.ngc.nvidia.com/orgs/hpc/containers/quantum_espresso).
 
 ### 目录结构
 
@@ -30,7 +30,7 @@
 | src       | 贾维斯源码                         |          |
 | templates | 常用HPC应用的配置模板              |          |
 | test      | 贾维斯测试用例                     |          |
-| workload  | 常用HPC应用的算例合集              |          |
+| workloads  | 常用HPC应用的算例合集              |          |
 | init.sh   | 贾维斯初始化文件                   |          |
 | jarvis    | 贾维斯启动入口                     |          |
 
@@ -60,25 +60,25 @@
 1.下载包解压之后初始化
 
 ```
-source init.sh
+source ./init.sh
 ```
 
 2.修改data.config或者套用现有模板，各配置项说明如下所示：
 
-|    配置项    | 说明                                                       | 示例                                                         |
-| :----------: | :--------------------------------------------------------- | :----------------------------------------------------------- |
-|   [SERVER]   | 服务器节点列表，多节点时用于自动生成hostfile，每行一个节点 | 11.11.11.11                                                  |
-|  [DOWNLOAD]  | 每行一个软件的版本和下载链接，默认下载到downloads目录      | cmake/3.16.4 https://cmake.org/files/v3.16/cmake-3.16.4.tar.gz |
-| [DEPENDENCY] | HPC应用依赖安装脚本                                        | ./jarvis -install gcc/9.3.1 com<br>module use ./software/modulefiles<br>module load gcc9 |
-|    [ENV]     | HPC应用编译运行环境配置                                    | source env.sh                                                |
-|    [APP]     | HPC应用信息，包括应用名、构建路径、二进制路径、算例路径    | app_name = CP2K<br/>build_dir = /home/cp2k-8.2/<br/>binary_dir = /home/CP2K/cp2k-8.2/bin/<br/>case_dir = /home/CP2K/cp2k-8.2/benchmarks/QS/ |
-|   [BUILD]    | HPC应用构建脚本                                            | make -j 128                                                  |
-|   [CLEAN]    | HPC应用编译清理脚本                                        | make -j 128 clean                                            |
-|    [RUN]     | HPC应用运行配置，包括前置命令、应用命令和节点个数          | run = mpi <br/>binary = cp2k.psmp H2O-256.inp<br/>nodes = 1  |
-|   [BATCH]    | HPC应用批量运行命令                                        | #!/bin/bash<br/>nvidia-smi -pm 1<br/>nvidia-smi -ac 1215,1410 |
-|    [PERF]    | 性能工具额外参数                                           |                                                              |
+|    配置项    | 说明                                                         | 示例                                                         |
+| :----------: | :----------------------------------------------------------- | :----------------------------------------------------------- |
+|   [SERVER]   | 服务器节点列表，多节点时用于自动生成hostfile，每行一个节点   | 11.11.11.11                                                  |
+|  [DOWNLOAD]  | 每行一个软件的版本和下载链接，默认下载到downloads目录(可设置别名) | cmake/3.16.4 https://cmake.org/files/v3.16/cmake-3.16.4.tar.gz 别名 |
+| [DEPENDENCY] | HPC应用依赖安装脚本                                          | ./jarvis -install gcc/9.3.1 com<br>module use ./software/modulefiles<br>module load gcc9 |
+|    [ENV]     | HPC应用编译运行环境配置                                      | source env.sh                                                |
+|    [APP]     | HPC应用信息，包括应用名、构建路径、二进制路径、算例路径      | app_name = CP2K<br/>build_dir = /home/cp2k-8.2/<br/>binary_dir = /home/CP2K/cp2k-8.2/bin/<br/>case_dir = /home/CP2K/cp2k-8.2/benchmarks/QS/ |
+|   [BUILD]    | HPC应用构建脚本                                              | make -j 128                                                  |
+|   [CLEAN]    | HPC应用编译清理脚本                                          | make -j 128 clean                                            |
+|    [RUN]     | HPC应用运行配置，包括前置命令、应用命令和节点个数            | run = mpi <br/>binary = cp2k.psmp H2O-256.inp<br/>nodes = 1  |
+|   [BATCH]    | HPC应用批量运行命令                                          | #!/bin/bash<br/>nvidia-smi -pm 1<br/>nvidia-smi -ac 1215,1410 |
+|    [PERF]    | 性能工具额外参数                                             |                                                              |
 
-3.一键下载依赖（仅针对无需鉴权的链接，否则需要自行下载）
+3.一键下载依赖（仅针对无需鉴权的链接，否则需要自行下载到downloads目录）
 
 ```
 ./jarvis -d
@@ -105,7 +105,7 @@ option支持列表如下所示
 | icc         | 使用当前icc进行编译           | software/libs/icc         |
 | icc+mpi     | 使用当前icc+当前mpi进行编译   | software/libs/icc/mpi     |
 | com         | 安装编译器                    | software/compiler         |
-| any         | 安装工具软件                  | software/compiler/utils   |
+| any         | 安装工具软件                  | software/utils   |
 
 注意，如果软件为MPI通信软件（如hmpi、openmpi），会安装到software/mpi目录
 
@@ -116,8 +116,6 @@ eg:
 ./jarvis -install fftw/3.3.8 gcc+mpi   #使用gcc和mpi编译fftw 3.3.8版本
 ./jarvis -install openmpi/4.1.2 gcc   #使用gcc编译openmpi 4.1.2版本
 ```
-
-
 
 5.一键安装所有依赖
 
