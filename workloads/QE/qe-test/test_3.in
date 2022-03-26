@@ -1,6 +1,6 @@
 &CONTROL
   outdir      = "/tmp",
-  pseudo_dir  = "pseudopotentials.d",
+  pseudo_dir  = "./pseudopotentials.d",
 /
 &SYSTEM
   ibrav     = 6,
