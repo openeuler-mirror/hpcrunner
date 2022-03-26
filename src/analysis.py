@@ -154,8 +154,11 @@ class Install:
         return version.split('.')[0]
 
     def is_mpi_software(self, software_name):
-        mpis = ['hmpi', 'openmpi', 'hpcx']
-        return software_name in mpis
+        mpis = ['hmpi', 'openmpi', 'hpcx', 'mpich']
+        for mpi in mpis:
+            if software_name.startswith(mpi):
+                return True
+        return False
 
     def add_mpi_path(self, software_info, install_path):
         if not software_info['is_use_mpi']:

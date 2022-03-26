@@ -12,10 +12,10 @@
 - 所有配置仅用一个文件记录，HPC应用部署到不同的机器仅需修改配置文件.
 - 日志管理系统自动记录HPC应用部署过程中的所有信息.
 - 软件本身无需编译开箱即用，仅依赖Python环境.
+- HPC应用容器化-目前QE已经实现，参考container目录.
 - (未来) 集成HPC领域常用性能调优手段、核心算法.
 - (未来) 集群性能分析工具.
 - (未来) 智能调优.
-- (未来) HPC应用[容器化](https://catalog.ngc.nvidia.com/orgs/hpc/containers/quantum_espresso).
 
 ### 目录结构
 
@@ -30,7 +30,7 @@
 | src       | 贾维斯源码                         |          |
 | templates | 常用HPC应用的配置模板              |          |
 | test      | 贾维斯测试用例                     |          |
-| workload  | 常用HPC应用的算例合集              |          |
+| workloads  | 常用HPC应用的算例合集              |          |
 | init.sh   | 贾维斯初始化文件                   |          |
 | jarvis    | 贾维斯启动入口                     |          |
 
@@ -78,7 +78,7 @@ source ./init.sh
 |   [BATCH]    | HPC应用批量运行命令                                          | #!/bin/bash<br/>nvidia-smi -pm 1<br/>nvidia-smi -ac 1215,1410 |
 |    [PERF]    | 性能工具额外参数                                             |                                                              |
 
-3.一键下载依赖（仅针对无需鉴权的链接，否则需要自行下载）
+3.一键下载依赖（仅针对无需鉴权的链接，否则需要自行下载到downloads目录）
 
 ```
 ./jarvis -d
@@ -105,7 +105,7 @@ option支持列表如下所示
 | icc         | 使用当前icc进行编译           | software/libs/icc         |
 | icc+mpi     | 使用当前icc+当前mpi进行编译   | software/libs/icc/mpi     |
 | com         | 安装编译器                    | software/compiler         |
-| any         | 安装工具软件                  | software/compiler/utils   |
+| any         | 安装工具软件                  | software/utils   |
 
 注意，如果软件为MPI通信软件（如hmpi、openmpi），会安装到software/mpi目录
 

@@ -1,27 +1,41 @@
 BootStrap: docker
 From: openeuler/openeuler
 
+%environment
+    source /etc/profile || true
+    cd /hpcrunner
+    source env.sh
+
 %post
-# Install the necessary development environment
-yum install -y environment-modules git dmidecode pciutils wget vim
-# Install base gcc
-yum install -y gcc gcc-c++ gcc-gfortran glibc-devel make libgfortran
-# install network package
-yum install tcsh tcl lsof tk -y
-source /etc/profile || true
-git config --global http.sslVerify false
-git clone https://gitee.com/iotwins/hpcrunner
-cd hpcrunner
-git checkout fix-case
-source ./init.sh
-./jarvis -i
-cp ./templates/qe/6.4/data.qe.container.config .
-wget --no-check-certificate https://github.com/QEF/q-e/archive/refs/tags/qe-6.4.1.tar.gz
-tar -xzvf qe-6.4.1.tar.gz
-# Modify the path
-./jarvis -use data.qe.container.config
-./jarvis -d
-./jarvis -dp
-./jarvis -b
-./jarvis -r
-rm -rf downloads tmp
+    # Install the necessary development environment
+    yum install -y environment-modules git dmidecode pciutils wget vim
+    # Install base gcc
+    yum install -y gcc gcc-c++ gcc-gfortran glibc-devel make libgfortran
+    # install network package
+    yum install tcsh tcl lsof tk -y
+    source /etc/profile || true
+    git config --global http.sslVerify false
+    git clone https://gitee.com/openeuler/hpcrunner
+    cd hpcrunner
+    source ./init.sh
+    ./jarvis -i
+    cp ./templates/qe/6.4/data.qe.container.config .
+    wget --no-check-certificate https://github.com/QEF/q-e/archive/refs/tags/qe-6.4.1.tar.gz
+    tar -xzvf qe-6.4.1.tar.gz
+    # Modify the case path
+    sed -i 's/pseudopotentials\.d/\/hpcrunner\/workloads\/QE\/qe-test\/pseudopotentials\.d/g' ./workloads/QE/qe-test/test_3.in
+    # Switch config
+    ./jarvis -use data.qe.container.config
+    # download dependency
+    ./jarvis -d
+    # install dependency
+    ./jarvis -dp
+    # build hpc
+    ./jarvis -b
+    # run hpc
+    ./jarvis -r
+    # clean tmp directory
+    rm -rf downloads tmp
+
+%labels
+    Author fang
