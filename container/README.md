@@ -56,7 +56,7 @@ cp ./templates/singularity/singularity.config ./
 5.3 安装singularity容器
 
 ```
-./jarvis -d -dp
+./jarvis -d -dp -b -r
 ```
 
 5.4 生成QE容器包
