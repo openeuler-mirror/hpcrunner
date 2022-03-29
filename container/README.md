@@ -38,7 +38,7 @@ Singularity拥有容器技术所包含的大多数优势，例如启动迅速、
 - 阿里云使用宿主模式和容器模式对singularity进行了测评，结果显示性能损失<2%，而且对GPU的支持也很好。
 
 
-### 5.六脉神剑-六步跑通一个HPC容器
+### 5.五步跑通一个HPC容器
 
 5.1 下载HPCRunner包解压之后初始化
 
@@ -46,26 +46,20 @@ Singularity拥有容器技术所包含的大多数优势，例如启动迅速、
 source ./init.sh
 ```
 
-5.2 拷贝容器配置
+5.2 安装singularity
 
 ```
-cp ./templates/singularity/singularity.config ./
-./jarvis -use singularity.config
+./jarvis -install go/1.18 gcc
+./jarvis -install singularity/3.9.6 gcc
 ```
 
-5.3 安装singularity容器
-
-```
-./jarvis -d -dp -b -r
-```
-
-5.4 生成QE容器包
+5.3 生成QE容器包
 
 ```
 cd container && singularity build openeuler-kgcc9-openmpi4-qe-6.4.sif openeuler-kgcc9-openmpi4-qe-6.4.def
 ```
 
-5.5 安装和容器同版本的MPI库
+5.4 安装和容器同版本的MPI库
 
 ```
 cp ./templates/qe/6.4/data.qe.container.config ./
@@ -73,11 +67,11 @@ cp ./templates/qe/6.4/data.qe.container.config ./
 ./jarvis -d -dp
 ```
 
-5.6 运行容器(-np 后面的数字为核数，请按实际核数指定)
+5.5 运行容器(-np 后面的数字为核数，请按实际核数指定)
 
 ```
 cd container
 mpirun --allow-run-as-root -x OMP_NUM_THREADS=1 -np 96 singularity exec openeuler-kgcc9-openmpi4-qe-6.4.sif /hpcrunner/q-e-qe-6.4.1/bin pw.x -input /hpcrunner/workloads/QE/qe-test/test_3.in
 ```
 
-### 欢迎贡献更多的容器！
+### 欢迎贡献更多的HPC容器！
