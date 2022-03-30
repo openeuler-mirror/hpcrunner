@@ -12,20 +12,20 @@ From: openeuler/openeuler
     # Install base gcc
     yum install -y gcc gcc-c++ gcc-gfortran glibc-devel make libgfortran
     # install network package
-    yum install -y tcsh tcl lsof tk bc 
+    yum install -y flex tcsh tcl lsof tk bc
     source /etc/profile || true
     git config --global http.sslVerify false
     git clone https://gitee.com/openeuler/hpcrunner
     cd hpcrunner
     source ./init.sh
     ./jarvis -i
-    cp ./templates/qe/6.4/data.qe.container.config .
+    cp ./templates/qe/6.4/data.qe.container.opt.config .
     wget --no-check-certificate https://github.com/QEF/q-e/archive/refs/tags/qe-6.4.1.tar.gz
     tar -xzvf qe-6.4.1.tar.gz
     # Modify the case path
     sed -i 's/pseudopotentials\.d/\/hpcrunner\/workloads\/QE\/qe-test\/pseudopotentials\.d/g' ./workloads/QE/qe-test/test_3.in
     # Switch config
-    ./jarvis -use data.qe.container.config
+    ./jarvis -use data.qe.container.opt.config
     # download dependency
     ./jarvis -d
     # install dependency
