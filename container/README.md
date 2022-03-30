@@ -71,7 +71,7 @@ cp ./templates/qe/6.4/data.qe.container.config ./
 
 ```
 cd container
-mpirun --allow-run-as-root -x OMP_NUM_THREADS=1 -np 96 singularity exec openeuler-kgcc9-openmpi4-qe-6.4.sif /hpcrunner/q-e-qe-6.4.1/bin pw.x -input /hpcrunner/workloads/QE/qe-test/test_3.in
+mpirun --allow-run-as-root -x OMP_NUM_THREADS=1 -np 96 singularity exec openeuler-kgcc9-openmpi4-qe-6.4.sif /hpcrunner/q-e-qe-6.4.1/bin/pw.x -input /hpcrunner/workloads/QE/qe-test/test_3.in
 ```
 
 ### 欢迎贡献更多的HPC容器！
