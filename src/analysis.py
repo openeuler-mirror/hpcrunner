@@ -473,6 +473,7 @@ perf report  -i ./perf.data -F period,sample,overhead,symbol,dso,comm -s overhea
         print(f"start gpu perf")
         run_cmd = self.hpc_data.get_run()
         gperf_cmd = f'''
+{self.hpc_data.get_env()}
 cd {Data.case_dir}
 nsys profile -y 5s -d 100s {Data.nsys_para} -o nsys-{self.get_arch()}-{self.get_cur_time()} {run_cmd}
     '''
@@ -482,9 +483,10 @@ nsys profile -y 5s -d 100s {Data.nsys_para} -o nsys-{self.get_arch()}-{self.get_
         print(f"start ncu perf")
         run_cmd = self.hpc_data.get_run()
         ncu_cmd = f'''
-    cd {Data.case_dir}
-    ncu --export ncu-{self.get_arch()}-{self.get_cur_time()} {Data.ncu_para} --import-source=yes --set full --kernel-name {kernel} --launch-skip 1735 --launch-count 1 {run_cmd}
-    '''
+{self.hpc_data.get_env()}
+cd {Data.case_dir}
+ncu --export ncu-{self.get_arch()}-{self.get_cur_time()} {Data.ncu_para} --import-source=yes --set full --kernel-name {kernel} --launch-skip 1735 --launch-count 1 {run_cmd}
+'''
         self.exe.exec_raw(ncu_cmd)
 
 class Download:
