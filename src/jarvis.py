@@ -34,6 +34,8 @@ class Jarvis:
         parser.add_argument("-rb","--rbatch", help=f"run batch {DataService.app_name}", action="store_true")
         # batch download
         parser.add_argument("-d","--download", help="Batch Download...", action="store_true")
+        # generate singularity def file
+        parser.add_argument("-container","--container", help="generate container file...", nargs=1)
         parser.add_argument("-net","--network", help="network checking...", action="store_true")
         #change yum repo to aliyun
         parser.add_argument("-yum","--yum", help="yum repo changing...", action="store_true")
@@ -85,6 +87,9 @@ class Jarvis:
         
         if self.args.ncuperf:
             self.analysis.ncu_perf(self.args.ncuperf[0])
+        
+        if self.args.container:
+            self.analysis.gen_def(self.args.container[0])
         
         if self.args.use:
             self.analysis.switch_config(self.args.use[0])
