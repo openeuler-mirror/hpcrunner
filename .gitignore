@@ -1,13 +1,65 @@
-perf*
+# Compiled source #
+###################
+*.a
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.o.d
+*.py[ocd]
+*.so
+
+# Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.bz2
+*.bzip2
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.tbz2
+*.tgz
+*.zip
+
+# Python files #
+################
+# setup.py working directory
+build
+# sphinx build directory
+_build
+# setup.py dist directory
+dist
+doc/build
+doc/cdoc/build
+# Egg metadata
+*.egg-info
+# The shelf plugin uses this dir
+./.shelf
+MANIFEST
+.cache
+pip-wheel-metadata
+.python-version
+
+# Logs and databases #
+######################
+*.log
+*.sql
+*.sqlite
+# Things specific to this project #
+######################
+perf.data.*
 kperf.data.*
 env.sh
 hostfile
 .vscode
-test.*
-porting*
-HPC-info*
 tmp
 downloads/*
-runner.log
 depend_install.sh
 .meta
+software/*
