@@ -25,6 +25,7 @@ class DataService:
     run_cmd = {}
     batch_cmd = ''
     #Other Info
+    config_file = 'data.config'
     meta_file = '.meta'
     root_path = os.getcwd()
     download_info = ''
@@ -41,14 +42,13 @@ class DataService:
         self.tool = ToolService()
         self.data_process()
 
-    def get_file_name(self):
-        file_name = 'data.config'
+    def get_config_file_name(self):
         if not os.path.exists(DataService.meta_file):
-            return file_name
+            return DataService.config_file
         return self.tool.read_file(DataService.meta_file)
 
     def get_data_config(self):
-        file_name = self.get_file_name()
+        file_name = self.get_config_file_name()
         file_path = self.get_abspath(file_name)
         with open(file_path, encoding='utf-8') as file_obj:
             contents = file_obj.read()

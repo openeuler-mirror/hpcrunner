@@ -11,6 +11,7 @@ from runService import RunService
 from perfService import PerfService
 from testService import TestService
 from benchService import BenchmarkService
+from containerService import ContainerService
 
 class AnalysisService:
     def __init__(self):
@@ -23,6 +24,7 @@ class AnalysisService:
         self.jrun = RunService()
         self.jperf = PerfService()
         self.jbenchmark = BenchmarkService()
+        self.jcontainer = ContainerService()
         self.jtest = TestService()
 
     def get_machine_info(self):
@@ -75,3 +77,6 @@ class AnalysisService:
     
     def install_deps(self):
         self.jinstall.install_depend()
+    
+    def gen_def(self, image):
+        self.jcontainer.gen_def(image)
