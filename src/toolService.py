@@ -3,7 +3,7 @@
 import time
 import os
 
-class Tool:
+class ToolService:
     def __init__(self):
         pass
     

@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*- 
-from execute import Execute
-from tool import Tool
+from executeService import ExecuteService
+from toolService import ToolService
 
-class Machine:
+class MachineService:
     def __init__(self):
-        self.exe = Execute()
-        self.tool = Tool()
+        self.exe = ExecuteService()
+        self.tool = ToolService()
         self.info2cmd = {
             'CHECK network adapter':'nmcli d',
             'CHECK Machine Bits':'getconf LONG_BIT',

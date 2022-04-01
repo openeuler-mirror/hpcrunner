@@ -1,30 +1,26 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*- 
-import platform
-import sys
 import os
+import sys
 import re
+from enum import Enum
 from glob import glob
 
-from data import Data
-from tool import Tool
-from execute import Execute
-from machine import Machine
-from bench import Benchmark
+from dataService import DataService
+from toolService import ToolService
+from executeService import ExecuteService
 
-from enum import Enum
- 
 class SType(Enum):
     COMPILER = 1
     MPI = 2
     UTIL = 3
     LIB = 4
 
-class Install:
+class InstallService:
     def __init__(self):
-        self.hpc_data = Data()
-        self.exe = Execute()
-        self.tool = Tool()
+        self.hpc_data = DataService()
+        self.exe = ExecuteService()
+        self.tool = ToolService()
         self.ROOT = os.getcwd()
         self.PACKAGE_PATH = os.path.join(self.ROOT, 'package')
         self.COMPILER_PATH = os.path.join(self.ROOT, 'software/compiler')
@@ -348,9 +344,9 @@ chmod +x {install_script}
 
     def install_depend(self):
         depend_file = 'depend_install.sh'
-        print(f"start installing dependendcy of {Data.app_name}")
+        print(f"start installing dependendcy of {DataService.app_name}")
         depend_content = f'''
-{Data.dependency}
+{DataService.dependency}
 '''
         self.tool.write_file(depend_file, depend_content)
         run_cmd = f'''
@@ -359,294 +355,3 @@ chmod +x {depend_file}
 '''
         self.exe.exec_raw(run_cmd)
 
-class Env:
-    def __init__(self):
-        self.hpc_data = Data()
-        self.tool = Tool()
-        self.ROOT = os.getcwd()
-        self.exe = Execute()
-
-    def env(self):
-        print(f"set environment {Data.app_name}")
-        env_file = os.path.join(self.ROOT, Data.env_file)
-        self.tool.write_file(env_file, Data.module_content)
-        print(f"ENV FILE {Data.env_file} GENERATED.")
-        self.exe.exec_raw(f'chmod +x {Data.env_file}')
-
-class Build:
-    def __init__(self):
-        self.hpc_data = Data()
-        self.exe = Execute()
-        
-    def clean(self):
-        print(f"start clean {Data.app_name}")
-        clean_cmd=self.hpc_data.get_clean_cmd()
-        self.exe.exec_raw(clean_cmd)
-
-    def build(self):
-        print(f"start build {Data.app_name}")
-        build_cmd = self.hpc_data.get_build_cmd()
-        self.exe.exec_raw(build_cmd)
-
-class Run:
-    def __init__(self):
-        self.hpc_data = Data()
-        self.exe = Execute()
-        self.tool = Tool()
-        self.ROOT = os.getcwd()
-        self.avail_ips_list = self.tool.gen_list(Data.avail_ips)
-
-    def gen_hostfile(self, nodes):
-        length = len(self.avail_ips_list)
-        if nodes > length:
-            print(f"You don't have {nodes} nodes, only {length} nodes available!")
-            sys.exit()
-        if nodes <= 1:
-            return
-        gen_nodes = '\n'.join(self.avail_ips_list[:nodes])
-        print(f"HOSTFILE\n{gen_nodes}\nGENERATED.")
-        self.tool.write_file('hostfile', gen_nodes)
-
-    # single run
-    def run(self):
-        print(f"start run {Data.app_name}")
-        nodes = int(Data.run_cmd['nodes'])
-        self.gen_hostfile(nodes)
-        run_cmd = self.hpc_data.get_run_cmd()
-        self.exe.exec_raw(run_cmd)
-
-    def batch_run(self):
-        batch_file = 'batch_run.sh'
-        batch_file_path = os.path.join(self.ROOT, batch_file)
-        print(f"start batch run {Data.app_name}")
-        batch_content = f'''
-cd {Data.case_dir}
-{Data.batch_cmd}
-'''
-        self.tool.write_file(batch_file_path, batch_content)
-        run_cmd = f'''
-chmod +x {batch_file}
-./{batch_file}
-'''
-        self.exe.exec_raw(run_cmd)
-
-class Perf:
-    def __init__(self):
-        self.hpc_data = Data()
-        self.exe = Execute()
-        self.tool = Tool()
-        self.isARM = platform.machine() == 'aarch64'
-
-    def get_pid(self):
-        #get pid
-        pid_cmd = f'pidof {Data.binary_file}'
-        result = self.exe.exec_popen(pid_cmd)
-        if len(result) == 0:
-            print("failed to get pid.")
-            sys.exit()
-        else:
-            pid_list = result[0].split(' ')
-        mid = int(len(pid_list)/2)
-        return pid_list[mid].strip()
-
-    def perf(self):
-        print(f"start perf {Data.app_name}")
-        #get pid
-        pid = self.get_pid()
-        #start perf && analysis
-        perf_cmd = f'''
-perf record {Data.perf_para} -a -g -p {pid}
-perf report  -i ./perf.data -F period,sample,overhead,symbol,dso,comm -s overhead --percent-limit 0.1% --stdio
-'''
-        self.exe.exec_raw(perf_cmd)
-
-    def get_arch(self):
-        arch = 'arm'
-        if not self.isARM:
-            arch = 'X86'
-        return arch
-
-    def get_cur_time(self):
-        return re.sub(' |:', '-', self.tool.get_time_stamp())
-
-    def gpu_perf(self):
-        print(f"start gpu perf")
-        run_cmd = self.hpc_data.get_run()
-        gperf_cmd = f'''
-{self.hpc_data.get_env()}
-cd {Data.case_dir}
-nsys profile -y 5s -d 100s {Data.nsys_para} -o nsys-{self.get_arch()}-{self.get_cur_time()} {run_cmd}
-    '''
-        self.exe.exec_raw(gperf_cmd)
-
-    def ncu_perf(self, kernel):
-        print(f"start ncu perf")
-        run_cmd = self.hpc_data.get_run()
-        ncu_cmd = f'''
-{self.hpc_data.get_env()}
-cd {Data.case_dir}
-ncu --export ncu-{self.get_arch()}-{self.get_cur_time()} {Data.ncu_para} --import-source=yes --set full --kernel-name {kernel} --launch-skip 1735 --launch-count 1 {run_cmd}
-'''
-        self.exe.exec_raw(ncu_cmd)
-
-class Download:
-    def __init__(self):
-        self.hpc_data = Data()
-        self.exe = Execute()
-        self.tool = Tool()
-        self.ROOT = os.getcwd()
-        self.download_list = self.tool.gen_list(Data.download_info)
-        self.download_path = os.path.join(self.ROOT, 'downloads')
-        self.package_path = os.path.join(self.ROOT, 'package')
-
-    def check_network(self):
-        print(f"start network checking")
-        network_test_cmd='''
-wget --spider -T 5 -q -t 2 www.baidu.com | echo $?
-curl -s -o /dev/null www.baidu.com | echo $?
-    '''
-        self.exe.exec_raw(network_test_cmd)
-
-    def change_yum_repo(self):
-        print(f"start yum repo change")
-        repo_cmd = '''
-cp ./templates/yum/*.repo /etc/yum.repos.d/
-yum clean all
-yum makecache
-'''
-        self.exe.exec_raw(repo_cmd)
-
-    def gen_wget_url(self, out_dir='./downloads', url='', filename=''):
-        head = "wget --no-check-certificate"
-        file_path = os.path.join(out_dir, filename)
-        download_url = f'{head} {url} -O {file_path}'
-        return download_url
-
-    def download(self):
-        print(f"start download")
-        filename_url_map = {}
-        self.tool.mkdirs(self.download_path)
-        download_flag = False
-        # create directory
-        for url_info in self.download_list:
-            url_list = url_info.split(' ')
-            if len(url_list) < 2:
-                continue
-            software_info = url_list[0].strip()
-            url_link = url_list[1].strip()
-            filename = os.path.basename(url_link)
-            if len(url_list) == 3:
-                filename = url_list[2].strip()
-            filename_url_map[filename] = url_link
-            # create software directory
-            software_path = os.path.join(self.package_path, software_info)
-            self.tool.mkdirs(software_path)
-            # create install script
-            install_script = os.path.join(software_path, "install.sh")
-            self.tool.mkfile(install_script)
-        print(filename_url_map)
-        # start download
-        for filename, url in filename_url_map.items():
-            download_flag = True
-            file_path = os.path.join(self.download_path, filename)
-            if os.path.exists(file_path):
-                self.tool.prt_content(f"FILE {filename} already DOWNLOADED")
-                continue
-            download_url = self.gen_wget_url(self.download_path, url, filename)
-            self.tool.prt_content("DOWNLOAD " + filename)
-            output = os.popen(download_url)
-            data = output.read()
-            output.close()
-
-        if not download_flag:
-            print("The download list is empty!")
-class Test:
-    def __init__(self):
-        self.exe = Execute()
-        self.ROOT = os.getcwd()
-        self.test_dir = os.path.join(self.ROOT, 'test')
-
-    def test(self):
-        run_cmd = f'''
-cd {self.test_dir}
-./test-qe.sh
-cd {self.test_dir}
-./test-util.sh
-'''
-        self.exe.exec_raw(run_cmd)
-
-class Config:
-    def __init__(self):
-        self.exe = Execute()
-        self.tool = Tool()
-        self.ROOT = os.getcwd()
-
-    def switch_config(self, config_file):
-        print(f"Switch config file to {config_file}")
-        meta_path = os.path.join(self.ROOT, Data.meta_file)
-        self.tool.write_file(meta_path, config_file.strip())
-        print("Successfully switched.")
-
-class Analysis:
-    def __init__(self):
-        self.jmachine = Machine()
-        self.jtest = Test()
-        self.jdownload = Download()
-        self.jbenchmark = Benchmark()
-        self.jperf = Perf()
-        self.jrun = Run()
-        self.jbuild = Build()
-        self.jenv = Env()
-        self.jinstall = Install()
-        self.jconfig = Config()
-
-    def get_machine_info(self):
-        self.jmachine.output_machine_info()
-
-    def bench(self, bench_case):
-        self.jbenchmark.output_bench_info(bench_case)
-
-    def switch_config(self, config_file):
-        self.jconfig.switch_config(config_file)
-
-    def test(self):
-        self.jtest.test()
-
-    def download(self):
-        self.jdownload.download()
-
-    def check_network(self):
-        self.jdownload.check_network()
-
-    def gpu_perf(self):
-        self.jperf.gpu_perf()
-    
-    def ncu_perf(self, kernel):
-        self.jperf.ncu_perf(kernel)
-
-    def perf(self):
-        self.jperf.perf()
-
-    def kperf(self):
-        self.jperf.kperf()
-    
-    def run(self):
-        self.jrun.run()
-    
-    def batch_run(self):
-        self.jrun.batch_run()
-
-    def clean(self):
-        self.jbuild.clean()
-    
-    def build(self):
-        self.jbuild.build()
-
-    def env(self):
-        self.jenv.env()
-    
-    def install(self,software_path, compiler_mpi_info):
-        self.jinstall.install(software_path, compiler_mpi_info)
-    
-    def install_deps(self):
-        self.jinstall.install_depend()

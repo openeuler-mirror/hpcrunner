@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*- 
 import argparse
 
-from data import Data
-from analysis import Analysis
+from dataService import DataService
+from analysisService import AnalysisService
 
 class Jarvis:
     def __init__(self):
-        self.analysis = Analysis()
+        self.analysis = AnalysisService()
         # Argparser set
-        parser = argparse.ArgumentParser(description=f'please put me into CASE directory, used for {Data.app_name} Compiler/Clean/Run/Compare',
+        parser = argparse.ArgumentParser(description=f'please put me into CASE directory, used for {DataService.app_name} Compiler/Clean/Run/Compare',
                     usage='%(prog)s [-h] [--build] [--clean] [...]')
         parser.add_argument("-v","--version", help=f"get version info", action="store_true")
         parser.add_argument("-use","--use", help="Switch config file...", nargs=1)
@@ -17,21 +17,21 @@ class Jarvis:
         #accept software_name/version GCC/GCC+MPI/CLANG/CLANG+MPI
         parser.add_argument("-install","--install", help=f"install dependency", nargs=2)
         # dependency install
-        parser.add_argument("-dp","--depend", help=f"{Data.app_name} dependency install", action="store_true")
-        parser.add_argument("-e","--env", help=f"set environment {Data.app_name}", action="store_true")
-        parser.add_argument("-b","--build", help=f"compile {Data.app_name}", action="store_true")
-        parser.add_argument("-cls","--clean", help=f"clean {Data.app_name}", action="store_true")
-        parser.add_argument("-r","--run", help=f"run {Data.app_name}", action="store_true")
-        parser.add_argument("-p","--perf", help=f"auto perf {Data.app_name}", action="store_true")
-        parser.add_argument("-kp","--kperf", help=f"auto kperf {Data.app_name}", action="store_true")
+        parser.add_argument("-dp","--depend", help=f"{DataService.app_name} dependency install", action="store_true")
+        parser.add_argument("-e","--env", help=f"set environment {DataService.app_name}", action="store_true")
+        parser.add_argument("-b","--build", help=f"compile {DataService.app_name}", action="store_true")
+        parser.add_argument("-cls","--clean", help=f"clean {DataService.app_name}", action="store_true")
+        parser.add_argument("-r","--run", help=f"run {DataService.app_name}", action="store_true")
+        parser.add_argument("-p","--perf", help=f"auto perf {DataService.app_name}", action="store_true")
+        parser.add_argument("-kp","--kperf", help=f"auto kperf {DataService.app_name}", action="store_true")
         # GPU perf
         parser.add_argument("-gp","--gpuperf", help="GPU perf...", action="store_true")
 
         # NCU perf
         parser.add_argument("-ncu","--ncuperf", help="NCU perf...", nargs=1)
-        parser.add_argument("-c","--compare", help=f"compare {Data.app_name}", nargs=2)
+        parser.add_argument("-c","--compare", help=f"compare {DataService.app_name}", nargs=2)
         # batch run
-        parser.add_argument("-rb","--rbatch", help=f"run batch {Data.app_name}", action="store_true")
+        parser.add_argument("-rb","--rbatch", help=f"run batch {DataService.app_name}", action="store_true")
         # batch download
         parser.add_argument("-d","--download", help="Batch Download...", action="store_true")
         parser.add_argument("-net","--network", help="network checking...", action="store_true")
