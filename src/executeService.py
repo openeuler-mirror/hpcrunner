@@ -4,17 +4,17 @@ import os
 import logging
 from asyncio.log import logger
 from datetime import datetime
-from tool import Tool
+from toolService import ToolService
 
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 DATE_FORMAT = "%m/%d/%Y %H:%M:%S %p"
 logging.basicConfig(filename='runner.log', level=logging.DEBUG, format=LOG_FORMAT, datefmt=DATE_FORMAT)
 
-class Execute:
+class ExecuteService:
     def __init__(self):
         self.cur_time = ''
         self.end_time = ''
-        self.tool = Tool()
+        self.tool = ToolService()
         self.flags = '*' * 80
         self.end_flag = 'END: '
 

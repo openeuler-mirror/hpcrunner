@@ -3,9 +3,9 @@
 import os
 import platform
 
-from tool import Tool
+from toolService import ToolService
 
-class Data:
+class DataService:
     # Hardware Info
     avail_ips=''
     # Dependent Software environment Info
@@ -34,18 +34,18 @@ class Data:
     nsys_para = ''
     ncu_para = ''
     def get_abspath(self, relpath):
-        return os.path.join(Data.root_path, relpath)
+        return os.path.join(DataService.root_path, relpath)
 
     def __init__(self):
         self.isARM = platform.machine() == 'aarch64'
-        self.tool = Tool()
+        self.tool = ToolService()
         self.data_process()
 
     def get_file_name(self):
         file_name = 'data.config'
-        if not os.path.exists(Data.meta_file):
+        if not os.path.exists(DataService.meta_file):
             return file_name
-        return self.tool.read_file(Data.meta_file)
+        return self.tool.read_file(DataService.meta_file)
 
     def get_data_config(self):
         file_name = self.get_file_name()
@@ -83,16 +83,16 @@ class Data:
         return start_row, data
 
     def set_app_info(self, data):
-        Data.app_name = data['app_name']
-        Data.build_dir = data['build_dir']
-        Data.binary_dir = data['binary_dir']
-        Data.case_dir = data['case_dir']
+        DataService.app_name = data['app_name']
+        DataService.build_dir = data['build_dir']
+        DataService.binary_dir = data['binary_dir']
+        DataService.case_dir = data['case_dir']
     
     def set_perf_info(self, data):
-        Data.kperf_para = data['kperf']
-        Data.perf_para = data['perf']
-        Data.nsys_para = data['nsys']
-        Data.ncu_para = data['ncu']
+        DataService.kperf_para = data['kperf']
+        DataService.perf_para = data['perf']
+        DataService.nsys_para = data['nsys']
+        DataService.ncu_para = data['ncu']
 
     def split_two_part(self, data):
         split_list = data.split(' ', 1)
@@ -111,62 +111,62 @@ class Data:
         while rowIndex < len(rows):
             row = rows[rowIndex].strip()
             if row == '[SERVER]':
-                rowIndex, Data.avail_ips = self.read_rows(rows, rowIndex+1)
+                rowIndex, DataService.avail_ips = self.read_rows(rows, rowIndex+1)
             elif row == '[DOWNLOAD]':
-                rowIndex, Data.download_info = self.read_rows(rows, rowIndex+1)
+                rowIndex, DataService.download_info = self.read_rows(rows, rowIndex+1)
             elif row == '[DEPENDENCY]':
-                rowIndex, Data.dependency = self.read_rows(rows, rowIndex+1)
+                rowIndex, DataService.dependency = self.read_rows(rows, rowIndex+1)
             elif row == '[ENV]':
-                rowIndex, Data.module_content = self.read_rows(rows, rowIndex+1)
+                rowIndex, DataService.module_content = self.read_rows(rows, rowIndex+1)
             elif row == '[APP]':
                 rowIndex, data = self.read_rows_kv(rows, rowIndex+1)
                 self.set_app_info(data)
             elif row == '[BUILD]':
-                rowIndex, Data.build_cmd = self.read_rows(rows, rowIndex+1)
+                rowIndex, DataService.build_cmd = self.read_rows(rows, rowIndex+1)
             elif row == '[CLEAN]':
-                rowIndex, Data.clean_cmd = self.read_rows(rows, rowIndex+1)
+                rowIndex, DataService.clean_cmd = self.read_rows(rows, rowIndex+1)
             elif row == '[RUN]':
-                rowIndex, Data.run_cmd = self.read_rows_kv(rows, rowIndex+1)
+                rowIndex, DataService.run_cmd = self.read_rows_kv(rows, rowIndex+1)
             elif row == '[BATCH]':
-                rowIndex, Data.batch_cmd = self.read_rows(rows, rowIndex+1)
+                rowIndex, DataService.batch_cmd = self.read_rows(rows, rowIndex+1)
             elif row == '[PERF]':
                 rowIndex, perf_data = self.read_rows_kv(rows, rowIndex+1)
                 self.set_perf_info(perf_data)
             else:
                 rowIndex += 1
-        Data.binary_file, Data.binary_para = self.split_two_part(Data.run_cmd['binary'])
+        DataService.binary_file, DataService.binary_para = self.split_two_part(DataService.run_cmd['binary'])
 
     def get_clean_cmd(self):
         return f'''
-cd {Data.build_dir}
-{Data.clean_cmd}
+cd {DataService.build_dir}
+{DataService.clean_cmd}
 '''
     def get_env(self):
         return f'''
 ./jarvis -e
-source ./{Data.env_file}'''
+source ./{DataService.env_file}'''
 
     def get_build_cmd(self):
         return f'''
 {self.get_env()}
-cd {Data.build_dir}
-{Data.build_cmd}
+cd {DataService.build_dir}
+{DataService.build_cmd}
 '''
 
     def get_run(self):
-        nodes = int(Data.run_cmd['nodes'])
-        run_cmd = Data.run_cmd['run']
+        nodes = int(DataService.run_cmd['nodes'])
+        run_cmd = DataService.run_cmd['run']
         hostfile = ''
         if nodes > 1:
             hostfile = '--hostfile hostfile'
         if 'mpi' in run_cmd:
             run_cmd = f'{run_cmd} {hostfile}'
-        binary = os.path.join(Data.binary_dir, Data.binary_file)
-        return f'''{run_cmd} {binary} {Data.binary_para}'''
+        binary = os.path.join(DataService.binary_dir, DataService.binary_file)
+        return f'''{run_cmd} {binary} {DataService.binary_para}'''
 
     def get_run_cmd(self):
         return  f'''
 {self.get_env()}
-cd {Data.case_dir}
+cd {DataService.case_dir}
 {self.get_run()}
 '''

@@ -4,13 +4,13 @@ import platform
 import os
 from glob import glob
 
-from execute import Execute
+from executeService import ExecuteService
 
-class Benchmark:
+class BenchmarkService:
     def __init__(self):
         self.isARM = platform.machine() == 'aarch64'
         self.ROOT = os.getcwd()
-        self.exe = Execute()
+        self.exe = ExecuteService()
         self.RUN_FILE = 'run.sh'
         self.ALL = 'all'
     
