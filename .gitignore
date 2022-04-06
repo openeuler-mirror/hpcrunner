@@ -61,5 +61,6 @@ hostfile
 tmp
 downloads/*
 depend_install.sh
+build.sh
 .meta
 software/*

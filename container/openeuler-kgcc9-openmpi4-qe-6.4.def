@@ -22,8 +22,6 @@ From: openeuler/openeuler
     cp ./templates/qe/6.4/data.qe.container.config .
     wget --no-check-certificate https://github.com/QEF/q-e/archive/refs/tags/qe-6.4.1.tar.gz
     tar -xzvf qe-6.4.1.tar.gz
-    # Modify the case path
-    sed -i 's/pseudopotentials\.d/\/hpcrunner\/workloads\/QE\/qe-test\/pseudopotentials\.d/g' ./workloads/QE/qe-test/test_3.in
     # Switch config
     ./jarvis -use data.qe.container.config
     # download dependency

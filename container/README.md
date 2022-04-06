@@ -49,14 +49,15 @@ source ./init.sh
 5.2 安装singularity
 
 ```
-./jarvis -install go/1.18 gcc
+./jarvis -install go/1.18 com
 ./jarvis -install singularity/3.9.6 gcc
 ```
 
 5.3 生成QE容器包
 
 ```
-cd container && singularity build openeuler-kgcc9-openmpi4-qe-6.4.sif openeuler-kgcc9-openmpi4-qe-6.4.def
+cd container
+singularity build openeuler-kgcc9-openmpi4-qe-6.4.sif openeuler-kgcc9-openmpi4-qe-6.4.def
 ```
 
 5.4 安装和容器同版本的MPI库
@@ -71,7 +72,7 @@ cp ./templates/qe/6.4/data.qe.container.config ./
 
 ```
 cd container
-mpirun --allow-run-as-root -x OMP_NUM_THREADS=1 -np 96 singularity exec openeuler-kgcc9-openmpi4-qe-6.4.sif /hpcrunner/q-e-qe-6.4.1/bin/pw.x -input /hpcrunner/workloads/QE/qe-test/test_3.in
+mpirun --allow-run-as-root -x OMP_NUM_THREADS=1 -np 96 singularity exec --pwd /hpcrunner/workloads/QE/qe-test openeuler-kgcc9-openmpi4-qe-6.4.sif /hpcrunner/q-e-qe-6.4.1/bin/pw.x -input test_3.in
 ```
 
 ### 欢迎贡献更多的HPC容器！
