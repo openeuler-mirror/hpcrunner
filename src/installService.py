@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*- 
 import os
+from secrets import choice
 import sys
 import re
 from enum import Enum
@@ -23,12 +24,13 @@ class InstallService:
         self.tool = ToolService()
         self.ROOT = os.getcwd()
         self.PACKAGE_PATH = os.path.join(self.ROOT, 'package')
-        self.COMPILER_PATH = os.path.join(self.ROOT, 'software/compiler')
-        self.LIBS_PATH = os.path.join(self.ROOT, 'software/libs')
-        self.MODULE_DEPS_PATH = os.path.join(self.ROOT, 'software/moduledeps')
-        self.MODULE_FILES = os.path.join(self.ROOT, 'software/modulefiles')
-        self.MPI_PATH = os.path.join(self.ROOT, 'software/mpi')
-        self.UTILS_PATH = os.path.join(self.ROOT, 'software/utils')
+        self.SOFTWARE_PATH = os.path.join(self.ROOT, 'software')
+        self.COMPILER_PATH = os.path.join(self.SOFTWARE_PATH, 'compiler')
+        self.LIBS_PATH = os.path.join(self.SOFTWARE_PATH, 'libs')
+        self.MODULE_DEPS_PATH = os.path.join(self.SOFTWARE_PATH, 'moduledeps')
+        self.MODULE_FILES = os.path.join(self.SOFTWARE_PATH, 'modulefiles')
+        self.MPI_PATH = os.path.join(self.SOFTWARE_PATH, 'mpi')
+        self.UTILS_PATH = os.path.join(self.SOFTWARE_PATH, 'utils')
 
     def get_version_info(self, info):
         return re.search( r'(\d+)\.(\d+)\.',info).group(1)
@@ -245,9 +247,9 @@ set     version			    {sversion}
             return False
         return True
 
-    def set_installed_status(self, install_path):
+    def set_installed_status(self, install_path, flag="1"):
         installed_file_path = self.get_installed_file_path(install_path)
-        self.tool.write_file(installed_file_path, "1")
+        self.tool.write_file(installed_file_path, flag)
 
     def gen_module_file(self, install_path, software_info, env_info):
         sname = software_info['sname']
@@ -306,7 +308,7 @@ chmod +x {install_script}
         result = self.exe.exec_raw(install_cmd)
         if result:
             print(f"install to {install_path} successful")
-            self.set_installed_status(install_path)
+            self.set_installed_status(install_path, "1")
         else:
             print("install failed")
             sys.exit()
@@ -354,4 +356,30 @@ chmod +x {depend_file}
 ./{depend_file}
 '''
         self.exe.exec_raw(run_cmd)
-
+    
+    def remove(self, software_info):
+        self.tool.prt_content("UNINSTALL " + software_info)
+        file_list = [d for d in glob(self.SOFTWARE_PATH+'/**', recursive=True)]
+        remove_list = []
+        for file in file_list:
+            if software_info in file and os.path.isdir(file) and self.is_installed(file):
+                remove_list.append(file)
+        lens = len(remove_list)
+        if lens == 0:
+            print("software not installed")
+            return
+        choice = 1
+        if lens > 1:
+            for i in range(lens):
+                print(f"{i+1}: {remove_list[i]}")
+            self.tool.prt_content("")
+            choice = input(f"find {lens} software, which one do you want to remove?\n")
+            choice = int(choice)
+            if choice > lens or choice < 1:
+                print("Wrong choice!")
+                return
+        self.set_installed_status(remove_list[choice-1], "0")
+        print("Successfully remove "+software_info)
+        
+        
+        

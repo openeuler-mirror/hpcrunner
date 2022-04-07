@@ -113,53 +113,59 @@ eg:
 
 ```
 ./jarvis -install bisheng/2.1.0 com   #安装毕晟编译器
-./jarvis -install fftw/3.3.8 gcc+mpi   #使用gcc和mpi编译fftw 3.3.8版本
-./jarvis -install openmpi/4.1.2 gcc   #使用gcc编译openmpi 4.1.2版本
+./jarvis -install fftw/3.3.8 gcc+mpi   #使用当前gcc和mpi编译fftw 3.3.8版本
+./jarvis -install openmpi/4.1.2 gcc   #使用当前gcc编译openmpi 4.1.2版本
 ```
 
-5.一键安装所有依赖
+5.一键卸载依赖
+
+```
+./jarvis -remove openblas/0.3.18
+```
+
+6.一键安装所有依赖
 
 ```
 ./jarvis -dp
 ```
 
-6.一键生成环境变量(脱离贾维斯运行才需要执行)
+7.一键生成环境变量(脱离贾维斯运行才需要执行)
 
 ```
 ./jarvis -e && source ./env.sh
 ```
 
-7.一键编译
+8.一键编译
 
 ```
 ./jarvis -b
 ```
 
-8.一键运行
+9.一键运行
 
 ```
 ./jarvis -r
 ```
 
-9.一键性能采集(perf)
+10.一键性能采集(perf)
 
 ```
 ./jarvis -p
 ```
 
-10.一键GPU性能采集(需安装nsys、ncu)
+11.一键GPU性能采集(需安装nsys、ncu)
 
 ```
 ./jarvis -gp
 ```
 
-11.一键输出服务器信息(包括CPU、网卡、OS、内存等)
+12.一键输出服务器信息(包括CPU、网卡、OS、内存等)
 
 ```
 ./jarvis -i
 ```
 
-12.一键服务器性能评测(包括MPI、OMP、P2P等)
+13.一键服务器性能评测(包括MPI、OMP、P2P等)
 
 ```
 ./jarvis -bench all    #运行所有benchmark
@@ -168,16 +174,22 @@ eg:
 ./jarvis -bench gemm   #运行矩阵运算 benchmark
 ```
 
-13.切换配置
+14.切换配置
 
 ```
 ./jarvis -use XXX.config
 ```
 
-14.其它功能查看（网络检测）
+15.其它功能查看（网络检测）
 
 ```
 ./jarvis -h
+```
+
+16.根据当前配置生成Singularity容器定义文件
+
+```
+./jarvis -container docker-hub-address
 ```
 
 
@@ -199,3 +211,7 @@ eg:
 请添加openEuler HPC SIG微信群了解更多HPC迁移调优知识
 
 ![微信群](./wechat-group-qr.png)
+
+### 技术文章
+
+揭开HPC应用的神秘面纱：https://zhuanlan.zhihu.com/p/489828346
