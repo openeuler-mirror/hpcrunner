@@ -1,14 +1,6 @@
 ## **GITEE前提工作**
 
-​    **1.Fork主仓库，克隆个人分支(以iotwins为例，以实际的为主)**
-
-​    git clone git@gitee.com:iotwins/hpcrunner.git
-
-​    **2.建立和远程主仓库的联系**
-
-git remote add upstream git@gitee.com:openeuler/hpcrunner.git
-
-​    **3.设置SSH**
+**1.设置SSH**
 
 ​    cd ~/.ssh
 
@@ -16,9 +8,9 @@ git remote add upstream git@gitee.com:openeuler/hpcrunner.git
 
 ​    cat id_rsa.pub
 
-​    复制内容到Gitee的SSH Key里面
+​    复制内容到Gitee-设置-SSH Key里面
 
-​    **4.设置用户名和密码**
+**2.设置用户名和密码**
 
 ​    \#忽略文件模式变化
 
@@ -27,6 +19,16 @@ git remote add upstream git@gitee.com:openeuler/hpcrunner.git
 ​    git config --global user.name "XXX"
 
 ​    git config --global user.email "XXX"
+
+**3.Fork主仓库，克隆个人分支(以iotwins为例，以实际的为主)**
+
+​    git clone git@gitee.com:iotwins/hpcrunner.git
+
+**4.建立个人仓库和远程主仓库的联系**
+
+git remote add upstream git@gitee.com:openeuler/hpcrunner.git
+
+
 
 ## **社区提交代码流程**
 
