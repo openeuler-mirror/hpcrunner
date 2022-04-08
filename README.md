@@ -74,9 +74,9 @@ source ./init.sh
 |    [APP]     | HPC应用信息，包括应用名、构建路径、二进制路径、算例路径      | app_name = CP2K<br/>build_dir = /home/cp2k-8.2/<br/>binary_dir = /home/CP2K/cp2k-8.2/bin/<br/>case_dir = /home/CP2K/cp2k-8.2/benchmarks/QS/ |
 |   [BUILD]    | HPC应用构建脚本                                              | make -j 128                                                  |
 |   [CLEAN]    | HPC应用编译清理脚本                                          | make -j 128 clean                                            |
-|    [RUN]     | HPC应用运行配置，包括前置命令、应用命令和节点个数            | run = mpi <br/>binary = cp2k.psmp H2O-256.inp<br/>nodes = 1  |
+|    [RUN]     | HPC应用运行配置，包括前置命令、应用命令和节点个数            | run = mpirun -np 2 <br/>binary = cp2k.psmp H2O-256.inp<br/>nodes = 1 |
 |   [BATCH]    | HPC应用批量运行命令                                          | #!/bin/bash<br/>nvidia-smi -pm 1<br/>nvidia-smi -ac 1215,1410 |
-|    [PERF]    | 性能工具额外参数                                             |                                                              |
+|    [PERF]    | 性能工具额外参数                                             | perf= -o<br/>nsys=<br/>ncu=--target-processes all --launch-skip 71434 --launch-count 1 |
 
 3.一键下载依赖（仅针对无需鉴权的链接，否则需要自行下载到downloads目录）
 

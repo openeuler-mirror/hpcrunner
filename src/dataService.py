@@ -30,7 +30,6 @@ class DataService:
     root_path = os.getcwd()
     download_info = ''
     #perf info
-    kperf_para = ''
     perf_para = ''
     nsys_para = ''
     ncu_para = ''
@@ -89,7 +88,6 @@ class DataService:
         DataService.case_dir = data['case_dir']
     
     def set_perf_info(self, data):
-        DataService.kperf_para = data['kperf']
         DataService.perf_para = data['perf']
         DataService.nsys_para = data['nsys']
         DataService.ncu_para = data['ncu']
