@@ -56,6 +56,8 @@ pip-wheel-metadata
 perf.data.*
 kperf.data.*
 env.sh
+build.sh
+test.py
 hostfile
 .vscode
 tmp
