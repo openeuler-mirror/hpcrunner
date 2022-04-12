@@ -7,8 +7,8 @@ from toolService import ToolService
 
 class Singleton(type):
 
-    def __init__(self, name, bases, dict):
-        super(Singleton,self).__init__(name,bases, dict)
+    def __init__(self, name, bases, dictItem):
+        super(Singleton,self).__init__(name,bases, dictItem)
         self._instance = None
 
     def __call__(self, *args, **kwargs):
@@ -154,7 +154,9 @@ cd {DataService.build_dir}
 {DataService.clean_cmd}
 '''
     def get_env(self):
-        return f'''
+        return f'''set -x
+set -e
+source ./init.sh
 ./jarvis -e
 source ./{DataService.env_file}'''
 
