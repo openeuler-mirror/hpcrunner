@@ -65,7 +65,8 @@ singularity build openeuler-kgcc9-openmpi4-qe-6.4.sif openeuler-kgcc9-openmpi4-q
 ```
 cp ./templates/qe/6.4/data.qe.container.config ./
 ./jarvis -use data.qe.container.config
-./jarvis -d -dp
+./jarvis -d -dp -e
+source ./env.sh
 ```
 
 5.5 运行容器(-np 后面的数字为核数，请按实际核数指定)

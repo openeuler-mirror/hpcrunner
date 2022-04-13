@@ -5,7 +5,18 @@ import platform
 
 from toolService import ToolService
 
-class DataService:
+class Singleton(type):
+
+    def __init__(self, name, bases, dictItem):
+        super(Singleton,self).__init__(name,bases, dictItem)
+        self._instance = None
+
+    def __call__(self, *args, **kwargs):
+        if self._instance is None:
+            self._instance = super(Singleton,self).__call__(*args, **kwargs)
+        return self._instance
+
+class DataService(object,metaclass=Singleton):
     # Hardware Info
     avail_ips=''
     # Dependent Software environment Info
@@ -49,6 +60,9 @@ class DataService:
     def get_data_config(self):
         file_name = self.get_config_file_name()
         file_path = self.get_abspath(file_name)
+        if not os.path.exists(file_path):
+            print("config file not found, switch to default data.config.")
+            file_path = self.get_abspath(DataService.config_file)
         with open(file_path, encoding='utf-8') as file_obj:
             contents = file_obj.read()
             return contents.strip()
@@ -140,7 +154,9 @@ cd {DataService.build_dir}
 {DataService.clean_cmd}
 '''
     def get_env(self):
-        return f'''
+        return f'''set -x
+set -e
+source ./init.sh
 ./jarvis -e
 source ./{DataService.env_file}'''
 
