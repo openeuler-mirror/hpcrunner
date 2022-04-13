@@ -16,3 +16,4 @@ sed -i '54s/^#//g' ./make.inc
 make -j
 mkdir $1/lib/
 cp *.a $1/lib/
+cp -r LAPACKE/include $1/
