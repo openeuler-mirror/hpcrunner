@@ -150,12 +150,12 @@ class DataService(object,metaclass=Singleton):
 
     def get_clean_cmd(self):
         return f'''
+set -e
 cd {DataService.build_dir}
 {DataService.clean_cmd}
 '''
     def get_env(self):
-        return f'''set -x
-set -e
+        return f'''set -e
 source ./init.sh
 ./jarvis -e
 source ./{DataService.env_file}'''
