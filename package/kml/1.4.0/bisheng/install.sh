@@ -2,7 +2,9 @@
 set -x
 set -e
 cd ${JARVIS_TMP}
-rpm -e boostkit-kml
+if [ -d /usr/local/kml ];then
+   rpm -e boostkit-kml
+fi
 rpm --force --nodeps -ivh ${JARVIS_ROOT}/package/kml/1.4.0/bisheng/*.rpm
 # generate full lapack
 netlib=${JARVIS_DOWNLOAD}/lapack-3.9.1.tar.gz
