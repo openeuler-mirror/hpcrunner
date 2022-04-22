@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*- 
 import os
-from secrets import choice
 import sys
 import re
 from enum import Enum
@@ -23,7 +22,8 @@ class InstallService:
         self.exe = ExecuteService()
         self.tool = ToolService()
         self.ROOT = os.getcwd()
-        self.PACKAGE_PATH = os.path.join(self.ROOT, 'package')
+        self.PACKAGE = 'package'
+        self.PACKAGE_PATH = os.path.join(self.ROOT, self.PACKAGE)
         self.SOFTWARE_PATH = os.path.join(self.ROOT, 'software')
         self.COMPILER_PATH = os.path.join(self.SOFTWARE_PATH, 'compiler')
         self.LIBS_PATH = os.path.join(self.SOFTWARE_PATH, 'libs')
@@ -318,7 +318,7 @@ chmod +x {install_script}
         compilers = {"GCC":self.get_gcc_info, "CLANG":self.get_clang_info,
                      "NVC":self.get_nvc_info, "ICC":self.get_icc_info,
 		             "BISHENG":self.get_clang_info}
-        
+        software_path = software_path.replace("package/", '', 1)
         # software_path should exists
         abs_software_path = self.check_software_path(software_path)
         if not abs_software_path: return
