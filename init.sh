@@ -12,3 +12,4 @@ export JARVIS_LIBS=${CUR_PATH}/software/libs
 export JARVIS_UTILS=${CUR_PATH}/software/utils
 export JARVIS_DOWNLOAD=${CUR_PATH}/downloads
 export JARVIS_TMP=${CUR_PATH}/tmp
+export DOWNLOAD_TOOL=${CUR_PATH}/package/common/download.sh
