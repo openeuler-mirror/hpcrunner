@@ -2,6 +2,7 @@
 #https://github.com/curl/curl/releases/download/curl-7_82_0/curl-7.82.0.tar.gz
 set -x
 set -e
+. {DOWNLOAD_TOOL} -u https://github.com/curl/curl/releases/download/curl-7_82_0/curl-7.82.0.tar.gz
 cd ${JARVIS_TMP}
 rm -rf curl-7.82.0
 tar -xvf ${JARVIS_DOWNLOAD}/curl-7.82.0.tar.gz
