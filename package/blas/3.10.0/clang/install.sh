@@ -2,6 +2,7 @@
 #http://www.netlib.org/blas/blas-3.10.0.tgz
 set -x
 set -e
+. ${DOWNLOAD_TOOL} -u http://www.netlib.org/blas/blas-3.10.0.tgz
 cd ${JARVIS_TMP}
 rm -rf BLAS-3.10.0
 tar -xvf ${JARVIS_DOWNLOAD}/blas-3.10.0.tgz
