@@ -1,7 +1,7 @@
 #!/bin/bash
-#下载地址：http://www.ijg.org/files/jpegsrc.v7.tar.gz
 set -x
 set -e
+. ${DOWNLOAD_TOOL} -u http://www.ijg.org/files/jpegsrc.v7.tar.gz
 cd ${JARVIS_TMP}
 tar xvf ${JARVIS_DOWNLOAD}/jpegsrc.v7.tar.gz
 cd jpeg-7
