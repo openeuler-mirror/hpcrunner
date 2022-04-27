@@ -1,0 +1,322 @@
+diff -x lmpgitversion.h -uNr origin/lammps-5Jun19/src/KSPACE/fft3d.cpp lammps-5Jun19/src/KSPACE/fft3d.cpp
+--- origin/lammps-5Jun19/src/KSPACE/fft3d.cpp	2019-06-05 22:25:00.000000000 +0800
++++ lammps-5Jun19/src/KSPACE/fft3d.cpp	2021-07-31 16:57:25.360000000 +0800
+@@ -31,6 +31,12 @@
+ #include "kissfft.h"
+ #endif
+ 
++#if defined(FFT_KML)
++  #define FFTW_FORWARD KML_FFT_FORWARD
++  #define FFTW_ESTIMATE KML_FFT_ESTIMATE
++  #define FFTW_BACKWARD KML_FFT_BACKWARD
++#endif
++
+ #define MIN(A,B) ((A) < (B) ? (A) : (B))
+ #define MAX(A,B) ((A) > (B) ? (A) : (B))
+ 
+@@ -68,14 +74,14 @@
+ {
+   int i,total,length,offset,num;
+   FFT_SCALAR norm;
+-#if defined(FFT_FFTW3)
++#if defined(FFT_FFTW3) || defined(FFT_KML)
+   FFT_SCALAR *out_ptr;
+ #endif
+   FFT_DATA *data,*copy;
+ 
+   // system specific constants
+ 
+-#if defined(FFT_FFTW3)
++#if defined(FFT_FFTW3) || defined(FFT_KML)
+   FFTW_API(plan) theplan;
+ #else
+   // nothing to do for other FFTs
+@@ -111,7 +117,7 @@
+   else
+    fftw(plan->plan_fast_backward,total/length,data,1,length,NULL,0,0);
+   */
+-#elif defined(FFT_FFTW3)
++#elif defined(FFT_FFTW3) || defined(FFT_KML)
+   if (flag == -1)
+     theplan=plan->plan_fast_forward;
+   else
+@@ -152,7 +158,7 @@
+   else
+     fftw(plan->plan_mid_backward,total/length,data,1,length,NULL,0,0);
+   */
+-#elif defined(FFT_FFTW3)
++#elif defined(FFT_FFTW3) || defined(FFT_KML)
+   if (flag == -1)
+     theplan=plan->plan_mid_forward;
+   else
+@@ -193,7 +199,7 @@
+   else
+     fftw(plan->plan_slow_backward,total/length,data,1,length,NULL,0,0);
+   */
+-#elif defined(FFT_FFTW3)
++#elif defined(FFT_FFTW3) || defined(FFT_KML)
+   if (flag == -1)
+     theplan=plan->plan_slow_forward;
+   else
+@@ -219,11 +225,11 @@
+   if (flag == 1 && plan->scaled) {
+     norm = plan->norm;
+     num = plan->normnum;
+-#if defined(FFT_FFTW3)
++#if defined(FFT_FFTW3) || defined(FFT_KML)
+     out_ptr = (FFT_SCALAR *)out;
+ #endif
+     for (i = 0; i < num; i++) {
+-#if defined(FFT_FFTW3)
++#if defined(FFT_FFTW3) || defined(FFT_KML)
+       *(out_ptr++) *= norm;
+       *(out_ptr++) *= norm;
+ #elif defined(FFT_MKL)
+@@ -570,7 +576,7 @@
+   }
+   */
+ 
+-#elif defined(FFT_FFTW3)
++#elif defined(FFT_FFTW3) || defined(FFT_KML)
+   plan->plan_fast_forward =
+     FFTW_API(plan_many_dft)(1, &nfast,plan->total1/plan->length1,
+                             NULL,&nfast,1,plan->length1,
+@@ -682,7 +688,7 @@
+   fftw_destroy_plan(plan->plan_fast_forward);
+   fftw_destroy_plan(plan->plan_fast_backward);
+   */
+-#elif defined(FFT_FFTW3)
++#elif defined(FFT_FFTW3) || defined(FFT_KML)
+   FFTW_API(destroy_plan)(plan->plan_slow_forward);
+   FFTW_API(destroy_plan)(plan->plan_slow_backward);
+   FFTW_API(destroy_plan)(plan->plan_mid_forward);
+@@ -780,7 +786,7 @@
+ {
+   int i,num;
+   FFT_SCALAR norm;
+-#if defined(FFT_FFTW3)
++#if defined(FFT_FFTW3) || defined(FFT_KML)
+   FFT_SCALAR *data_ptr;
+ #endif
+ 
+@@ -798,7 +804,7 @@
+ 
+ // fftw3 and Dfti in MKL encode the number of transforms
+ // into the plan, so we cannot operate on a smaller data set.
+-#if defined(FFT_MKL) || defined(FFT_FFTW3)
++#if defined(FFT_MKL) || defined(FFT_FFTW3) || defined(FFT_KML)
+   if ((total1 > nsize) || (total2 > nsize) || (total3 > nsize))
+     return;
+ #endif
+@@ -831,7 +837,7 @@
+     fftw(plan->plan_slow_backward,total3/length3,data,1,0,NULL,0,0);
+   }
+   */
+-#elif defined(FFT_FFTW3)
++#elif defined(FFT_FFTW3) || defined(FFT_KML)
+   FFTW_API(plan) theplan;
+   if (flag == -1)
+     theplan=plan->plan_fast_forward;
+@@ -872,11 +878,11 @@
+   if (flag == 1 && plan->scaled) {
+     norm = plan->norm;
+     num = MIN(plan->normnum,nsize);
+-#if defined(FFT_FFTW3)
++#if defined(FFT_FFTW3) || defined(FFT_KML)
+     data_ptr = (FFT_SCALAR *)data;
+ #endif
+     for (i = 0; i < num; i++) {
+-#if defined(FFT_FFTW3)
++#if defined(FFT_FFTW3) || defined(FFT_KML)
+       *(data_ptr++) *= norm;
+       *(data_ptr++) *= norm;
+ #elif defined(FFT_MKL)
+diff -x lmpgitversion.h -uNr origin/lammps-5Jun19/src/KSPACE/fft3d.h lammps-5Jun19/src/KSPACE/fft3d.h
+--- origin/lammps-5Jun19/src/KSPACE/fft3d.h	2019-06-05 22:25:00.000000000 +0800
++++ lammps-5Jun19/src/KSPACE/fft3d.h	2021-07-31 16:57:25.360000000 +0800
+@@ -53,6 +53,10 @@
+ #include "fftw3.h"
+ typedef fftwf_complex FFT_DATA;
+ #define FFTW_API(function)  fftwf_ ## function
++#elif defined(FFT_KML)
++#include "kfft.h"
++typedef kml_fft_complex FFT_DATA;
++#define FFTW_API(function)  kml_fft_ ## function
+ 
+ #else
+ 
+@@ -95,6 +99,11 @@
+ typedef fftw_complex FFT_DATA;
+ #define FFTW_API(function)  fftw_ ## function
+ 
++#elif defined(FFT_KML)
++#include "kfft.h"
++typedef kml_fft_complex FFT_DATA;
++#define FFTW_API(function)  kml_fft_ ## function
++
+ #else
+ 
+ /* use a stripped down version of kiss fft as default fft */
+@@ -146,7 +155,7 @@
+ //  fftw_plan plan_mid_backward;
+ //fftw_plan plan_slow_forward;
+ //fftw_plan plan_slow_backward;
+-#elif defined(FFT_FFTW3)
++#elif defined(FFT_FFTW3) || defined(FFT_KML)
+   FFTW_API(plan) plan_fast_forward;
+   FFTW_API(plan) plan_fast_backward;
+   FFTW_API(plan) plan_mid_forward;
+diff -x lmpgitversion.h -uNr origin/lammps-5Jun19/src/MAKE/OPTIONS/Makefile.omp lammps-5Jun19/src/MAKE/OPTIONS/Makefile.omp
+--- origin/lammps-5Jun19/src/MAKE/OPTIONS/Makefile.omp	2019-06-05 22:25:00.000000000 +0800
++++ lammps-5Jun19/src/MAKE/OPTIONS/Makefile.omp	2021-07-31 17:14:20.020000000 +0800
+@@ -6,14 +6,14 @@
+ # compiler/linker settings
+ # specify flags and libraries needed for your compiler
+ 
+-CC =		mpicxx
+-CCFLAGS =	-g -O3 -restrict -fopenmp
++CC =		mpicxx -stdlib=libc++
++CCFLAGS =	-O3 -fopenmp -march=armv8.2-a -mcpu=tsv110 -fuse-ld=lld -flto=full
+ SHFLAGS =	-fPIC
+ DEPFLAGS =	-M
+ 
+-LINK =		mpicxx
+-LINKFLAGS =	-g -O -fopenmp
+-LIB = 
++LINK =		mpicxx -stdlib=libc++
++LINKFLAGS =	-O3 -fopenmp -march=armv8.2-a -mcpu=tsv110 -fuse-ld=lld -flto=full
++LIB =           -lmathlib -lm
+ SIZE =		size
+ 
+ ARCHIVE =	ar
+@@ -50,9 +50,9 @@
+ # PATH = path for FFT library
+ # LIB = name of FFT library
+ 
+-FFT_INC =    	
+-FFT_PATH = 
+-FFT_LIB =	
++FFT_INC =       -DFFT_KML -I/PATH/to/kml/include	
++FFT_PATH =      -L/PATH/to/kml/lib
++FFT_LIB =	-lkfft -lkm
+ 
+ # JPEG and/or PNG library
+ # see discussion in Section 2.2 (step 7) of manual
+diff -x lmpgitversion.h -uNr origin/lammps-5Jun19/src/USER-OMP/npair_full_bin_ghost_omp.cpp lammps-5Jun19/src/USER-OMP/npair_full_bin_ghost_omp.cpp
+--- origin/lammps-5Jun19/src/USER-OMP/npair_full_bin_ghost_omp.cpp	2021-07-31 17:18:43.750000000 +0800
++++ lammps-5Jun19/src/USER-OMP/npair_full_bin_ghost_omp.cpp	2021-07-31 16:57:25.370000000 +0800
+@@ -44,7 +44,7 @@
+ 
+   NPAIR_OMP_INIT;
+ #if defined(_OPENMP)
+-#pragma omp parallel default(shared) 
++//#pragma omp parallel default(shared) 
+ #endif
+   NPAIR_OMP_SETUP(nall);
+ 
+diff -x lmpgitversion.h -uNr origin/lammps-5Jun19/src/USER-OMP/pair_lj_cut_tip4p_long_omp.cpp lammps-5Jun19/src/USER-OMP/pair_lj_cut_tip4p_long_omp.cpp
+--- origin/lammps-5Jun19/src/USER-OMP/pair_lj_cut_tip4p_long_omp.cpp	2021-07-31 17:18:44.030000000 +0800
++++ lammps-5Jun19/src/USER-OMP/pair_lj_cut_tip4p_long_omp.cpp	2021-07-31 16:57:25.370000000 +0800
+@@ -93,7 +93,7 @@
+   const int inum = list->inum;
+ 
+ #if defined(_OPENMP)
+-#pragma omp parallel default(shared) 
++//#pragma omp parallel default(shared) 
+ #endif
+   {
+     int ifrom, ito, tid;
+@@ -213,7 +213,7 @@
+ 
+     jlist = firstneigh[i];
+     jnum = numneigh[i];
+-    fxtmp=fytmp=fztmp=0.0;
++    //fxtmp=fytmp=fztmp=0.0;
+ 
+     for (jj = 0; jj < jnum; jj++) {
+       j = jlist[jj];
+@@ -227,6 +227,13 @@
+       rsq = delx*delx + dely*dely + delz*delz;
+       jtype = type[j];
+ 
++      #define const_offsetC 16
++      if (jj < jnum - const_offsetC) {
++        __builtin_prefetch(&x[jlist[jj+const_offsetC]&NEIGHMASK].x);
++        __builtin_prefetch(&x[jlist[jj+const_offsetC]&NEIGHMASK].z);
++      }
++      __builtin_prefetch(&jlist[jj+2*const_offsetC]);
++
+       // LJ interaction based on true rsq
+ 
+       if (rsq < cut_ljsq[itype][jtype]) {
+@@ -235,9 +242,13 @@
+         forcelj = r6inv * (lj1[itype][jtype]*r6inv - lj2[itype][jtype]);
+         forcelj *= factor_lj * r2inv;
+ 
+-        fxtmp += delx*forcelj;
+-        fytmp += dely*forcelj;
+-        fztmp += delz*forcelj;
++        //fxtmp += delx*forcelj;
++        //fytmp += dely*forcelj;
++        //fztmp += delz*forcelj;
++        f[i].x += delx*forcelj;
++        f[i].y += dely*forcelj;
++        f[i].z += delz*forcelj;
++
+         f[j].x -= delx*forcelj;
+         f[j].y -= dely*forcelj;
+         f[j].z -= delz*forcelj;
+@@ -336,16 +347,19 @@
+           // preserves total force and torque on water molecule
+           // virial = sum(r x F) where each water's atoms are near xi and xj
+           // vlist stores 2,4,6 atoms whose forces contribute to virial
+-
++          __builtin_prefetch(&f[j].x, 1, 3);
+           if (VFLAG) {
+             n = 0;
+             key = 0;
+           }
+ 
+           if (itype != typeO) {
+-            fxtmp += delx * cforce;
+-            fytmp += dely * cforce;
+-            fztmp += delz * cforce;
++            //fxtmp += delx * cforce;
++            //fytmp += dely * cforce;
++            //fztmp += delz * cforce;
++            f[i].x += delx * cforce;
++            f[i].y += dely * cforce;
++            f[i].z += delz * cforce;
+ 
+             if (VFLAG) {
+               v[0] = x[i].x * delx * cforce;
+@@ -372,9 +386,13 @@
+             fHy = 0.5*alpha * fdy;
+             fHz = 0.5*alpha * fdz;
+ 
+-            fxtmp += fOx;
+-            fytmp += fOy;
+-            fztmp += fOz;
++            //fxtmp += fOx;
++            //fytmp += fOy;
++            //fztmp += fOz;
++            f[i].x += fOx;
++            f[i].y += fOy;
++            f[i].z += fOz;
++
+ 
+             f[iH1].x += fHx;
+             f[iH1].y += fHy;
+@@ -470,9 +488,9 @@
+         }
+       }
+     }
+-    f[i].x += fxtmp;
+-    f[i].y += fytmp;
+-    f[i].z += fztmp;
++    //f[i].x += fxtmp;
++    //f[i].y += fytmp;
++    //f[i].z += fztmp;
+   }
+ }
+ 
