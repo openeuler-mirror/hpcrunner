@@ -3,6 +3,8 @@
 #!/bin/bash
 set -x
 set -e
+. ${DOWNLOAD_TOOL} -u https://github.com/jratcliff63367/sse2neon/archive/refs/heads/master.zip -f sse2neon-master.zip
+. ${DOWNLOAD_TOOL} -u https://sourceforge.net/projects/bio-bwa/files/bwa-0.7.17.tar.bz2
 cd ${JARVIS_TMP}
 rm -rf bwa-0.7.17  sse2neon-master
 tar  -xvf ${JARVIS_DOWNLOAD}/bwa-0.7.17.tar.bz2
