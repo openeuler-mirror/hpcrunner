@@ -4,6 +4,8 @@
 
 set -x
 set -e
+. ${DOWMLOAD_TOOL} -u https://codeload.github.com/Unidata/netcdf-fortran/tar.gz/refs/tags/v4.4.5 -f netcdf-fortran-4.4.5.tar.gz
+. ${DOWMLOAD_TOOL} -u https://codeload.github.com/Unidata/netcdf-c/tar.gz/refs/tags/v4.7.0 -f netcdf-fortran-4.4.5.tar.gz 
 cd ${JARVIS_TMP}
 rm -rf netcdf-c-4.7.0 netcdf-fortran-4.4.5
 tar -xvf ${JARVIS_DOWNLOAD}/netcdf-c-4.7.0.tar.gz

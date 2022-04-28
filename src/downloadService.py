@@ -48,18 +48,12 @@ yum makecache
             url_list = url_info.split(' ')
             if len(url_list) < 2:
                 continue
-            software_info = url_list[0].strip()
             url_link = url_list[1].strip()
             filename = os.path.basename(url_link)
             if len(url_list) == 3:
                 filename = url_list[2].strip()
             filename_url_map[filename] = url_link
-            # create software directory
-            software_path = os.path.join(self.package_path, software_info)
-            self.tool.mkdirs(software_path)
-            # create install script
-            install_script = os.path.join(software_path, "install.sh")
-            self.tool.mkfile(install_script)
+            
         print(filename_url_map)
         # start download
         for filename, url in filename_url_map.items():
