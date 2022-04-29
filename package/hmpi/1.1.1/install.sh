@@ -1,6 +1,9 @@
 #!/bin/bash
 set -x
 set -e
+. ${DOWNLOAD_TOOL} -u https://github.com/kunpengcompute/hucx/archive/refs/tags/v1.1.1-huawei.zip -f hucx-1.1.1-huawei.zip
+. ${DOWNLOAD_TOOL} -u https://github.com/kunpengcompute/xucg/archive/refs/tags/v1.1.1-huawei.zip -f xucg-1.1.1-huawei.zip
+. ${DOWNLOAD_TOOL} -u https://github.com/kunpengcompute/hmpi/archive/refs/tags/v1.1.1-huawei.zip -f hmpi-1.1.1-huawei.zip
 cd ${JARVIS_TMP}
 yum install -y perl-Data-Dumper autoconf automake libtool binutils
 rm -rf hmpi-1.1.1-huawei hucx-1.1.1-huawei xucg-1.1.1-huawei

@@ -1,11 +1,13 @@
 #!/bin/bash
 set -x
 set -e
+. ${DOWNLOAD_TOOL} -u https://kunpeng-repo.obs.cn-north-4.myhuaweicloud.com/Kunpeng%20BoostKit/Kunpeng%20BoostKit%2021.0.1/BoostKit-kml_1.4.0.zip -f BoostKit-kml_1.4.0-gcc.zip
 cd ${JARVIS_TMP}
 if [ -d /usr/local/kml ];then
    rpm -e boostkit-kml
 fi
-rpm --force --nodeps -ivh ${JARVIS_ROOT}/package/kml/1.4.0/gcc/*.rpm
+unzip -o ${JARVIS_DOWNLOAD}/BoostKit-kml_1.4.0-gcc.zip
+rpm --force --nodeps -ivh boostkit-kml-1.4.0-1.aarch64.rpm
 
 # generate full lapack
 netlib=${JARVIS_DOWNLOAD}/lapack-3.9.1.tar.gz
