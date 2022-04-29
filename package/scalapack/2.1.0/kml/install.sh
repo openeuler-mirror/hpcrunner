@@ -1,6 +1,7 @@
 #!/bin/bash
 set -x
 set -e
+. ${DOWNLOAD_TOOL} -u http://www.netlib.org/scalapack/scalapack-2.1.0.tgz
 cd ${JARVIS_TMP}
 rm -rf scalapack-2.1.0
 tar -xvf ${JARVIS_DOWNLOAD}/scalapack-2.1.0.tgz
