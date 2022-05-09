@@ -1,14 +1,16 @@
 # HPCRunner : 贾维斯智能助手
-## ***给每个HPC应用一个温暖的家***
+## ***愿景：在任意机器的任意目录部署最优化HPC应用***
 
 ### 项目背景
 
-因为HPC应用的复杂性，其依赖安装、环境配置、编译、运行、CPU/GPU性能采集分析的门槛比较高，导致迁移和调优的工作量大，不同的人在不同的机器上跑同样的应用和算例基本上是重头开始，费时费力，而且很多情况下需要同时部署ARM/X86两套环境进行验证，增加了很多的重复性工作，无法聚焦软件算法优化。
+​        HPC被喻为是IT行业“金字塔上的明珠”，其部署、编译、运行、性能采集分析的门槛非常高，不同的机器上部署HPC应用耗费大量精力，而且很多情况下需要同时部署ARM/X86两套环境进行验证，增加了很多的重复性工作，无法聚焦核心算法优化。
+
+![贾维斯](./images/jarvis.png)
 
 ### 项目特色
 
-- 支持鲲鹏/X86,一键下载依赖，一键安装依赖、采用业界权威依赖目录结构管理海量依赖，自动生成module file
-- 根据HPC配置一键生成环境脚本、一键编译、一键运行、一键性能采集、一键Benchmark.
+- 支持ARM/X86,一键部署，采用业界权威依赖目录结构管理海量依赖，自动生成module file
+- 根据HPC配置实现一键编译运行、一键CPU/GPU性能采集、一键Benchmark.
 - 所有配置仅用一个文件记录，HPC应用部署到不同的机器仅需修改配置文件.
 - 日志管理系统自动记录HPC应用部署过程中的所有信息.
 - 软件本身无需编译开箱即用，仅依赖Python环境.
@@ -68,7 +70,7 @@ source ./init.sh
 |    配置项    | 说明                                                         | 示例                                                         |
 | :----------: | :----------------------------------------------------------- | :----------------------------------------------------------- |
 |   [SERVER]   | 服务器节点列表，多节点时用于自动生成hostfile，每行一个节点   | 11.11.11.11                                                  |
-|  [DOWNLOAD]  | 每行一个软件的版本和下载链接，默认下载到downloads目录(可设置别名) | cmake/3.16.4 https://cmake.org/files/v3.16/cmake-3.16.4.tar.gz 别名 |
+|  [DOWNLOAD]  | 每行一个软件的版本和下载链接，默认下载到downloads目录(可设置别名) | cp2k/8.2 https://xxx cp2k.8.2.tar.gz                         |
 | [DEPENDENCY] | HPC应用依赖安装脚本                                          | ./jarvis -install gcc/9.3.1 com<br>module use ./software/modulefiles<br>module load gcc9 |
 |    [ENV]     | HPC应用编译运行环境配置                                      | source env.sh                                                |
 |    [APP]     | HPC应用信息，包括应用名、构建路径、二进制路径、算例路径      | app_name = CP2K<br/>build_dir = /home/cp2k-8.2/<br/>binary_dir = /home/CP2K/cp2k-8.2/bin/<br/>case_dir = /home/CP2K/cp2k-8.2/benchmarks/QS/ |
@@ -78,7 +80,7 @@ source ./init.sh
 |   [BATCH]    | HPC应用批量运行命令                                          | #!/bin/bash<br/>nvidia-smi -pm 1<br/>nvidia-smi -ac 1215,1410 |
 |    [PERF]    | 性能工具额外参数                                             | perf= -o<br/>nsys=<br/>ncu=--target-processes all --launch-skip 71434 --launch-count 1 |
 
-3.一键下载依赖（仅针对无需鉴权的链接，否则需要自行下载到downloads目录）
+3.一键下载HPC应用（仅针对无需鉴权的链接，否则需要自行下载到downloads目录）
 
 ```
 ./jarvis -d
@@ -87,7 +89,7 @@ source ./init.sh
 4.安装单个依赖
 
 ```
-./jarvis -install [name/version/other] [option]
+./jarvis -install [package/][name/version/other] [option]
 ```
 
 option支持列表如下所示
@@ -113,6 +115,7 @@ eg:
 
 ```
 ./jarvis -install bisheng/2.1.0 com   #安装毕晟编译器
+./jarvis -install package/bisheng/2.1.0 com   #安装毕晟编译器
 ./jarvis -install fftw/3.3.8 gcc+mpi   #使用当前gcc和mpi编译fftw 3.3.8版本
 ./jarvis -install openmpi/4.1.2 gcc   #使用当前gcc编译openmpi 4.1.2版本
 ```
@@ -123,31 +126,31 @@ eg:
 ./jarvis -remove openblas/0.3.18
 ```
 
-6.一键安装所有依赖
+6.一键下载并安装所有依赖（会读取配置文件中的[DEPENDENCY]字段内容并按顺序执行）
 
 ```
 ./jarvis -dp
 ```
 
-7.一键生成环境变量(脱离贾维斯运行才需要执行)
+7.一键生成环境变量(会读取配置文件中的[ENV]字段内容并生成env.sh脚本执行，默认自动生成)
 
 ```
 ./jarvis -e && source ./env.sh
 ```
 
-8.一键编译
+8.一键编译（会读取配置文件中的[BUILD]字段内容并生成build.sh脚本执行）
 
 ```
 ./jarvis -b
 ```
 
-9.一键运行
+9.一键运行（会读取配置文件中的[RUN]字段内容并生成run.sh脚本执行）
 
 ```
 ./jarvis -r
 ```
 
-10.一键性能采集(perf)
+10.一键性能采集(会读取配置文件中的[PERF]字段内容的perf值)
 
 ```
 ./jarvis -p
@@ -180,19 +183,21 @@ eg:
 ./jarvis -use XXX.config
 ```
 
-15.其它功能查看（网络检测）
-
-```
-./jarvis -h
-```
-
-16.根据当前配置生成Singularity容器定义文件
+15.根据当前配置生成Singularity容器定义文件
 
 ```
 ./jarvis -container docker-hub-address
 ```
 
+16.其它功能查看（网络检测等）
 
+```
+./jarvis -h
+```
+
+### 路标
+
+![RoadMap](./images/roadmap.png)
 
 ### 欢迎贡献
 
@@ -210,8 +215,10 @@ eg:
 
 请添加openEuler HPC SIG微信群了解更多HPC迁移调优知识
 
-![微信群](./wechat-group-qr.png)
+![微信群](./images/wechat-group-qr.png)
 
 ### 技术文章
 
 揭开HPC应用的神秘面纱：https://zhuanlan.zhihu.com/p/489828346
+
+我和容器有个约会：https://zhuanlan.zhihu.com/p/489828346

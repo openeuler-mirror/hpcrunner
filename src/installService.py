@@ -33,7 +33,10 @@ class InstallService:
         self.UTILS_PATH = os.path.join(self.SOFTWARE_PATH, 'utils')
 
     def get_version_info(self, info):
-        return re.search( r'(\d+)\.(\d+)\.',info).group(1)
+        matched_group = re.search( r'(\d+)\.(\d+)\.',info)
+        if not matched_group:
+            return None
+        return matched_group.group(1)
 
     # some command don't generate output, must redirect to a tmp file
     def get_cmd_output(self, cmd):
@@ -49,6 +52,9 @@ class InstallService:
         gcc_info_list = self.get_cmd_output('gcc -v')
         gcc_info = gcc_info_list[-1].strip()
         version = self.get_version_info(gcc_info)
+        if not version:
+            print("GCC not found, please install gcc first")
+            sys.exit()
         name = 'gcc'
         if 'kunpeng' in gcc_info.lower():
             name =  'kgcc'
@@ -58,6 +64,9 @@ class InstallService:
         clang_info_list = self.get_cmd_output('clang -v')
         clang_info = clang_info_list[0].strip()
         version = self.get_version_info(clang_info)
+        if not version:
+            print("clang not found, please install clang first")
+            sys.exit()
         name = 'clang'
         if 'bisheng' in clang_info.lower():
             name =  'bisheng'
@@ -74,6 +83,9 @@ class InstallService:
         mpi_info = mpi_info_list[0].strip()
         name = 'openmpi'
         version = self.get_version_info(mpi_info)
+        if not version:
+            print("MPI not found, please install MPI first.")
+            sys.exit()
         hmpi_info = self.get_cmd_output('ompi_info | grep "MCA coll: ucx"')[0]
         if hmpi_info != "":
             name = 'hmpi'
