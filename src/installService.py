@@ -131,7 +131,7 @@ class InstallService:
             return SType.LIB
 
     def get_suffix(self, software_info_list):
-        if len(software_info_list) == 3:
+        if len(software_info_list) >= 3:
             return software_info_list[2]
         return ""
 
