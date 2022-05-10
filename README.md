@@ -28,7 +28,7 @@
 | downloads | 存放依赖库源码包/压缩包            |          |
 | examples  | 性能小实验                         |          |
 | package   | 存放安装脚本和FAQ                  |          |
-| software  | 依赖库二进制仓库                   | 自动生成 |
+| software  | 依赖库二进制仓库(内置精度分析工具)         | 自动生成 |
 | src       | 贾维斯源码                         |          |
 | templates | 常用HPC应用的配置模板              |          |
 | test      | 贾维斯测试用例                     |          |
@@ -221,4 +221,4 @@ eg:
 
 揭开HPC应用的神秘面纱：https://zhuanlan.zhihu.com/p/489828346
 
-我和容器有个约会：https://zhuanlan.zhihu.com/p/489828346
+我和容器有个约会：https://zhuanlan.zhihu.com/p/499544308
