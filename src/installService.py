@@ -360,6 +360,7 @@ chmod +x {install_script}
         depend_file = 'depend_install.sh'
         print(f"start installing dependendcy of {DataService.app_name}")
         depend_content = f'''
+source ./init.sh
 {DataService.dependency}
 '''
         self.tool.write_file(depend_file, depend_content)
