@@ -53,7 +53,7 @@ pip-wheel-metadata
 *.sqlite
 # Things specific to this project #
 ######################
-perf.data.*
+perf.data*
 kperf.data.*
 env.sh
 build.sh
@@ -66,3 +66,5 @@ depend_install.sh
 build.sh
 .meta
 software/*
+avg
+installed*

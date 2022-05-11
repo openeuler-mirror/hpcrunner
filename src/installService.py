@@ -131,7 +131,7 @@ class InstallService:
             return SType.LIB
 
     def get_suffix(self, software_info_list):
-        if len(software_info_list) == 3:
+        if len(software_info_list) >= 3:
             return software_info_list[2]
         return ""
 
@@ -360,6 +360,7 @@ chmod +x {install_script}
         depend_file = 'depend_install.sh'
         print(f"start installing dependendcy of {DataService.app_name}")
         depend_content = f'''
+source ./init.sh
 {DataService.dependency}
 '''
         self.tool.write_file(depend_file, depend_content)

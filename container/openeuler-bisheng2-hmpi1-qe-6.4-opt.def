@@ -19,11 +19,8 @@ From: openeuler/openeuler
     cd hpcrunner
     source ./init.sh
     ./jarvis -i
-    cp ./templates/qe/6.4/data.qe.container.opt.config .
-    wget --no-check-certificate https://github.com/QEF/q-e/archive/refs/tags/qe-6.4.1.tar.gz
-    tar -xzvf qe-6.4.1.tar.gz
     # Switch config
-    ./jarvis -use data.qe.container.opt.config
+    ./jarvis -use templates/qe/6.4/data.qe.container.opt.config
     # download dependency
     ./jarvis -d
     # install dependency

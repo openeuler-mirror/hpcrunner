@@ -50,7 +50,7 @@ source ./init.sh
 
 ```
 ./jarvis -install go/1.18 com
-./jarvis -install singularity/3.9.6 gcc
+./jarvis -install singularity/3.9.6 any
 ```
 
 5.3 生成QE容器包
@@ -63,8 +63,7 @@ singularity build openeuler-kgcc9-openmpi4-qe-6.4.sif openeuler-kgcc9-openmpi4-q
 5.4 安装和容器同版本的MPI库
 
 ```
-cp ./templates/qe/6.4/data.qe.container.config ./
-./jarvis -use data.qe.container.config
+./jarvis -use templates/qe/6.4/data.qe.container.config
 ./jarvis -d -dp -e
 source ./env.sh
 ```
