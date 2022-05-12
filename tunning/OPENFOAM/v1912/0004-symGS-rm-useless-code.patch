@@ -1,0 +1,33 @@
+From 44d46a2b1f75c9b8d9a3a72f17b904623ea6963a Mon Sep 17 00:00:00 2001
+From: yuankun <yuankun@localhost.localdomain>
+Date: Tue, 19 Apr 2022 09:50:30 +0800
+Subject: [PATCH 4/6] symGS rm useless code
+
+---
+ .../smoothers/symGaussSeidel/symGaussSeidelSmoother.C  | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/OpenFOAM-v1912/src/OpenFOAM/matrices/lduMatrix/smoothers/symGaussSeidel/symGaussSeidelSmoother.C b/OpenFOAM-v1912/src/OpenFOAM/matrices/lduMatrix/smoothers/symGaussSeidel/symGaussSeidelSmoother.C
+index 00bc5c90..4b24ae20 100644
+--- a/OpenFOAM-v1912/src/OpenFOAM/matrices/lduMatrix/smoothers/symGaussSeidel/symGaussSeidelSmoother.C
++++ b/OpenFOAM-v1912/src/OpenFOAM/matrices/lduMatrix/smoothers/symGaussSeidel/symGaussSeidelSmoother.C
+@@ -186,11 +186,11 @@ void Foam::symGaussSeidelSmoother::smooth
+             // Finish psi for this cell
+             psii /= diagPtr[celli];
+ 
+-            // Distribute the neighbour side using psi for this cell
+-            for (label facei=fStart; facei<fEnd; facei++)
+-            {
+-                bPrimePtr[uPtr[facei]] -= lowerPtr[facei]*psii;
+-            }
++            // // Distribute the neighbour side using psi for this cell
++            // for (label facei=fStart; facei<fEnd; facei++)
++            // {
++            //     bPrimePtr[uPtr[facei]] -= lowerPtr[facei]*psii;
++            // }
+ 
+             psiPtr[celli] = psii;
+         }
+-- 
+2.18.2
+

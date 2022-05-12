@@ -1,0 +1,256 @@
+From 6f5a66e929d7f400e98a392e86930f166b649758 Mon Sep 17 00:00:00 2001
+From: yuankun <yuankun@localhost.localdomain>
+Date: Tue, 19 Apr 2022 10:01:17 +0800
+Subject: [PATCH 5/6] PCG parallel improve and new parameter
+
+---
+ .../foam_run/cavity512/system/fvSolution      |   3 +-
+ .../matrices/lduMatrix/lduMatrix/lduMatrix.H  |   7 ++
+ .../lduMatrix/lduMatrix/lduMatrixSolver.C     |  16 ++-
+ .../lduMatrix/solvers/GAMG/GAMGSolverSolve.C  |  16 ++-
+ .../matrices/lduMatrix/solvers/PCG/PCG.C      | 115 ++++++++++++++++++
+ .../matrices/lduMatrix/solvers/PCG/PCG.H      |   7 +-
+ 6 files changed, 160 insertions(+), 4 deletions(-)
+
+diff --git a/OpenFOAM-v1912/foam_run/cavity512/system/fvSolution b/OpenFOAM-v1912/foam_run/cavity512/system/fvSolution
+index 64ec5887..93fe8661 100755
+--- a/OpenFOAM-v1912/foam_run/cavity512/system/fvSolution
++++ b/OpenFOAM-v1912/foam_run/cavity512/system/fvSolution
+@@ -40,7 +40,8 @@ solvers
+         {
+             preconditioner GAMG;
+             nVcycles       1;
+-            // tolerance      1e-06;
++            Coarsestalgorithm       new;
++            tolerance      6e-07;
+             // relTol         0;
+             smoother       DIC;//GaussSeidel;
+             nCellsInCoarsestLevel   16;
+diff --git a/OpenFOAM-v1912/src/OpenFOAM/matrices/lduMatrix/lduMatrix/lduMatrix.H b/OpenFOAM-v1912/src/OpenFOAM/matrices/lduMatrix/lduMatrix/lduMatrix.H
+index 46b77b6f..2da95c8d 100644
+--- a/OpenFOAM-v1912/src/OpenFOAM/matrices/lduMatrix/lduMatrix/lduMatrix.H
++++ b/OpenFOAM-v1912/src/OpenFOAM/matrices/lduMatrix/lduMatrix/lduMatrix.H
+@@ -270,6 +270,13 @@ public:
+                 const direction cmpt=0
+             ) const;
+ 
++            virtual solverPerformance scalarSolve1
++            (
++                solveScalarField& psi,
++                const solveScalarField& source,
++                const direction cmpt=0
++            ) const;
++
+             //- Return the matrix norm used to normalise the residual for the
+             //- stopping criterion
+             solveScalarField::cmptType normFactor
+diff --git a/OpenFOAM-v1912/src/OpenFOAM/matrices/lduMatrix/lduMatrix/lduMatrixSolver.C b/OpenFOAM-v1912/src/OpenFOAM/matrices/lduMatrix/lduMatrix/lduMatrixSolver.C
+index 79096142..5affe2b2 100644
+--- a/OpenFOAM-v1912/src/OpenFOAM/matrices/lduMatrix/lduMatrix/lduMatrixSolver.C
++++ b/OpenFOAM-v1912/src/OpenFOAM/matrices/lduMatrix/lduMatrix/lduMatrixSolver.C
+@@ -191,7 +191,21 @@ Foam::solverPerformance Foam::lduMatrix::solver::scalarSolve
+         cmpt
+     );
+ }
+-
++Foam::solverPerformance Foam::lduMatrix::solver::scalarSolve1
++(
++    solveScalarField& psi,
++    const solveScalarField& source,
++    const direction cmpt
++) const
++{
++    PrecisionAdaptor<scalar, solveScalar> tpsi_s(psi);
++    return scalarSolve1
++    (
++        tpsi_s.ref(),
++        ConstPrecisionAdaptor<scalar, solveScalar>(source)(),
++        cmpt
++    );
++}
+ 
+ Foam::solveScalarField::cmptType Foam::lduMatrix::solver::normFactor
+ (
+diff --git a/OpenFOAM-v1912/src/OpenFOAM/matrices/lduMatrix/solvers/GAMG/GAMGSolverSolve.C b/OpenFOAM-v1912/src/OpenFOAM/matrices/lduMatrix/solvers/GAMG/GAMGSolverSolve.C
+index a8d1dbf1..b7812881 100644
+--- a/OpenFOAM-v1912/src/OpenFOAM/matrices/lduMatrix/solvers/GAMG/GAMGSolverSolve.C
++++ b/OpenFOAM-v1912/src/OpenFOAM/matrices/lduMatrix/solvers/GAMG/GAMGSolverSolve.C
+@@ -694,6 +694,20 @@ void Foam::GAMGSolver::solveCoarsestLevel
+     else
+     {
+         coarsestCorrField = 0;
++        word xxx("original");
++        controlDict_.readIfPresent("Coarsestalgorithm",xxx);
++        
++        const solverPerformance coarseSolverPerf;
++        if (xxx=="new"){
++        const solverPerformance coarseSolverPerf
++        (
++            coarsestSolverPtr_->scalarSolve1
++            (
++                coarsestCorrField,
++                coarsestSource
++            )
++        );
++        }else{
+         const solverPerformance coarseSolverPerf
+         (
+             coarsestSolverPtr_->scalarSolve
+@@ -702,7 +716,7 @@ void Foam::GAMGSolver::solveCoarsestLevel
+                 coarsestSource
+             )
+         );
+-
++        }
+         if (debug)
+         {
+             coarseSolverPerf.print(Info.masterStream(coarseComm));
+diff --git a/OpenFOAM-v1912/src/OpenFOAM/matrices/lduMatrix/solvers/PCG/PCG.C b/OpenFOAM-v1912/src/OpenFOAM/matrices/lduMatrix/solvers/PCG/PCG.C
+index e4802499..fb1fe8b4 100644
+--- a/OpenFOAM-v1912/src/OpenFOAM/matrices/lduMatrix/solvers/PCG/PCG.C
++++ b/OpenFOAM-v1912/src/OpenFOAM/matrices/lduMatrix/solvers/PCG/PCG.C
+@@ -209,8 +209,123 @@ Foam::solverPerformance Foam::PCG::scalarSolve
+     return solverPerf;
+ }
+ 
++Foam::solverPerformance Foam::PCG::scalarSolve1
++(
++    solveScalarField& psi,
++    const solveScalarField& source,
++    const direction cmpt
++) const
++{
++    // dictionary dict1;
++    // dict1.add(word("solver"), string("PCG"));
++    // dict1.add(word("preconditioner"), string("FDIC"));
++    // dict1.add(word("tolerance"), 1e-05);
++    // dict1.add(word("relTol"),  0);
++    label max_ite(tolerance_*1e8); //
++
++    // --- Setup class containing solver performance data
++    solverPerformance solverPerf
++    (
++        lduMatrix::preconditioner::getName(controlDict_) + typeName,
++        fieldName_
++    );
++
++    label nCells = psi.size();
++    solveScalar* __restrict__ psiPtr = psi.begin();
++
++
++    solveScalarField pA(nCells);
++    solveScalar* __restrict__ pAPtr = pA.begin();
++    solveScalarField wA(nCells);
++    solveScalar* __restrict__ wAPtr = wA.begin();
++
++    solveScalar wArA = solverPerf.great_;
++
++    solveScalar wArAold = wArA;
++
++    // --- Calculate A.psi
++    matrix_.Amul(wA, psi, interfaceBouCoeffs_, interfaces_, cmpt);
++
++    // --- Calculate initial residual field
++    solveScalarField rA(source - wA);
++    solveScalar* __restrict__ rAPtr = rA.begin();
++
++    matrix().setResidualField
++    (
++        ConstPrecisionAdaptor<scalar, solveScalar>(rA)(),
++        fieldName_,
++        false
++    );
++
++    // --- Check convergence, solve if not converged
++
++        // --- Select and construct the preconditioner
++        autoPtr<lduMatrix::preconditioner> preconPtr =
++            lduMatrix::preconditioner::New
++            (
++                *this,
++                controlDict_
++            );
++        solveScalar beta;
++        for (label cell=0; cell<nCells; cell++)
++        {
++            pAPtr[cell] = wAPtr[cell];
++        }
++        // --- Solver iteration
++        do
++        {
++            // --- Store previous wArA
++            wArAold = wArA;
++
++            // --- Precondition residual
++            preconPtr->precondition(wA, rA, cmpt);
++
++            // --- Update search directions:
++            wArA = gSumProd(wA, rA, matrix().mesh().comm());
++
++
++            beta = wArA/wArAold;
++
++            for (label cell=0; cell<nCells; cell++)
++            {
++                pAPtr[cell] = wAPtr[cell] + beta*pAPtr[cell];
++            }
++
++
++
++            // --- Update preconditioned residual
++            matrix_.Amul(wA, pA, interfaceBouCoeffs_, interfaces_, cmpt);
++
++            solveScalar wApA = gSumProd(wA, pA, matrix().mesh().comm());
+ 
+ 
++            // --- Update solution and residual:
++
++            solveScalar alpha = wArA/wApA;
++
++            for (label cell=0; cell<nCells; cell++)
++            {
++                psiPtr[cell] += alpha*pAPtr[cell];
++                rAPtr[cell] -= alpha*wAPtr[cell];
++            }
++
++        } while
++        (
++            //   ++solverPerf.nIterations() < maxIter_
++            (++solverPerf.nIterations()) < max_ite
++        );
++
++
++    matrix().setResidualField
++    (
++        ConstPrecisionAdaptor<scalar, solveScalar>(rA)(),
++        fieldName_,
++        false
++    );
++
++    return solverPerf;
++}
++
+ Foam::solverPerformance Foam::PCG::solve
+ (
+     scalarField& psi_s,
+diff --git a/OpenFOAM-v1912/src/OpenFOAM/matrices/lduMatrix/solvers/PCG/PCG.H b/OpenFOAM-v1912/src/OpenFOAM/matrices/lduMatrix/solvers/PCG/PCG.H
+index 416dc43f..39a81649 100644
+--- a/OpenFOAM-v1912/src/OpenFOAM/matrices/lduMatrix/solvers/PCG/PCG.H
++++ b/OpenFOAM-v1912/src/OpenFOAM/matrices/lduMatrix/solvers/PCG/PCG.H
+@@ -99,7 +99,12 @@ public:
+             const solveScalarField& source,
+             const direction cmpt=0
+         ) const;
+-
++        virtual solverPerformance scalarSolve1
++        (
++            solveScalarField& psi,
++            const solveScalarField& source,
++            const direction cmpt=0
++        ) const;
+         //- Solve the matrix with this solver
+         virtual solverPerformance solve
+         (
+-- 
+2.18.2
+
