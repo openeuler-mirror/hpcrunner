@@ -1,0 +1,756 @@
+From c4654fe3a5ce8aeefeb1c300d56c0c1034b761db Mon Sep 17 00:00:00 2001
+From: yuankun <yuankun@localhost.localdomain>
+Date: Sun, 24 Apr 2022 16:02:43 +0800
+Subject: [PATCH 6/6] Compile Related files loss due to OpenFOAM gitignore
+
+---
+ .../adios/src/adiosFoam/core/adiosCore.C      |  76 +++++++
+ .../adios/src/adiosFoam/core/adiosCore.H      | 105 +++++++++
+ .../src/fileFormats/vtk/core/foamVtkCore.C    | 142 ++++++++++++
+ .../src/fileFormats/vtk/core/foamVtkCore.H    | 202 ++++++++++++++++++
+ .../src/fileFormats/vtk/core/foamVtkPTraits.C |  76 +++++++
+ .../src/fileFormats/vtk/core/foamVtkPTraits.H |  96 +++++++++
+ 6 files changed, 697 insertions(+)
+ create mode 100644 OpenFOAM-v1912/modules/adios/src/adiosFoam/core/adiosCore.C
+ create mode 100644 OpenFOAM-v1912/modules/adios/src/adiosFoam/core/adiosCore.H
+ create mode 100644 OpenFOAM-v1912/src/fileFormats/vtk/core/foamVtkCore.C
+ create mode 100644 OpenFOAM-v1912/src/fileFormats/vtk/core/foamVtkCore.H
+ create mode 100644 OpenFOAM-v1912/src/fileFormats/vtk/core/foamVtkPTraits.C
+ create mode 100644 OpenFOAM-v1912/src/fileFormats/vtk/core/foamVtkPTraits.H
+
+diff --git a/OpenFOAM-v1912/modules/adios/src/adiosFoam/core/adiosCore.C b/OpenFOAM-v1912/modules/adios/src/adiosFoam/core/adiosCore.C
+new file mode 100644
+index 00000000..063e87fb
+--- /dev/null
++++ b/OpenFOAM-v1912/modules/adios/src/adiosFoam/core/adiosCore.C
+@@ -0,0 +1,76 @@
++/*---------------------------------------------------------------------------*\
++  =========                 |
++  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
++   \\    /   O peration     |
++    \\  /    A nd           | www.openfoam.com
++     \\/     M anipulation  |
++-------------------------------------------------------------------------------
++    Copyright (C) 2016-2019 OpenCFD Ltd.
++-------------------------------------------------------------------------------
++License
++    This file is part of OpenFOAM.
++
++    OpenFOAM is free software: you can redistribute it and/or modify it
++    under the terms of the GNU General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
++    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++    for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
++
++\*---------------------------------------------------------------------------*/
++
++#include "adiosCore.H"
++#include "Pstream.H"
++
++// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
++
++int Foam::adiosFoam::adiosCore::debug(0);
++
++unsigned Foam::adiosFoam::adiosCore::refCount_ = 0;
++
++Foam::DynamicList<char> Foam::adiosFoam::adiosCore::transfer_;
++
++
++// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
++
++Foam::adiosFoam::adiosCore::adiosCore()
++{
++    if (refCount_ == 0)
++    {
++        // First one in
++
++        transfer_.reserve(4096);
++
++        // Initialize MPI as required - needed for ADIOS
++        UPstream::initNull();
++    }
++
++    ++refCount_;
++}
++
++
++// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
++
++Foam::adiosFoam::adiosCore::~adiosCore()
++{
++    if (refCount_ == 1)
++    {
++        // Last one out
++
++        // Cleanup transfer buffer
++        transfer_.clearStorage();
++
++        // OpenFOAM will cleanup and finalize MPI
++    }
++
++    --refCount_;
++}
++
++
++// ************************************************************************* //
+diff --git a/OpenFOAM-v1912/modules/adios/src/adiosFoam/core/adiosCore.H b/OpenFOAM-v1912/modules/adios/src/adiosFoam/core/adiosCore.H
+new file mode 100644
+index 00000000..34eed23f
+--- /dev/null
++++ b/OpenFOAM-v1912/modules/adios/src/adiosFoam/core/adiosCore.H
+@@ -0,0 +1,105 @@
++/*---------------------------------------------------------------------------*\
++  =========                 |
++  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
++   \\    /   O peration     |
++    \\  /    A nd           | www.openfoam.com
++     \\/     M anipulation  |
++-------------------------------------------------------------------------------
++    Copyright (C) 2016-2019 OpenCFD Ltd.
++-------------------------------------------------------------------------------
++License
++    This file is part of OpenFOAM.
++
++    OpenFOAM is free software: you can redistribute it and/or modify it
++    under the terms of the GNU General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
++    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++    for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
++
++Class
++    Foam::adiosFoam::adiosCore
++
++Description
++    Core routines for starting/stopping ADIOS for OpenFOAM.
++
++SourceFiles
++    adiosCore.C
++
++\*---------------------------------------------------------------------------*/
++
++#ifndef adiosCore_H
++#define adiosCore_H
++
++#include "adios2.h"
++#include "adiosFoam.H"
++#include "DynamicList.H"
++
++// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
++
++namespace Foam
++{
++namespace adiosFoam
++{
++
++/*---------------------------------------------------------------------------*\
++                          Class adiosCore Declaration
++\*---------------------------------------------------------------------------*/
++
++class adiosCore
++{
++    // Private Data
++
++        //- Global reference count for handling MPI_init and transfer buffers
++        static unsigned refCount_;
++
++
++protected:
++
++    // Protected Data
++
++        //- Buffer for reading/writing (streamed) content to/from ADIOS files
++        static DynamicList<char> transfer_;
++
++
++public:
++
++        //- Debug flag
++        static int debug;
++
++
++    // Constructors
++
++        //- Construct null
++        adiosCore();
++
++
++    //- Destructor
++    virtual ~adiosCore();
++
++
++    // Member Functions
++
++        //- Buffer for reading/writing (streamed) content to/from ADIOS files.
++        //  Also used when reading/writing dissimilar content.
++        inline static DynamicList<char>& transferBuffer()
++        {
++            return transfer_;
++        }
++};
++
++
++// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
++
++} // End namespace adiosFoam
++} // End namespace Foam
++
++#endif
++
++// ************************************************************************* //
+diff --git a/OpenFOAM-v1912/src/fileFormats/vtk/core/foamVtkCore.C b/OpenFOAM-v1912/src/fileFormats/vtk/core/foamVtkCore.C
+new file mode 100644
+index 00000000..14f832fe
+--- /dev/null
++++ b/OpenFOAM-v1912/src/fileFormats/vtk/core/foamVtkCore.C
+@@ -0,0 +1,142 @@
++/*---------------------------------------------------------------------------*\
++  =========                 |
++  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
++   \\    /   O peration     |
++    \\  /    A nd           | www.openfoam.com
++     \\/     M anipulation  |
++-------------------------------------------------------------------------------
++    Copyright (C) 2017-2018 OpenCFD Ltd.
++-------------------------------------------------------------------------------
++License
++    This file is part of OpenFOAM.
++
++    OpenFOAM is free software: you can redistribute it and/or modify it
++    under the terms of the GNU General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
++    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++    for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
++
++\*---------------------------------------------------------------------------*/
++
++#include "foamVtkCore.H"
++
++// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
++
++const Foam::Enum
++<
++    Foam::vtk::fileTag
++>
++Foam::vtk::fileExtension
++({
++    { fileTag::POLY_DATA, "vtp" },
++    { fileTag::UNSTRUCTURED_GRID, "vtu" },
++    { fileTag::MULTI_BLOCK, "vtm" },
++    // { fileTag::COLLECTION, "pvd" },
++});
++
++
++const Foam::Enum
++<
++    Foam::vtk::fileTag
++>
++Foam::vtk::fileContentVersions
++({
++    { fileTag::POLY_DATA, "0.1" },
++    { fileTag::UNSTRUCTURED_GRID, "0.1" },
++    { fileTag::MULTI_BLOCK, "1.0" },
++    // { fileTag::COLLECTION, "0.1" },
++});
++
++
++const Foam::Enum
++<
++    Foam::vtk::fileTag
++>
++Foam::vtk::fileTagNames
++({
++    { fileTag::VTK_FILE, "VTKFile" },
++    { fileTag::DATA_ARRAY, "DataArray" },
++    { fileTag::BLOCK, "Block" },
++    { fileTag::PIECE, "Piece" },
++    { fileTag::DATA_SET, "DataSet" },
++    { fileTag::POINTS, "Points" },
++    { fileTag::CELLS, "Cells" },
++    { fileTag::POLYS, "Polys" },
++    { fileTag::VERTS, "Verts" },
++    { fileTag::LINES, "Lines" },
++    { fileTag::CELL_DATA, "CellData" },
++    { fileTag::POINT_DATA, "PointData" },
++    { fileTag::FIELD_DATA, "FieldData" },
++    { fileTag::POLY_DATA, "PolyData" },
++    { fileTag::UNSTRUCTURED_GRID, "UnstructuredGrid" },
++    { fileTag::MULTI_BLOCK, "vtkMultiBlockDataSet" },
++    // { fileTag::COLLECTION, "Collection" },
++});
++
++
++const Foam::Enum
++<
++    Foam::vtk::fileAttr
++>
++Foam::vtk::fileAttrNames
++({
++    { fileAttr::OFFSET, "offset" },
++    { fileAttr::NUMBER_OF_COMPONENTS, "NumberOfComponents" },
++    { fileAttr::NUMBER_OF_TUPLES, "NumberOfTuples" },
++    { fileAttr::NUMBER_OF_POINTS, "NumberOfPoints" },
++    { fileAttr::NUMBER_OF_CELLS, "NumberOfCells" },
++    { fileAttr::NUMBER_OF_POLYS, "NumberOfPolys" },
++    { fileAttr::NUMBER_OF_VERTS, "NumberOfVerts" },
++    { fileAttr::NUMBER_OF_LINES, "NumberOfLines" },
++});
++
++
++const Foam::Enum
++<
++    Foam::vtk::dataArrayAttr
++>
++Foam::vtk::dataArrayAttrNames
++({
++    { dataArrayAttr::POINTS, "Points" },
++    { dataArrayAttr::OFFSETS, "offsets" },
++    { dataArrayAttr::CONNECTIVITY, "connectivity" },
++    { dataArrayAttr::TYPES, "types" },
++    { dataArrayAttr::FACES, "faces" },
++    { dataArrayAttr::FACEOFFSETS, "faceoffsets" },
++});
++
++
++// Legacy
++
++const Foam::word Foam::vtk::legacy::fileExtension("vtk");
++
++const Foam::Enum
++<
++    Foam::vtk::fileTag
++>
++Foam::vtk::legacy::contentNames
++({
++    { vtk::fileTag::POLY_DATA, "POLYDATA" },
++    { vtk::fileTag::UNSTRUCTURED_GRID, "UNSTRUCTURED_GRID" },
++});
++
++
++const Foam::Enum
++<
++    Foam::vtk::fileTag
++>
++Foam::vtk::legacy::dataTypeNames
++({
++    { vtk::fileTag::CELL_DATA,  "CELL_DATA" },
++    { vtk::fileTag::POINT_DATA, "POINT_DATA" },
++});
++
++
++// ************************************************************************* //
+diff --git a/OpenFOAM-v1912/src/fileFormats/vtk/core/foamVtkCore.H b/OpenFOAM-v1912/src/fileFormats/vtk/core/foamVtkCore.H
+new file mode 100644
+index 00000000..3025d659
+--- /dev/null
++++ b/OpenFOAM-v1912/src/fileFormats/vtk/core/foamVtkCore.H
+@@ -0,0 +1,202 @@
++/*---------------------------------------------------------------------------*\
++  =========                 |
++  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
++   \\    /   O peration     |
++    \\  /    A nd           | www.openfoam.com
++     \\/     M anipulation  |
++-------------------------------------------------------------------------------
++    Copyright (C) 2016-2018 OpenCFD Ltd.
++-------------------------------------------------------------------------------
++License
++    This file is part of OpenFOAM.
++
++    OpenFOAM is free software: you can redistribute it and/or modify it
++    under the terms of the GNU General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
++    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++    for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
++
++Namespace
++    Foam::vtk
++
++Description
++    Namespace for handling VTK input/output.
++
++SourceFiles
++    foamVtkCore.C
++
++\*---------------------------------------------------------------------------*/
++
++#ifndef foamVtkCore_H
++#define foamVtkCore_H
++
++#include <cstdint>
++#include "Enum.H"
++
++// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
++
++namespace Foam
++{
++namespace vtk
++{
++
++// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
++
++  // Enumerations
++
++    //- The context when outputting a VTK file (XML or legacy).
++    enum OutputContext
++    {
++        INLINE,     //<! Generate header and inline data
++        HEADER,     //<! Generate header only
++        APPEND      //<! Generate append-data
++    };
++
++
++    //- The output format type for file contents.
++    //  Upper bits for output type, lower bits for the format itself.
++    enum class formatType : uint8_t
++    {
++        INLINE_ASCII  = 0,    //!< XML inline ASCII, asciiFormatter
++        INLINE_BASE64 = 0x01, //!< XML inline base64, base64Formatter
++        APPEND_BASE64 = 0x11, //!< XML append base64, appendBase64Formatter
++        APPEND_BINARY = 0x12, //!< XML append raw binary, appendRawFormatter
++        LEGACY_ASCII  = 0x20, //!< Legacy ASCII, legacyAsciiFormatter
++        LEGACY_BINARY = 0x22, //!< Legacy raw binary, legacyRawFormatter
++    };
++
++    //- Test for XML append format
++    inline bool isAppend(enum formatType fmt)
++    {
++        return (uint8_t(fmt) & 0x10);
++    }
++
++    //- Test for vtk legacy format
++    inline bool isLegacy(enum formatType fmt)
++    {
++        return (uint8_t(fmt) & 0x20);
++    }
++
++
++    //- Equivalent to enumeration in "vtkCellType.h"
++    enum cellType
++    {
++        VTK_EMPTY_CELL       = 0,
++        VTK_VERTEX           = 1,
++        VTK_POLY_VERTEX      = 2,
++        VTK_LINE             = 3,
++        VTK_POLY_LINE        = 4,
++        VTK_TRIANGLE         = 5,
++        VTK_TRIANGLE_STRIP   = 6,
++        VTK_POLYGON          = 7,
++        VTK_PIXEL            = 8,
++        VTK_QUAD             = 9,
++        VTK_TETRA            = 10,
++        VTK_VOXEL            = 11,
++        VTK_HEXAHEDRON       = 12,
++        VTK_WEDGE            = 13,
++        VTK_PYRAMID          = 14,
++        VTK_PENTAGONAL_PRISM = 15,
++        VTK_HEXAGONAL_PRISM  = 16,
++        VTK_POLYHEDRON       = 42
++    };
++
++
++    //- Some common XML tags for vtk files
++    enum class fileTag
++    {
++        VTK_FILE,               //!< "VTKFile"
++        DATA_ARRAY,             //!< "DataArray"
++        BLOCK,                  //!< "Block"
++        PIECE,                  //!< "Piece"
++        DATA_SET,               //!< "DataSet"
++        POINTS,                 //!< "Points"
++        CELLS,                  //!< "Cells"
++        POLYS,                  //!< "Polys"
++        VERTS,                  //!< "Verts"
++        LINES,                  //!< "Lines"
++        CELL_DATA,              //!< "CellData"
++        POINT_DATA,             //!< "PointData"
++        FIELD_DATA,             //!< "FieldData"
++        POLY_DATA,              //!< "PolyData"
++        UNSTRUCTURED_GRID,      //!< "UnstructuredGrid"
++        MULTI_BLOCK,            //!< "vtkMultiBlockDataSet"
++    };
++
++    //- File extension (without ".") for some vtk XML file content types
++    extern const Foam::Enum<fileTag> fileExtension;
++
++    //- Version string for some vtk XML file content types
++    extern const Foam::Enum<fileTag> fileContentVersions;
++
++    //- Strings corresponding to the vtk XML tags
++    extern const Foam::Enum<fileTag> fileTagNames;
++
++    //- Some common XML attributes for vtk files
++    enum class fileAttr
++    {
++        OFFSET,                 //!< "offset"
++        NUMBER_OF_COMPONENTS,   //!< "NumberOfComponents"
++        NUMBER_OF_TUPLES,       //!< "NumberOfTuples"
++        NUMBER_OF_POINTS,       //!< "NumberOfPoints"
++        NUMBER_OF_CELLS,        //!< "NumberOfCells"
++        NUMBER_OF_POLYS,        //!< "NumberOfPolys"
++        NUMBER_OF_VERTS,        //!< "NumberOfVerts"
++        NUMBER_OF_LINES,        //!< "NumberOfLines"
++    };
++
++    //- Strings corresponding to the vtk XML attributes
++    extern const Foam::Enum<fileAttr> fileAttrNames;
++
++    //- Some common names for XML DataArray entries
++    enum class dataArrayAttr
++    {
++        POINTS,                 //!< "Points"
++        OFFSETS,                //!< "offsets"
++        CONNECTIVITY,           //!< "connectivity"
++        TYPES,                  //!< "types"
++        FACES,                  //!< "faces"
++        FACEOFFSETS,            //!< "faceoffsets"
++    };
++
++    //- Strings corresponding to the vtk XML DataArray attributes
++    extern const Foam::Enum<dataArrayAttr> dataArrayAttrNames;
++
++
++/*---------------------------------------------------------------------------*\
++                               Namespace legacy
++\*---------------------------------------------------------------------------*/
++
++namespace legacy
++{
++
++    //- Legacy file extension ("vtk")
++    extern const word fileExtension;
++
++    //- Legacy content names (POLYDATA, UNSTRUCTURED_GRID)
++    extern const Foam::Enum<vtk::fileTag> contentNames;
++
++    //- Legacy data type names (CELL_DATA, POINT_DATA)
++    extern const Foam::Enum<vtk::fileTag> dataTypeNames;
++
++} // End namespace legacy
++
++
++// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
++
++} // End namespace vtk
++
++} // End namespace Foam
++
++// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
++
++#endif
++
++// ************************************************************************* //
+diff --git a/OpenFOAM-v1912/src/fileFormats/vtk/core/foamVtkPTraits.C b/OpenFOAM-v1912/src/fileFormats/vtk/core/foamVtkPTraits.C
+new file mode 100644
+index 00000000..b2e0fc4f
+--- /dev/null
++++ b/OpenFOAM-v1912/src/fileFormats/vtk/core/foamVtkPTraits.C
+@@ -0,0 +1,76 @@
++/*---------------------------------------------------------------------------*\
++  =========                 |
++  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
++   \\    /   O peration     |
++    \\  /    A nd           | www.openfoam.com
++     \\/     M anipulation  |
++-------------------------------------------------------------------------------
++    Copyright (C) 2016-2018 OpenCFD Ltd.
++-------------------------------------------------------------------------------
++License
++    This file is part of OpenFOAM.
++
++    OpenFOAM is free software: you can redistribute it and/or modify it
++    under the terms of the GNU General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
++    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++    for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
++
++\*---------------------------------------------------------------------------*/
++
++#include "foamVtkPTraits.H"
++#include "endian.H"
++
++// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
++
++template<>
++const char* const
++Foam::vtkPTraits<uint8_t>::typeName = "UInt8";
++
++template<>
++const char * const
++Foam::vtkPTraits<int32_t>::typeName = "Int32";
++
++template<>
++const char * const
++Foam::vtkPTraits<uint32_t>::typeName = "UInt32";
++
++template<>
++const char * const
++Foam::vtkPTraits<int64_t>::typeName = "Int64";
++
++template<>
++const char * const
++Foam::vtkPTraits<uint64_t>::typeName = "UInt64";
++
++template<>
++const char * const
++Foam::vtkPTraits<float>::typeName = "Float32";
++
++template<>
++const char * const
++Foam::vtkPTraits<double>::typeName = "Float64";
++
++#ifdef WM_LITTLE_ENDIAN
++template<>
++const char* const
++Foam::vtkPTraits<Foam::endian>::typeName = "LittleEndian";
++#else
++template<>
++const char* const
++Foam::vtkPTraits<Foam::endian>::typeName = "BigEndian";
++#endif
++
++template<>
++const char* const
++Foam::vtkPTraits<std::string>::typeName = "String";
++
++
++// ************************************************************************* //
+diff --git a/OpenFOAM-v1912/src/fileFormats/vtk/core/foamVtkPTraits.H b/OpenFOAM-v1912/src/fileFormats/vtk/core/foamVtkPTraits.H
+new file mode 100644
+index 00000000..0953a3cf
+--- /dev/null
++++ b/OpenFOAM-v1912/src/fileFormats/vtk/core/foamVtkPTraits.H
+@@ -0,0 +1,96 @@
++/*---------------------------------------------------------------------------*\
++  =========                 |
++  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
++   \\    /   O peration     |
++    \\  /    A nd           | www.openfoam.com
++     \\/     M anipulation  |
++-------------------------------------------------------------------------------
++    Copyright (C) 2016-2018 OpenCFD Ltd.
++-------------------------------------------------------------------------------
++License
++    This file is part of OpenFOAM.
++
++    OpenFOAM is free software: you can redistribute it and/or modify it
++    under the terms of the GNU General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
++    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++    for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
++
++Class
++    Foam::vtkPTraits
++
++Description
++    Names for VTK primitive types.
++
++\*---------------------------------------------------------------------------*/
++
++#ifndef foamVtkPTraits_H
++#define foamVtkPTraits_H
++
++#include <cstdint>
++#include <string>
++
++// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
++
++namespace Foam
++{
++
++// Forward declarations
++class endian;
++
++/*---------------------------------------------------------------------------*\
++                         Class vtkPTraits Declaration
++\*---------------------------------------------------------------------------*/
++
++template<class PrimitiveType>
++struct vtkPTraits
++{
++    // Static data members
++    static const char* const typeName;
++};
++
++
++template<>
++const char* const vtkPTraits<uint8_t>::typeName;  // UInt8
++
++template<>
++const char* const vtkPTraits<int32_t>::typeName;  // Int32
++
++template<>
++const char* const vtkPTraits<uint32_t>::typeName; // UInt32
++
++template<>
++const char* const vtkPTraits<int64_t>::typeName;  // Int64
++
++template<>
++const char* const vtkPTraits<uint64_t>::typeName; // UInt64
++
++template<>
++const char* const vtkPTraits<float>::typeName;    // Float32
++
++template<>
++const char* const vtkPTraits<double>::typeName;   // Float64
++
++template<>
++const char* const vtkPTraits<Foam::endian>::typeName; // (Big|Little)Endian
++
++template<>
++const char* const vtkPTraits<std::string>::typeName; // String
++
++
++// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
++
++} // End namespace Foam
++
++// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
++
++#endif
++
++// ************************************************************************* //
+-- 
+2.18.2
+
