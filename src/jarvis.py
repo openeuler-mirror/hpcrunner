@@ -14,6 +14,7 @@ class Jarvis:
         parser.add_argument("-v","--version", help=f"get version info", action="store_true")
         parser.add_argument("-use","--use", help="Switch config file...", nargs=1)
         parser.add_argument("-i","--info", help=f"get machine info", action="store_true")
+        parser.add_argument("-l","--list", help=f"get installed package info", action="store_true")
         #accept software_name/version GCC/GCC+MPI/CLANG/CLANG+MPI
         parser.add_argument("-install","--install", help=f"install dependency", nargs=2)
         #accept software_name/version GCC/GCC+MPI/CLANG/CLANG+MPI
@@ -53,6 +54,9 @@ class Jarvis:
         
         if self.args.info:
             self.analysis.get_machine_info()
+
+        if self.args.list:
+            self.analysis.get_install_list()
 
         if self.args.install:
             self.analysis.install(self.args.install[0], self.args.install[1])

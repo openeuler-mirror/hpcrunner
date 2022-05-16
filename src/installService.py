@@ -394,5 +394,14 @@ chmod +x {depend_file}
         self.set_installed_status(remove_list[choice-1], "0")
         print("Successfully remove "+software_info)
         
-        
+    def list(self):
+        self.tool.prt_content("Installed list".upper())
+        file_list = [d for d in glob(self.SOFTWARE_PATH+'/**', recursive=True)]
+        installed_list = []
+        for file in file_list:
+            if os.path.isdir(file) and self.is_installed(file):
+                installed_list.append(file)
+        for file in installed_list:
+            file = file.replace(self.SOFTWARE_PATH, 'software')
+            print(file)
         

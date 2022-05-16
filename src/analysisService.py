@@ -75,6 +75,9 @@ class AnalysisService:
     def install(self,software_path, compiler_mpi_info):
         self.jinstall.install(software_path, compiler_mpi_info)
     
+    def get_install_list(self):
+        self.jinstall.list()
+    
     def remove(self,software_path):
         self.jinstall.remove(software_path)
     
