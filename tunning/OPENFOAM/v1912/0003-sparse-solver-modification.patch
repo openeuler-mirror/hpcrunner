@@ -1,0 +1,99 @@
+From efe88723c1d86ac47a4e9a65879012408e5bfffb Mon Sep 17 00:00:00 2001
+From: yuankun <yuankun@localhost.localdomain>
+Date: Tue, 19 Apr 2022 09:45:06 +0800
+Subject: [PATCH 3/6] sparse solver modification
+
+---
+ .../foam_run/cavity512/system/fvSolution      | 66 +++++++++----------
+ 1 file changed, 33 insertions(+), 33 deletions(-)
+
+diff --git a/OpenFOAM-v1912/foam_run/cavity512/system/fvSolution b/OpenFOAM-v1912/foam_run/cavity512/system/fvSolution
+index bd26ae7c..64ec5887 100755
+--- a/OpenFOAM-v1912/foam_run/cavity512/system/fvSolution
++++ b/OpenFOAM-v1912/foam_run/cavity512/system/fvSolution
+@@ -17,49 +17,49 @@ FoamFile
+ 
+ solvers
+ {
++//     p
++//     {
++//         solver          PCG;
++// //        preconditioner  mySSOR;
++//         preconditioner  FDIC;
++//         tolerance       1e-10;
++//         relTol          5e-6;
++//     }
++
++//     U
++//     {
++//         solver          smoothSolver;
++//         smoother        symGaussSeidel;
++//         tolerance       1e-9;
++//         relTol          0;
++//     }
+     p
+     {
+         solver          PCG;
+-//        preconditioner  mySSOR;
+-        preconditioner  FDIC;
++        preconditioner
++        {
++            preconditioner GAMG;
++            nVcycles       1;
++            // tolerance      1e-06;
++            // relTol         0;
++            smoother       DIC;//GaussSeidel;
++            nCellsInCoarsestLevel   16;
++            mergeLevels             2;
++            nPreSweeps              1;
++            // directSolveCoarsest     yes;
++        }
+         tolerance       1e-10;
+         relTol          5e-6;
++        
++        // maxIter         0;
+     }
+ 
++
+     U
+     {
+-        solver          smoothSolver;
+-        smoother        symGaussSeidel;
+-        tolerance       1e-9;
+-        relTol          0;
++        solver          PBiCGStab;
++        preconditioner  DILU;
+     }
+-    // p
+-    // {
+-    //     solver          PCG;
+-    //     preconditioner
+-    //     {
+-    //         preconditioner GAMG;
+-    //         nVcycles       1;
+-    //         // tolerance      1e-06;
+-    //         // relTol         0;
+-    //         smoother       DIC;//GaussSeidel;
+-    //         nCellsInCoarsestLevel   16;
+-    //         mergeLevels             2;
+-    //         nPreSweeps              1;
+-    //         // directSolveCoarsest     yes;
+-    //     }
+-    //     tolerance       1e-10;
+-    //     relTol          5e-6;
+-        
+-    //     // maxIter         0;
+-    // }
+-
+-
+-    // U
+-    // {
+-    //     solver          PBiCGStab;
+-    //     preconditioner  DILU;
+-    // }
+     pFinal
+     {
+         $p;
+-- 
+2.18.2
+
