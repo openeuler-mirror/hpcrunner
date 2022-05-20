@@ -273,6 +273,10 @@ set     version			    {sversion}
         module_file_content = self.get_module_file_content(install_path, sversion)
         if not self.is_installed(install_path):
             return
+        # if install_path is empty, The module file should not generated.
+        if len(os.listdir(install_path)) == 1:
+            print('module file did not generated because no file generated under install path')
+            return
         if stype == SType.MPI:
             compiler_str = cname + cmversion
             module_path = os.path.join(self.MODULE_DEPS_PATH, compiler_str ,software_str)
