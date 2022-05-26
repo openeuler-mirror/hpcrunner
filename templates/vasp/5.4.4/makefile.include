@@ -13,7 +13,7 @@ FC         = mpif90
 FCL        = mpif90
 FREE       = -ffree-form -ffree-line-length-none
 FFLAGS     = -w
-OFLAG      = -O1 -ffp-contract=fast  -ffpe-trap=invalid,zero,overflow
+OFLAG      = -O1 -ffp-contract=fast  -ffpe-trap=invalid,zero,overflow,underflow
 OFLAG_IN   = $(OFLAG)
 DEBUG      = -O0
 LLIBS      = -L${JARVIS_ROOT}/software/libs/bisheng2/hmpi1/scalapack-clang/2.1.0/lib -lscalapack -L${JARVIS_ROOT}/software/libs/bisheng2/openblas/0.3.18/lib -lopenblas
