@@ -14,7 +14,7 @@ https://bbs.huaweicloud.com/forum/thread-176980-1-1.html
 
 工具使用方法：
 1.修改编译选项:编译优化等级更改为-O0，增加-g，删除-fopenmp、-qopenmp等并行编译选项。
-2.编译print_md5.c为print_md5.o，修改应用编译脚本，将print_md5.o文件链接进目标应用。
+2.将lib文件夹下的libprint_md5.so动态库放在对应的服务器上，修改应用编译脚本，将动态库文件链接进目标应用。
 3.将arm文件夹下的文件放在arm服务器上的应用、算例的同一目录下，将x86文件夹下的文件放在x86服务器上的应用、算例的同一目录下
 4.在arm服务器下执行./hawkeys.sh program srcdir filename num1 num2 x86_ip x86_password x86_workdir
 program：应用二进制名称
