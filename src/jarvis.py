@@ -17,8 +17,10 @@ class Jarvis:
         parser.add_argument("-l","--list", help=f"get installed package info", action="store_true")
         #accept software_name/version GCC/GCC+MPI/CLANG/CLANG+MPI
         parser.add_argument("-install","--install", help=f"install dependency", nargs=2)
-        #accept software_name/version GCC/GCC+MPI/CLANG/CLANG+MPI
+        #remove
         parser.add_argument("-remove","--remove", help=f"remove software", nargs=1)
+        #find
+        parser.add_argument("-find","--find", help=f"find software", nargs=1)
         # dependency install
         parser.add_argument("-dp","--depend", help=f"{DataService.app_name} dependency install", action="store_true")
         parser.add_argument("-e","--env", help=f"set environment {DataService.app_name}", action="store_true")
@@ -63,6 +65,9 @@ class Jarvis:
         
         if self.args.remove:
             self.analysis.remove(self.args.remove[0])
+        
+        if self.args.find:
+            self.analysis.find(self.args.find[0])
         
         if self.args.env:
             self.analysis.env()

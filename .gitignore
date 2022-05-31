@@ -67,4 +67,4 @@ build.sh
 .meta
 software/*
 avg
-installed*
+installed

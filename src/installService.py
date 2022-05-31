@@ -391,10 +391,13 @@ chmod +x {depend_file}
                 print(f"{i+1}: {remove_list[i]}")
             self.tool.prt_content("")
             choice = input(f"find {lens} software, which one do you want to remove?\n")
-            choice = int(choice)
-            if choice > lens or choice < 1:
-                print("Wrong choice!")
-                return
+            try:
+                choice = int(choice)
+                if choice > lens or choice < 1:
+                    print("invalid choice!")
+                    return
+            except:
+                sys.exit("please enter a valid number!")
         self.set_installed_status(remove_list[choice-1], "0")
         print("Successfully remove "+software_info)
         
@@ -408,4 +411,16 @@ chmod +x {depend_file}
         for file in installed_list:
             file = file.replace(self.SOFTWARE_PATH, 'software')
             print(file)
+    
+    def find(self, content):
+        self.tool.prt_content(f"Looking for package {content}")
+        file_list = [d for d in glob(self.SOFTWARE_PATH+'/**', recursive=True)]
+        flag = False
+        for file in file_list:
+            if os.path.isdir(file) and self.is_installed(file):
+                if content in file:
+                    flag = True
+                    print(f"FOUND: {file}")
+        if not flag:
+            print("NOT FOUND")
         
