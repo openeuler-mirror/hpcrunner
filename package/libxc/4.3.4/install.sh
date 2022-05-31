@@ -3,6 +3,7 @@ set -x
 set -e
 . ${DOWNLOAD_TOOL} -u http://forge.abinit.org/fallbacks/libxc-4.3.4.tar.gz
 cd ${JARVIS_TMP}
+rm -rf libxc-4.3.4
 tar -xvf ${JARVIS_DOWNLOAD}/libxc-4.3.4.tar.gz
 cd libxc-4.3.4
 ./configure  --prefix=$1  
