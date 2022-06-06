@@ -80,6 +80,9 @@ class AnalysisService:
     
     def remove(self,software_path):
         self.jinstall.remove(software_path)
+
+    def find(self,content):
+        self.jinstall.find(content)
     
     def install_deps(self):
         self.jinstall.install_depend()
