@@ -138,43 +138,49 @@ eg:
 ./jarvis -l
 ```
 
-8.一键生成环境变量(会读取配置文件中的[ENV]字段内容并生成env.sh脚本执行，默认自动生成)
+8.查询已安装的软件
+
+```
+./jarvis -f xxx
+```
+
+9.一键生成环境变量(会读取配置文件中的[ENV]字段内容并生成env.sh脚本执行，默认自动生成)
 
 ```
 ./jarvis -e && source ./env.sh
 ```
 
-9.一键编译（会读取配置文件中的[BUILD]字段内容并生成build.sh脚本执行）
+10.一键编译（会读取配置文件中的[BUILD]字段内容并生成build.sh脚本执行）
 
 ```
 ./jarvis -b
 ```
 
-10.一键运行（会读取配置文件中的[RUN]字段内容并生成run.sh脚本执行）
+11.一键运行（会读取配置文件中的[RUN]字段内容并生成run.sh脚本执行）
 
 ```
 ./jarvis -r
 ```
 
-11.一键性能采集(会读取配置文件中的[PERF]字段内容的perf值)
+12.一键性能采集(会读取配置文件中的[PERF]字段内容的perf值)
 
 ```
 ./jarvis -p
 ```
 
-12.一键GPU性能采集(需安装nsys、ncu)
+13.一键GPU性能采集(需安装nsys、ncu)
 
 ```
 ./jarvis -gp
 ```
 
-13.一键输出服务器信息(包括CPU、网卡、OS、内存等)
+14.一键输出服务器信息(包括CPU、网卡、OS、内存等)
 
 ```
 ./jarvis -i
 ```
 
-14.一键服务器性能评测(包括MPI、OMP、P2P等)
+15.一键服务器性能评测(包括MPI、OMP、P2P等)
 
 ```
 ./jarvis -bench all    #运行所有benchmark
@@ -183,20 +189,20 @@ eg:
 ./jarvis -bench gemm   #运行矩阵运算 benchmark
 ```
 
-15.切换配置(配置文件路径会保存到.meta文件中)
+16.切换配置(配置文件路径会保存到.meta文件中)
 
 ```
 ./jarvis -use XXX.config
 ```
 
-16.根据当前配置生成Singularity容器定义文件
+17.根据当前配置生成Singularity容器定义文件
 
 ```
 ./jarvis -container docker-hub-address
 eg: ./jarvis -container openeuler:openeuler
 ```
 
-17.其它功能查看（网络检测等）
+18.其它功能查看（网络检测等）
 
 ```
 ./jarvis -h
