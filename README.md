@@ -38,8 +38,6 @@
 
 ### 已验证HPC应用
 
-分子动力学领域：
-
 - [x] CP2K
 
 - [x] Amber
@@ -48,14 +46,53 @@
 
 - [x] VASP
 
-气象领域：
+- [x] ABINIT
 
-- [x] WRF
+- [x] SIESTA
+
+气象海洋领域：
+
+- [x] CMAQ
+
+- [x] fvcom
+
+- [x] SPECFEM3D_GLOBE
+
+- [x] udunits
 
 流体力学领域：
 
 - [x] OpenFOAM
 
+- [x] SU2
+
+- [x] miniFE
+
+计算化学领域：
+
+- [x] CP2K
+
+- [x] nwchem
+
+量子力学领域：
+
+- [x] octopus
+
+生命科学领域：
+
+- [x] bedtools
+
+- [x] blast
+
+- [x] bwa
+
+- [x] gatk
+
+- [x] octave
+
+- [x] picard
+
+- [x] relion
 
 ### 使用说明
 
