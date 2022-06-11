@@ -3,6 +3,7 @@ set -x
 set -e
 . ${DOWNLOAD_TOOL} -u https://codeload.github.com/cjcoats/ioapi-3.2/tar.gz/2020111 -f ioapi-3.2-2020111.tar.gz
 cd ${JARVIS_TMP}
+rm -rf ioapi-3.2-2020111 ioapi-3.2
 tar -xvf ${JARVIS_DOWNLOAD}/ioapi-3.2-2020111.tar.gz
 mv ioapi-3.2-2020111 ioapi-3.2
 cd ioapi-3.2
@@ -14,8 +15,8 @@ sed -i "30c\#FSFLAGS   = -save" ioapi/Makeinclude.Linux4_aarch64
 cp ioapi/Makefile.nocpl ioapi/Makefile
 export HOME=${JARVIS_TMP}
 cp m3tools/Makefile.nocpl m3tools/Makefile
-sed -i "65c\LIBS = -L${OBJDIR} -lioapi -L${JARVIS_ROOT}/software/libs/kgcc9/hmpi1/netcdf/4.7.0/lib/ -lnetcdff -lnetcdf -L${JARVIS_ROOT}/software/libs/kgcc9/hmpi1/hdf5/1.10.1/lib -lhdf5_hl -lhdf5 -lz \$(OMPLIBS) \$(ARCHLIB) \$(ARCHLIBS)" m3tools/Makefile
-sed -i "146c\LIBS = -L${OBJDIR} -lioapi -L${JARVIS_ROOT}/software/libs/kgcc9/hmpi1/netcdf/4.7.0/lib/ -lnetcdff -lnetcdf -L${JARVIS_ROOT}/software/libs/kgcc9/hmpi1/hdf5/1.10.1/lib -lhdf5_hl -lhdf5 -lz \$(OMPLIBS) \$(ARCHLIB) \$(ARCHLIBS)" m3tools/Makefile
+sed -i "65c\LIBS = -L\${OBJDIR} -lioapi -L${JARVIS_ROOT}/software/libs/bisheng2/hmpi1/netcdf/4.7.0/lib/ -lnetcdff -lnetcdf -L${JARVIS_ROOT}/software/libs/bisheng2/hmpi1/hdf5/1.10.1/lib -lhdf5_hl -lhdf5 -lz \$(OMPLIBS) \$(ARCHLIB) \$(ARCHLIBS)" m3tools/Makefile
+sed -i "146c\LIBS = -L\${OBJDIR} -lioapi -L${JARVIS_ROOT}/software/libs/bisheng2/hmpi1/netcdf/4.7.0/lib/ -lnetcdff -lnetcdf -L${JARVIS_ROOT}/software/libs/bisheng2/hmpi1/hdf5/1.10.1/lib -lhdf5_hl -lhdf5 -lz \$(OMPLIBS) \$(ARCHLIB) \$(ARCHLIBS)" m3tools/Makefile
 
 cp Makefile.template Makefile
 sed -i "138c\BIN        = Linux4_aarch64" Makefile
@@ -25,7 +26,7 @@ sed -i "141c\LIBINST    = \$(INSTALL)/\$(BIN)" Makefile
 sed -i "142c\BININST    = \$(INSTALL)/\$(BIN)" Makefile
 sed -i "143c\CPLMODE    = nocpl" Makefile
 sed -i '144c\IOAPIDEFS  = "-DIOAPI_NCF4"' Makefile
-sed -i "193c\NCFLIBS    = -L${JARVIS_ROOT}/software/libs/kgcc9/hmpi1/netcdf/4.7.0/lib/ -lnetcdff -lnetcdf -L${JARVIS_ROOT}/software/libs/kgcc9/hmpi1/hdf5/1.10.1/lib -lhdf5_hl -lhdf5 -lz" Makefile
+sed -i "193c\NCFLIBS    = -L${JARVIS_ROOT}/software/libs/bisheng2/hmpi1/netcdf/4.7.0/lib/ -lnetcdff -lnetcdf -L${JARVIS_ROOT}/software/libs/bisheng2/hmpi1/hdf5/1.10.1/lib -lhdf5_hl -lhdf5 -lz" Makefile
 make BIN=Linux4_aarch64
 sed -i "174c\        COMMON  / BSTATE3 /                                              " ioapi/STATE3.EXT
 sed -i "175c\     &          P_ALP3, P_BET3, P_GAM3,                                  " ioapi/STATE3.EXT
