@@ -52,6 +52,8 @@
 
 气象海洋领域：
 
+- [x] WRF
+
 - [x] CMAQ
 
 - [x] fvcom
