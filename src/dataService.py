@@ -102,9 +102,9 @@ class DataService(object,metaclass=Singleton):
         DataService.case_dir = data['case_dir']
     
     def set_perf_info(self, data):
-        DataService.perf_para = data['perf']
-        DataService.nsys_para = data['nsys']
-        DataService.ncu_para = data['ncu']
+        DataService.perf_para = data['perf'] if 'perf' in data else ''
+        DataService.nsys_para = data['nsys'] if 'nsys' in data else ''
+        DataService.ncu_para = data['ncu'] if 'ncu' in data else ''
 
     def split_two_part(self, data):
         split_list = data.split(' ', 1)
