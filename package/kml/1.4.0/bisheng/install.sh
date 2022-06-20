@@ -2,6 +2,7 @@
 set -x
 set -e
 . ${DOWNLOAD_TOOL} -u https://kunpeng-repo.obs.cn-north-4.myhuaweicloud.com/Kunpeng%20BoostKit/Kunpeng%20BoostKit%2021.0.1/BoostKit-kml_1.4.0_bisheng.zip
+. ${DOWNLOAD_TOOL} -u https://github.com/Reference-LAPACK/lapack/archive/refs/tags/v3.9.1.tar.gz -f lapack-3.9.1.tar.gz
 cd ${JARVIS_TMP}
 if [ -d /usr/local/kml ];then
    rpm -e boostkit-kml
