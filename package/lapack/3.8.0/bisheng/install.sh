@@ -1,6 +1,7 @@
 #!/bin/bash
 set -x
 set -e
+. $DOWNLOAD_TOOL -u https://www.cp2k.org/static/downloads/lapack-3.8.0.tgz
 cd ${JARVIS_TMP}
 tar -xvf ${JARVIS_DOWNLOAD}/lapack-3.8.0.tgz
 cd lapack-3.8.0
