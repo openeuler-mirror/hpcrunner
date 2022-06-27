@@ -1,0 +1,6 @@
+Q: gcc: error: .2-a+fp16+rcpc+dotprod+crypto: No such file or directory
+gcc: error: .2-a+fp16+rcpc+dotprod+crypto: No such file or directory
+gcc: error: unrecognized command line option ‘-n1’; did you mean ‘-n’?
+gcc: error: unrecognized command line option ‘-n1’; did you mean ‘-n’?
+
+A: 增加 --disabled-python 编译选项即可

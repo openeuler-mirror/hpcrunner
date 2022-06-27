@@ -20,6 +20,6 @@ if [ ! -n "$openblas_path" ];then
         exit 1
 fi
 
-./configure CXX=mpicxx CC=mpicc FC=mpifort --prefix=$1 --enable-external-blas --enable-gsl --enable-external-lapack LDFLAGS=-L$openblas_path LIBS="-lopenblas"
+./configure CXX=mpicxx CC=mpicc FC=mpifort --prefix=$1 --enable-external-blas --enable-gsl --enable-external-lapack --disable-python LDFLAGS=-L$openblas_path LIBS="-lopenblas"
 make -j
 make install
