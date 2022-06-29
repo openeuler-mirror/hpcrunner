@@ -6,5 +6,5 @@ cd ${JARVIS_TMP}
 rm -rf mfem-4.4
 tar -xvf ${JARVIS_DOWNLOAD}/v4.4.tar.gz
 cd mfem-4.4
-make serial -j 4
-make install
+make serial -j
+make install PREFIX=$1
