@@ -1,0 +1,41 @@
+log log_${model_name}_${rate}_${T}.lammps
+processors 1 1 * 
+units real
+dimension 3
+atom_style charge
+atom_modify map array sort 100 2.0
+boundary s s p 
+neighbor 0.3 nsq
+neigh_modify every 100 delay 0 one 5000
+
+read_data ${model_name}
+
+pair_style reax/c NULL checkqeq yes
+pair_coeff * * ffield.reax.FC C H
+fix 0 all qeq/reax 1 0 10.0 1e-6 reax/c 
+
+min_style cg
+minimize 1.0e-6 1.0e-8 10000 10000000
+
+velocity all create $T 4928459 mom yes rot yes dist gaussian units box
+
+thermo_style custom step temp etotal epair ke lx ly lz pxx pyy pxy pzz
+thermo 100
+
+timestep 0.2
+
+variable Tdamp equal 1000*dt
+variable rate_n equal ${rate}/1000
+variable N equal 3750000*(0.0005/${rate})
+
+dump 1 all xtc 100 dump_balance_${model_name}_${rate}_${T}.xtc
+fix 1 all npt temp $T $T ${Tdamp} z 1.0 1.0 ${Tdamp}
+run 100000
+unfix 1
+undump 1
+reset_timestep 0
+
+fix 2 all nvt temp $T $T ${Tdamp}
+fix 3 all deform 1000 z erate ${rate_n} units box
+dump 3 all xtc 100 dump_${model_name}_${rate}_${T}.xtc
+run ${N}
