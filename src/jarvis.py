@@ -48,6 +48,8 @@ class Jarvis:
         parser.add_argument("-bench","--benchmark", help="start benchmark test...", nargs=1)
         # start test
         parser.add_argument("-t","--test", help="start Jarvis test...", action="store_true")
+        # update modulefile path when hpcrunner is moved
+        parser.add_argument("-u","--update", help="start update jarvis...", action="store_true")
         self.args = parser.parse_args()
 
     def main(self):
@@ -119,6 +121,9 @@ class Jarvis:
         
         if self.args.test:
             self.analysis.test()
+        
+        if self.args.update:
+            self.analysis.update()
         
 if __name__ == '__main__':
     Jarvis().main()

@@ -423,4 +423,21 @@ chmod +x {depend_file}
                     print(f"FOUND: {file}")
         if not flag:
             print("NOT FOUND")
+
+    # update path when hpcrunner is translocation
+    def update(self):
+        file1_list = [d for d in glob(self.MODULE_FILES+'/**', recursive=True)]
+        file2_list=  [d for d in glob(self.MODULE_DEPS_PATH+'/**', recursive=True)]
+        file_list = file1_list+file2_list
+        module_list = []
+        for file in file_list:
+            if not os.path.isdir(file):
+                module_list.append(file)
+        for file in module_list:
+            content = self.tool.read_file(file)
+            search_old_path = re.search(r'prefix +(.*hpcrunner)', content)
+            if search_old_path:
+                content = content.replace(search_old_path.group(1), self.ROOT)
+                self.tool.write_file(file, content)
+        print("update successfully.")
         

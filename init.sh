@@ -14,4 +14,7 @@ export JARVIS_DOWNLOAD=${CUR_PATH}/downloads
 export JARVIS_TMP=${CUR_PATH}/tmp
 export DOWNLOAD_TOOL=${CUR_PATH}/package/common/download.sh
 #Install modules
-yum install -y environment-modules
+if ! type module >/dev/null 2>&1;then
+    echo "Install environment-modules"
+    yum install -y environment-modules
+fi
