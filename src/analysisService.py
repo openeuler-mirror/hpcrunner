@@ -87,5 +87,8 @@ class AnalysisService:
     def install_deps(self):
         self.jinstall.install_depend()
     
+    def update(self):
+        self.jinstall.update()
+    
     def gen_def(self, image):
         self.jcontainer.gen_def(image)

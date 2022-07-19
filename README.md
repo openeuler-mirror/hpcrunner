@@ -1,5 +1,5 @@
 # HPCRunner : 贾维斯智能助手
-## ***愿景：在任意机器的任意目录部署最优化HPC应用***
+## ***愿景：自动容器化助力极简部署，一站式调优HPC应用***
 
 ### 项目背景
 
@@ -38,18 +38,6 @@
 
 ### 已验证HPC应用
 
-- [x] CP2K
-
-- [x] Amber
-
-- [x] QE
-
-- [x] VASP
-
-- [x] ABINIT
-
-- [x] SIESTA
-
 气象海洋领域：
 
 - [x] WRF
@@ -73,8 +61,15 @@
 计算化学领域：
 
 - [x] CP2K
-
 - [x] nwchem
+- [x] Amber
+- [x] QE
+
+- [x] VASP
+
+- [x] ABINIT
+
+- [x] SIESTA
 
 量子力学领域：
 
@@ -247,6 +242,12 @@ eg: ./jarvis -container openeuler:openeuler
 ./jarvis -h
 ```
 
+19.更新路径（如果移动了贾维斯的路径）
+
+```
+./jarvis -u
+```
+
 ### 路标
 
 ![RoadMap](./images/roadmap.png)
@@ -274,3 +275,5 @@ eg: ./jarvis -container openeuler:openeuler
 揭开HPC应用的神秘面纱：https://zhuanlan.zhihu.com/p/489828346
 
 我和容器有个约会：https://zhuanlan.zhihu.com/p/499544308
+
+贾维斯：完美而凛然HPC应用管家 https://zhuanlan.zhihu.com/p/518460349
