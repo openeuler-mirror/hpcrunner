@@ -62,6 +62,12 @@ class Jarvis:
         if self.args.list:
             self.analysis.get_install_list()
 
+        if self.args.download:
+            self.analysis.download()
+        
+        if self.args.depend:
+            self.analysis.install_deps()
+
         if self.args.install:
             self.analysis.install(self.args.install[0], self.args.install[1])
         
@@ -89,14 +95,8 @@ class Jarvis:
         if self.args.kperf:
             self.analysis.kperf()
 
-        if self.args.depend:
-            self.analysis.install_deps()
-
         if self.args.rbatch:
             self.analysis.batch_run()
-
-        if self.args.download:
-            self.analysis.download()
 
         if self.args.gpuperf:
             self.analysis.gpu_perf()
