@@ -6,9 +6,11 @@ cd ${JARVIS_TMP}
 tar  -xvf ${JARVIS_DOWNLOAD}/scalapack-2.1.0.tgz
 cd scalapack-2.1.0
 cp SLmake.inc.example SLmake.inc
-LAPACK_PATH=$1
-LAPACK_PATH=${LAPACK_PATH%/*/*/*}
-LAPACK_PATH=${LAPACK_PATH}/lapack-bisheng/3.8.0/lib
+if ! [ -z ${LAPACK_PATH} ]; then
+    echo "${LAPACK_PATH} was defined"
+else
+    echo "Need to set environment var $LAPACK_PATH" && exit 1;
+fi
 sed -i "58s/-lblas//g" ./SLmake.inc
 sed -i "59s/-llapack//g" ./SLmake.inc
 sed -i "58s%$%${LAPACK_PATH}/librefblas.a%g" ./SLmake.inc

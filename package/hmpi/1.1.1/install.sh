@@ -5,7 +5,7 @@ set -e
 . ${DOWNLOAD_TOOL} -u https://github.com/kunpengcompute/xucg/archive/refs/tags/v1.1.1-huawei.zip -f xucg-1.1.1-huawei.zip
 . ${DOWNLOAD_TOOL} -u https://github.com/kunpengcompute/hmpi/archive/refs/tags/v1.1.1-huawei.zip -f hmpi-1.1.1-huawei.zip
 cd ${JARVIS_TMP}
-yum install -y perl-Data-Dumper autoconf automake libtool binutils
+yum install -y perl-Data-Dumper autoconf automake libtool binutils flex
 rm -rf hmpi-1.1.1-huawei hucx-1.1.1-huawei xucg-1.1.1-huawei
 unzip ${JARVIS_DOWNLOAD}/hucx-1.1.1-huawei.zip
 unzip ${JARVIS_DOWNLOAD}/xucg-1.1.1-huawei.zip
@@ -14,7 +14,7 @@ unzip ${JARVIS_DOWNLOAD}/hmpi-1.1.1-huawei.zip
 sleep 3
 cd hucx-1.1.1-huawei
 ./autogen.sh
-./contrib/configure-opt --prefix=$1/hucx CFLAGS="-DHAVE___CLEAR_CACHE=1" --disable-numa
+./contrib/configure-opt --prefix=$1/hucx CFLAGS="-DHAVE___CLEAR_CACHE=1" --disable-numa --without-java
 for file in `find . -name Makefile`;do sed -i "s/-Werror//g" $file;done
 for file in `find . -name Makefile`;do sed -i "s/-implicit-function-declaration//g" $file;done
 make -j64

@@ -16,8 +16,8 @@ FFLAGS     = -w
 OFLAG      = -O1 -ffp-contract=fast  -ffpe-trap=invalid,zero,overflow,underflow
 OFLAG_IN   = $(OFLAG)
 DEBUG      = -O0
-LLIBS      = -L${JARVIS_ROOT}/software/libs/bisheng2/hmpi1/scalapack-clang/2.1.0/lib -lscalapack -L${JARVIS_ROOT}/software/libs/bisheng2/openblas/0.3.18/lib -lopenblas
-FFTW       ?= ${JARVIS_ROOT}/software/libs/bisheng2/hmpi1/fftw/3.3.8
+LLIBS      = -L${JARVIS_LIBS}/bisheng2/hmpi1/scalapack-lapack-bisheng/2.1.0/lib -lscalapack -L${JARVIS_LIBS}/software/libs/bisheng2/openblas/0.3.18/lib -lopenblas
+FFTW       ?= ${JARVIS_LIBS}/bisheng2/hmpi1/fftw/3.3.8
 LLIBS      += -L$(FFTW)/lib -lfftw3
 INCS       = -I$(FFTW)/include
 OBJECTS    = fftmpiw.o fftmpi_map.o  fftw3d.o  fft3dlib.o
@@ -38,4 +38,3 @@ LLIBS    += -Lparser -lparser -lstdc++
 # Normally no need to change this
 SRCDIR     = ../../src
 BINDIR     = ../../bin
-
