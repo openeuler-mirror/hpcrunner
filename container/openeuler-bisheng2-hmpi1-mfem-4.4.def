@@ -16,7 +16,7 @@ From: openeuler/openeuler
     source ./init.sh
     ./jarvis -i
     # Switch config
-    ./jarvis -use templates/mfem/4.4/data.mfem.amd.cpu.config
+    ./jarvis -use templates/mfem/4.4/data.mfem.arm.cpu.config
     # install dependency
     ./jarvis -dp
     # build hpc
