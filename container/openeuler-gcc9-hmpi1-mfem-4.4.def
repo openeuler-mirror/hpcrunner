@@ -8,9 +8,7 @@ From: openeuler/openeuler
 
 %post
     # Install the necessary development environment
-    yum install -y environment-modules git dmidecode pciutils wget vim make
-    # install network package
-    yum install -y tcsh tcl lsof tk bc 
+    yum install -y environment-modules git wget unzip make flex tar
     source /etc/profile || true
     git config --global http.sslVerify false
     git clone https://gitee.com/openeuler/hpcrunner
@@ -18,14 +16,14 @@ From: openeuler/openeuler
     source ./init.sh
     ./jarvis -i
     # Switch config
-    ./jarvis -use templates/mfem/4.4/data.mfem.arm.cpu.config
+    ./jarvis -use templates/mfem/4.4/data.mfem.amd.cpu.config
     # install dependency
     ./jarvis -dp
     # build hpc
     ./jarvis -b
     # run hpc
     ./jarvis -r
-    # clean download directory
+    # clean tmp directory
     rm -rf downloads
 
 %labels
