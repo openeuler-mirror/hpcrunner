@@ -1,0 +1,52 @@
+# Tested with: GFortran 7.4.0, MPICH 3.3, LAPACK 3.8.0, ScaLAPACK 2.0.2, FFTW 3.3, Libint 2.6.0, Libxc 4.3.4, libxsmm 1.14, ELPA 2019.05.001, PLUMED 2.5.2, SPGLIB 1.12.2
+# Author: Matthias Krack (matthias.krack@psi.ch, PSI, December 2019)
+NVCC    = /usr/local/cuda/bin/nvcc
+DFLAGS += -D__ACC -D__DBCSR_ACC -D__PW_CUDA
+LIBS   += -L/usr/local/cuda/lib64 -lnvToolsExt -lnvrtc -lcudart -lcublas -lcufft -lnvrtc
+CC          = mpicc
+FC          = mpif90
+LD          = mpif90
+AR          = ar -r
+
+MPI_PATH        = path1
+GNU_PATH        = path2
+
+include       $(MPI_PATH)/plumed/2.6.2/lib/plumed/src/lib/Plumed.inc.static
+
+FFTW_INC    = $(MPI_PATH)/fftw/3.3.8/include
+FFTW_LIB    = $(MPI_PATH)/fftw/3.3.8/lib
+
+LIBINT_INC  = $(MPI_PATH)/libint/2.6.0/include
+LIBINT_LIB  = $(MPI_PATH)/libint/2.6.0/lib
+
+LIBXC_INC   = $(GNU_PATH)/libxc/5.1.4/include
+LIBXC_LIB   = $(GNU_PATH)/libxc/5.1.4/lib
+
+SPGLIB_INC  = $(GNU_PATH)/spglib/1.16.0/include
+SPGLIB_LIB  = $(GNU_PATH)/spglib/1.16.0/lib64
+
+CFLAGS      = -O3 -g -mtune=native -fopenmp
+
+DFLAGS      = -D__FFTW3 -D__LIBINT -D__LIBXC
+DFLAGS     += -D__MPI_VERSION=3 -D__PLUMED2 -D__SPGLIB
+DFLAGS     += -D__parallel -D__SCALAPACK
+
+FCFLAGS     = $(CFLAGS) $(DFLAGS)
+FCFLAGS    += -ffree-form -ffree-line-length-none
+FCFLAGS    += -fopenmp
+FCFLAGS    += -ftree-vectorize -funroll-loops -std=f2008
+FCFLAGS    += -I$(FFTW_INC) -I$(LIBINT_INC) -I$(LIBXC_INC)
+
+LDFLAGS     = $(FCFLAGS) -static-libgfortran
+
+LIBS        = $(PLUMED_DEPENDENCIES) -L$(GNU_PATH)/gsl/2.6/lib/ -lgsl -lgslcblas -lz
+LIBS       += $(LIBXC_LIB)/libxcf03.a
+LIBS       += $(LIBXC_LIB)/libxc.a
+LIBS       += $(LIBINT_LIB)/libint2.a
+LIBS       += $(SPGLIB_LIB)/libsymspg.a
+LIBS       += $(FFTW_LIB)/libfftw3.a
+LIBS       += $(FFTW_LIB)/libfftw3_threads.a
+LIBS       += -L$(MPI_PATH)/scalapack-kml/2.1.0/lib -lscalapack
+LIBS       += -L/usr/local/kml/lib/kblas/omp -lkblas
+LIBS       += -L/usr/local/kml/lib -lklapack_full
+LIBS       += -ldl -lpthread -lstdc++
