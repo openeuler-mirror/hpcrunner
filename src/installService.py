@@ -435,7 +435,7 @@ chmod +x {depend_file}
                 module_list.append(file)
         for file in module_list:
             content = self.tool.read_file(file)
-            search_old_path = re.search(r'prefix +(.*hpcrunner)', content)
+            search_old_path = re.search(r'prefix +(.*hpcrunner(-master)?)', content)
             if search_old_path:
                 content = content.replace(search_old_path.group(1), self.ROOT)
                 self.tool.write_file(file, content)

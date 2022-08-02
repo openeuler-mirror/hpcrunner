@@ -33,7 +33,6 @@ class PerfService:
         pid = self.get_pid()
         #start perf && analysis
         perf_cmd = f'''
-yum install -y perf
 perf record {DataService.perf_para} -a -g -p {pid}
 perf report  -i ./perf.data -F period,sample,overhead,symbol,dso,comm -s overhead --percent-limit 0.1% --stdio
 '''
