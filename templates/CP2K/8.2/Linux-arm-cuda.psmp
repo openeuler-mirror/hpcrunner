@@ -1,8 +1,11 @@
 # Tested with: GFortran 7.4.0, MPICH 3.3, LAPACK 3.8.0, ScaLAPACK 2.0.2, FFTW 3.3, Libint 2.6.0, Libxc 4.3.4, libxsmm 1.14, ELPA 2019.05.001, PLUMED 2.5.2, SPGLIB 1.12.2
 # Author: Matthias Krack (matthias.krack@psi.ch, PSI, December 2019)
 NVCC    = /usr/local/cuda/bin/nvcc
-DFLAGS += -D__ACC -D__DBCSR_ACC -D__PW_CUDA
-LIBS   += -L/usr/local/cuda/lib64 -lnvToolsExt -lnvrtc -lcudart -lcublas -lcufft -lnvrtc
+NVFLAGS = -O3 -g -w --std=c++11
+OFFLOAD_TARGET = cuda
+GPUVER = V100
+DFLAGS += -D__CUDA -D__ACC -D__DBCSR_ACC -D__PW_CUDA -D__OFFLOAD_CUDA
+
 CC          = mpicc
 FC          = mpif90
 LD          = mpif90
@@ -50,3 +53,4 @@ LIBS       += -L$(MPI_PATH)/scalapack-kml/2.1.0/lib -lscalapack
 LIBS       += -L/usr/local/kml/lib/kblas/omp -lkblas
 LIBS       += -L/usr/local/kml/lib -lklapack_full
 LIBS       += -ldl -lpthread -lstdc++
+LIBS   += -L/usr/local/cuda/lib64 -lnvToolsExt -lnvrtc -lcudart -lcublas -lcufft -lnvrtc

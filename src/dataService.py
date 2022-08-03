@@ -150,7 +150,7 @@ class DataService(object,metaclass=Singleton):
 
     def get_clean_cmd(self):
         return f'''
-set -e
+{self.get_env()}
 cd {DataService.build_dir}
 {DataService.clean_cmd}
 '''
