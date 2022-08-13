@@ -2,7 +2,7 @@ CUR_PATH=$(pwd)
 chmod -R +x ./benchmark
 chmod -R +x ./package
 chmod -R +x ./test
-chmod +x *.sh
+chmod +x ./*.sh
 chmod +x jarvis
 mkdir -p tmp
 export JARVIS_ROOT=${CUR_PATH}
@@ -16,5 +16,5 @@ export DOWNLOAD_TOOL=${CUR_PATH}/package/common/download.sh
 #Install modules
 if ! type module >/dev/null 2>&1;then
     echo "Install environment-modules"
-    yum install -y environment-modules
+    yum install -y environment-modules || apt install -y environment-modules
 fi

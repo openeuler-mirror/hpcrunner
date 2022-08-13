@@ -23,7 +23,7 @@ x86Run(){
     ${mpi_cmd} ./gemm 4024 4024 4024 0
 }
 # check Arch
-if [ x$(arch) = xaarch64 ];then
+if [ x"$(arch)" = xaarch64 ];then
     armRun
 else
     x86Run
