@@ -1,2 +1,4 @@
 #!/bin/bash
-python3 ./src/jarvis.py $*
+#python3 ./src/jarvis.py $*
+#prevent whitespace problems
+python3 ./src/jarvis.py "$@"

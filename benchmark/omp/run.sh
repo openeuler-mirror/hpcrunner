@@ -11,7 +11,7 @@ x86Run(){
     armRun
 }
 # check Arch
-if [ x$(arch) = xaarch64 ];then
+if [ x"$(arch)" = xaarch64 ];then
     armRun
 else
     x86Run
