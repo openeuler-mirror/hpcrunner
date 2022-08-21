@@ -3,8 +3,10 @@ From: openeuler/openeuler
 
 %environment
     source /etc/profile || true
-    cd /hpcrunner
-    source env.sh
+    source /etc/profile.d/modules.sh
+    export JARVIS_ROOT=/hpcrunner
+    source ${JARVIS_ROOT}/env.sh
+    cd ${JARVIS_ROOT}
 
 %post
     # Install the necessary development environment
@@ -19,11 +21,12 @@ From: openeuler/openeuler
     ./jarvis -use templates/mfem/4.4/data.mfem.arm.cpu.config
     # install dependency
     ./jarvis -dp
-    # build hpc
+    # build mfem
     ./jarvis -b
-    # run hpc
+    # run test
     ./jarvis -r
-    # clean tmp directory
+    # clean cache and downloads directory
+    yum clean all
     rm -rf downloads
 
 %labels
