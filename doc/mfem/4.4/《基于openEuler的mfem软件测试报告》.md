@@ -354,9 +354,9 @@ make[1]: Leaving directory '/root/build/mfem-4.4/tests/unit'
 
 |        | arm信息     | x86信息    |
 | ------ | ----------- | ---------- |
-| cpu    | Kunpeng 920 | xeon l5640 |
-| 核心数 | 16          | 12         |
-| 内存   | 32 GB       | 24 GB      |
+| cpu    | Kunpeng 920 |           |
+| 核心数 | 16          | 4         |
+| 内存   | 32 GB       | 8 GB      |
 | 磁盘io | 1.3 GB/s    | 400 MB/s   |
 | 虚拟化 | KVM         | KVM        |
 
