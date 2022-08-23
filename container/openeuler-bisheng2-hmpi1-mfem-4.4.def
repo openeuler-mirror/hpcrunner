@@ -4,9 +4,9 @@ From: openeuler/openeuler
 %environment
     source /etc/profile || true
     source /etc/profile.d/modules.sh
-    export JARVIS_ROOT=/hpcrunner
-    source ${JARVIS_ROOT}/env.sh
-    cd ${JARVIS_ROOT}
+    cd /hpcrunner
+    source init.sh
+    source env.sh
 
 %post
     # Install the necessary development environment

@@ -269,7 +269,7 @@ mkdir -p ~/install
 mkdir -p ~/build
 
 #安装编译所需依赖
-yum -y install libatomic libstdc++ libstdc++-devel libseccomp-devel
+yum -y install libatomic libstdc++ libstdc++-devel libseccomp-devel glib2-devel gcc squashfs-tools tar
 
 #安装bisheng编译器
 cd ~/build
@@ -315,7 +315,6 @@ singularity build --sandbox mfem-sandbox mfem-4.4-arm.sif
 ### 4.在沙盒中运行
 
 ```shell
-singularity build --sandbox mfem-sandbox mfem-4.4-arm.sif
 #进入沙盒
 singularity shell -w mfem-sandbox
 #在沙盒中运行内置的测试案例
