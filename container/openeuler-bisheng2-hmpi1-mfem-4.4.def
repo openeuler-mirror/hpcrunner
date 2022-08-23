@@ -3,7 +3,9 @@ From: openeuler/openeuler
 
 %environment
     source /etc/profile || true
+    source /etc/profile.d/modules.sh
     cd /hpcrunner
+    source init.sh
     source env.sh
 
 %post
@@ -19,11 +21,12 @@ From: openeuler/openeuler
     ./jarvis -use templates/mfem/4.4/data.mfem.arm.cpu.config
     # install dependency
     ./jarvis -dp
-    # build hpc
+    # build mfem
     ./jarvis -b
-    # run hpc
+    # run test
     ./jarvis -r
-    # clean tmp directory
+    # clean cache and downloads directory
+    yum clean all
     rm -rf downloads
 
 %labels
