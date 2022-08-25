@@ -171,9 +171,9 @@ cd {DataService.build_dir}
         run_cmd = DataService.run_cmd['run']
         hostfile = ''
         if nodes > 1:
-            hostfile = '--hostfile hostfile'
+            hostfile = f'--hostfile {DataService.root_path}/hostfile'
         if 'mpi' in run_cmd:
-            run_cmd = f'{run_cmd} {hostfile}'
+            run_cmd = run_cmd.replace('mpirun', f'mpirun {hostfile}')
         binary = os.path.join(DataService.binary_dir, DataService.binary_file)
         return f'''{run_cmd} {binary} {DataService.binary_para}'''
 
