@@ -68,3 +68,8 @@ build.sh
 software/*
 avg
 installed
+app/*
+./*.config
+test.sh
+*.swp
+workloads/*
