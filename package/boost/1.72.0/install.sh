@@ -6,5 +6,6 @@ cd ${JARVIS_TMP}
 rm -rf boost_1_72_0
 tar -xvf ${JARVIS_DOWNLOAD}/boost_1_72_0.tar.gz
 cd boost_1_72_0
+sed -i '60s/.*/#ifdef PTHREAD_STACK_MIN/' ./boost/thread/pthread/thread_data.hpp
 ./bootstrap.sh
 ./b2 install --prefix=$1
