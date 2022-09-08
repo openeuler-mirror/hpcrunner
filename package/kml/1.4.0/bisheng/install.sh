@@ -4,15 +4,15 @@ set -e
 . ${DOWNLOAD_TOOL} -u https://kunpeng-repo.obs.cn-north-4.myhuaweicloud.com/Kunpeng%20BoostKit/Kunpeng%20BoostKit%2021.0.1/BoostKit-kml_1.4.0_bisheng.zip
 . ${DOWNLOAD_TOOL} -u https://github.com/Reference-LAPACK/lapack/archive/refs/tags/v3.9.1.tar.gz -f lapack-3.9.1.tar.gz
 cd ${JARVIS_TMP}
-if [ -d /usr/local/kml ];then
-   rpm -e boostkit-kml
-fi
+#if [ -d /usr/local/kml ];then
+#   rpm -e boostkit-kml
+#fi
 unzip -o ${JARVIS_DOWNLOAD}/BoostKit-kml_1.4.0_bisheng.zip
-rpm --force --nodeps -ivh boostkit-kml-1.4.0-1.aarch64.rpm
+rpm --force --nodeps -ivh --relocate /usr/local/kml=$1 --badreloc=$1   boostkit-kml-1.4.0-1.aarch64.rpm
 # generate full lapack
 netlib=${JARVIS_DOWNLOAD}/lapack-3.9.1.tar.gz
-klapack=/usr/local/kml/lib/libklapack.a
-kservice=/usr/local/kml/lib/libkservice.a
+klapack=$1/lib/libklapack.a
+kservice=$1/lib/libkservice.a
 echo $netlib
 echo $klapack
 
@@ -52,6 +52,6 @@ done < comm.sym
 # (optional) build a full lapack shared library
 clang -o libklapack_full.so -shared -fPIC -Wl,--whole-archive $klapack liblapack_adapt.a $kservice -Wl,--no-whole-archive -fopenmp -lpthread -lgfortran -lm
 
-\cp libklapack_full.so /usr/local/kml/lib/
+\cp libklapack_full.so $1/lib/
 echo "Generated liblapack_adapt.a and libklapack_full.so"
 exit 0
