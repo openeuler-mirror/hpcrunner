@@ -15,7 +15,7 @@ class ConfigService:
     def switch_config(self, config_file):
         print(f"Switch config file to {config_file}")
         config_path = os.path.join(self.ROOT, config_file)
-        if not os.path.exists(config_path):
+        if not os.path.isfile(config_path):
             print("config_path not found, switch failed.")
             return
         self.tool.write_file(self.meta_path, config_file.strip())
