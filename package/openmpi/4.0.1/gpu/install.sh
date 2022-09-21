@@ -6,11 +6,11 @@ sudo yum install dkms rpm-build make check check-devel subunit subunit-devel
 cd ${JARVIS_TMP}
 ucx_version='1.12.1'
 gdr_ver='2.3'
-openmpi_ver='4.1.2'
+openmpi_ver='4.0.1'
 #install GDRCOPY
 . ${DOWNLOAD_TOOL} -u https://github.com/NVIDIA/gdrcopy/archive/v${gdr_ver}.tar.gz
 . ${DOWNLOAD_TOOL} -u https://github.com/openucx/ucx/releases/download/v${ucx_version}/ucx-${ucx_version}.tar.gz
-. ${DOWNLOAD_TOOL} -u https://download.open-mpi.org/release/open-mpi/v4.1/openmpi-${openmpi_ver}.tar.gz
+. ${DOWNLOAD_TOOL} -u https://download.open-mpi.org/release/open-mpi/v4.0/openmpi-${openmpi_ver}.tar.gz
 tar -x -f ${JARVIS_DOWNLOAD}/v${gdr_ver}.tar.gz
 mkdir -p $1/gdrcopy/include $1/gdrcopy/lib64
 cd gdrcopy-${gdr_ver}

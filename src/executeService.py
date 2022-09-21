@@ -33,7 +33,7 @@ class ExecuteService:
     def exec_popen(self, cmd, isPrint=True):
         if isPrint:
             self.print_cmd(cmd)
-        output = os.popen("bash -c \"{}\"".format(cmd)).readlines()
+        output = os.popen(f"bash -c '{cmd}'").readlines()
         return output
 
     def get_duration(self):
@@ -47,7 +47,7 @@ class ExecuteService:
         cmd = self.join_cmd(cmds)
         if not cmd.startswith('echo'):
             self.print_cmd(cmd)
-        state = os.system("bash -c \"{}\"".format(cmd))
+        state = os.system(f"bash -c '{cmd}'")
         self.end_time = self.tool.get_time_stamp()
         print(f"total time used: {self.get_duration()}s")
         logger.info(self.end_flag + cmd)
