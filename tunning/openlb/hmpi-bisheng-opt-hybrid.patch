@@ -1,0 +1,47 @@
+26,35c26,29
+< CXX             := g++
+< #CXX             := icpc -D__aligned__=ignored
+< #CXX             := mpiCC
+< #CXX             := mpic++
+< 
+< CC              := gcc                                          # necessary for zlib, for Intel use icc
+< 
+< OPTIM           := -O3 -Wall -march=native -mtune=native        # for gcc
+< #OPTIM           := -O3 -Wall -xHost                            # for Intel compiler
+< #OPTIM           := -O3 -Wall -xHost -ipo                       # optional for Intel compiler
+---
+> CXX             := mpicxx
+> CC              := mpicc                     # necessary for zlib, for Intel use icc
+> 
+> OPTIM           := -Ofast -ffast-math -finline-functions -ffp-contract=fast -Wall -mtune=MTUNE_PARAM -march=MARCH_PARAM -mcpu=MTUNE_PARAM -I BISHENG_INCLUDE -I KML_INCLUDE -I OPENBLAS_INCLUDE
+36a31
+> DEBUGNoWall           := -g -DOLB_DEBUG
+38a34,35
+> # for debug mode
+> #CXXFLAGS        += $(DEBUGNoWall)
+40a38,41
+> # open pgo optimize
+> PGOCollect      := -fprofile-instr-generate
+> PGOOptim	:= -fprofile-instr-use=code.profdata
+> 
+51c52,57
+< LDFLAGS         :=
+---
+> LDFLAGS         := -fuse-ld=lld -flto -L OPENBLAS_LIB -lopenblas -L KML_LIB -lkm -lm -lkfft -L BISHENG_LIB -ljemalloc -Wl,-z,muldefs
+> # for IPM analysis（static used）
+> # LDFLAGS  += -LIPM_LIB -lipm
+> # for pgo optimize
+> #LDFLAGS  += $(PGOCollect)
+> #LDFLAGS  += $(PGOOptim)
+53c59
+< PARALLEL_MODE   := OFF
+---
+> #PARALLEL_MODE   := OFF
+56c62
+< #PARALLEL_MODE   := HYBRID
+---
+> PARALLEL_MODE   := HYBRID
+64c70
+< FEATURES        :=
+---
+> FEATURES        := OPENBLAS

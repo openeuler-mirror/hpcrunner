@@ -1,0 +1,13 @@
+27,35c27,28
+< #CXX             := icpc -D__aligned__=ignored
+< #CXX             := mpiCC
+< #CXX             := mpic++
+< 
+< CC              := gcc                                          # necessary for zlib, for Intel use icc
+< 
+< OPTIM           := -O3 -Wall -march=native -mtune=native        # for gcc
+< #OPTIM           := -O3 -Wall -xHost                            # for Intel compiler
+< #OPTIM           := -O3 -Wall -xHost -ipo                       # optional for Intel compiler
+---
+> CC              := gcc                                 
+> OPTIM           := -O3 -Wall -march=native -mtune=native        
