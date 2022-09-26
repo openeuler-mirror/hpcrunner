@@ -1,0 +1,35 @@
+BootStrap: docker
+From: openeuler/openeuler
+
+%environment
+    source /etc/profile || true
+    source /etc/profile.d/modules.sh
+    cd /hpcrunner
+    source env.sh
+
+%post
+    # Install the necessary development environment
+    yum install -y environment-modules git wget unzip make flex tar
+    # Install base gcc
+    yum install -y gcc gcc-c++ make cmake automake zlib-devel bzip2-devel xz-devel curl-devel openssl-devel
+    source /etc/profile || true
+    git config --global http.sslVerify false
+    git clone https://gitee.com/hujing2/hpcrunner.git -b bowtie2
+    cd hpcrunner
+    source ./init.sh
+    ./jarvis -i
+    # Switch config
+    ./jarvis -use templates/bowtie2/2.4.5/data.bowtie2.arm.cpu.config
+    # downloads bowtie2
+    ./jarvis -d
+    # install dependency
+    ./jarvis -dp
+    # build bowtie2
+    ./jarvis -b
+    # run bowtie2
+    ./jarvis -r
+    # clean downloads directory
+    rm -rf downloads
+
+%labels
+    Author Zu
