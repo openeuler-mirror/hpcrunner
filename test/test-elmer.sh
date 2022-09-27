@@ -1,7 +1,8 @@
 cd ..
-# release mfem src code
-rm -rf tmp/elmer
+# release elmer src code
+rm -rf tmp/elmerfem-scc20
 tar xzvf ./downloads/elmerfem-scc20.tar.gz -C tmp/
+tar xzvf ./downloads/ElmerTutorialsFiles_nonGUI.tar.gz -C tmp/elmerfem-scc20
 # copy templates
 cp -rf templates/elmer/8.4/data.elmer.amd.cpu.config ./
 # switch to config
