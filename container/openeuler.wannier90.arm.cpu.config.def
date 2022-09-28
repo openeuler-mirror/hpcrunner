@@ -1,0 +1,35 @@
+BootStrap: docker
+From: openeuler/openeuler
+
+%environment
+    source /etc/profile || true
+    cd /hpcrunner
+    source env.sh
+
+%post
+    # Install the necessary development environment
+    yum install -y environment-modules git dmidecode pciutils wget vim
+    # Install base gcc
+    yum install -y gcc gcc-c++ gcc-gfortran glibc-devel make libgfortran unzip cmake python lapack lapack-devel
+    # install network package
+    yum install -y tcsh tcl lsof tk bc 
+    source /etc/profile || true
+    git config --global http.sslVerify false
+    git clone https://gitee.com/openeuler/hpcrunner
+    cd hpcrunner
+    source ./init.sh
+    # add your personal files here
+    export LD_LIBRARY_PATH=/usr/local/lib64:$LD_LIBRARY_PATH
+    sed -i '6c tar -xvf ${JARVIS_DOWNLOAD}/v3.10.1.tar.gz' package/lapack/3.10.1/install.sh
+    # Switch config
+    ./jarvis -use templates/wannier90/3.1.0/data.wannier90.arm.cpu.kgcc.config
+    # download dependency
+    ./jarvis -d
+    # install dependency
+    ./jarvis -dp
+    # build hpc
+    ./jarvis -b
+    # run hpc
+    ./jarvis -r
+    # clean tmp directory
+    rm -rf downloads tmp
