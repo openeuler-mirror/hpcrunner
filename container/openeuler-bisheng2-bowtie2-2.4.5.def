@@ -14,7 +14,7 @@ From: openeuler/openeuler
     yum install -y gcc gcc-c++ make cmake automake zlib-devel bzip2-devel xz-devel curl-devel openssl-devel
     source /etc/profile || true
     git config --global http.sslVerify false
-    git clone https://gitee.com/hujing2/hpcrunner.git -b bowtie2
+    git clone https://gitee.com/openeuler/hpcrunner.git
     cd hpcrunner
     source ./init.sh
     ./jarvis -i
