@@ -1,0 +1,134 @@
+diff -uprN elmerfem-scc20/cmake/Modules/FindMKL.cmake elmerfem-scc20new/cmake/Modules/FindMKL.cmake
+--- elmerfem-scc20/cmake/Modules/FindMKL.cmake	2020-04-02 21:35:08.000000000 +0800
++++ elmerfem-scc20new/cmake/Modules/FindMKL.cmake	2022-09-27 00:01:00.215688041 +0800
+@@ -85,6 +85,11 @@ ELSEIF(${CMAKE_Fortran_COMPILER_ID} MATC
+  SET(MKL_BASENAME "intel")
+  SET(MKL_THR_BASENAME "pgi")
+  SET(MKL_Fortran_FLAGS "" CACHE STRING "MKL Fortran flags")
++ELSEIF(${CMAKE_Fortran_COMPILER_ID} MATCHES "Flang")
++ # Core libraries
++ SET(MKL_BASENAME "flang")
++ SET(MKL_THR_BASENAME "flang")
++ SET(MKL_Fortran_FLAGS "" CACHE STRING "MKL Fortran flags")
+ ELSE()
+   MESSAGE(FATAL_ERROR "Finding MKL libraries not implemented for 
+                 ${CMAKE_Fortran_COMPILER_ID}")
+diff -uprN elmerfem-scc20/fem/src/modules/CoordinateTransform.F90 elmerfem-scc20new/fem/src/modules/CoordinateTransform.F90
+--- elmerfem-scc20/fem/src/modules/CoordinateTransform.F90	2020-04-02 21:35:08.000000000 +0800
++++ elmerfem-scc20new/fem/src/modules/CoordinateTransform.F90	2022-09-27 00:01:44.124036905 +0800
+@@ -280,6 +280,7 @@ CONTAINS
+     LOGICAL :: UsePDecomp
+     REAL :: PDDetTol
+     INTEGER :: PDMaxIter
++    logical :: isnan1(3), isnan2(3), isnan3(3), isnan4(3)
+  
+     CALL GetElementNodes(Nodes)
+     tmpvar => VariableGet( Mesh % Variables, 'alpha direction')
+@@ -315,23 +316,27 @@ CONTAINS
+       ! surface
+       ! -----------------------------------------------------
+       CoordSys(1,1:3) = normalized(MATMUL( alpha(1:nn), dBasisdx(1:nn,:)))
+-      IF (ANY(ISNAN(CoordSys(1,:)))) THEN
++      isnan1 = ISNAN(CoordSys(1,:))
++      IF (ANY(isnan1)) THEN
+         print *, "Element index = ", GetElementIndex(Element)
+         print *, "Element aspect ratio = ", ElementAspectRatio(Model, Element)
+         CALL Warn('CoordinateTransform','Element coordinate system is NaN, this could be &
+           due to a poor mesh. Let us try to use the degenerate element normal as the local coordinate system alpha vector.') 
+         CoordSys(1,1:3) = NormalOfDegenerateElement(Model, Element)
+-        IF (ANY(ISNAN(CoordSys(1,:)))) CALL Fatal('CoordinateTransform','Degenerate element normal did not work...') 
++        isnan2 = ISNAN(CoordSys(1,:))
++        IF (ANY(isnan2)) CALL Fatal('CoordinateTransform','Degenerate element normal did not work...') 
+       END IF
+ 
+       CoordSys(2,1:3) = normalized(MATMUL( beta(1:nn), dBasisdx(1:nn,:)))
+-      IF (ANY(ISNAN(CoordSys(2,:)))) THEN
++      isnan3 = ISNAN(CoordSys(2,:))
++      IF (ANY(isnan3)) THEN
+         print *, "Element index = ", GetElementIndex(Element)
+         print *, "Element aspect ratio = ", ElementAspectRatio(Model, Element)
+         CALL Warn('CoordinateTransform','Element coordinate system is NaN, this could be &
+           due to a poor mesh. Let us try to use the degenerate element normal as the local coordinate system beta vector.') 
+         CoordSys(2,1:3) = NormalOfDegenerateElement(Model, Element)
+-        IF (ANY(ISNAN(CoordSys(2,:)))) CALL Fatal('CoordinateTransform','Degenerate element normal did not work...') 
++        isnan4 = ISNAN(CoordSys(2,:))
++        IF (ANY(isnan4)) CALL Fatal('CoordinateTransform','Degenerate element normal did not work...') 
+       END IF
+ 
+       CoordSys(3,1:3) = normalized(crossproduct(CoordSys(1,1:3), CoordSys(2,1:3)))
+@@ -414,8 +419,10 @@ CONTAINS
+     REAL :: PDDetTol
+     INTEGER :: PDMaxIter
+     LOGICAL :: Converged
++    logical :: isnan5(3,3)
+     
+-    IF (ANY(ISNAN(RotMloc))) RETURN
++    isnan5 = ISNAN(RotMloc)
++    IF (ANY(isnan5)) RETURN
+ 
+     Converged=.FALSE. 
+     DO i=1,PDMaxIter
+diff -uprN elmerfem-scc20/fem/src/ZirkaHysteresis.F90 elmerfem-scc20new/fem/src/ZirkaHysteresis.F90
+--- elmerfem-scc20/fem/src/ZirkaHysteresis.F90	2020-04-02 21:35:08.000000000 +0800
++++ elmerfem-scc20new/fem/src/ZirkaHysteresis.F90	2022-09-27 00:01:44.128036937 +0800
+@@ -1,7 +1,7 @@
+ MODULE zirka ! Pointwise zirka {{{
+ USE ISO_C_BINDING, ONLY: C_INT, C_LOC, C_PTR, C_F_POINTER
+ USE GeneralUtils
+-USE DefUtils
++!USE DefUtils
+ implicit none
+ 
+ private
+@@ -520,7 +520,7 @@ FUNCTION RecurEvalCurve(rc, B) result (H
+   rc_p => rc
+   d = rc_p % depth
+   rc_p => RecurseDepth(rc_p, B)
+-  H = rc_p % simple_eval(B)
++  H = rc_p % simple_eval(rc_p, B)
+ 
+ END FUNCTION ! }}}
+ 
+@@ -644,8 +644,8 @@ SUBROUTINE AddStack(parent, master, B) !
+   x % dBrev = x%Bq - x%Bp
+   dBout = x % Bq - parent % parent % Bp
+   call master % ABCparams % GetABC(abs(dBout), abs(x % dBrev), x%a, x%b, x%c)
+-  Hpp = x % parent % parent % simple_eval(B)
+-  Hp = x % parent % simple_eval(B)
++  Hpp = x % parent % parent % simple_eval(x % parent % parent, B)
++  Hp = x % parent % simple_eval(x % parent, B)
+   x % dHrev = Hpp - Hp;
+   ! parent => x
+   master % head  => x
+@@ -723,15 +723,15 @@ SUBROUTINE rc_printeval(rc, B, rc0) ! {{
+   if (present(rc0)) rc0_p => rc0
+   k = rc_p % depth
+   do while (.not. associated(rc_p, rc_p % parent % parent))
+-    if(present(rc0)) X0 = rc0_p % simple_eval(B)
+-    X = rc_p % simple_eval(B)
++    if(present(rc0)) X0 = rc0_p % simple_eval(rc0_p, B)
++    X = rc_p % simple_eval(rc_p, B)
+     if (present(rc0)) print *, X, X0, X-X0
+     if (.not. present(rc0)) print *, X, rc_p % depth ! , c_loc(rc_p), c_loc(rc_p % parent)
+     rc_p => rc_p % parent
+     if(present(rc0)) rc0_p => rc0_p % parent
+   end do
+-  X = rc_p % simple_eval(B)
+-  if(present(rc0)) X0 = rc0_p % simple_eval(B)
++  X = rc_p % simple_eval(rc_p, B)
++  if(present(rc0)) X0 = rc0_p % simple_eval(rc0_p, B)
+   if (present(rc0)) print *, X, X0, X-X0
+   if (.not. present(rc0)) print *, X, rc_p % depth ! , c_loc(rc_p), c_loc(rc_p % parent)
+ END SUBROUTINE rc_printeval ! }}}
+diff -uprN elmerfem-scc20/fem/tests/CMakeLists.txt elmerfem-scc20new/fem/tests/CMakeLists.txt
+--- elmerfem-scc20/fem/tests/CMakeLists.txt	2020-04-02 21:35:08.000000000 +0800
++++ elmerfem-scc20new/fem/tests/CMakeLists.txt	2022-09-27 00:01:22.283863379 +0800
+@@ -14,7 +14,7 @@ SET(MESH2D_BIN "${CMAKE_BINARY_DIR}/mesh
+ 
+ MACRO(SUBDIRLIST result curdir depth)
+   set(glob_pattern "*")
+-  FOREACH(D RANGE 1 depth)
++  FOREACH(D RANGE 1 ${depth})
+     FILE(GLOB children RELATIVE ${curdir} ${glob_pattern}) 
+     FOREACH(child ${children})
+       IF(IS_DIRECTORY ${curdir}/${child})
