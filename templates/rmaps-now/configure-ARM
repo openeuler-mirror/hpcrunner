@@ -1,0 +1,273 @@
+#!/bin/csh -f
+ set netcdf_option='0'
+
+ echo 'Select the following NetCDF option:'
+
+ echo ' 3) NetCDF 3'
+ echo ' 4) NetCDF 4'
+
+ echo ''
+ echo 'Please your NetCDF option [3 or 4]: '
+
+ set netcdf_option = 4
+
+ if($netcdf_option < 3 || $netcdf_option > 4) then
+    echo "Invalid NetCDF option, can not generate Makefile."
+    exit ( -1 )
+ endif
+
+ switch ($netcdf_option)
+    case 3:
+       set use_netcdf3 = 1
+       breaksw
+    case 4:
+       set use_netcdf3 = 0
+       breaksw
+    default:
+       set use_netcdf3 = 1
+       breaksw
+ endsw
+
+ set compile_option='0'
+
+ echo 'Select the following compiling option:'
+
+ echo ' 1) Serial (No OpenMP, no MPI)'
+ echo ' 2) Pure OpenMP'
+ echo ' 3) Pure MPI'
+ echo ' 4) Hybrid (MPI with OpenMP)'
+
+ echo ''
+ echo 'Please your compiling option [1-4]: '
+
+ set compile_option = 3
+
+ if($compile_option < 1 || $compile_option > 4) then
+    echo "Invalid compiling option, can not generate Makefile."
+    exit ( -1 )
+ endif
+
+#
+# Set environment variables for different machines...
+#
+ set date_string = `date +%Y-%m-%d_%H:%M:%S`
+
+ set RMAPSNOW_HOME = `pwd`
+
+ set DEBUGFLAGS	=	""
+
+ set CPP	=	"/usr/bin/cpp -C -P -nostdinc"
+
+ set DMP_FLAGS	=	" "
+ set SMP_FLAGS	=	" "
+ set RANLIB	=	echo
+
+ set lmn = `uname -n`
+
+ set mn = `echo $lmn | cut -c 1-2`
+
+ setenv NODE_HDR $mn
+
+ switch ($NODE_HDR) 
+    case mu: 
+       set machine_name = mu01
+       breaksw
+    case da: 
+       set machine_name = dawning
+       breaksw
+    case be: 
+       set machine_name = bluefire
+       breaksw
+    case cl:
+       set machine_name = cli_intel
+       breaksw
+    default:
+       echo "Do not know how to generate make_rules for $NODE_HDR"
+       exit
+ endsw
+
+ switch ($compile_option)
+    case 1:
+       set dmp = 0
+       set smp = 0
+       breaksw
+    case 2:
+       set dmp = 0
+       set smp = 1
+       breaksw
+    case 3:
+       set dmp = 1
+       set smp = 0
+       breaksw
+    case 4:
+       set dmp = 1
+       set smp = 1
+       breaksw
+    default:
+       set dmp = 0
+       set smp = 0
+       echo "Unknown configure option."
+       exit
+ endsw
+
+ switch ($machine_name)
+
+    case cli:
+       set UNDERSCORE           =       "-DUNDERSCORE "
+       if($dmp) then
+          set CXX		=	mpicxx
+          set CC		=	mpicc
+          set FC		=	mpifort
+          set SFC               =       mpifort
+          set DMP_FLAGS		=	"-DDM_PARALLEL "
+          set DEPS_PATH    = /software/libs/bisheng2/hmpi1
+          set NETCDFPATH	=	${DEPS_PATH}/netcdf/4.7.4
+          set HDF5PATH		=	${DEPS_PATH}/hdf5-clang/1.8.12
+          set DMP_LIB		=	"-L/software/mpi/hmpi1-bisheng2/1.1.1/lib/libmpi.so"
+       else
+          set CXX		=	g++
+          set FC                =       gfortran
+          set CC                =       gcc
+          set SFC               =       gfortran
+          set DMP_FLAGS         =       " "
+          set NETCDFPATH	=	/dependencies/netcdf
+          set HDF5PATH		=	/dependencies/hdf5
+
+          set DMP_LIB		=	" "
+       endif
+
+       set RAP_DIR		=	/rap
+
+       set ZLIBPATH		=	/usr
+       set SZLIBPATH		=	/software/libs/bisheng2/szip/2.1.1
+       
+       if($use_netcdf3) then 
+          set NETCDF_OPTION	=	" "  	
+          set HDF5_LIB		=	'-L$(HDF5PATH)/lib -lhdf5_hl -lhdf5 '
+          set ZLIB_LIB		=	'-L$(ZLIBPATH)/lib64 -lz '
+          set SZLIB_LIB		=	'-L$(SZLIBPATH)/lib '
+       else
+          set NETCDF_OPTION	=	" "  	
+          set HDF5_LIB		=	'-L$(HDF5PATH)/lib -lhdf5_hl -lhdf5 '
+          set ZLIB_LIB		=	'-L$(ZLIBPATH)/lib64 -lz '
+          set SZLIB_LIB		=	'-L$(SZLIBPATH)/lib '
+       endif
+       set NETCDF_LIB		=	'-L$(NETCDFPATH)/lib -lnetcdff -lnetcdf '
+       set RAP_LIB		=	'-L$(RAP_DIR)/lib -lSpdb -lMdv -ldsserver -ldidss -lrapformats -ltoolsa -lrapmath -ldataport -ltdrp -leuclid -lstdc++ -lgcc_s'
+
+       if($smp) then
+          set SMP_FLAGS		=	"-fopenmp "
+       endif
+
+       set LOC_LIBS		=	'$(NETCDF_LIB) $(HDF5_LIB) $(ZLIB_LIB) $(SZLIB_LIB) $(DMP_LIB) $(RAP_LIB) -lm -lc -lcurl'
+
+       set CXX_INCLUDES         =       '-I. -I$(RAP_DIR)/include '
+       set CXX_US_FLAGS         =       '-Wl,-Bstatic '
+       set CXX_COMPILE_OPTIONS  =       '-DUSE_MDV -DUSE_RAP_UTIL -DUNDERSCORE '
+
+       set CC_US_FLAGS          =       '$(DEBUGFLAGS) $(UNDERSCORE) $(DMP_FLAGS) $(NETCDF_OPTION) '
+       set CC_INCLUDES          =       "-I. -I/usr/local/mpich-gnu/include"
+       set CC_COMPILE_OPTIONS   =       " "
+       set CC_OPTIMIZATIONS	=       "-O3 "
+
+       set FC_US_FLAGS          =       '$(NETCDF_OPTION) $(SMP_FLAGS) '
+       set FC_INCLUDES          =       '-I. -I$(RMAPSNOW_HOME)/mpi_util -I$(RMAPSNOW_HOME)/src -I$(RMAPSNOW_HOME)/io/netcdf4 -I$(NETCDFPATH)/include -I$(RMAPSNOW_HOME)/share -I$(RMAPSNOW_HOME)/io/mdv -I$(RAP_DIR)/include -I/usr/local/mpich-gnu/include '
+       set FC_COMPILE_OPTIONS   =       '-Mfree  #-fdefault-real-8'
+       set SFC_COMPILE_OPTIONS  =       '-Mfixed  #-fdefault-real-8'
+       set FC_OPTIMIZATIONS	=       '-O3 '
+       set SFC_OPTIMIZATIONS	=       '-O3 '
+       set RANLIB		=	ranlib
+
+       breaksw
+
+    default:
+       echo "Do not know how to generate make_rules for $NODE_HDR"
+       exit
+ endsw
+
+#
+# Generate a new make_rules file...
+#
+
+ if( -f make_rules ) then
+    mv make_rules make_rules.backup
+    cp make_rules.backup arch/make_rules.saved.${date_string}
+ endif
+
+ cp arch/common make_rules
+ 
+ set CXXFLAGS        =       '$(CXX_US_FLAGS) $(CXX_INCLUDES) $(CXX_COMPILE_OPTIONS) #$(SMP_FLAGS)'
+ set CFLAGS          =       '$(CC_US_FLAGS) $(CC_INCLUDES) $(CC_COMPILE_OPTIONS) $(CC_OPTIMIZATIONS) $(DMP_FLAGS) $(SMP_FLAGS)'
+ set FFLAGS          =       '$(FC_US_FLAGS) $(FC_INCLUDES) $(FC_COMPILE_OPTIONS) $(FC_OPTIMIZATIONS)'
+ set SFFLAGS         =       '$(FC_US_FLAGS) $(FC_INCLUDES) $(SFC_COMPILE_OPTIONS) $(SFC_OPTIMIZATIONS)'
+ set CPPFLAGS        =       '-I. $(DEBUGFLAGS) $(DMP_FLAGS) $(NETCDF_OPTION) -DUSE_MDV -DUSE_RAP_UTIL '
+ set LDFLAGS         =       '$(CC_COMPILE_OPTIONS) $(SFC_OPTIMIZATIONS) '
+
+cat >> make_rules << EOF
+RMAPSNOW_HOME	=	${RMAPSNOW_HOME}
+NETCDFPATH      =       ${NETCDFPATH}
+HDF5PATH        =       ${HDF5PATH}
+ZLIBPATH        =       ${ZLIBPATH}
+SZLIBPATH       =       ${SZLIBPATH}
+RAP_DIR         =       ${RAP_DIR}
+
+####################################################
+
+NETCDF_OPTION	=	${NETCDF_OPTION}
+
+NETCDF_LIB      =       ${NETCDF_LIB}
+HDF5_LIB        =       ${HDF5_LIB}
+ZLIB_LIB        =       ${ZLIB_LIB}
+SZLIB_LIB       =       ${SZLIB_LIB}
+
+DMP_LIB         =       ${DMP_LIB}
+RAP_LIB         =       ${RAP_LIB}
+
+DEBUGFLAGS	=	${DEBUGFLAGS}
+UNDERSCORE	=	${UNDERSCORE}
+DMP_FLAGS	=	${DMP_FLAGS}
+SMP_FLAGS	=	${SMP_FLAGS}
+
+CXX_US_FLAGS	=	${CXX_US_FLAGS}
+CXX_INCLUDES	=	${CXX_INCLUDES}
+CXX_COMPILE_OPTIONS = 	${CXX_COMPILE_OPTIONS}
+
+CC_US_FLAGS	=	${CC_US_FLAGS}
+CC_INCLUDES	=	${CC_INCLUDES}
+CC_COMPILE_OPTIONS = 	${CC_COMPILE_OPTIONS}
+
+FC_US_FLAGS	=	${FC_US_FLAGS}
+FC_INCLUDES	=	${FC_INCLUDES}
+FC_COMPILE_OPTIONS = 	${FC_COMPILE_OPTIONS}
+SFC_COMPILE_OPTIONS = 	${SFC_COMPILE_OPTIONS}
+
+CC_OPTIMIZATIONS =	${CC_OPTIMIZATIONS}
+FC_OPTIMIZATIONS =	${FC_OPTIMIZATIONS}
+SFC_OPTIMIZATIONS =	${SFC_OPTIMIZATIONS}
+
+####################################################
+
+CXX		=       ${CXX}
+CXXFLAGS	=       ${CXXFLAGS}
+
+CC		=       ${CC}
+CFLAGS		=       ${CFLAGS}
+
+FC		=       ${FC}
+FFLAGS		=       ${FFLAGS}
+
+SFC		=       ${SFC}
+SFFLAGS		=       ${SFFLAGS}
+
+LDFLAGS		=       ${LDFLAGS}
+
+CPP		=       ${CPP}
+CPPFLAGS	=	${CPPFLAGS}
+
+LOC_LIBS	=	${LOC_LIBS}
+
+RANLIB		=	${RANLIB}
+
+EOF
+
+ cat arch/rules >> make_rules
