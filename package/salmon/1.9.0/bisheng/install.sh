@@ -9,5 +9,6 @@ cmake -DNO_IPO=TRUE -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_C_FLAGS="-O3 -march=armv
 make
 mkdir -p $1/bin $1/lib
 cp src/salmon $1/bin
-cp -r external/install/* $1/lib
+cp -r external/install/lib/* $1/lib
 cp external/install/lib64/lib* $1/lib
+
