@@ -1,0 +1,35 @@
+BootStrap: docker
+From: openeuler/openeuler
+
+%environment
+    source /etc/profile || true
+    source /etc/profile.d/modules.sh
+    cd /hpcrunner
+    source env.sh
+
+%post
+    # Install the necessary development environment
+    yum install -y environment-modules git flex wget vim tar unzip coreutils
+     # Install base gcc
+    yum install -y gcc gcc-c++ make cmake automake java python3-devel python3-pip zlib-devel bzip2-devel xz-devel curl-devel openssl-devel ncurses-devel
+    pip3 install numpy  -i https://pypi.tuna.tsinghua.edu.cn/simple
+    source /etc/profile || true
+    git config --global http.sslVerify false
+    git clone https://gitee.com/openeuler/hpcrunner.git
+    cd hpcrunner
+    source ./init.sh
+    # Switch config
+    ./jarvis -use templates/trinity/2.14.0/data.trinity.x86.cpu.config
+    # downloads trinity
+    ./jarvis -d
+    # install dependency
+    ./jarvis -dp
+    # build trinity
+    ./jarvis -b
+    # run trinity
+    ./jarvis -r
+    # clean downloads directory
+    rm -rf downloads
+
+%labels
+    Author Zu
