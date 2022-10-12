@@ -15,7 +15,7 @@ From: openeuler/openeuler
     pip3 install numpy  -i https://pypi.tuna.tsinghua.edu.cn/simple
     source /etc/profile || true
     git config --global http.sslVerify false
-    git clone https://gitee.com/trinity/hpcrunner.git
+    git clone https://gitee.com/openeuler/hpcrunner.git
     cd hpcrunner
     source ./init.sh
     # Switch config
