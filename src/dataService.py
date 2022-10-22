@@ -41,9 +41,12 @@ class DataService(object,metaclass=Singleton):
     root_path = os.getcwd()
     download_info = ''
     #perf info
+    kperf_para = ''
     perf_para = ''
     nsys_para = ''
     ncu_para = ''
+    hpccollect_para = ''
+    hpcreport_para = ''
     def get_abspath(self, relpath):
         return os.path.join(DataService.root_path, relpath)
 
@@ -102,9 +105,12 @@ class DataService(object,metaclass=Singleton):
         DataService.case_dir = data['case_dir']
     
     def set_perf_info(self, data):
+        DataService.kperf_para = data['kperf'] if 'kperf' in data else ''
         DataService.perf_para = data['perf'] if 'perf' in data else ''
         DataService.nsys_para = data['nsys'] if 'nsys' in data else ''
         DataService.ncu_para = data['ncu'] if 'ncu' in data else ''
+        DataService.hpccollect_para = data['hpccollect'] if 'hpccollect' in data else ''
+        DataService.hpcreport_para = data['hpcreport'] if 'hpcreport' in data else ''
 
     def split_two_part(self, data):
         split_list = data.split(' ', 1)
