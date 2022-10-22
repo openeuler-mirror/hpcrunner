@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
-. ${DOWNLOAD_TOOL} -u https://github.com/Kitware/CMake/releases/download/v3.23.1/cmake-3.23.1-linux-`arch`.tar.gz
+cmake_ver='3.23.1'
+. ${DOWNLOAD_TOOL} -u https://github.com/Kitware/CMake/releases/download/v${cmake_ver}/cmake-${cmake_ver}-linux-`arch`.tar.gz
 cd ${JARVIS_TMP}
-tar -xvf ${JARVIS_DOWNLOAD}/cmake-3.23.1-linux-`arch`.tar.gz -C $1 --strip-components=1
+tar -xvf ${JARVIS_DOWNLOAD}/cmake-${cmake_ver}-linux-`arch`.tar.gz -C $1 --strip-components=1
