@@ -31,6 +31,8 @@ class Jarvis:
         parser.add_argument("-kp","--kperf", help=f"auto kperf {DataService.app_name}", action="store_true")
         # GPU perf
         parser.add_argument("-gp","--gpuperf", help="GPU perf...", action="store_true")
+        # hpctool perf
+        parser.add_argument("-hpctool","--hpctool", help="hpctool perf...", action="store_true")
 
         # NCU perf
         parser.add_argument("-ncu","--ncuperf", help="NCU perf...", nargs=1)
@@ -48,6 +50,8 @@ class Jarvis:
         parser.add_argument("-bench","--benchmark", help="start benchmark test...", nargs=1)
         # start test
         parser.add_argument("-t","--test", help="start Jarvis test...", action="store_true")
+        # start Roce
+        parser.add_argument("-R","--roce", help="start roce run...", nargs=2)
         # update modulefile path when hpcrunner is moved
         parser.add_argument("-u","--update", help="start update jarvis...", action="store_true")
         self.args = parser.parse_args()
@@ -101,6 +105,9 @@ class Jarvis:
         if self.args.gpuperf:
             self.analysis.gpu_perf()
         
+        if self.args.hpctool:
+            self.analysis.hpctool_perf()
+        
         if self.args.ncuperf:
             self.analysis.ncu_perf(self.args.ncuperf[0])
         
@@ -121,6 +128,9 @@ class Jarvis:
         
         if self.args.test:
             self.analysis.test()
+            
+        if self.args.roce:
+            self.analysis.get_roceinfo(self.args.roce[0],self.args.roce[1])
         
         if self.args.update:
             self.analysis.update()
