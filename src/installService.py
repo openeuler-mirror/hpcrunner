@@ -210,7 +210,7 @@ class InstallService:
         file_list = [d for d in glob(abs_path+'/**', recursive=True)]
         return file_list
 
-    def get_module_file_content(self, install_path, sversion):
+    def get_module_file_content(self, install_path, sname, sversion):
         module_file_content = ''
         file_list = self.get_files(install_path)
         bins_dir_type = ["bin"]
@@ -242,6 +242,7 @@ class InstallService:
 set     prefix  {install_path}
 set     version			    {sversion}
 
+setenv    {sname.upper()}_PATH {install_path}
 {bins_str}
 {libs_str}
 {incs_str}
@@ -270,7 +271,7 @@ set     version			    {sversion}
         cname = env_info['cname']
         cmversion = env_info['cmversion']
         software_str = sname + self.get_main_version(sversion)
-        module_file_content = self.get_module_file_content(install_path, sversion)
+        module_file_content = self.get_module_file_content(install_path, sname, sversion)
         if not self.is_installed(install_path):
             return
         # if install_path is empty, The module file should not generated.

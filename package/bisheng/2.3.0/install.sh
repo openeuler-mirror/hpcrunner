@@ -7,5 +7,5 @@ if [ x$(arch) = xaarch64 ];then
 fi
 . ${DOWNLOAD_TOOL} -u https://mirrors.huaweicloud.com/kunpeng/archive/compiler/bisheng_compiler/bisheng-compiler-${bisheng_version}-${arch}-linux.tar.gz
 cd ${JARVIS_TMP}
-yum -y install libatomic libstdc++ libstdc++-devel
+. $CHECK_ROOT && yum -y install libatomic libstdc++ libstdc++-devel
 tar xzvf ${JARVIS_DOWNLOAD}/bisheng-compiler-${bisheng_version}-${arch}-linux.tar.gz -C $1 --strip-components=1

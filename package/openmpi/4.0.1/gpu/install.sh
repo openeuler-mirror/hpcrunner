@@ -2,7 +2,7 @@
 set -x
 set -e
 sudo yum groupinstall 'Development Tools'
-sudo yum install dkms rpm-build make check check-devel subunit subunit-devel
+sudo . $CHECK_ROOT && yum install dkms rpm-build make check check-devel subunit subunit-devel
 cd ${JARVIS_TMP}
 ucx_version='1.12.1'
 gdr_ver='2.3'

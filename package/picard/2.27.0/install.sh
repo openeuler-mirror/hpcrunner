@@ -1,5 +1,5 @@
 #!/bin/bash
-#yum install -y git java-1.8.0-openjdk
+#. $CHECK_ROOT && yum install -y git java-1.8.0-openjdk
 set -x
 set -e
 cd ${JARVIS_TMP}

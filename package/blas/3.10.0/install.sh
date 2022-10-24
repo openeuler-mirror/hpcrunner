@@ -9,5 +9,5 @@ cd BLAS-3.10.0
 #sed -i "35s/ftp/http/g" ./contrib/download_prerequisites
 gfortran -c -O3 ./*.f
 ar rv libblas.a ./*.o
-cp libblas.a /usr/local/lib
-
+mkdir $1/lib
+cp libblas.a $1/lib

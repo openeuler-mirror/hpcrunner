@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x
 set -e
-yum install libstdc++-devel.aarch64 bison flex
+. $CHECK_ROOT && yum install libstdc++-devel.aarch64 bison flex
 . ${DOWNLOAD_TOOL} -u https://gitlab.inria.fr/scotch/scotch/-/archive/v7.0.1/scotch-v7.0.1.tar.gz
 cd ${JARVIS_TMP}
 rm -rf scotch-v7.0.1

@@ -10,7 +10,7 @@ cd ctffind-4.1.14
 
 sed -i "7s%^%//%g" src/core/matrix.cpp
 sed -i '7i  #define _AL_SINCOS(x, s, c)   s = sinf(x);  c = cosf(x);' src/core/matrix.cpp
-#yum install -y libjpeg* libtiff* fftw*
+. $CHECK_ROOT && yum install -y libjpeg* libtiff* fftw*
 autoreconf -f -i
 ./configure --prefix=$1 --disable-mkl --enable-openmp --enable-debugmode CC=clang CXX=clang++ FC=flang
 sed -i "296s/-O2/-O0/g" Makefile
