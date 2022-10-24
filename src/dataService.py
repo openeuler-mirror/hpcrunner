@@ -35,6 +35,7 @@ class DataService(object,metaclass=Singleton):
     clean_cmd = ''
     run_cmd = {}
     batch_cmd = ''
+    loop_cmd = ''
     #Other Info
     config_file = 'data.config'
     meta_file = '.meta'
@@ -73,16 +74,20 @@ class DataService(object,metaclass=Singleton):
     def is_empty(self, content):
         return len(content) == 0 or content.isspace() or content == '\n'
 
-    def read_rows(self, rows, start_row):
+    def read_rows(self, rows, start_row, needs_strip=True):
         data = ''
-        row = rows[start_row].strip()
+        row = rows[start_row]
+        if needs_strip:
+            row = row.strip()
         while not row.startswith('['):
             if not self.is_empty(row):
                 data += row + '\n'
             start_row += 1
             if start_row == len(rows):
                 break
-            row = rows[start_row].strip()
+            row = rows[start_row]
+            if needs_strip:
+                row = row.strip()
         return start_row, data
 
     def read_rows_kv(self, rows, start_row):
@@ -147,6 +152,8 @@ class DataService(object,metaclass=Singleton):
                 rowIndex, DataService.run_cmd = self.read_rows_kv(rows, rowIndex+1)
             elif row == '[BATCH]':
                 rowIndex, DataService.batch_cmd = self.read_rows(rows, rowIndex+1)
+            elif row == '[LOOP]':
+                rowIndex, DataService.loop_cmd = self.read_rows(rows, rowIndex+1, False)
             elif row == '[PERF]':
                 rowIndex, perf_data = self.read_rows_kv(rows, rowIndex+1)
                 self.set_perf_info(perf_data)

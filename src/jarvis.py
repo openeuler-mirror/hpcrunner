@@ -15,6 +15,7 @@ class Jarvis:
         parser.add_argument("-use","--use", help="Switch config file...", nargs=1)
         parser.add_argument("-i","--info", help=f"get machine info", action="store_true")
         parser.add_argument("-l","--list", help=f"get installed package info", action="store_true")
+        parser.add_argument("-loop","--loop", help=f"get loop simulation code", action="store_true")
         #accept software_name/version GCC/GCC+MPI/CLANG/CLANG+MPI
         parser.add_argument("-install","--install", help=f"install dependency", nargs=2)
         #remove
@@ -134,6 +135,9 @@ class Jarvis:
         
         if self.args.update:
             self.analysis.update()
+        
+        if self.args.loop:
+            self.analysis.gen_simucode()
         
 if __name__ == '__main__':
     Jarvis().main()

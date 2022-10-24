@@ -12,6 +12,7 @@ from perfService import PerfService
 from testService import TestService
 from benchService import BenchmarkService
 from containerService import ContainerService
+from loopService import LoopService
 
 class AnalysisService:
     def __init__(self):
@@ -25,6 +26,7 @@ class AnalysisService:
         self.jperf = PerfService()
         self.jbenchmark = BenchmarkService()
         self.jcontainer = ContainerService()
+        self.jloop = LoopService()
         self.jtest = TestService()
 
     def get_machine_info(self):
@@ -92,3 +94,6 @@ class AnalysisService:
     
     def gen_def(self, image):
         self.jcontainer.gen_def(image)
+    
+    def gen_simucode(self):
+        self.jloop.get_simulate_code()
