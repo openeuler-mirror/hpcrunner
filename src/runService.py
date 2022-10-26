@@ -38,6 +38,7 @@ class RunService:
         batch_file_path = os.path.join(self.ROOT, batch_file)
         print(f"start batch run {DataService.app_name}")
         batch_content = f'''
+{self.hpc_data.get_env()}
 cd {DataService.case_dir}
 {DataService.batch_cmd}
 '''

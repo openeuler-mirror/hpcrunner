@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # download from ftp://cirrus.ucsd.edu/pub/ncview/ncview-2.1.7.tar.gz
-# yum install libX11 libX11-devel libXaw libXaw-devel libpng-devel libpng
+. $CHECK_ROOT && yum install libX11 libX11-devel libXaw libXaw-devel libpng-devel libpng
 set -x
 set -e
 . ${DOWNLOAD_TOOL} -u ftp://cirrus.ucsd.edu/pub/ncview/ncview-2.1.7.tar.gz 

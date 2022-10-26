@@ -21,4 +21,4 @@ cd ..
 cd l_HPCKit_p_2021.1.0.2684_offline
 ./install.sh --silent --eula accept --install-dir /opt/intel/oneapi
 
-echo -e "\033[0;32m[Info]\033[0m:Please use 'source /opt/intel/oneapi/setenv.sh' to set up your development environment."
+echo -e "\033[0;32m[Info]\033[0m:Please use 'source /opt/intel/oneapi/setvars.sh' to set up your development environment."

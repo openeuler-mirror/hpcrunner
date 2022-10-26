@@ -6,7 +6,7 @@ hmpi_version='1.2.0'
 . ${DOWNLOAD_TOOL} -u https://github.com/kunpengcompute/xucg/archive/refs/tags/v${hmpi_version}-huawei.zip -f xucg-${hmpi_version}-huawei.zip
 . ${DOWNLOAD_TOOL} -u https://github.com/kunpengcompute/hmpi/archive/refs/tags/v${hmpi_version}-huawei.zip -f hmpi-${hmpi_version}-huawei.zip
 cd ${JARVIS_TMP}
-yum install -y perl-Data-Dumper autoconf automake libtool binutils flex
+. $CHECK_ROOT && yum install -y perl-Data-Dumper autoconf automake libtool binutils flex
 rm -rf hmpi-${hmpi_version}-huawei hucx-${hmpi_version}-huawei xucg-${hmpi_version}-huawei
 unzip ${JARVIS_DOWNLOAD}/hucx-${hmpi_version}-huawei.zip
 unzip ${JARVIS_DOWNLOAD}/xucg-${hmpi_version}-huawei.zip

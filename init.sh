@@ -13,8 +13,10 @@ export JARVIS_UTILS=${CUR_PATH}/software/utils
 export JARVIS_DOWNLOAD=${CUR_PATH}/downloads
 export JARVIS_TMP=${CUR_PATH}/tmp
 export DOWNLOAD_TOOL=${CUR_PATH}/package/common/download.sh
+export CHECK_DEPS=${CUR_PATH}/package/common/check_deps.sh
+export CHECK_ROOT=${CUR_PATH}/package/common/check_root.sh
 #Install modules
 if ! type module >/dev/null 2>&1;then
     echo "Install environment-modules"
-    yum install -y environment-modules || apt install -y environment-modules
+    . $CHECK_ROOT && yum install -y environment-modules || apt install -y environment-modules
 fi

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x
 set -e
-yum install libstdc++-devel.aarch64 bison flex cmake -y
+. $CHECK_ROOT && yum install libstdc++-devel.aarch64 bison flex cmake -y
 . ${DOWNLOAD_TOOL} -u http://glaros.dtc.umn.edu/gkhome/fetch/sw/parmetis/parmetis-4.0.3.tar.gz
 cd ${JARVIS_TMP}
 rm -rf parmetis-4.0.3
