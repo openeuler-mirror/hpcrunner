@@ -242,7 +242,7 @@ class InstallService:
 set     prefix  {install_path}
 set     version			    {sversion}
 
-setenv    {sname.upper()}_PATH {install_path}
+setenv    {sname.upper().replace('-','_')}_PATH {install_path}
 {bins_str}
 {libs_str}
 {incs_str}
