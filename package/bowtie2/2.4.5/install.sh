@@ -12,8 +12,8 @@ if [ `arch` == "aarch64" ]; then
     cp -r simde-0.7.2/simde ./third_party
     make -j
     make static-libs -j && make STATIC_BUILD=1 -j
-    mkdir -p ${JARVIS_LIBS}/bisheng2/bowtie2/2.4.5/bin
-    cp bowtie2*  ${JARVIS_LIBS}/bisheng2/bowtie2/2.4.5/bin
+    mkdir -p ${JARVIS_LIBS}/bisheng2.1.0/bowtie2/2.4.5/bin
+    cp bowtie2*  ${JARVIS_LIBS}/bisheng2.1.0/bowtie2/2.4.5/bin
 else
     make -j
     make static-libs -j && make STATIC_BUILD=1 -j
