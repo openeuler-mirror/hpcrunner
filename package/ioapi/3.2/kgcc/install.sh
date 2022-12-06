@@ -14,8 +14,8 @@ sed -i "30c\#FSFLAGS   = -save" ioapi/Makeinclude.Linux4_aarch64
 cp ioapi/Makefile.nocpl ioapi/Makefile
 export HOME=${JARVIS_TMP}
 cp m3tools/Makefile.nocpl m3tools/Makefile
-sed -i "65c\LIBS = -L\${OBJDIR} -lioapi -L${JARVIS_ROOT}/software/libs/kgcc9.3.1/hmpi/netcdf/4.7.0/lib/ -lnetcdff -lnetcdf -L${JARVIS_ROOT}/software/libs/kgcc9.3.1/hmpi/hdf5/1.10.1/lib -lhdf5_hl -lhdf5 -lz \$(OMPLIBS) \$(ARCHLIB) \$(ARCHLIBS)" m3tools/Makefile
-sed -i "146c\LIBS = -L\${OBJDIR} -lioapi -L${JARVIS_ROOT}/software/libs/kgcc9.3.1/hmpi/netcdf/4.7.0/lib/ -lnetcdff -lnetcdf -L${JARVIS_ROOT}/software/libs/kgcc9.3.1/hmpi/hdf5/1.10.1/lib -lhdf5_hl -lhdf5 -lz \$(OMPLIBS) \$(ARCHLIB) \$(ARCHLIBS)" m3tools/Makefile
+sed -i "65c\LIBS = -L\${OBJDIR} -lioapi -L${JARVIS_ROOT}/software/libs/kgcc9.3.1/hmpi1.1.1/netcdf/4.7.0/lib/ -lnetcdff -lnetcdf -L${JARVIS_ROOT}/software/libs/kgcc9.3.1/hmpi1.1.1/hdf5/1.10.1/lib -lhdf5_hl -lhdf5 -lz \$(OMPLIBS) \$(ARCHLIB) \$(ARCHLIBS)" m3tools/Makefile
+sed -i "146c\LIBS = -L\${OBJDIR} -lioapi -L${JARVIS_ROOT}/software/libs/kgcc9.3.1/hmpi1.1.1/netcdf/4.7.0/lib/ -lnetcdff -lnetcdf -L${JARVIS_ROOT}/software/libs/kgcc9.3.1/hmpi1.1.1/hdf5/1.10.1/lib -lhdf5_hl -lhdf5 -lz \$(OMPLIBS) \$(ARCHLIB) \$(ARCHLIBS)" m3tools/Makefile
 
 cp Makefile.template Makefile
 sed -i "138c\BIN        = Linux4_aarch64" Makefile
@@ -25,7 +25,7 @@ sed -i "141c\LIBINST    = \$(INSTALL)/\$(BIN)" Makefile
 sed -i "142c\BININST    = \$(INSTALL)/\$(BIN)" Makefile
 sed -i "143c\CPLMODE    = nocpl" Makefile
 sed -i '144c\IOAPIDEFS  = "-DIOAPI_NCF4"' Makefile
-sed -i "193c\NCFLIBS    = -L${JARVIS_ROOT}/software/libs/kgcc9.3.1/hmpi/netcdf/4.7.0/lib/ -lnetcdff -lnetcdf -L${JARVIS_ROOT}/software/libs/kgcc9.3.1/hmpi/hdf5/1.10.1/lib -lhdf5_hl -lhdf5 -lz" Makefile
+sed -i "193c\NCFLIBS    = -L${JARVIS_ROOT}/software/libs/kgcc9.3.1/hmpi1.1.1/netcdf/4.7.0/lib/ -lnetcdff -lnetcdf -L${JARVIS_ROOT}/software/libs/kgcc9.3.1/hmpi1.1.1/hdf5/1.10.1/lib -lhdf5_hl -lhdf5 -lz" Makefile
 make BIN=Linux4_aarch64
 sed -i "174c\        COMMON  / BSTATE3 /                                              " ioapi/STATE3.EXT
 sed -i "175c\     &          P_ALP3, P_BET3, P_GAM3,                                  " ioapi/STATE3.EXT
