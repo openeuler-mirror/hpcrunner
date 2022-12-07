@@ -1,5 +1,5 @@
 #download from https://github.com/jratcliff63367/sse2neon  https://sourceforge.net/projects/bio-bwa/files/bwa-0.7.17.tar.bz2
-#module  load  bisheng2/2.1.0    
+#module  load  bisheng/2.1.0    
 #!/bin/bash
 set -x
 set -e

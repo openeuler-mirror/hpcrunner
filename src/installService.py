@@ -23,6 +23,7 @@ class InstallService:
         self.tool = ToolService()
         self.ROOT = os.getcwd()
         self.PACKAGE = 'package'
+        self.FULL_VERSION='fullver'
         self.PACKAGE_PATH = os.path.join(self.ROOT, self.PACKAGE)
         self.SOFTWARE_PATH = os.path.join(self.ROOT, 'software')
         self.COMPILER_PATH = os.path.join(self.SOFTWARE_PATH, 'compiler')
@@ -32,11 +33,20 @@ class InstallService:
         self.MPI_PATH = os.path.join(self.SOFTWARE_PATH, 'mpi')
         self.UTILS_PATH = os.path.join(self.SOFTWARE_PATH, 'utils')
 
-    def get_version_info(self, info):
-        matched_group = re.search( r'(\d+)\.(\d+)\.',info)
+    def get_version_info(self, info, reg = r'(\d+)\.(\d+)\.(\d+)'):
+        matched_group = re.search(reg ,info)
         if not matched_group:
             return None
-        return matched_group.group(1)
+        mversion = matched_group.group(1)
+        mid_ver = matched_group.group(2)
+        last_ver = matched_group.group(3)
+        return ( mversion, f'{mversion}.{mid_ver}.{last_ver}')
+
+    def gen_compiler_dict(self, cname, version):
+        return {"cname": cname, "cmversion": version[0], self.FULL_VERSION: version[1]}
+    
+    def gen_mpi_dict(self, name, version):
+        return {"name": name, "mversion": version[0], self.FULL_VERSION: version[1]}
 
     # some command don't generate output, must redirect to a tmp file
     def get_cmd_output(self, cmd):
@@ -58,7 +68,7 @@ class InstallService:
         name = 'gcc'
         if 'kunpeng' in gcc_info.lower():
             name =  'kgcc'
-        return {"cname": name, "cmversion": version}
+        return self.gen_compiler_dict(name, version)
 
     def get_clang_info(self):
         clang_info_list = self.get_cmd_output('clang -v')
@@ -70,27 +80,40 @@ class InstallService:
         name = 'clang'
         if 'bisheng' in clang_info.lower():
             name =  'bisheng'
-        return {"cname": name, "cmversion": version}
+        return self.gen_compiler_dict(name, version)
 
     def get_nvc_info(self):
-        return {"cname": "cuda", "cmversion": "11"}
+        return self.gen_compiler_dict("nvc", ('11', "11.4"))
 
     def get_icc_info(self):
-        return {"cname": "icc", "cmversion": "11"}
+        return self.gen_compiler_dict("icc", ('2018', "2018.4"))
+    
+    def get_hmpi_info(self):
+        hmpi_info = self.get_cmd_output('ompi_info | grep "MCA coll: ucx"')[0]
+        if hmpi_info == "":
+            return None
+        name = 'hmpi'
+        version = self.get_version_info(hmpi_info, r'Component v(\d+)\.(\d+)\.(\d+)')
+        return self.gen_mpi_dict(name, version)
 
-    def get_mpi_info(self):
+    def get_openmpi_info(self):
         mpi_info_list = self.get_cmd_output('mpirun -version')
         mpi_info = mpi_info_list[0].strip()
         name = 'openmpi'
         version = self.get_version_info(mpi_info)
         if not version:
-            print("MPI not found, please install MPI first.")
-            sys.exit()
-        hmpi_info = self.get_cmd_output('ompi_info | grep "MCA coll: ucx"')[0]
-        if hmpi_info != "":
-            name = 'hmpi'
-            version = re.search( r'Component v(\d+)\.(\d+)\.',hmpi_info).group(1)
-        return {"name": name, "version": version}
+            return None
+        return self.gen_mpi_dict(name, version)
+
+    def get_mpi_info(self):
+        hmpi_info = self.get_hmpi_info()
+        if hmpi_info:
+            return hmpi_info
+        openmpi_info = self.get_openmpi_info()
+        if openmpi_info:
+            return openmpi_info
+        print("MPI not found, please install MPI first.")
+        sys.exit()
 
     def check_software_path(self, software_path):
         abs_software_path = os.path.join(self.PACKAGE_PATH, software_path)
@@ -154,7 +177,7 @@ class InstallService:
         return software_info
 
     def get_compiler_info(self, compilers, compiler_mpi_info):
-        compiler_info = {"cname":None, "cmversion": None}
+        compiler_info = {"cname":None, "cmversion": None, self.FULL_VERSION: None}
         for compiler, info_func in compilers.items():
             if compiler in compiler_mpi_info:
                 compiler_info = info_func()
@@ -174,10 +197,10 @@ class InstallService:
         if not software_info['is_use_mpi']:
             return install_path
         mpi_info = self.get_mpi_info()
-        if mpi_info["version"] == None:
+        if mpi_info[self.FULL_VERSION] == None:
             print("MPI not found!")
             return False
-        mpi_str = mpi_info["name"]+mpi_info["version"]
+        mpi_str = mpi_info["name"]+mpi_info[self.FULL_VERSION]
         print("Use MPI: "+mpi_str)
         install_path = os.path.join(install_path, mpi_str)
         return install_path
@@ -187,17 +210,19 @@ class InstallService:
         sversion = software_info['sversion']
         stype = software_info['type']
         cname = env_info['cname']
+        cfullver = env_info[self.FULL_VERSION]
         if suffix != "":
             software_info['sname'] += '-' + suffix
         sname = software_info['sname']
         if stype == SType.MPI:
-            return os.path.join(self.MPI_PATH, f"{sname}{self.get_main_version(sversion)}-{cname}{env_info['cmversion']}", sversion)
+            return os.path.join(self.MPI_PATH, f"{sname}{sversion}-{cname}{cfullver}", sversion)
         if stype == SType.COMPILER:
             install_path = os.path.join(self.COMPILER_PATH, f'{sname}/{sversion}')
         elif stype == SType.UTIL:
             install_path = os.path.join(self.UTILS_PATH, f'{sname}/{sversion}')
         else:
-            install_path = os.path.join(self.LIBS_PATH, cname+env_info['cmversion'])
+            # install library
+            install_path = os.path.join(self.LIBS_PATH, cname+cfullver)
             # get mpi name and version
             install_path = self.add_mpi_path(software_info, install_path)
             install_path = os.path.join(install_path, f'{sname}/{sversion}')
@@ -269,8 +294,7 @@ setenv    {sname.upper().replace('-','_')}_PATH {install_path}
         sversion = software_info['sversion']
         stype = software_info['type']
         cname = env_info['cname']
-        cmversion = env_info['cmversion']
-        software_str = sname + self.get_main_version(sversion)
+        cfullversion = env_info[self.FULL_VERSION]
         module_file_content = self.get_module_file_content(install_path, sname, sversion)
         if not self.is_installed(install_path):
             return
@@ -279,24 +303,28 @@ setenv    {sname.upper().replace('-','_')}_PATH {install_path}
             print('module file did not generated because no file generated under install path')
             return
         if stype == SType.MPI:
-            compiler_str = cname + cmversion
-            module_path = os.path.join(self.MODULE_DEPS_PATH, compiler_str ,software_str)
+            compiler_str = cname + cfullversion
+            software_str = sname + sversion
+            module_path = os.path.join(self.MODULE_DEPS_PATH, compiler_str ,sname)
             attach_module_path = os.path.join(self.MODULE_DEPS_PATH, compiler_str+'-'+software_str)
             self.tool.mkdirs(attach_module_path)
             module_file_content += f"\nprepend-path    MODULEPATH     {attach_module_path}"
+            print(f'attach module file {attach_module_path} successfully generated.')
         else:
             if stype == SType.COMPILER:
-                module_path = os.path.join(self.MODULE_FILES, software_str)
+                software_str = sname + sversion
+                module_path = os.path.join(self.MODULE_FILES, sname)
                 attach_module_path = os.path.join(self.MODULE_DEPS_PATH, software_str)
                 self.tool.mkdirs(attach_module_path)
                 module_file_content += f"\nprepend-path    MODULEPATH     {attach_module_path}"
+                print(f'attach module file {attach_module_path} successfully generated.')
             elif stype == SType.UTIL:
                 module_path = os.path.join(self.MODULE_FILES, sname)
             else:
-                compiler_str = cname + cmversion
+                compiler_str = cname + cfullversion
                 if software_info['is_use_mpi']:
                     mpi_info = self.get_mpi_info()
-                    mpi_str = mpi_info['name'] + self.get_main_version(mpi_info['version'])
+                    mpi_str = mpi_info['name'] + mpi_info[self.FULL_VERSION]
                     module_path = os.path.join(self.MODULE_DEPS_PATH, f"{compiler_str}-{mpi_str}" ,sname)
                 else:
                     module_path = os.path.join(self.MODULE_DEPS_PATH, compiler_str, sname)
@@ -347,11 +375,12 @@ chmod +x {install_script}
         env_info = self.get_compiler_info(compilers, compiler_mpi_info)
         if stype == SType.LIB or stype == SType.MPI:
             cmversion = env_info['cmversion']
+            cfullver = env_info[self.FULL_VERSION]
             if cmversion == None:
                 print(f"The specified {software_info['use_compiler']} Compiler not found!")
                 return False
             else:
-                print(f"Use Compiler: {env_info['cname']} {cmversion}")
+                print(f"Use Compiler: {env_info['cname']} {cfullver}")
         
         # get install path
         install_path = self.get_install_path(software_info, env_info)
