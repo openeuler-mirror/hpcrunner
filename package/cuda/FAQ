@@ -1,0 +1,11 @@
+Q：The file '/tmp/.X0-lock' exists and appears to contain the process ID '1062' of a >runnning X server.
+ERROR: You appear to be running an X server; please exit X before installing.  For >further details, please see the section INSTALLING THE NVIDIA DRIVER in the README >available on the Linux driver download page at www.nvidia.com.
+ERROR: Installation has failed.  Please see the file '/var/log/nvidia-installer.log' >for details.  You may find suggestions on fixing installation problems in the README >available on the Linux driver download page at www.nvidia.com.
+
+A：service lightdm stop 
+
+Q: 升级CUDA及驱动报错 ERROR: An NVIDIA kernel module 'nvidia-uvm' appears to already be loaded in your kernel. 
+A: 
+nvidia-uninstall
+lsof -n -w /dev/nvidia*
+kill -9 PID
