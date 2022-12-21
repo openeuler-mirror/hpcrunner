@@ -24,9 +24,9 @@ From: openeuler/openeuler
     ./jarvis -d
     # install dependency
     ./jarvis -dp
-    # build qmcpack
+    # build imb
     ./jarvis -b
-    # run qmcpack
+    # run imb
     ./jarvis -r
     # clean downloads directory
     rm -rf downloads
