@@ -88,12 +88,26 @@ class InstallService:
     def get_icc_info(self):
         return self.gen_compiler_dict("icc", ('2018', "2018.4"))
     
+    def get_hmpi_version(self):
+        mpirun_path = self.get_cmd_output('which mpirun')[0]
+        hmpi_path = os.path.dirname(mpirun_path)
+        hmpi_path = os.path.dirname(hmpi_path)
+        libucg_path = os.path.join(hmpi_path, "hucx/lib")
+        libucg_so_flag = "libucg.so."
+        version = None
+        for file_name in os.listdir(libucg_path):
+            if libucg_so_flag in file_name:
+                version = self.get_version_info(file_name)
+                if version:
+                    break
+        return version
+
     def get_hmpi_info(self):
         hmpi_info = self.get_cmd_output('ompi_info | grep "MCA coll: ucx"')[0]
         if hmpi_info == "":
             return None
         name = 'hmpi'
-        version = self.get_version_info(hmpi_info, r'Component v(\d+)\.(\d+)\.(\d+)')
+        version = self.get_hmpi_version()
         return self.gen_mpi_dict(name, version)
 
     def get_openmpi_info(self):
