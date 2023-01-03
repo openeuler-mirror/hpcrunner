@@ -89,10 +89,10 @@ class InstallService:
         return self.gen_compiler_dict("icc", ('2018', "2018.4"))
     
     def get_hmpi_version(self):
-        mpirun_path = self.get_cmd_output('which mpirun')[0]
-        hmpi_path = os.path.dirname(mpirun_path)
-        hmpi_path = os.path.dirname(hmpi_path)
-        libucg_path = os.path.join(hmpi_path, "hucx/lib")
+        ucx_path = self.get_cmd_output('which ucx_info')[0]
+        ucx_path = os.path.dirname(ucx_path)
+        ucx_path = os.path.dirname(ucx_path)
+        libucg_path = os.path.join(ucx_path, "lib")
         libucg_so_flag = "libucg.so."
         version = None
         for file_name in os.listdir(libucg_path):
