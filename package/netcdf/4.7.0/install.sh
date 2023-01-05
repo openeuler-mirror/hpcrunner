@@ -11,8 +11,8 @@ rm -rf netcdf-c-4.7.0 netcdf-fortran-4.4.5
 tar -xvf ${JARVIS_DOWNLOAD}/netcdf-c-4.7.0.tar.gz
 tar -xvf ${JARVIS_DOWNLOAD}/netcdf-fortran-4.4.5.tar.gz
 cd netcdf-c-4.7.0
-HDF5_DIR=${1%/*/*}/hdf5/1.10.1
-PNETCDF_DIR=${1%/*/*}/pnetcdf/1.11.2
+HDF5_DIR=${HDF5_PATH}
+PNETCDF_DIR=${PNETCDF_PATH}
 ./configure --prefix=$1 --build=aarch64-unknown-linux-gnu --enable-shared --enable-netcdf-4 --enable-dap --with-pic --disable-doxygen --enable-static --enable-pnetcdf --enable-largefile CPPFLAGS="-I${HDF5_DIR}/include -I${PNETCDF_DIR}/include" LDFLAGS="-L${HDF5_DIR}/lib -L${PNETCDF_DIR}/lib -Wl,-rpath=${HDF5_DIR}/lib -Wl,-rpath=${PNETCDF_DIR}/lib" CFLAGS="-L${HDF5_DIR}/lib -L${PNETCDF_DIR}/lib -I${HDF5_DIR}/include -I${PNETCDF_DIR}/include"
 
 make -j16
