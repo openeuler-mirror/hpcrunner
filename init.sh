@@ -19,4 +19,5 @@ export CHECK_ROOT=${CUR_PATH}/package/common/check_root.sh
 if ! type module >/dev/null 2>&1;then
     echo "Install environment-modules"
     . $CHECK_ROOT && yum install -y environment-modules || apt install -y environment-modules
+    source /etc/profile
 fi
