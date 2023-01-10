@@ -13,6 +13,7 @@ else
     build_type=''
 fi
 ./configure --prefix=$1 ${build_type} --enable-fortran --enable-static=yes --enable-parallel --enable-shared CFLAGS="-O3 -fPIC -Wno-incompatible-pointer-types-discards-qualifiers -Wno-non-literal-null-conversion" FCFLAGS="-O3 -fPIC"
-sed -i '11835c wl="-Wl,"' libtool
+sed -i '10121c wl="-Wl,"' libtool
+sed -i '10270c wl="-Wl,"' libtool
 make -j
 make install
