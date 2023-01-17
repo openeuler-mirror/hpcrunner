@@ -1,0 +1,35 @@
+BootStrap: docker
+From: openeuler/openeuler
+
+%environment
+    source /etc/profile || true
+    source /etc/profile.d/modules.sh
+    cd /hpcrunner
+    source init.sh
+    source env.sh
+
+%post
+    # Install the necessary development environment
+    yum install -y environment-modules git wget unzip make flex tar
+    source /etc/profile || true
+    git config --global http.sslVerify false
+    git clone https://gitee.com/openeuler/hpcrunner
+    cd hpcrunner
+    source ./init.sh
+    ./jarvis -i
+    # Switch config
+    ./jarvis -use templates/stream/1.8/data.stream.arm.cpu.config
+    # download dependency
+    ./jarvis -d
+    # install dependency
+    ./jarvis -dp
+    # build stream
+    ./jarvis -b
+    # run test
+    ./jarvis -r
+    # clean cache and downloads directory
+    yum clean all
+    rm -rf downloads
+
+%labels
+    Author shaoyuteng
