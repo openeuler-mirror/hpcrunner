@@ -5,11 +5,11 @@ kml_version=1.6.0
 . ${DOWNLOAD_TOOL} -u https://kunpeng-repo.obs.cn-north-4.myhuaweicloud.com/Kunpeng%20BoostKit/Kunpeng%20BoostKit%2022.0.RC3/BoostKit-kml_${kml_version}.zip
 . ${DOWNLOAD_TOOL} -u https://github.com/Reference-LAPACK/lapack/archive/refs/tags/v3.9.1.tar.gz -f lapack-3.9.1.tar.gz
 cd ${JARVIS_TMP}
-#if [ -d /usr/local/kml ];then
-#   rpm -e boostkit-kml
-#fi
-unzip -o ${JARVIS_DOWNLOAD}/BoostKit-kml_${kml_version}.zip
-rpm --force --nodeps -ivh --relocate /usr/local/kml=$1 --badreloc=$1  boostkit-kml-${kml_version}-1.aarch64.rpm
+
+unzip -o ${JARVIS_DOWNLOAD}/BoostKit-kml_${kml_version}_bisheng.zip
+rpm2cpio boostkit-kml-${kml_version}-1.aarch64.rpm | cpio -div
+mkdir -p $1
+cp -r usr/local/kml/* $1
 
 # generate full lapack
 netlib=${JARVIS_DOWNLOAD}/lapack-3.9.1.tar.gz
