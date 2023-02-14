@@ -3,6 +3,7 @@ set -x
 set -e
 . ${DOWNLOAD_TOOL} -u http://download.osgeo.org/gdal/2.2.4/gdal-2.2.4.tar.gz
 cd ${JARVIS_TMP}
+rm -rf gdal-2.2.4
 tar -xvf ${JARVIS_DOWNLOAD}/gdal-2.2.4.tar.gz
 cd gdal-2.2.4
 
