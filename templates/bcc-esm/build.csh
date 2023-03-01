@@ -6,7 +6,6 @@ setenv MPI_ROOT ${MPI_DIR}
 
 limit datasize  unlimited
 setenv XLSMPOPTS stack=860000000
-setenv OMP_STACKSIZE 3G
 
 setenv Atmosphere_Model     CAM3
 setenv System_Time_Type     day                  # month/day
@@ -158,6 +157,7 @@ if ( $argv[1] == 1 ) then
   $SCRIPTS/esmf.setup.csh >>& esmf.log.$LID || exit 1
 endif
 
+
 echo -------------------------------------------------------------------------
 echo  h. Execute component setup.csh scripts, build models
 echo -------------------------------------------------------------------------
@@ -202,13 +202,15 @@ end
 
 if ( $argv[1] == 2 ) then
   cd $EXEROOT
-  rm -rf atm/historical.cam2* atm/atm.log.* cpl/cpl.log.* esmf/esmf.log.* ice/ice.log.* lnd/lnd.log.* 
-  rm -rf ocn/ocn.log.* esm_* esm_err_*
+  rm -rf atm/historical.cam2* atm/atm.log.* cpl/cpl.log.* ice/ice.log.* lnd/lnd.log.* ocn/ocn.log.*
+  rm -rf atm/timing.* atm/spmdstats.*
+  rm -rf esm_*
   echo -------------------------------------------------------------------------
   echo  j. Run the model, execute models simultaneously allocating CPUs
   echo -------------------------------------------------------------------------
   echo "`date` -- CSM EXECUTION BEGINS HERE"
   setenv I_MPI_COMPATIBILITY 4
+  setenv OMP_STACKSIZE 3G
   setenv KMP_AFFINITY        compact
   echo "`date` -- CSM JOB SUBMIT HAS FINISHED"
   chmod +x run.sh

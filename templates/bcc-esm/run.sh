@@ -1,7 +1,7 @@
 #!/bin/bash
-#DSUB -n esm-29n
+#DSUB -n esm-28n
 #DSUB --job_type cosched
-#DSUB -N 29
+#DSUB -N 28
 #DSUB -R "cpu=128;mem=256000"
 #DSUB -A root.default
 #DSUB -q root.default
@@ -28,10 +28,10 @@ ntask=`cat ${CCSCHEDULER_ALLOC_FILE} | sort | awk -v fff="$HOSTFILE" '{}
                 total_task+=a[2]
         }
 }END{print total_task}'`
-head -n 28 $HOSTFILE > $tmpfs
-sed -i 's/128/96/' $tmpfs
+head -n 27 $HOSTFILE > $tmpfs
+sed -i 's/128/126/' $tmpfs
 tail -n 1 $HOSTFILE >> $tmpfs
-sed -i 's/128/24/' $tmpfs
+sed -i 's/128/128/' $tmpfs
 mv $tmpfs $HOSTFILE
 echo "openmpi hostfile $HOSTFILE generated:"
 echo "-----------------------"
@@ -39,7 +39,7 @@ cat $HOSTFILE
 echo "-----------------------"
 echo "Total tasks is $ntask"
 echo "mpirun -hostfile $HOSTFILE -n $ntask <your application>"
-sed -i "15c             layout =20,10," ocn/input.nml
+sed -i "15c             layout =40,20," ocn/input.nml
 #generate run_roce.sh
 cat <<\EOF > run_roce.sh 
 #!/bin/bash
@@ -47,7 +47,7 @@ rank=$OMPI_COMM_WORLD_RANK
 
 idx=$(expr $rank % 32 / 8)
 #           atm  lnd  ice  ocn cpl
-NTASKS=(   2304  96  96   200  16 )
+NTASKS=(   2304  116  182   800  8 )
 NTHRDS=(   1    1   1     1     1  )
 
 lnd_proc=`expr ${NTASKS[0]} + ${NTASKS[1]}`
@@ -81,6 +81,6 @@ fi
 EOF
 chmod +x run_roce.sh
 date
-mpirun --allow-run-as-root --mca plm_rsh_agent /opt/batch/agent/tools/dstart -mca btl ^vader,tcp,openib,uct -mca coll ^ucx -x UCX_BUILTIN_ALLREDUCE_ALGORITHM=6 -x UCX_BUILTIN_ALLTOALLV_ALGORITHM=1 -hostfile $HOSTFILE -np 2712 -x LD_LIBRARY_PATH -x PATH -x OMP_WAIT_POLICY=ACTIVE --bind-to socket run_roce.sh
+mpirun --allow-run-as-root --mca plm_rsh_agent /opt/batch/agent/tools/dstart --mca pml ucx -mca btl ^vader,tcp,openib,uct -x UCX_NET_DEVICES=mlx5_0:1 -x UCX_BUILTIN_ALLREDUCE_ALGORITHM=6 -x UCX_BUILTIN_ALLTOALLV_ALGORITHM=1 -hostfile $HOSTFILE -np 3410 -x LD_LIBRARY_PATH -x PATH -x OMP_WAIT_POLICY=ACTIVE --bind-to core run_roce.sh #/share/fang/osu_init
 date
 exit 0

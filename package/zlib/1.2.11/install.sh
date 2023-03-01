@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x
 set -e
-zlib_ver='1.2.12'
+zlib_ver='1.2.11'
 . ${DOWNLOAD_TOOL} -u https://zlib.net/fossils/zlib-${zlib_ver}.tar.gz
 cd ${JARVIS_TMP}
 rm -rf zlib-${zlib_ver}
