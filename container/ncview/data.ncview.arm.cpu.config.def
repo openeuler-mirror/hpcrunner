@@ -1,0 +1,34 @@
+BootStrap: docker
+From: openeuler/openeuler:20.03
+
+%environment
+    source /etc/profile || true
+    cd /hpcrunner
+    source env.sh
+
+%post
+    # Install the necessary development environment
+    yum install -y environment-modules git dmidecode pciutils wget vim expat-devel cpio libcurl-devel zlib zlib-devel  libX11* mesa* libXmu  libICE-devel libSM-devel libX*-devel netpbm-devel
+    # Install base gcc
+    yum install -y gcc gcc-c++ gcc-gfortran glibc-devel make libgfortran
+    # install network package
+    yum install -y tcsh tcl lsof tk bc 
+    source /etc/profile || true
+    git config --global http.sslVerify false
+    git clone https://gitee.com/chenshaoheng/hpcrunner
+    cd hpcrunner
+    source ./init.sh
+    # add your personal files here
+    
+    # Switch config
+    ./jarvis -use templates/ncview/2.1.7/data.ncview.arm.cpu.config
+    # download dependency
+    ./jarvis -d
+    # install dependency
+    ./jarvis -dp
+    # build hpc
+    ./jarvis -b
+    # run hpc
+    ./jarvis -r
+    # clean tmp directory
+    rm -rf downloads tmp
