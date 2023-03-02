@@ -8,14 +8,14 @@ From: openeuler/openeuler:20.03
 
 %post
     # Install the necessary development environment
-    yum install -y environment-modules git dmidecode pciutils wget vim expat-devel
+    yum install -y environment-modules git dmidecode pciutils wget vim expat-devel zlib-devel expat-devel cpio
     # Install base gcc
     yum install -y gcc gcc-c++ gcc-gfortran glibc-devel make libgfortran
     # install network package
     yum install -y tcsh tcl lsof tk bc 
     source /etc/profile || true
     git config --global http.sslVerify false
-    git clone https://gitee.com/openeuler/hpcrunner
+    git clone https://gitee.com/chenshaoheng/hpcrunner
     cd hpcrunner
     source ./init.sh
     # add your personal files here
