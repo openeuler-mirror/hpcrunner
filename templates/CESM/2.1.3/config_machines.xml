@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+
+<config_machines version="2.0">
+
+  <machine MACH="openeuler">
+    <DESC>
+      Example port to centos7 linux system with gcc, netcdf, pnetcdf and mpich
+      using modules from http://www.admin-magazine.com/HPC/Articles/Environment-Modules
+    </DESC>
+    <NODENAME_REGEX>DC5-19-002</NODENAME_REGEX>
+    <OS>LINUX</OS>
+    <PROXY> https://howto.get.out </PROXY>
+    <COMPILERS>gnu</COMPILERS>
+    <MPILIBS>openmpi</MPILIBS>
+    <PROJECT>none</PROJECT>
+    <SAVE_TIMING_DIR> </SAVE_TIMING_DIR>
+    <CIME_OUTPUT_ROOT>$ENV{HOME}/cesm/scratch</CIME_OUTPUT_ROOT>
+    <DIN_LOC_ROOT>$ENV{HOME}/cesm/inputdata</DIN_LOC_ROOT>
+    <DIN_LOC_ROOT_CLMFORC>$ENV{HOME}/cesm/inputdata/lmwg</DIN_LOC_ROOT_CLMFORC>
+    <DOUT_S_ROOT>$ENV{HOME}/cesm/archive/$CASE</DOUT_S_ROOT>
+    <BASELINE_ROOT>$ENV{HOME}/cesm/cesm_baselines</BASELINE_ROOT>
+    <CCSM_CPRNC>$ENV{HOME}/cesm/tools/cime/tools/cprnc/cprnc</CCSM_CPRNC>
+    <GMAKE>make</GMAKE>
+    <GMAKE_J>8</GMAKE_J>
+    <BATCH_SYSTEM>none</BATCH_SYSTEM>
+    <SUPPORTED_BY>me@my.address</SUPPORTED_BY>
+    <MAX_TASKS_PER_NODE>128</MAX_TASKS_PER_NODE>
+    <MAX_MPITASKS_PER_NODE>128</MAX_MPITASKS_PER_NODE>
+    <PROJECT_REQUIRED>FALSE</PROJECT_REQUIRED>
+    <mpirun mpilib="default">
+      <executable>mpirun</executable>
+      <arguments>
+	<arg name="ntasks"> -np {{ total_tasks }} -hostfile $ENV{HOSTFILE}  </arg>
+      </arguments>
+    </mpirun>
+    <module_system type="module" allow_error="true">
+      <init_path lang="perl">/usr/share/Modules/init/perl.pm</init_path>
+      <init_path lang="python">/usr/share/Modules/init/python.py</init_path>
+      <init_path lang="csh">/usr/share/Modules/init/csh</init_path>
+      <init_path lang="sh">/usr/share/Modules/init/sh</init_path>
+      <cmd_path lang="perl">/usr/bin/modulecmd perl</cmd_path>
+      <cmd_path lang="python">/usr/bin/modulecmd python</cmd_path>
+      <cmd_path lang="sh">module</cmd_path>
+      <cmd_path lang="csh">module</cmd_path>
+      <modules>
+	<command name="purge"/>
+      </modules>
+      <modules compiler="gnu">
+        <command name="load">$ENV{JARVIS_MODULES}/bisheng/2.5.0</command>
+        <command name="load">$ENV{JARVIS_MODULES}/kgcc/9.3.1</command>
+        <command name="load">$ENV{JARVIS_MODULEDEPS}/bisheng2.5.0/hmpi/1.2.0</command>
+        <command name="load">$ENV{JARVIS_MODULEDEPS}/bisheng2.5.0-hmpi1.2.0/netcdf-clang/4.8.1</command>
+        <command name="load">$ENV{JARVIS_MODULEDEPS}/bisheng2.5.0-hmpi1.2.0/pnetcdf/1.12.1</command>
+        <command name="load">$ENV{JARVIS_MODULEDEPS}/bisheng2.5.0-hmpi1.2.0/hdf5-clang/1.12.0</command>
+        <command name="load">$ENV{JARVIS_MODULEDEPS}/kgcc9.3.1/kml-gcc/1.6.0</command>
+      </modules>
+    </module_system>
+    <environment_variables>
+      <env name="OMP_STACKSIZE">256M</env>
+    </environment_variables>
+    <resource_limits>
+      <resource name="RLIMIT_STACK">-1</resource>
+    </resource_limits>
+  </machine>
+  <default_run_suffix>
+    <default_run_exe>${EXEROOT}/cesm.exe </default_run_exe>
+    <default_run_misc_suffix> >> cesm.log.$LID 2>&amp;1 </default_run_misc_suffix>
+  </default_run_suffix>
+
+</config_machines>
