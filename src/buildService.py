@@ -13,7 +13,13 @@ class BuildService:
     def clean(self):
         print(f"start clean {DataService.app_name}")
         clean_cmd=self.hpc_data.get_clean_cmd()
-        self.exe.exec_raw(clean_cmd)
+        clean_file = 'clean.sh'
+        self.tool.write_file(clean_file, clean_cmd)
+        run_cmd = f'''
+chmod +x {clean_file}
+./{clean_file}
+'''
+        self.exe.exec_raw(run_cmd)
 
     def build(self):
         print(f"start build {DataService.app_name}")
