@@ -118,7 +118,7 @@ sed -i '46c .fc: $(FONTC)' common/src/fontcap/yMakefile
 sed -i '9a InstallTarget($(SCRIPTS1),$(INSTALL_BIN),$(BINPATH))' ni/src/scripts/yMakefile
 sed -i '10a InstallTarget($(SCRIPTS2),$(INSTALL_BIN),$(BINPATH))' ni/src/scripts/yMakefile
 sed -i '11a CleanFilesTarget($(SCRIPTS1))' ni/src/scripts/yMakefile
-sed -i '12a InstallManPages($(MAN1),$(FORMAT_EXT),$(MAN1PATH),$(MAN1_SECTION))'ni/src/scripts/yMakefile
+sed -i '12a InstallManPages($(MAN1),$(FORMAT_EXT),$(MAN1PATH),$(MAN1_SECTION))' ni/src/scripts/yMakefile
 sed -i '13a FormatManPages($(MAN1),.m,.p)' ni/src/scripts/yMakefile
 sed -i '79,83d'	ni/src/scripts/yMakefile
 
