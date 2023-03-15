@@ -24,18 +24,18 @@ sed -i '36c #define ArchRecIncSearch    -I/usr/X11R6/include -I/usr/include' con
 sed -i "9660c IF ((CEX1(1:1).EQ.' ') .AND. (LCX1 .EQ. 1)) LCX1=0" ncarg2d/src/libncarg/conpack/CodeIftran
 sed -i "9662c IF ((CEX2(1:1).EQ.' ') .AND. (LCX2 .EQ. 1)) LCX2=0" ncarg2d/src/libncarg/conpack/CodeIftran
 sed -i "9664c IF ((CEX3(1:1).EQ.' ') .AND. (LCX3 .EQ. 1)) LCX3=0" ncarg2d/src/libncarg/conpack/CodeIftran
-sed -i "9669a DO (III=1,LBUF)\n\CBUF(III:III)=' '\n\END DO" ncarg2d/src/libncarg/conpack/CodeIftran
+sed -i "9669a DO (III=1,LBUF)\nCBUF(III:III)=' '\nEND DO" ncarg2d/src/libncarg/conpack/CodeIftran
 sed -i "9795c CBUF(1:1)='0'" ncarg2d/src/libncarg/conpack/CodeIftran
 #ni/src/ncl/yMakefile
 sed -i '46c EXTRA_CCOPTIONS = -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -g -fsigned-char' ni/src/ncl/yMakefile
 #common/src/bin/ncargpath/ncargpath.c
 sed -i '30a #include <stdlib.h>' common/src/bin/ncargpath/ncargpath.c
 #ncarg2d/src/libncarg/plotchar/bofred.c
-sed -i "14a #include <sys/types.h>\n\#include <sys/stat.h>\n\#include <fcntl.h>\n\#include <stdlib.h>" ncarg2d/src/libncarg/plotchar/bofred.c
+sed -i "14a #include <sys/types.h>\n#include <sys/stat.h>\n#include <fcntl.h>\n#include <stdlib.h>" ncarg2d/src/libncarg/plotchar/bofred.c
 #ncarg2d/src/libncarg/areasC/c_argeti.c
 sed -i "14a #include <string.h>" ncarg2d/src/libncarg/areasC/c_argeti.c
 #ncarg2d/src/libncarg/ncargC.h
-sed -i "182a extern void NGCALLF(agback,AGBACK)(\n\#ifdef  NeedFuncProto\nvoid\n\#endif\n\);\n" ncarg2d/src/libncarg/ncargC.h
+sed -i "182a extern void NGCALLF(agback,AGBACK)(\n#ifdef  NeedFuncProto\nvoid\n#endif\n);\n" ncarg2d/src/libncarg/ncargC.h
 #ncarview/src/lib/libncarg_ras/raster.c
 sed -i "37a #include <stdlib.h>" ncarview/src/lib/libncarg_ras/raster.c
 sed -i "508a int" ncarview/src/lib/libncarg_ras/raster.c
@@ -124,31 +124,75 @@ sed -i '79,83d'	ni/src/scripts/yMakefile
 
 #config/Rules
 sed -i '82c install-local:: ]\' config/Rules
-############
+
 #config/ymake
 sed -i '187a set share_dir = `ncargpath share`' config/ymake
 sed -i '188a if ($status != 0) then' config/ymake
 sed -i '189a echo "$0 : Unable to find NCARG_SHARE dir" > /dev/tty' config/ymake
 sed -i "190a exit 1\nendif" config/ymake
-sed -i '191a set defines = ($defines -D_InstShare\=$share_dir)' config/ymake
+sed -i '192a set defines = ($defines -D_InstShare\=$share_dir)' config/ymake
 
 #config/Template
 sed -i "165a #ifndef        ShareRoot\n#ifndef        _IgnoreYmakeRoot\n#define        ShareRoot       YmakeRoot/share\n#else\n#define        ShareRoot       _InstShare\n#endif /* _IgnoreYmakeRoot */\n#endif /* ShareRoot */\n" config/Template
 sed -i "224a #ifndef        SharePath\n#ifdef _UseRootPath\n#define        SharePath       RootPath/share\n#else\n#define        SharePath       ShareRoot\n#endif\n#endif\n" config/Template
-sed -i "615a SHAREPATH              = SharePath" config/Template
+sed -i "623a SHAREPATH              = SharePath" config/Template
 
 #config/Project
 sed -i '384c LIBNCARGROOT           = $(SHAREPATH)/$(NCARGDIR)' config/Project
 sed -i '384a LIBNCARGARCH           = $(LIBPATH)/$(NCARGDIR)' config/Project
-sed -i 
+sed -i '393c ROBJROOT               = $(LIBNCARGARCH)/$(ROBJDIR)' config/Project
+sed -i '402c LIBNCARGPATH           = $(SHAREPATH)/$(NCARGDIR)' config/Project
+
+sed -i '410c ROBJPATH               = $(LIBNCARGARCH)/$(ROBJDIR)' config/Project
+sed -i '472c "lib",NULL,NULL,"$(LIBROOT)",NULL,                      \\' config/Project
+sed -i '473a "share",NULL,"root",NULL,NULL,                  \\' config/Project
+sed -i '476c "ncarg",NULL,"share",NULL,NULL,                 \\' config/Project
+
+#config/ymake		line+6
+sed -i '374c case    ppc*:' config/ymake
+sed -i '381c case    aarch64:' config/ymake
+sed -i '384c set sysincs = LINUX' config/ymake
+sed -i '385c set vendor  = ARM' config/ymake
+sed -i '374a case    s390*:' config/ymake
+sed -i '375a case    sparc*:' config/ymake
+
+#ncarg2d/src/libncarg_gks/bwi/argb2ci.f
+sed -i "19c parameter (ARGBMASK = INT(Z'40000000'))" ncarg2d/src/libncarg_gks/bwi/argb2ci.f
+sed -i "20c  parameter (RMASK     = INT(Z'00FF0000'))" ncarg2d/src/libncarg_gks/bwi/argb2ci.f
+sed -i "21c parameter (GMASK     = INT(Z'0000FF00'))" ncarg2d/src/libncarg_gks/bwi/argb2ci.f
+sed -i "22c parameter (BMASK     = INT(Z'000000FF'))" ncarg2d/src/libncarg_gks/bwi/argb2ci.f
+sed -i "34c r = (iand(index, RMASK) / INT(Z'0000FFFF')) / 255." ncarg2d/src/libncarg_gks/bwi/argb2ci.f
+sed -i "35c g = (iand(index, GMASK) / INT(Z'000000FF')) / 255." ncarg2d/src/libncarg_gks/bwi/argb2ci.f
+
+#ni/src/lib/nfp/ripW.c
+sed -i "536c fputs(errmsg, stderr);" ni/src/lib/nfp/ripW.c
+sed -i "1083c fputs(errmsg, stderr);" ni/src/lib/nfp/ripW.c
+
+#ni/src/lib/nfp/wrfW.c
+sed -i "1517c fputs(errmsg, stderr);" ni/src/lib/nfp/wrfW.c
+sed -i "9224c fputs(errmsg, stderr);" ni/src/lib/nfp/wrfW.c
+sed -i "9870c fputs(errmsg, stderr);" ni/src/lib/nfp/wrfW.c
+sed -i "10532c fputs(errmsg, stderr);" ni/src/lib/nfp/wrfW.c
+sed -i "11235c fputs(errmsg, stderr);" ni/src/lib/nfp/wrfW.c
+sed -i "13623c fputs(errmsg, stderr);" ni/src/lib/nfp/wrfW.c
+
+#ni/src/lib/nfp/wrf_vinterpW.c
+sed -i "822c fputs(errmsg, stderr);" ni/src/lib/nfp/wrf_vinterpW.c
+
+#ni/src/ncl/yMakefile--vim ncl-gdal.patch
+sed -i '201c # EXTRA_LIBS      =    $(NCDFLIBS) $(HDFEOS5LIB) $(NETCDF4LIB) $(HDFEOSLIB) $(HDFLIB) $(HDF5LIB) $(GRIB2LIB) $(GDALLIB) $(GRIDSPECLIB) $(UDUNITSLIB) $(V5DLIB) $(PNGLIB) $(CAIROLIB) $(SPHERELIB) $(FFTPACK5LIB) -fast -xlic_lib=sunperf		-lnsl -lintl -lsocket -ldl -lw -lfui' ni/src/ncl/yMakefile
+sed -i '202c EXTRA_LIBS      =      $(NCDFLIBS) $(HDFEOS5LIB) $(NETCDF4LIB) $(HDFEOSLIB) $(HDFLIB) $(HDF5LIB) $(GRIB2LIB) $(GDALLIB) $(GRIDSPECLIB) $(OpenCLLIB) $(UDUNITSLIB) $(V5DLIB) $(PNGLIB) $(CAIROLIB) $(EEMDLIB) $(EXTERNALLIBS) -lnsl -lintl -lsocket -ldl -lw' ni/src/ncl/yMakefile
+sed -i '204c EXTRA_LIBS      =      $(NCDFLIBS) $(HDFEOS5LIB) $(NETCDF4LIB) $(HDFEOSLIB) $(HDFLIB) $(HDF5LIB) $(GRIB2LIB) $(GDALLIB) $(GRIDSPECLIB) $(OpenCLLIB) $(UDUNITSLIB) $(V5DLIB) $(PNGLIB) $(CAIROLIB) $(EEMDLIB) $(EXTERNALLIBS) -lxlf90 -lxlopt' ni/src/ncl/yMakefile
+sed -i '206c EXTRA_LIBS      =      $(NCDFLIBS) $(HDFEOS5LIB) $(NETCDF4LIB) $(HDFEOSLIB) $(HDFLIB) $(HDF5LIB) $(GRIB2LIB) $(GDALLIB) $(GRIDSPECLIB) $(OpenCLLIB) $(UDUNITSLIB) $(V5DLIB) $(PNGLIB) $(CAIROLIB) $(EEMDLIB) $(EXTERNALLIBS)' ni/src/ncl/yMakefile
+sed -i '208c EXTRA_LIBS      =      $(NCDFLIBS) $(HDFEOS5LIB) $(NETCDF4LIB) $(HDFEOSLIB) $(HDFLIB) $(HDF5LIB) $(GRIB2LIB) $(GDALLIB) $(GRIDSPECLIB) $(OpenCLLIB) $(UDUNITSLIB) $(V5DLIB) $(PNGLIB) $(CAIROLIB) $(EEMDLIB) $(EXTERNALLIBS)' ni/src/ncl/yMakefile
+
+#ncarview/src/bin/ictrans/yMakefile
+sed -i "31a #else\nMORE_LIBS      = -lm" ncarview/src/bin/ictrans/yMakefile
+
+##################################END########################################
+
+./Configure -v
 
 
-
-
-
-
-
-
-./configure --prefix=$1 --with-nc-config=${NETCDF_DIR}/bin/nc-config -with-udunits2_incdir=${UDUNITS_DIR}/include -with-udunits2_libdir=${UDUNITS_DIR}/lib
-make -j
-make install
+make Everything
+make all install
