@@ -347,7 +347,7 @@ setenv    {sname.upper().replace('-','_')}_PATH {install_path}
         self.tool.write_file(module_file, module_file_content)
         print(f"module file {module_file} successfully generated")
 
-    def install_package(self, abs_software_path, install_path):
+    def install_package(self, abs_software_path, install_path, other_args):
         install_script = 'install.sh'
         install_script_path = os.path.join(abs_software_path, install_script)
         print("start installing..."+ abs_software_path)
@@ -358,11 +358,15 @@ setenv    {sname.upper().replace('-','_')}_PATH {install_path}
         if self.is_installed(install_path):
             print("already installed, skipping...")
             return
+        #argparse无法解析前缀为-的参数，所以参数使用双单引号，这里要去除单引号
+        other_args = [x.replace('\'','') for x in other_args]
+        other_args_uni = ' '.join(other_args)
+        #print(other_args)
         install_cmd = f'''
 source ./init.sh
 cd {abs_software_path}
 chmod +x {install_script}
-./{install_script} {install_path}
+./{install_script} {install_path} {other_args_uni}
 '''
         result = self.exe.exec_raw(install_cmd)
         if result:
@@ -372,7 +376,10 @@ chmod +x {install_script}
             print("install failed")
             sys.exit()
 
-    def install(self, software_path, compiler_mpi_info):
+    def install(self, install_args):
+        software_path = install_args[0]
+        compiler_mpi_info = install_args[1]
+        other_args = install_args[2:]
         self.tool.prt_content("INSTALL " + software_path)
         compilers = {"GCC":self.get_gcc_info, "CLANG":self.get_clang_info,
                      "NVC":self.get_nvc_info, "ICC":self.get_icc_info,
@@ -400,7 +407,7 @@ chmod +x {install_script}
         install_path = self.get_install_path(software_info, env_info)
         if not install_path: return
         # get install script
-        self.install_package(abs_software_path, install_path)
+        self.install_package(abs_software_path, install_path, other_args)
         # gen module file
         self.gen_module_file( install_path, software_info, env_info)
 
