@@ -8,11 +8,11 @@ From: openeuler/openeuler:20.03
 
 %post
     # Install the necessary development environment
-    yum install -y environment-modules git dmidecode pciutils wget vim zlib expat-devel freetype freetype-devel freetype-demos python-freetype ftgl ftgl-devel udunits2  udunits2-devel 
+    yum install -y environment-modules git dmidecode pciutils wget vim zlib expat-devel
     # Install base gcc
     yum install -y gcc gcc-c++ gcc-gfortran glibc-devel make libgfortran
     # install network package
-    yum install -y tcsh tcl lsof tk bc 
+    yum install -y tcsh tcl lsof tk bc tar
     source /etc/profile || true
     git config --global http.sslVerify false
     git clone https://gitee.com/chenshaoheng/hpcrunner
