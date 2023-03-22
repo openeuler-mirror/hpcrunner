@@ -33,6 +33,7 @@ From: centos:8.2.2004
     sed -i '18c enabled=1' /etc/yum.repos.d/CentOS-PowerTools.repo
     yum install -y epel-release
     cd /
+    yum makecache
     # Install the necessary development environment
     yum install -y environment-modules git dmidecode pciutils wget vim zlib expat-devel python3
     # Install base gcc
