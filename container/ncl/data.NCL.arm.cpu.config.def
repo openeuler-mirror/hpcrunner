@@ -1,5 +1,5 @@
 BootStrap: docker
-From: openeuler/openeuler:20.03
+From: centos:8.2.2004
 
 %environment
     source /etc/profile || true
