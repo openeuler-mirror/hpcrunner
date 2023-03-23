@@ -3,8 +3,6 @@ From: centos:8.2.2004
 
 %environment
     source /etc/profile || true
-    cd /hpcrunner
-    source env.sh
 
 %post
     #yum fix
