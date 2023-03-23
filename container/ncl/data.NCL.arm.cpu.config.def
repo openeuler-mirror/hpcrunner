@@ -8,7 +8,7 @@ From: centos:8.2.2004
 
 %post
     #yum fix
-    cd /etc/yum.repo.d/
+    cd /etc/yum.repos.d/
     mkdir backup
     cp *.repo backup/
     sed -i -e 's|$releasever|8-stream|g' /etc/yum.repos.d/CentOS-*
@@ -31,15 +31,18 @@ From: centos:8.2.2004
     sed -i '15 s/^/#/' /etc/yum.repos.d/CentOS-PowerTools.repo
     sed -i '16 s/^#//' /etc/yum.repos.d/CentOS-PowerTools.repo
     sed -i '18c enabled=1' /etc/yum.repos.d/CentOS-PowerTools.repo
-    yum install -y epel-release
-    cd /
     yum makecache
+    yum install -y rpm-build
+    yum install -y epel-release
+    sed -i -e 's|$releasever|8|g' /etc/yum.repos.d/epel*
+    cd /
+    yum install -y tar
     # Install the necessary development environment
     yum install -y environment-modules git dmidecode pciutils wget vim zlib expat-devel python3
     # Install base gcc
     yum install -y gcc gcc-c++ gcc-gfortran glibc-devel make libgfortran
     # install network package
-    yum install -y tcsh tcl lsof tk bc tar
+    yum install -y tcsh tcl lsof tk bc
     source /etc/profile || true
     git config --global http.sslVerify false
     git clone https://gitee.com/chenshaoheng/hpcrunner
