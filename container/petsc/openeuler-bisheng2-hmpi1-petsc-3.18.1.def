@@ -1,0 +1,33 @@
+BootStrap: docker
+From: openeuler/openeuler
+
+%environment
+    source /etc/profile || true
+    source /etc/profile.d/modules.sh
+    cd /hpcrunner
+    source init.sh
+    source env.sh
+
+%post
+    # Install the necessary development environment
+    yum install -y environment-modules git wget unzip make flex tar hostname
+    source /etc/profile || true
+    git config --global http.sslVerify false
+    git clone https://gitee.com/openeuler/hpcrunner
+    cd hpcrunner
+    source ./init.sh
+    ./jarvis -i
+    # Switch config
+    ./jarvis -use templates/petsc/3.18.1/data.petsc.arm.cpu.config
+    # install dependency
+    ./jarvis -dp
+    # build petsc
+    ./jarvis -b
+    # run test
+    ./jarvis -r
+    # clean cache and downloads directory
+    yum clean all
+    rm -rf downloads
+
+%labels
+    Author Zu

@@ -1,0 +1,35 @@
+BootStrap: docker
+From: openeuler/openeuler
+
+%environment
+    source /etc/profile || true
+    source /etc/profile.d/modules.sh
+    cd /hpcrunner
+    source env.sh
+
+%post
+    # Install the necessary development environment
+    yum install -y environment-modules git flex wget vim tar unzip coreutils
+    # Install base gcc
+    yum install -y gcc gcc-c++ gcc-gfortran glibc-devel make libgfortran
+    source /etc/profile || true
+    git config --global http.sslVerify false
+    git clone https://gitee.com/openeuler/hpcrunner.git
+    cd hpcrunner
+    source ./init.sh
+    ./jarvis -i
+    # Switch config
+    ./jarvis -use templates/scotch/7.0.1/data.scotch.amd.cpu.config
+    # downloads scotch
+    ./jarvis -d
+    # install dependency
+    ./jarvis -dp
+    # build scotch
+    ./jarvis -b
+    # run scotch
+    ./jarvis -r
+    # clean downloads directory
+    rm -rf downloads
+
+%labels
+    Author Zu
