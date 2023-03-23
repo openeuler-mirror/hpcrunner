@@ -33,12 +33,11 @@ From: centos:8.2.2004
     sed -i '18c enabled=1' /etc/yum.repos.d/CentOS-PowerTools.repo
     yum makecache
     yum install -y rpm-build
-    yum install -y epel-release
     sed -i -e 's|$releasever|8|g' /etc/yum.repos.d/epel*
     cd /
     yum install -y tar
     # Install the necessary development environment
-    yum install -y environment-modules git dmidecode pciutils wget vim zlib expat-devel python3
+    yum install -y environment-modules git dmidecode pciutils wget vim zlib expat-devel python3 cpio
     # Install base gcc
     yum install -y gcc gcc-c++ gcc-gfortran glibc-devel make libgfortran
     # install network package
