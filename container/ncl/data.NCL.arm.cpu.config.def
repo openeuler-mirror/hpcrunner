@@ -2,6 +2,7 @@ BootStrap: docker
 From: centos:8.2.2004
 
 %environment
+    echo "" > /etc/ld.so.preload
     source /etc/profile || true
 
 %post
