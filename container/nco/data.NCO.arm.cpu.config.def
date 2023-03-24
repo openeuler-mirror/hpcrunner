@@ -15,7 +15,7 @@ From: openeuler/openeuler:20.03
     yum install -y tcsh tcl lsof tk bc 
     source /etc/profile || true
     git config --global http.sslVerify false
-    git clone https://gitee.com/chenshaoheng/hpcrunner
+    git clone https://gitee.com/openeuler/hpcrunner
     cd hpcrunner
     source ./init.sh
     # add your personal files here
