@@ -43,7 +43,7 @@ From: centos:8.2.2004
     yum install -y tcsh tcl lsof tk bc
     source /etc/profile || true
     git config --global http.sslVerify false
-    git clone https://gitee.com/chenshaoheng/hpcrunner
+    git clone https://gitee.com/openeuler/hpcrunner
     cd hpcrunner
     source ./init.sh
     # add your personal files here
@@ -59,4 +59,4 @@ From: centos:8.2.2004
     # run hpc
     ./jarvis -r
     # clean tmp directory
-    #rm -rf downloads tmp
+    rm -rf downloads tmp
