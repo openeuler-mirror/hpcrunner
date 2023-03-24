@@ -194,5 +194,12 @@ sed -i "31a #else\nMORE_LIBS      = -lm" ncarview/src/bin/ictrans/yMakefile
 ./Configure -v
 
 
+
+
+
+
+
+
+
 make Everything
 make all install

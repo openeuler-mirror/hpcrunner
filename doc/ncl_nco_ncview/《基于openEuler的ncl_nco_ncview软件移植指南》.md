@@ -58,7 +58,7 @@
 | hdf-eos5 | 1.16 | <https://git.earthdata.nasa.gov/rest/git-lfs/storage/DAS/hdfeos5/7054de24b90b6d9533329ef8dc89912c5227c83fb447792103279364e13dd452?response-content-disposition=attachment%3B%20filename%3D%22HDF-EOS5.1.16.tar.Z%22%3B%20filename*%3Dutf-8%27%27HDF-EOS5.1.16.tar.Z>                                      |
 | hdf4 | 4.2.14 | <https://support.hdfgroup.org/ftp/HDF/releases/HDF4.2.14/src/hdf-4.2.14.tar.gz>                                      |
 | hdf5 | 1.12.0 | <https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.12.0/hdf5-1.12.0/src/hdf5-1.12.0.tar.gz>                                      |
-| jasper | 1.900.1 | <https://mirrors.tuna.tsinghua.edu.cn/ubuntu/pool/main/j/jasper/jasper_1.900.1.orig.tar.gz>                                      |
+| jasper | 1.900.2 | <https://mirrors.tuna.tsinghua.edu.cn/ubuntu/pool/main/j/jasper/jasper_1.900.2.orig.tar.gz>                                      |
 | libjpeg | v9b | <http://www.ijg.org/files/jpegsrc.v9b.tar.gz>                                      |
 | libpng | 1.6.37 | <https://nchc.dl.sourceforge.net/project/libpng/libpng16/1.6.37/libpng-1.6.37.tar.gz>                                      |
 | Mesa | 3.1 | <https://archive.mesa3d.org/older-versions/3.x/MesaLib-3.1.tar.gz >                                      |
@@ -303,11 +303,11 @@ cd proj-5.2.0
 make all install
 
 #jasper
-. wget -u https://www.ece.uvic.ca/~frodo/jasper/software/jasper_1.900.1.orig.tar.gz
+. wget -u https://www.ece.uvic.ca/~frodo/jasper/software/jasper_1.900.2.orig.tar.gz
 cd $DEP_BUILD_DIR
 rm -rf jasper-1.900.2
-tar -xvf $DEP_DOWNLOAD_DIR/jasper_1.900.1.orig.tar.gz
-cd jasper-1.900.1
+tar -xvf $DEP_DOWNLOAD_DIR/jasper_1.900.2.orig.tar.gz
+cd jasper-1.900.2
 ./configure --prefix=$1
 make -j
 make install

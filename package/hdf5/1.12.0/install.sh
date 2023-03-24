@@ -8,6 +8,6 @@ cd ${JARVIS_TMP}
 rm -rf hdf5-${hdf5_version}
 tar -xvf ${JARVIS_DOWNLOAD}/hdf5-${hdf5_version}.tar.gz
 cd hdf5-${hdf5_version}
-./configure --prefix=$1  --enable-fortran --enable-static=yes --enable-parallel --enable-shared
+./configure --prefix=$1  --enable-fortran --enable-static=yes --enable-parallel --enable-shared --with-zlib=/usr/lib
 make -j
 make install

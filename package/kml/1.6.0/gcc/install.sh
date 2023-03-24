@@ -6,7 +6,7 @@ kml_version=1.6.0
 . ${DOWNLOAD_TOOL} -u https://github.com/Reference-LAPACK/lapack/archive/refs/tags/v3.9.1.tar.gz -f lapack-3.9.1.tar.gz
 cd ${JARVIS_TMP}
 
-unzip -o ${JARVIS_DOWNLOAD}/BoostKit-kml_${kml_version}_bisheng.zip
+unzip -o ${JARVIS_DOWNLOAD}/BoostKit-kml_${kml_version}.zip
 rpm2cpio boostkit-kml-${kml_version}-1.aarch64.rpm | cpio -div
 mkdir -p $1
 cp -r usr/local/kml/* $1

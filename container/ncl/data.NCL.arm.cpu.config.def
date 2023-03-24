@@ -31,6 +31,8 @@ From: centos:8.2.2004
     sed -i '18c enabled=1' /etc/yum.repos.d/CentOS-PowerTools.repo
     yum makecache
     yum install -y rpm-build
+    yum install rpmdevtools -y
+    rpmdev-setuptree
     cd /
     yum install -y tar
     # Install the necessary development environment
@@ -57,4 +59,4 @@ From: centos:8.2.2004
     # run hpc
     ./jarvis -r
     # clean tmp directory
-    rm -rf downloads tmp
+    #rm -rf downloads tmp
