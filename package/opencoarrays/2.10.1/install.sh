@@ -6,6 +6,8 @@ cd ${JARVIS_TMP}
 rm -rf OpenCoarrays-2.10.1
 tar -xvf ${JARVIS_DOWNLOAD}/OpenCoarrays-2.10.1.tar.gz
 cd OpenCoarrays-2.10.1
-mkdir -p opencoarrays-build && cd opencoarrays-build
-cmake ${JARVIS_TMP}/OpenCoarrays-2.10.1/ -DCMAKE_INSTALL_PREFIX=$1
-make -j7 && make install
+rm -rf opencoarrays-build
+mkdir opencoarrays-build && cd opencoarrays-build
+cmake .. -DCMAKE_BUILD_TYPE:STRING="Release"
+make -j
+make install -j

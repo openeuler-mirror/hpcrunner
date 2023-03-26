@@ -9,4 +9,4 @@ cd gcc-9.3.0
 sed -i "35s/ftp/http/g" ./contrib/download_prerequisites
 ./contrib/download_prerequisites
 ./configure --disable-multilib --enable-languages="c,c++,fortran" --prefix=$1 --disable-static --enable-shared
-make -j6 && make install
+make -j && make install
