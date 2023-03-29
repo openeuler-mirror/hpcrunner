@@ -1,0 +1,33 @@
+BootStrap: docker
+From: openeuler/openeuler:22.03-lts-sp1
+
+%environment
+    source /etc/profile || true
+    source /etc/profile.d/modules.sh
+    cd /hpcrunner
+    source env.sh
+
+%post
+    # Install the necessary development environment
+    yum install -y environment-modules git flex wget vim tar unzip coreutils
+    # Install base gcc
+    yum install -y gcc gcc-c++ gcc-gfortran glibc-devel make libgfortran
+    source /etc/profile || true
+    git config --global http.sslVerify false
+    git clone https://gitee.com/shaoyuteng/hpcrunner.git
+    cd hpcrunner
+    source ./init.sh
+    ./jarvis -i
+    # Switch config
+    ./jarvis -use templates/OpenCoarrays/2.10.1/data.opencoarrays.amd.cpu.config
+    # install dependency
+    ./jarvis -dp
+    # build opencoarrays
+    ./jarvis -b
+    # run opencoarrays
+    ./jarvis -r
+    # clean downloads directory
+    rm -rf downloads
+
+%labels
+    Author Zu
