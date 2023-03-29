@@ -11,6 +11,6 @@ sed -i "14a #include <cstdio>" lib/cpp/antlr/CharScanner.hpp
 --prefix=$1 \
 --disable-csharp \
 --disable-java \
---disable-python
+--disable-python --build=arm-linux
 make -j
 make install

@@ -1,18 +1,47 @@
 BootStrap: docker
-From: openeuler/openeuler:20.03
+From: centos:8.2.2004
 
 %environment
+    echo "" > /etc/ld.so.preload
     source /etc/profile || true
-    cd /hpcrunner
-    source env.sh
 
 %post
+    #yum fix
+    cd /etc/yum.repos.d/
+    mkdir backup
+    cp *.repo backup/
+    sed -i -e 's|$releasever|8-stream|g' /etc/yum.repos.d/CentOS-*
+    sed -i '15 s/^/#/' /etc/yum.repos.d/CentOS-AppStream.repo
+    sed -i '16 s/^#//' /etc/yum.repos.d/CentOS-AppStream.repo
+    sed -i '15 s/^/#/' /etc/yum.repos.d/CentOS-Base.repo
+    sed -i '16 s/^#//' /etc/yum.repos.d/CentOS-Base.repo
+    sed -i '16 s/^/#/' /etc/yum.repos.d/CentOS-centosplus.repo
+    sed -i '17 s/^#//' /etc/yum.repos.d/CentOS-centosplus.repo
+    sed -i '19 s/^/#/' /etc/yum.repos.d/CentOS-CR.repo
+    sed -i '20 s/^#//' /etc/yum.repos.d/CentOS-CR.repo
+    sed -i '15 s/^/#/' /etc/yum.repos.d/CentOS-Devel.repo
+    sed -i '16 s/^#//' /etc/yum.repos.d/CentOS-Devel.repo
+    sed -i '16 s/^/#/' /etc/yum.repos.d/CentOS-Extras.repo
+    sed -i '17 s/^#//' /etc/yum.repos.d/CentOS-Extras.repo
+    sed -i '5 s/^/#/' /etc/yum.repos.d/CentOS-fasttrack.repo
+    sed -i '6 s/^#//' /etc/yum.repos.d/CentOS-fasttrack.repo
+    sed -i '15 s/^/#/' /etc/yum.repos.d/CentOS-HA.repo
+    sed -i '16 s/^#//' /etc/yum.repos.d/CentOS-HA.repo
+    sed -i '15 s/^/#/' /etc/yum.repos.d/CentOS-PowerTools.repo
+    sed -i '16 s/^#//' /etc/yum.repos.d/CentOS-PowerTools.repo
+    sed -i '18c enabled=1' /etc/yum.repos.d/CentOS-PowerTools.repo
+    yum makecache
+    yum install -y rpm-build
+    yum install rpmdevtools -y
+    rpmdev-setuptree
+    cd /
+    yum install -y tar
     # Install the necessary development environment
-    yum install -y environment-modules git dmidecode pciutils wget vim
+    yum install -y environment-modules git dmidecode pciutils wget vim zlib expat-devel python3 cpio
     # Install base gcc
     yum install -y gcc gcc-c++ gcc-gfortran glibc-devel make libgfortran
     # install network package
-    yum install -y tcsh tcl lsof tk bc 
+    yum install -y tcsh tcl lsof tk bc
     source /etc/profile || true
     git config --global http.sslVerify false
     git clone https://gitee.com/openeuler/hpcrunner
