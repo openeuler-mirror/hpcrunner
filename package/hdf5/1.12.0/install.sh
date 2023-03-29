@@ -8,6 +8,12 @@ cd ${JARVIS_TMP}
 rm -rf hdf5-${hdf5_version}
 tar -xvf ${JARVIS_DOWNLOAD}/hdf5-${hdf5_version}.tar.gz
 cd hdf5-${hdf5_version}
-./configure --prefix=$1  --enable-fortran --enable-static=yes --enable-parallel --enable-shared --with-zlib=/usr/lib
+#获取除了第一个参数之外的参数
+args=${@:2}
+if [ -z "$args" ]; then
+    ./configure --prefix=$1  --enable-fortran --enable-static=yes --enable-parallel --enable-shared --with-zlib=/usr/lib
+else
+    ./configure --prefix=$1 $args
+fi
 make -j
 make install

@@ -74,8 +74,8 @@ class AnalysisService:
     def env(self):
         self.jenv.env()
     
-    def install(self,software_path, compiler_mpi_info):
-        self.jinstall.install(software_path, compiler_mpi_info)
+    def install(self,install_args):
+        self.jinstall.install(install_args)
     
     def get_install_list(self):
         self.jinstall.list()
