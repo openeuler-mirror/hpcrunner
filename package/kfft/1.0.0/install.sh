@@ -1,8 +1,8 @@
 #!/bin/bash
 set -x
 set -e
-lib_name='kml_adapter-master'
-#. ${DOWNLOAD_TOOL} -u https://gitee.com/openeuler/kml_adapter.git -t git
+lib_name='kml_adapter'
+. ${DOWNLOAD_TOOL} -u https://gitee.com/openeuler/kml_adapter.git -t git
 cd $JARVIS_DOWNLOAD
 cd ./$lib_name/kml_fft_adapter
 sed -i "s/\/usr\/local\/kml/\$ENV{KML_GCC_PATH}/g" CMakeLists.txt
