@@ -1,6 +1,6 @@
 #!/bin/sh
 #DSUB -n Amber22_JAC_NPT_4fs
-#DSUB -A kunptzduiHPC
+#DSUB -A default
 #DSUB -N 1
 #DSUB -R cpu=128;gpu=1
 #DSUB --job_type cosched
