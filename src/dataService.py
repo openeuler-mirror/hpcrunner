@@ -23,6 +23,7 @@ class DataService(object,metaclass=Singleton):
     dependency = ''
     module_content=''
     env_file = 'env.sh'
+
     # Application Info
     app_name = ''
     build_dir = ''
@@ -37,6 +38,7 @@ class DataService(object,metaclass=Singleton):
     batch_cmd = ''
     loop_cmd = ''
     #Other Info
+    env_config_file = 'JARVIS_CONFIG'
     config_file = 'data.config'
     meta_file = '.meta'
     root_path = os.getcwd()
@@ -55,8 +57,14 @@ class DataService(object,metaclass=Singleton):
         self.isARM = platform.machine() == 'aarch64'
         self.tool = ToolService()
         self.data_process()
-
+    # 优先读取环境变量的JARVIS_CONFIG配置,方便多人同时操控
+    # 然后读取.meta文件中的值
+    # 最后读取data.config中的值
     def get_config_file_name(self):
+        CONFIG_ENV = os.getenv(DataService.env_config_file)
+        if CONFIG_ENV is not None:
+            print("LOAD Config file from ENV:", CONFIG_ENV)
+            return CONFIG_ENV
         if not os.path.exists(DataService.meta_file):
             return DataService.config_file
         return self.tool.read_file(DataService.meta_file)
