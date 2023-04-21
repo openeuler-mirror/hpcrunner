@@ -1,0 +1,22 @@
+###Kylin Linux Advanced Server 10 - os repo###
+
+[OS]
+name = OS 
+baseurl = https://archives.openeuler.openatom.cn/openEuler-21.09/OS/$basearch/
+gpgcheck = 1
+gpgkey=https://archives.openeuler.openatom.cn/openEuler-21.09/OS/$basearch/RPM-GPG-KEY-openEuler
+enabled = 1
+
+[everything]
+name = everything
+baseurl = https://archives.openeuler.openatom.cn/openEuler-21.09/everything/$basearch/
+gpgcheck = 1
+gpgkey=https://archives.openeuler.openatom.cn/openEuler-21.09/everything/$basearch/RPM-GPG-KEY-openEuler
+enabled = 1
+
+[update]
+name = update
+baseurl = https://archives.openeuler.openatom.cn/openEuler-21.09/update/$basearch/
+gpgcheck = 1
+gpgkey=https://archives.openeuler.openatom.cn/openEuler-21.09/OS/$basearch/RPM-GPG-KEY-openEuler
+enabled = 1

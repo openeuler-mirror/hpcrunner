@@ -20,7 +20,6 @@ done
 
 if [ $flag == 0 ]; then
    echo 'CHECK SUCCESS'
-   exit 0
 else
    echo 'CHECK FAILED'
    exit 1
