@@ -1,0 +1,47 @@
+###########################################################
+#insert new stanza before the Fujitsu block, keep Fujitsu at the end of the list
+###########################################################
+#ARCH   Linux   aarch64,clang HYPERMPI#serial smpar dmpar dm+sm
+DESCRIPTION     =       CLANG ($SFC/$SCC)
+DMPARALLEL      =       1
+OMPCPP          =       -D_OPENMP
+OMP             =       -fopenmp
+OMPCC           =       -fopenmp
+SFC             =       flang
+SCC             =       clang
+CCOMP           =       clang
+DM_FC           =       mpif90 -f90=$(SFC)
+DM_CC           =       mpicc -cc=$(SCC) -DMPI2_SUPPORT
+FC              =       CONFIGURE_FC
+CC              =       CONFIGURE_CC
+LD              =       $(FC) -L$(KML_GCC_PATH)/lib -lkm
+RWORDSIZE       =       CONFIGURE_RWORDSIZE
+PROMOTION       =       #-fdefault-real-8
+ARCH_LOCAL      =       -DNONSTANDARD_SYSTEM_SUBR  -DWRF_USE_CLM
+CFLAGS_LOCAL    =      -mcpu=native -w -O3 -c -march=armv8.2-a
+LDFLAGS_LOCAL   =
+CPLUSPLUSLIB    =
+ESMF_LDFLAG     =      $(CPLUSPLUSLIB)
+FCOPTIM         =       -O3 -march=armv8.2-a
+FCREDUCEDOPT    =       $(FCOPTIM)
+FCNOOPT         =       -O0
+FCDEBUG         =      -g # -fbacktrace -ggdb-fcheck=bounds,do,mem,pointer -ffpe-trap=invalid,zero,overflow
+FORMAT_FIXED    =       -ffixed-form
+FORMAT_FREE     =       -ffree-form -ffree-line-length-0
+FCSUFFIX        =
+BYTESWAPIO      =       -fconvert=big-endian
+FCBASEOPTS_NO_G =       -w $(FORMAT_FREE) $(BYTESWAPIO)
+FCBASEOPTS      =       -mcpu=native $(OMP) $(FCBASEOPTS_NO_G)
+MODULE_SRCH_FLAG =
+TRADFLAG        =      -traditional
+CPP             =      /lib/cpp -P
+AR              =      ar
+ARFLAGS         =      ru
+M4              =      m4 -G
+RANLIB          =      ranlib
+RLFLAGS         =
+CC_TOOLS        =      $(SCC)
+
+#insert new stanza before the Fujitsu block, keep Fujitsu at the end of the list
+###########################################################
+#ARCH  NULL
