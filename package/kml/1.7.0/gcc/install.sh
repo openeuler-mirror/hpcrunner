@@ -9,12 +9,7 @@ kml_version=1.7.0
 cd ${JARVIS_TMP}
 rm -rf boostkit-kml-${kml_version}-1.aarch64.rpm
 unzip -o ${JARVIS_DOWNLOAD}/BoostKit-kml_${kml_version}.zip
-#rpm -e boostkit-kml-${kml_version}-1.aarch64
-if [ -d /usr/local/kml ];then
-   rpm -e boostkit-kml
-fi
 rpm --force --nodeps -ivh --relocate /usr/local/kml=$1 --badreloc=$1  boostkit-kml-${kml_version}-1.aarch64.rpm
-
 
 # generate full lapack
 netlib=${JARVIS_DOWNLOAD}/lapack-3.10.1.tar.gz

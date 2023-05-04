@@ -109,7 +109,7 @@ class InstallService:
         name = 'hmpi'
         version = self.get_hmpi_version()
         return self.gen_mpi_dict(name, version)
-
+ 
     def get_openmpi_info(self):
         mpi_info_list = self.get_cmd_output('mpirun -version')
         mpi_info = mpi_info_list[0].strip()
@@ -119,7 +119,21 @@ class InstallService:
             return None
         return self.gen_mpi_dict(name, version)
 
+    def get_mpich_info(self):
+        mpi_info_list = self.get_cmd_output('mpirun -version')
+        mpi_info = "".join(mpi_info_list).strip()
+        name = 'mpich'
+        if name not in mpi_info:
+            return None
+        version = self.get_version_info(mpi_info)
+        if not version:
+            return None
+        return self.gen_mpi_dict(name, version)
+
     def get_mpi_info(self):
+        mpich_info = self.get_mpich_info()
+        if mpich_info:
+            return mpich_info
         hmpi_info = self.get_hmpi_info()
         if hmpi_info:
             return hmpi_info
