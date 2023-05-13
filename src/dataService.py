@@ -37,6 +37,7 @@ class DataService(object,metaclass=Singleton):
     run_cmd = {}
     batch_cmd = ''
     loop_cmd = ''
+    job_cmd = ''
     #Other Info
     env_config_file = 'JARVIS_CONFIG'
     config_file = 'data.config'
@@ -162,6 +163,8 @@ class DataService(object,metaclass=Singleton):
                 rowIndex, DataService.batch_cmd = self.read_rows(rows, rowIndex+1)
             elif row == '[LOOP]':
                 rowIndex, DataService.loop_cmd = self.read_rows(rows, rowIndex+1, False)
+            elif row == '[JOB]':
+                rowIndex, DataService.job_cmd = self.read_rows(rows, rowIndex+1, False)
             elif row == '[PERF]':
                 rowIndex, perf_data = self.read_rows_kv(rows, rowIndex+1)
                 self.set_perf_info(perf_data)

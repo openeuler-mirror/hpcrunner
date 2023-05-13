@@ -275,6 +275,7 @@ class InstallService:
         bins_str = ''
         libs_str = ''
         incs_str = ''
+        opal_prefix = ''
         for file in file_list:
             if not os.path.isdir(file):
                 continue
@@ -291,11 +292,14 @@ class InstallService:
             libs_str = "prepend-path    LD_LIBRARY_PATH            "+':'.join(libs_dir)
         if len(incs_dir) >= 1:
             incs_str = "prepend-path	INCLUDE	   " + ':'.join(incs_dir)
+        if self.is_mpi_software(sname):
+            opal_prefix = f"setenv OPAL_PREFIX {install_path}"
         module_file_content = f'''#%Module1.0#####################################################################
 set     prefix  {install_path}
 set     version			    {sversion}
 
 setenv    {sname.upper().replace('-','_')}_PATH {install_path}
+{opal_prefix}
 {bins_str}
 {libs_str}
 {incs_str}

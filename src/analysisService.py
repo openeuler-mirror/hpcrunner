@@ -64,6 +64,9 @@ class AnalysisService:
     
     def batch_run(self):
         self.jrun.batch_run()
+    
+    def job_run(self):
+        self.jrun.job_run()
 
     def clean(self):
         self.jbuild.clean()

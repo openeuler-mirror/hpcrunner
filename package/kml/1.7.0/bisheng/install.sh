@@ -11,7 +11,6 @@ rm -rf boostkit-kml-${kml_version}-1.aarch64.rpm
 unzip -o ${JARVIS_DOWNLOAD}/BoostKit-kml_${kml_version}_bisheng.zip
 rpm --force --nodeps -ivh --relocate /usr/local/kml=$1 --badreloc=$1  boostkit-kml-${kml_version}-1.aarch64.rpm
 
-
 # generate full lapack
 netlib=${JARVIS_DOWNLOAD}/lapack-3.10.1.tar.gz
 netlib2=${JARVIS_DOWNLOAD}/scalapack-2.2.0.tar.gz

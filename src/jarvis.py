@@ -28,6 +28,7 @@ class Jarvis:
         parser.add_argument("-b","--build", help=f"compile {DataService.app_name}", action="store_true")
         parser.add_argument("-cls","--clean", help=f"clean {DataService.app_name}", action="store_true")
         parser.add_argument("-r","--run", help=f"run {DataService.app_name}", action="store_true")
+        parser.add_argument("-j","--job", help=f"run job {DataService.app_name}", action="store_true")
         parser.add_argument("-p","--perf", help=f"auto perf {DataService.app_name}", action="store_true")
         parser.add_argument("-kp","--kperf", help=f"auto kperf {DataService.app_name}", action="store_true")
         # GPU perf
@@ -90,6 +91,9 @@ class Jarvis:
 
         if self.args.build:
             self.analysis.build()
+
+        if self.args.job:
+            self.analysis.job_run()
 
         if self.args.run:
             self.analysis.run()
