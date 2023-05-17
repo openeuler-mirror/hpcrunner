@@ -154,7 +154,7 @@ class DataService(object,metaclass=Singleton):
                 rowIndex, data = self.read_rows_kv(rows, rowIndex+1)
                 self.set_app_info(data)
             elif row == '[BUILD]':
-                rowIndex, DataService.build_cmd = self.read_rows(rows, rowIndex+1)
+                rowIndex, DataService.build_cmd = self.read_rows(rows, rowIndex+1, False)
             elif row == '[CLEAN]':
                 rowIndex, DataService.clean_cmd = self.read_rows(rows, rowIndex+1)
             elif row == '[RUN]':
