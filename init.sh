@@ -1,3 +1,4 @@
+#!/bin/bash
 CUR_PATH=$(pwd)
 chmod -R +x ./benchmark
 chmod -R +x ./package
