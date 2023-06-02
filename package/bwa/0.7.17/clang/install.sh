@@ -8,7 +8,7 @@ set -e
 cd ${JARVIS_TMP}
 rm -rf bwa-0.7.17  sse2neon-master
 tar  -xvf ${JARVIS_DOWNLOAD}/bwa-0.7.17.tar.bz2
-unzip ${JARVIS_DOWNLOAD}/sse2neon.zip
+unzip ${JARVIS_DOWNLOAD}/sse2neon-master.zip
 cd bwa-0.7.17
 bisheng_includedir=`which clang`
 bisheng_includedir=${bisheng_includedir%/*/*}/include
