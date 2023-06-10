@@ -38,6 +38,7 @@ class DataService(object,metaclass=Singleton):
     batch_cmd = ''
     loop_cmd = ''
     job_cmd = ''
+    job2_cmd = ''
     #Other Info
     env_config_file = 'JARVIS_CONFIG'
     config_file = 'data.config'
@@ -134,43 +135,51 @@ class DataService(object,metaclass=Singleton):
             second = split_list[1]
         return (first, second)
 
+    def data_integration(self, config_data):
+        DataService.avail_ips = config_data.get('[SERVER]','')
+        DataService.download_info = config_data.get('[DOWNLOAD]','')
+        DataService.dependency = config_data.get('[DEPENDENCY]','')
+        DataService.module_content = config_data.get('[ENV]','')
+        DataService.build_cmd = config_data.get('[BUILD]','')
+        DataService.clean_cmd = config_data.get('[CLEAN]','')
+        DataService.run_cmd = config_data.get('[RUN]','')
+        DataService.batch_cmd = config_data.get('[BATCH]','')
+        DataService.loop_cmd = config_data.get('[LOOP]','')
+        DataService.job_cmd = config_data.get('[JOB]','')
+        DataService.job2_cmd = config_data.get('[JOB2]','')
+        data = config_data.get('[APP]','')
+        perf_data = config_data.get('[PERF]','')
+        self.set_app_info(data)
+        self.set_perf_info(perf_data)
+        DataService.binary_file, DataService.binary_para = self.split_two_part(DataService.run_cmd['binary'])
+
     def data_process(self):
         contents = self.get_data_config()
         rows = contents.split('\n')
         rowIndex = 0
-        data = {}
-        perf_data = {}
+        handlers = {
+            '[SERVER]': lambda  rows, rowIndex: self.read_rows(rows, rowIndex+1),
+            '[DOWNLOAD]': lambda rows, rowIndex: self.read_rows(rows, rowIndex+1),
+            '[DEPENDENCY]': lambda rows, rowIndex: self.read_rows(rows, rowIndex+1),
+            '[ENV]': lambda rows, rowIndex: self.read_rows(rows, rowIndex+1),
+            '[APP]': lambda rows, rowIndex: self.read_rows_kv(rows, rowIndex+1),
+            '[BUILD]': lambda rows, rowIndex: self.read_rows(rows, rowIndex+1, False),
+            '[CLEAN]': lambda rows, rowIndex: self.read_rows(rows, rowIndex+1),
+            '[RUN]': lambda rows, rowIndex: self.read_rows_kv(rows, rowIndex+1),
+            '[BATCH]': lambda rows, rowIndex: self.read_rows(rows, rowIndex+1),
+            '[LOOP]': lambda rows, rowIndex: self.read_rows(rows, rowIndex+1, False), 
+            '[JOB]': lambda rows, rowIndex: self.read_rows(rows, rowIndex+1, False),
+            '[JOB2]': lambda rows, rowIndex: self.read_rows(rows, rowIndex+1, False), 
+            '[PERF]': lambda rows, rowIndex: self.read_rows_kv(rows, rowIndex+1)
+        }
+        config_data = {}
         while rowIndex < len(rows):
             row = rows[rowIndex].strip()
-            if row == '[SERVER]':
-                rowIndex, DataService.avail_ips = self.read_rows(rows, rowIndex+1)
-            elif row == '[DOWNLOAD]':
-                rowIndex, DataService.download_info = self.read_rows(rows, rowIndex+1)
-            elif row == '[DEPENDENCY]':
-                rowIndex, DataService.dependency = self.read_rows(rows, rowIndex+1)
-            elif row == '[ENV]':
-                rowIndex, DataService.module_content = self.read_rows(rows, rowIndex+1)
-            elif row == '[APP]':
-                rowIndex, data = self.read_rows_kv(rows, rowIndex+1)
-                self.set_app_info(data)
-            elif row == '[BUILD]':
-                rowIndex, DataService.build_cmd = self.read_rows(rows, rowIndex+1, False)
-            elif row == '[CLEAN]':
-                rowIndex, DataService.clean_cmd = self.read_rows(rows, rowIndex+1)
-            elif row == '[RUN]':
-                rowIndex, DataService.run_cmd = self.read_rows_kv(rows, rowIndex+1)
-            elif row == '[BATCH]':
-                rowIndex, DataService.batch_cmd = self.read_rows(rows, rowIndex+1)
-            elif row == '[LOOP]':
-                rowIndex, DataService.loop_cmd = self.read_rows(rows, rowIndex+1, False)
-            elif row == '[JOB]':
-                rowIndex, DataService.job_cmd = self.read_rows(rows, rowIndex+1, False)
-            elif row == '[PERF]':
-                rowIndex, perf_data = self.read_rows_kv(rows, rowIndex+1)
-                self.set_perf_info(perf_data)
+            if row in handlers.keys():
+                rowIndex, config_data[row] = handlers[row](rows, rowIndex)
             else:
                 rowIndex += 1
-        DataService.binary_file, DataService.binary_para = self.split_two_part(DataService.run_cmd['binary'])
+        self.data_integration(config_data)
 
     def get_clean_cmd(self):
         return f'''
