@@ -20,8 +20,11 @@ class ToolService:
     
     def read_file(self, filename):
         content = ''
-        with open(filename, encoding='utf-8') as f:
-            content = f.read().strip()
+        try:
+            with open(filename, encoding='utf-8') as f:
+                content = f.read().strip()
+        except IOError:
+            return content
         return content
     
     def write_file(self, filename, content=""):

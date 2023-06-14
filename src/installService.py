@@ -3,12 +3,14 @@
 import os
 import sys
 import re
+import fnmatch
 from enum import Enum
 from glob import glob
 
 from dataService import DataService
 from toolService import ToolService
 from executeService import ExecuteService
+from jsonService import JSONService
 
 class SType(Enum):
     COMPILER = 1
@@ -26,12 +28,14 @@ class InstallService:
         self.FULL_VERSION='fullver'
         self.PACKAGE_PATH = os.path.join(self.ROOT, self.PACKAGE)
         self.SOFTWARE_PATH = os.path.join(self.ROOT, 'software')
+        self.INSTALL_INFO_PATH = os.path.join(self.SOFTWARE_PATH, "install.json")
         self.COMPILER_PATH = os.path.join(self.SOFTWARE_PATH, 'compiler')
         self.LIBS_PATH = os.path.join(self.SOFTWARE_PATH, 'libs')
         self.MODULE_DEPS_PATH = os.path.join(self.SOFTWARE_PATH, 'moduledeps')
         self.MODULE_FILES = os.path.join(self.SOFTWARE_PATH, 'modulefiles')
         self.MPI_PATH = os.path.join(self.SOFTWARE_PATH, 'mpi')
         self.UTILS_PATH = os.path.join(self.SOFTWARE_PATH, 'utils')
+        self.json = JSONService(self.INSTALL_INFO_PATH)
 
     def get_version_info(self, info, reg = r'(\d+)\.(\d+)\.(\d+)'):
         matched_group = re.search(reg ,info)
@@ -306,20 +310,12 @@ setenv    {sname.upper().replace('-','_')}_PATH {install_path}
 '''
         return module_file_content
 
-    def get_installed_file_path(self, install_path):
-        return os.path.join(install_path, "installed")
-
     def is_installed(self, install_path):
-        installed_file_path = self.get_installed_file_path(install_path)
-        if not os.path.exists(installed_file_path):
-            return False
-        if not self.tool.read_file(installed_file_path) == "1":
-            return False
-        return True
-
-    def set_installed_status(self, install_path, flag="1"):
-        installed_file_path = self.get_installed_file_path(install_path)
-        self.tool.write_file(installed_file_path, flag)
+        #为了兼容老版本，只要安装路径下存在installed也算做已安装
+        installed_file_path = os.path.join(install_path, "installed")
+        if self.tool.read_file(installed_file_path) == "1":
+            return True
+        return self.json.query_data(install_path)
 
     def gen_module_file(self, install_path, software_info, env_info):
         sname = software_info['sname']
@@ -329,11 +325,11 @@ setenv    {sname.upper().replace('-','_')}_PATH {install_path}
         cfullversion = env_info[self.FULL_VERSION]
         module_file_content = self.get_module_file_content(install_path, sname, sversion)
         if not self.is_installed(install_path):
-            return
+            return ''
         # if install_path is empty, The module file should not generated.
         if len(os.listdir(install_path)) == 1:
             print('module file did not generated because no file generated under install path')
-            return
+            return ''
         if stype == SType.MPI:
             compiler_str = cname + cfullversion
             software_str = sname + sversion
@@ -364,6 +360,10 @@ setenv    {sname.upper().replace('-','_')}_PATH {install_path}
         module_file = os.path.join(module_path, sversion)
         self.tool.write_file(module_file, module_file_content)
         print(f"module file {module_file} successfully generated")
+        row = self.json.query_data(install_path)
+        row["module_path"] = module_file
+        self.json.update_data(install_path, row)
+        self.json.write_file()
 
     def install_package(self, abs_software_path, install_path, other_args):
         install_script = 'install.sh'
@@ -389,10 +389,17 @@ chmod +x {install_script}
         result = self.exe.exec_raw(install_cmd)
         if result:
             print(f"install to {install_path} successful")
-            self.set_installed_status(install_path, "1")
         else:
             print("install failed")
             sys.exit()
+
+    def add_install_info(self, software_info, install_path):
+        software_dict = {}
+        software_dict['name'] = software_info['sname']
+        software_dict['version'] = software_info['sversion']
+        software_dict['module_path'] = ''
+        self.json.add_data(install_path, software_dict)
+        self.json.write_file()
 
     def install(self, install_args):
         software_path = install_args[0]
@@ -426,6 +433,8 @@ chmod +x {install_script}
         if not install_path: return
         # get install script
         self.install_package(abs_software_path, install_path, other_args)
+        # add install info
+        self.add_install_info(software_info, install_path)
         # gen module file
         self.gen_module_file( install_path, software_info, env_info)
 
@@ -445,11 +454,11 @@ chmod +x {depend_file}
     
     def remove(self, software_info):
         self.tool.prt_content("UNINSTALL " + software_info)
-        file_list = [d for d in glob(self.SOFTWARE_PATH+'/**', recursive=True)]
         remove_list = []
-        for file in file_list:
-            if software_info in file and os.path.isdir(file) and self.is_installed(file):
-                remove_list.append(file)
+        installed_dict = self.json.read_file()
+        for path, software_row in installed_dict.items():
+            if software_info in software_row['name']:
+                remove_list.append((path, software_row))
         lens = len(remove_list)
         if lens == 0:
             print("software not installed")
@@ -457,7 +466,7 @@ chmod +x {depend_file}
         choice = 1
         if lens > 1:
             for i in range(lens):
-                print(f"{i+1}: {remove_list[i]}")
+                print(f"{i+1}: {remove_list[i][1]}")
             self.tool.prt_content("")
             choice = input(f"find {lens} software, which one do you want to remove?\n")
             try:
@@ -467,31 +476,40 @@ chmod +x {depend_file}
                     return
             except:
                 sys.exit("please enter a valid number!")
-        self.set_installed_status(remove_list[choice-1], "0")
+        self.json.delete_data(remove_list[choice-1][0])
+        self.json.write_file()
         print("Successfully remove "+software_info)
         
     def list(self):
         self.tool.prt_content("Installed list".upper())
-        file_list = [d for d in glob(self.SOFTWARE_PATH+'/**', recursive=True)]
-        installed_list = []
-        for file in file_list:
-            if os.path.isdir(file) and self.is_installed(file):
-                installed_list.append(file)
-        for file in installed_list:
-            file = file.replace(self.SOFTWARE_PATH, 'software')
-            print(file)
-    
+        installed_list = self.json.read_file()
+        if len(installed_list) == 0:
+            print("no software installed.")
+            return
+        # 获取所有列名,除了module_path
+        headers = list(installed_list.values())[0].keys()
+        print_headers = list(headers)[:-1]
+        # 打印表头
+        table_str = ""
+        for header in print_headers:
+            table_str += f"{header:<10}"
+        # 添加path打印
+        table_str += "     path"
+        # 分割线
+        table_str += "\n" + "-" * (10 * (len(print_headers)+1)) + "\n"
+        # 打印每行数据
+        for path, row in installed_list.items():
+            for key in print_headers:
+                table_str += f"{row[key]:<10} "
+            table_str += f"{path:<10} \n"
+        print(table_str)
+
     def find(self, content):
         self.tool.prt_content(f"Looking for package {content}")
-        file_list = [d for d in glob(self.SOFTWARE_PATH+'/**', recursive=True)]
-        flag = False
-        for file in file_list:
-            if os.path.isdir(file) and self.is_installed(file):
-                if content in file:
-                    flag = True
-                    print(f"FOUND: {file}")
-        if not flag:
-            print("NOT FOUND")
+        installed_list = list(self.json.read_file().values())
+        for row in installed_list:
+            if content in row['name']:
+                print(row)
 
     # update path when hpcrunner is translocation
     def update(self):
@@ -508,5 +526,29 @@ chmod +x {depend_file}
             if search_old_path:
                 content = content.replace(search_old_path.group(1), self.ROOT)
                 self.tool.write_file(file, content)
+        #还要更新install list
+        install_info = self.tool.read_file(self.INSTALL_INFO_PATH)
+        search_old_path = re.search(r'(\/.*hpcrunner(-master)?)', install_info)
+        if search_old_path:
+            content = install_info.replace(search_old_path.group(1), self.ROOT)
+            self.tool.write_file(self.INSTALL_INFO_PATH, content)
         print("update successfully.")
         
+    def check_download_url(self):
+        # 查找指定目录下所有名字叫做install.sh的文件，将文件路径保存到列表中
+        matches = []
+        for root, dirnames, filenames in os.walk(self.PACKAGE_PATH):
+            for filename in fnmatch.filter(filenames, 'install.sh'):
+                matches.append(os.path.join(root, filename))
+        # 定义匹配下载链接的正则表达式
+        url_regex = r'(https?://\S+\.[zip|rar|tar|gz|bz|git]{2,3})'
+        for script in matches:
+            script_content = self.tool.read_file(script)
+            urls = re.findall(url_regex, script_content)
+            print(f"checking script {script}")
+            for url in urls:
+                if self.tool.check_url_isvalid(url):
+                    print(f"url {url} successfully checked")
+                else:
+                    print(f"url {url} check failed,please update")
+        print("all of the urls has been checked.")
