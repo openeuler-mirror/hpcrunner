@@ -29,6 +29,7 @@ class Jarvis:
         parser.add_argument("-cls","--clean", help=f"clean {DataService.app_name}", action="store_true")
         parser.add_argument("-r","--run", help=f"run {DataService.app_name}", action="store_true")
         parser.add_argument("-j","--job", help=f"run job {DataService.app_name}", action="store_true")
+        parser.add_argument("-j2","--job2", help=f"run job 2 {DataService.app_name}", action="store_true")
         parser.add_argument("-p","--perf", help=f"auto perf {DataService.app_name}", action="store_true")
         parser.add_argument("-kp","--kperf", help=f"auto kperf {DataService.app_name}", action="store_true")
         # GPU perf
@@ -56,6 +57,8 @@ class Jarvis:
         parser.add_argument("-R","--roce", help="start roce run...", nargs=2)
         # update modulefile path when hpcrunner is moved
         parser.add_argument("-u","--update", help="start update jarvis...", action="store_true")
+        # check download url is good or not
+        parser.add_argument("-check","--check", help="start check jarvis download url...", action="store_true")
         self.args = parser.parse_args()
 
     def main(self):
@@ -94,6 +97,9 @@ class Jarvis:
 
         if self.args.job:
             self.analysis.job_run()
+
+        if self.args.job2:
+            self.analysis.job2_run()
 
         if self.args.run:
             self.analysis.run()
@@ -142,6 +148,9 @@ class Jarvis:
         
         if self.args.loop:
             self.analysis.gen_simucode()
+        
+        if self.args.check:
+            self.analysis.check_download_url()
         
 if __name__ == '__main__':
     Jarvis().main()

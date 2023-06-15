@@ -66,7 +66,10 @@ class AnalysisService:
         self.jrun.batch_run()
     
     def job_run(self):
-        self.jrun.job_run()
+        self.jrun.job_run(1)
+    
+    def job2_run(self):
+        self.jrun.job_run(2)
 
     def clean(self):
         self.jbuild.clean()
@@ -95,8 +98,12 @@ class AnalysisService:
     def update(self):
         self.jinstall.update()
     
+    def check_download_url(self):
+        self.jinstall.check_download_url()
+    
     def gen_def(self, image):
         self.jcontainer.gen_def(image)
     
     def gen_simucode(self):
         self.jloop.get_simulate_code()
+    

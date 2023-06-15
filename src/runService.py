@@ -49,20 +49,23 @@ chmod +x {batch_file}
 '''
         self.exe.exec_raw(run_cmd)
 
-    def job_run(self):
+    def job_run(self,num):
         job_file = 'job_run.sh'
         job_file_path = os.path.join(self.ROOT, job_file)
         print(f"start job run {DataService.app_name}")
+        job_cmd = DataService.job_cmd if num == 1 else DataService.job2_cmd
         job_content = f'''
 {self.hpc_data.get_env()}
 cd {DataService.case_dir}
 cat > run.sh << \EOF
-{DataService.job_cmd}
+{job_cmd}
 EOF
 
 chmod +x run.sh
 if type djob >/dev/null 2>&1;then
     dsub -s run.sh
+elif type sbatch >/dev/null 2>&1;then
+    sbatch run.sh
 else
     echo "dsub not exists."
 fi

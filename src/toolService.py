@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*- 
 import time
 import os
+import requests
 
 class ToolService:
     def __init__(self):
@@ -19,8 +20,11 @@ class ToolService:
     
     def read_file(self, filename):
         content = ''
-        with open(filename, encoding='utf-8') as f:
-            content = f.read().strip()
+        try:
+            with open(filename, encoding='utf-8') as f:
+                content = f.read().strip()
+        except IOError:
+            return content
         return content
     
     def write_file(self, filename, content=""):
@@ -34,3 +38,13 @@ class ToolService:
     def mkfile(self, path, content=''):
         if not os.path.exists(path):
             self.write_file(path, content)
+
+    def check_url_isvalid(self,url):
+        try:
+            response = requests.get(url, stream=True)
+            if response.status_code == 200:
+                return True
+            else:
+                return False
+        except requests.exceptions.RequestException as e:
+            return False
