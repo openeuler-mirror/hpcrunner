@@ -401,6 +401,12 @@ chmod +x {install_script}
         self.json.add_data(install_path, software_dict)
         self.json.write_file()
 
+    def remove_prefix(self, software_path):
+        if software_path.startswith('package/') or software_path.startswith('./'):
+            software_path = software_path.replace('./', '', 1)
+            software_path = software_path.replace('package/', '', 1)
+        return software_path
+
     def install(self, install_args):
         software_path = install_args[0]
         compiler_mpi_info = install_args[1]
@@ -409,7 +415,7 @@ chmod +x {install_script}
         compilers = {"GCC":self.get_gcc_info, "CLANG":self.get_clang_info,
                      "NVC":self.get_nvc_info, "ICC":self.get_icc_info,
 		             "BISHENG":self.get_clang_info}
-        software_path = software_path.replace("package/", '', 1)
+        software_path = self.remove_prefix(software_path)
         # software_path should exists
         abs_software_path = self.check_software_path(software_path)
         if not abs_software_path: return
