@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*- 
 import time
 import os
-import requests
+
 
 class ToolService:
     def __init__(self):
@@ -40,6 +40,7 @@ class ToolService:
             self.write_file(path, content)
 
     def check_url_isvalid(self,url):
+        import requests
         try:
             response = requests.get(url, stream=True)
             if response.status_code == 200:
