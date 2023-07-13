@@ -1,7 +1,8 @@
 #!/bin/bash
 download_path=$JARVIS_DOWNLOAD
 type_=wget
-
+url=
+filename=
 OPTIND=1
 
 while getopts ":u:f:t:" opt;
