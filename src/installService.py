@@ -91,23 +91,28 @@ class InstallService:
 
     def get_icc_info(self):
         return self.gen_compiler_dict("icc", ('2018', "2018.4"))
-    
     def get_hmpi_version(self):
-        ucx_path = self.get_cmd_output('which ucx_info')[0]
-        ucx_path = os.path.dirname(ucx_path)
-        ucx_path = os.path.dirname(ucx_path)
-        libucg_path = os.path.join(ucx_path, "lib")
+        ucg_path = self.get_cmd_output('which ucg_info')[0]         #新增的一个if分支，1.3.0版本之后以ucg_info作为标志，不存在则沿用之前的判断
+        version2 = ('1','1.3.0')
+        ver_dict = {('2','2.0.0'): 'version2'}
+        if ucg_path == "":                                          #不存在ucg_info
+            ucx_path = self.get_cmd_output('which ucx_info')[0]
+            ucg_path = os.path.dirname(ucx_path)                                                   
+        ucg_path = os.path.dirname(ucg_path)
+        ucg_path = os.path.dirname(ucg_path)
+        libucg_path = os.path.join(ucg_path, "lib")
         libucg_so_flag = "libucg.so."
         version = None
         for file_name in os.listdir(libucg_path):
             if libucg_so_flag in file_name:
                 version = self.get_version_info(file_name)
-                if version:
-                    break
-        return version
+                if version in ver_dict:
+                    version = ver_dict[version]
+                    return version2
+        return version    
 
     def get_hmpi_info(self):
-        hmpi_info = self.get_cmd_output('ompi_info | grep "MCA coll: ucx"')[0]
+        hmpi_info = self.get_cmd_output('which ucx_info')[0]
         if hmpi_info == "":
             return None
         name = 'hmpi'
