@@ -38,7 +38,7 @@ fi
 if [ ! -e $exist_path ];then
         if [ "$type_" == "wget" ];then
                 echo -e "\033[0;32m[Info]\033[0m:Using commands: wget $url -O $exist_path --no-check-certificate"
-                wget $url -O $exist_path --no-check-certificate
+                wget $url -O $exist_path --no-check-certificate || rm -rf $exist_path
         elif [ "$type_" == "git" ];then
                 echo -e "\033[0;32m[Info]\033[0m:Using commands: git clone $url $exist_path"
                 git clone $url $exist_path
