@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x
 set -e
-kml_version=1.7.0
+kml_version=2.0.0
 . ${DOWNLOAD_TOOL} -u https://kunpeng-repo.obs.cn-north-4.myhuaweicloud.com/Kunpeng%20BoostKit/Kunpeng%20BoostKit%2022.0.0/BoostKit-kml_${kml_version}.zip
 . ${DOWNLOAD_TOOL} -u https://github.com/Reference-LAPACK/lapack/archive/refs/tags/v3.10.1.tar.gz -f lapack-3.10.1.tar.gz
 . ${DOWNLOAD_TOOL} -u https://github.com/Reference-ScaLAPACK/scalapack/archive/refs/tags/v2.2.0.tar.gz -f scalapack-2.2.0.tar.gz
