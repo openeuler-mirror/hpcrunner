@@ -3,21 +3,23 @@ set -x
 set -e
 hmpi_version='1.3.0'
 . ${DOWNLOAD_TOOL} -u https://github.com/openucx/ucx/archive/refs/tags/v1.10.1.tar.gz -f hucx-${hmpi_version}-huawei.tar.gz
-. ${DOWNLOAD_TOOL} -u https://gitee.com/kunpengcompute/xucg/archive/refs/tags/v1.3.0-huawei.tar.gz -f xucg-${hmpi_version}-huawei.tar.gz
-. ${DOWNLOAD_TOOL} -u https://gitee.com/kunpengcompute/hmpi/archive/refs/tags/v1.3.0-huawei.tar.gz -f hmpi-${hmpi_version}-huawei.tar.gz
+. ${DOWNLOAD_TOOL} -u https://github.com/chen-shaoheng/HMPI-1.3.0/archive/refs/tags/xucg-v1.3.0.tar.gz -f xucg-${hmpi_version}-huawei.tar.gz
+. ${DOWNLOAD_TOOL} -u https://github.com/chen-shaoheng/HMPI-1.3.0/archive/refs/tags/hmpi-v1.3.0.tar.gz -f hmpi-${hmpi_version}-huawei.tar.gz
 cd ${JARVIS_TMP}
 . $CHECK_ROOT && yum install -y perl-Data-Dumper autoconf automake libtool binutils flex
 rm ucx-1.10.1 -rf
 tar xf ${JARVIS_DOWNLOAD}/hucx-1.3.0-huawei.tar.gz
 cd ucx-1.10.1
 ./autogen.sh
-./contrib/configure-opt --prefix=$1/hucx --disable-numa --enable-mt CC=clang CXX=clang++ FC=flang CFLAGS="-Wno-unused-but-set-variable" CXXFLAGS="-Wno-unused-but-set-variable"
+./contrib/configure-opt --prefix=$1/hucx --disable-numa --enable-mt CC=clang CXX=clang++ FC=flang CFLAGS="-Wno-unused-but-set-variable -Wno-error=int-conversion" CXXFLAGS="-Wno-unused-but-set-variable -Wno-error=int-conversion"
 make -j
 make -j install
 cd -
 export LD_LIBRARY_PATH=$1/hucx/lib:$LD_LIBRARY_PATH
 export C_INCLUDE_PATH=$1/hucx/include:$C_INCLUDE_PATH
 export CPLUS_INCLUDE_PATH=$1/hucx/include:$CPLUS_INCLUDE_PATH
+
+export CFLAGS="-Wno-unused-but-set-variable -Wno-error=int-conversion" CXXFLAGS="-Wno-unused-but-set-variable -Wno-error=int-conversion" FFLAGS="-Wno-error=int-conversion"
 
 rm xucg-v1.3.0-huawei/ -rf
 tar xf ${JARVIS_DOWNLOAD}/xucg-1.3.0-huawei.tar.gz
