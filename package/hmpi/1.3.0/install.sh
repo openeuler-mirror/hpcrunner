@@ -3,8 +3,8 @@ set -x
 set -e
 hmpi_version='1.3.0'
 . ${DOWNLOAD_TOOL} -u https://github.com/openucx/ucx/archive/refs/tags/v1.10.1.tar.gz -f hucx-${hmpi_version}-huawei.tar.gz
-. ${DOWNLOAD_TOOL} -u https://github.com/chen-shaoheng/HMPI-1.3.0/archive/refs/tags/xucg-v1.3.0.tar.gz -f xucg-${hmpi_version}-huawei.tar.gz
-. ${DOWNLOAD_TOOL} -u https://github.com/chen-shaoheng/HMPI-1.3.0/archive/refs/tags/hmpi-v1.3.0.tar.gz -f hmpi-${hmpi_version}-huawei.tar.gz
+. ${DOWNLOAD_TOOL} -u https://github.com/chen-shaoheng/HMPI-1.3.0/releases/download/xucg-v1.3.0/xucg-v1.3.0-huawei.tar.gz -f xucg-${hmpi_version}-huawei.tar.gz
+. ${DOWNLOAD_TOOL} -u https://github.com/chen-shaoheng/HMPI-1.3.0/releases/download/hmpi-v1.3.0/hmpi-v1.3.0-huawei.tar.gz -f hmpi-${hmpi_version}-huawei.tar.gz
 cd ${JARVIS_TMP}
 . $CHECK_ROOT && yum install -y perl-Data-Dumper autoconf automake libtool binutils flex
 rm ucx-1.10.1 -rf
