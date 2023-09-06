@@ -9,7 +9,7 @@ cd vis5d+-1.3.0-beta
 sed -i '40c extern float vis_round( float x ); ' src/misc.h
 sed -i '150c float vis_round(float x)' src/misc.c
 
-FFLAGS='-fno-range-check -fallow-rank-mismatch' LDFLAGS=-L${MESA_PATH}/lib CFLAGS=-I${MESA_PATH}/include CPPFLAGS=-I${MESA_PATH}/include ./configure --prefix=$1 --disable-fortran --with-netcdf=${NETCDF_PATH} --disable-shared
+FFLAGS='-fno-range-check -fallow-rank-mismatch' LDFLAGS=-L${MESA_PATH}/lib CFLAGS=-I${MESA_PATH}/include CPPFLAGS=-I${MESA_PATH}/include ./configure --prefix=$1 --disable-fortran --with-netcdf=${NETCDF_PATH} --disable-shared --build=aarch64-unknown-linux-gnu
 
 make
 make install 
