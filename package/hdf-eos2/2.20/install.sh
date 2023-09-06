@@ -9,7 +9,7 @@ cd ${JARVIS_TMP}
 tar -xvf ${JARVIS_DOWNLOAD}/HDF-EOS2.20v1.00.tar
 cd hdfeos
 
-ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes ./configure --with-hdf4=${HDF4_PATH} --with-jpeg=${LIBJPEG_PATH} --with-zlib=/usr/local --prefix=$1
+ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes ./configure --with-hdf4=${HDF4_PATH} --with-jpeg=${LIBJPEG_PATH} --with-zlib=/usr/local --prefix=$1 --build=aarch64-unknown-linux-gnu
 make -j
 make install
 cp -r include $1/
