@@ -8,7 +8,7 @@ cd ${JARVIS_TMP}
 tar -xvf ${JARVIS_DOWNLOAD}/HDF-EOS5.1.16.tar
 cd hdfeos5
 
-./configure CC=${HDF5_PATH}/bin/h5pcc --with-hdf4=${HDF5_PATH} --with-zlib=/usr/local --prefix=$1 
+./configure CC=${HDF5_PATH}/bin/h5pcc --with-hdf4=${HDF5_PATH} --with-zlib=/usr/local --prefix=$1 --build=aarch64-unknown-linux-gnu
 make -j
 make install
 cp -r include $1/
