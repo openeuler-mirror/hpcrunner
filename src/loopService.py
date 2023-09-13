@@ -126,7 +126,7 @@ program SimulateExample
     end do
     call system_clock(t_stop)
     time2 = t_stop-t_start
-    write(*,*) ''********The origin loop time used(ms)'********',time2
+    write(*,*) '********The origin loop time used(ms)********',time2
     write(*,*) ' ACC:', (time2-time1)*100.0/time2,'%'
     write(*,*) 'Check if two result is consistent, Please add your code here:'
     loop_i: {loop_code.strip()} loop_i
