@@ -142,7 +142,7 @@ cd $DEP_BUILD_DIR/metis-4.0.3
 make
 
 cd $DEP_BUILD_DIR
-# 创建软连接，适配mfem Makefile
+# 创建软链接，适配mfem Makefile
 ln -sf hypre-2.25.0 hypre
 ln -sf metis-4.0.3 metis-4.0
 ```
