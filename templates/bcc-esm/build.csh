@@ -39,10 +39,6 @@ setenv OCNINIFILEDATE 20010101.000000
 
 setenv CASESTR    "Datm CLM3 MOM SIS 0 Start"       # short descriptive text string
 setenv CSMROOT     $MODEL_PATH                       # root directory of source
-#############################################################################
-# allocate exe directory
-#############################################################################
-setenv EXEROOT     $WORK_PATH/output
 
 #############################################################################
 setenv ARCROOT     $WORK_PATH/RESULT/ARC            # archive root directory 
@@ -213,7 +209,7 @@ if ( $argv[1] == 2 ) then
   setenv OMP_STACKSIZE 3G
   setenv KMP_AFFINITY        compact
   echo "`date` -- CSM JOB SUBMIT HAS FINISHED"
-  chmod +x run.sh
+  cp -rf ../run.sh ./ && chmod +x run.sh
   dsub -s run.sh
   env | egrep '(MP_|LOADL|XLS|FPE|DSM|OMP|MPC)' # document above env vars
 endif
