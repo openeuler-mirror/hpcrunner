@@ -7,5 +7,5 @@ rm -rf osu-micro-benchmarks-master
 unzip ${JARVIS_DOWNLOAD}/osu-micro-benchmarks.zip
 cd osu-micro-benchmarks-master
 ./configure --prefix=$1 CC=mpicc CXX=mpicxx
-make
+make -j32
 make install

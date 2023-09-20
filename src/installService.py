@@ -275,6 +275,19 @@ class InstallService:
         file_list = [d for d in glob(abs_path+'/**', recursive=True)]
         return file_list
 
+    def add_special_library_path(self, install_path, sname, libs_dir):
+        prefix = install_path.replace(install_path, "$prefix")
+        if "kml" in sname:
+            libs_dir.append(os.path.join(prefix, "lib/kblas/nolocking"))
+            libs_dir.append(os.path.join(prefix, "lib/kblas/pthread"))
+            libs_dir.append(os.path.join(prefix, "lib/kblas/omp"))
+            libs_dir.append(os.path.join(prefix, "lib/kblas/locking"))
+            libs_dir.append(os.path.join(prefix, "lib/kvml/single"))
+            libs_dir.append(os.path.join(prefix, "lib/kvml/multi"))
+            libs_dir.append(os.path.join(prefix, "lib/kspblas/single"))
+            libs_dir.append(os.path.join(prefix, "lib/kspblas/multi"))
+        return libs_dir
+
     def get_module_file_content(self, install_path, sname, sversion):
         module_file_content = ''
         file_list = self.get_files(install_path)
@@ -298,6 +311,7 @@ class InstallService:
                 libs_dir.append(file.replace(install_path, "$prefix"))
             elif last_dir in incs_dir_type:
                 incs_dir.append(file.replace(install_path, "$prefix"))
+        self.add_special_library_path(install_path, sname, libs_dir)
         if len(bins_dir) >= 1:
             bins_str = "prepend-path    PATH              "+':'.join(bins_dir)
         if len(libs_dir) >= 1:
@@ -335,7 +349,7 @@ setenv    {sname.upper().replace('-','_')}_PATH {install_path}
         if not self.is_installed(install_path):
             return ''
         # if install_path is empty, The module file should not generated.
-        if len(os.listdir(install_path)) == 1:
+        if len(os.listdir(install_path)) == 0:
             print('module file did not generated because no file generated under install path')
             return ''
         if stype == SType.MPI:
