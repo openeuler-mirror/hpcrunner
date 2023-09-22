@@ -20,7 +20,6 @@ make PREFIX=$1/gdrcopy lib lib_install
 cd ${JARVIS_TMP}
 tar -xvf ${JARVIS_DOWNLOAD}/ucx-${ucx_version}.tar.gz
 cd ucx-${ucx_version}
-./autogen.sh
 ./contrib/configure-release --prefix=$1/ucx --enable-optimizations --disable-logging --disable-debug --disable-assertions --disable-params-check --disable-doxygen-doc --with-cuda=/usr/local/cuda --with-gdrcopy=$1/gdrcopy/ --with-verbs --with-rdmacm
 make -j 32
 make install
