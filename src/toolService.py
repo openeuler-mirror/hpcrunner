@@ -2,50 +2,67 @@
 # -*- coding: utf-8 -*- 
 import time
 import os
-
+import requests
 
 class ToolService:
-    def __init__(self):
-        pass
-    
     def prt_content(self, content):
+        """
+        在内容上下添加分隔线并打印。
+        """
         flags = '*' * 30
-        print(f"{flags}{content}{flags}")
+        print(f"{flags}\n{content}\n{flags}")
 
-    def gen_list(self, data):
+    def split_string_to_list(self, data):
+        """
+        将字符串按行分割成列表。
+        """
         return data.strip().split('\n')
 
     def get_time_stamp(self):
+        """
+        获取当前时间的时间戳。
+        """
         return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    
+
     def read_file(self, filename):
+        """
+        读取文件内容。
+        """
         content = ''
         try:
             with open(filename, encoding='utf-8') as f:
                 content = f.read().strip()
-        except IOError:
-            return content
+        except FileNotFoundError:
+            pass
         return content
-    
+
     def write_file(self, filename, content=""):
-        with open(filename,'w') as f:
+        """
+        将内容写入文件。
+        """
+        with open(filename, 'w') as f:
             f.write(content)
-    
+
     def mkdirs(self, path):
+        """
+        递归创建目录。
+        """
         if not os.path.exists(path):
             os.makedirs(path)
-    
+
     def mkfile(self, path, content=''):
+        """
+        创建文件并写入内容。
+        """
         if not os.path.exists(path):
             self.write_file(path, content)
 
-    def check_url_isvalid(self,url):
-        import requests
+    def check_url_isvalid(self, url):
+        """
+        检查URL是否有效。
+        """
         try:
             response = requests.get(url, stream=True)
-            if response.status_code == 200:
-                return True
-            else:
-                return False
+            return response.status_code == 200
         except requests.exceptions.RequestException as e:
             return False
