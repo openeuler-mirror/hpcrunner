@@ -6,8 +6,9 @@ cd "${JARVIS_TMP}"
 rm -rf BLAS-3.10.0
 tar -xzvf "${JARVIS_DOWNLOAD}"/blas-3.10.0.tgz
 cd BLAS-3.10.0
-#sed -i "35s/ftp/http/g" ./contrib/download_prerequisites
-gfortran -c -O3 ./*.f
-ar rv libblas.a ./*.o
-mkdir $1/lib
-cp libblas.a $1/lib
+rm build -rf
+mkdir build
+cd build
+cmake ../ -DCMAKE_INSTALL_PREFIX=$1 -DBUILD_SHARED_LIBS=ON
+make -j $(nproc)
+make install
