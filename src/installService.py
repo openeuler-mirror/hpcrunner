@@ -157,7 +157,7 @@ class InstallService:
     def check_software_path(self, software_path):
         abs_software_path = os.path.join(self.PACKAGE_PATH, software_path)
         if not os.path.exists(abs_software_path):
-            print(f"{software_path} not exist, Are you sure the software lies in package dir?")
+            print(f"{software_path} not exist, are you sure the software lies in package dir?")
             return False
         return abs_software_path
 
