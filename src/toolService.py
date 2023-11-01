@@ -40,8 +40,11 @@ class ToolService:
         """
         将内容写入文件。
         """
-        with open(filename, 'w') as f:
-            f.write(content)
+        try:
+            with open(filename, 'w') as f:
+                f.write(content)
+        except FileNotFoundError:
+            raise FileNotFoundError('The file is not exist')
 
     def mkdirs(self, path):
         """
