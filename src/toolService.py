@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*- 
 import time
 import os
-import requests
 
 class ToolService:
     def prt_content(self, content):
@@ -12,7 +11,7 @@ class ToolService:
         flags = '*' * 30
         print(f"{flags}\n{content}\n{flags}")
 
-    def split_string_to_list(self, data):
+    def gen_list(self, data):
         """
         将字符串按行分割成列表。
         """
@@ -64,6 +63,7 @@ class ToolService:
         """
         检查URL是否有效。
         """
+        import requests
         try:
             response = requests.get(url, stream=True)
             return response.status_code == 200
