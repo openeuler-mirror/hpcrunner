@@ -4,9 +4,9 @@
 
 - 由布罗德研究所和耶路撒冷希伯来大学开发的Trinity代表了一种从RNA-seq数据高效、可靠地从头重建转录组的新方法。Trinity结合了三个独立的软件模块：Inchworm，Chrysalis和Butterfly，这些模块依次应用于处理大量RNA-seq读取。Trinity将序列数据划分为许多个独立的de Bruijn图，每个图代表给定基因或基因座的转录复杂性，然后独立处理每个图以提取全长剪接同工型，并挑出源自旁系基因的转录本。
 
-- 官网地址：https://github.com/trinityrnaseq/trinityrnaseq/wiki
+- 官网地址：$JARVIS_PROXY/trinityrnaseq/trinityrnaseq/wiki
 
-- GITHUB托管地址：https://github.com/trinityrnaseq/trinityrnaseq
+- GITHUB托管地址：$JARVIS_PROXY/trinityrnaseq/trinityrnaseq
 
 # 2.环境要求
 
@@ -29,13 +29,13 @@
 | 名称     | 版本   | 软件下载地址                                                                                   |
 | -------- | ------ | ---------------------------------------------------------------------------------------------- |
 | gcc      | 9.3.0  | <https://ftp.gnu.org/gnu/gcc/gcc-9.3.0/gcc-9.3.0.tar.gz>                                       |
-| CMake    | 3.23.1 | <https://github.com/Kitware/CMake/releases/download/v3.23.1/cmake-3.23.1-linux-aarch64.tar.gz> |
+| CMake    | 3.23.1 | <$JARVIS_PROXY/Kitware/CMake/releases/download/v3.23.1/cmake-3.23.1-linux-aarch64.tar.gz> |
 | Zlib     | 1.2.11 | <http://downloads.sourceforge.net/project/libpng/zlib/1.2.11/zlib-1.2.11.tar.gz>               |
 | BOOST    | 1.72.0 | <https://boostorg.jfrog.io/artifactory/main/release/1.72.0/source/boost_1_72_0.tar.gz>         |
-| Salmon   | 1.9.0  | <https://github.com/COMBINE-lab/salmon/archive/refs/tags/v1.9.0.tar.gz>                        |
-| Jellyfish| 2.3.0  | <https://github.com/gmarcais/Jellyfish/releases/download/v2.3.0/jellyfish-2.3.0.tar.gz>        |
-| Samtools | 1.15.0 | <https://github.com/samtools/samtools/releases/download/1.15/samtools-1.15.tar.bz2>            |
-| Bowtie2  | 2.4.5  | <https://github.com/BenLangmead/bowtie2/archive/refs/tags/v2.4.5.tar.gz>                       |
+| Salmon   | 1.9.0  | <$JARVIS_PROXY/COMBINE-lab/salmon/archive/refs/tags/v1.9.0.tar.gz>                        |
+| Jellyfish| 2.3.0  | <$JARVIS_PROXY/gmarcais/Jellyfish/releases/download/v2.3.0/jellyfish-2.3.0.tar.gz>        |
+| Samtools | 1.15.0 | <$JARVIS_PROXY/samtools/samtools/releases/download/1.15/samtools-1.15.tar.bz2>            |
+| Bowtie2  | 2.4.5  | <$JARVIS_PROXY/BenLangmead/bowtie2/archive/refs/tags/v2.4.5.tar.gz>                       |
 
 ### 3.2.创建文件夹
 
@@ -87,7 +87,7 @@ export CXX=`which g++`
 ### 3.5.下载并编译`Cmake`, `Zlib`, `Boost`, `Salmon`, `Jellyfish`, `Samtools`, `Bowtie2`
 ```bash
 # 下载CMake
-wget https://github.com/Kitware/CMake/releases/download/v3.23.1/cmake-3.23.1-linux-x86_64.tar.gz -O $DEP_DOWNLOAD_DIR/cmake-3.23.1.tar.gz
+wget $JARVIS_PROXY/Kitware/CMake/releases/download/v3.23.1/cmake-3.23.1-linux-x86_64.tar.gz -O $DEP_DOWNLOAD_DIR/cmake-3.23.1.tar.gz
 tar -xvf $DEP_DOWNLOAD_DIR/cmake-3.23.1-linux-x86_64.tar.gz -C $DEP_INSTALL_DIR/cmake --strip-components=1
 echo "export PATH=$DEP_INSTALL_DIR/cmake/bin:$PATH" >> ~/.bashrc && source ~/.bashrc
 
@@ -110,7 +110,7 @@ echo "export BOOST_ROOT=$DEP_INSTALL_DIR/boost/" >> ~/.bashrc && source ~/.bashr
 echo "export LD_LIBRARY_PATH=$DEP_INSTALL_DIR/boost/lib:$LD_LIBRARY_PATH" >> ~/.bashrc && source ~/.bashrc
 
 # 下载并编译Salmon
-wget https://github.com/COMBINE-lab/salmon/archive/refs/tags/v1.9.0.tar.gz -O $DEP_DOWNLOAD_DIR/v1.9.0.tar.gz
+wget $JARVIS_PROXY/COMBINE-lab/salmon/archive/refs/tags/v1.9.0.tar.gz -O $DEP_DOWNLOAD_DIR/v1.9.0.tar.gz
 tar -xvf $DEP_DOWNLOAD_DIR/v1.9.0.tar.gz -C $DEP_BUILD_DIR
 cd $DEP_BUILD_DIR/salmon-1.9.0
 CC=`which gcc` CXX=`which g++` cmake -DCMAKE_INSTALL_PREFIX=$DEP_INSTALL_DIR/salmon .
@@ -120,7 +120,7 @@ echo "export PATH=$DEP_INSTALL_DIR/salmon/bin:$PATH" >> ~/.bashrc && source ~/.b
 echo "export LD_LIBRARY_PATH=$DEP_INSTALL_DIR/salmon/lib:$LD_LIBRARY_PATH" >> ~/.bashrc && source ~/.bashrc
 
 # 下载并编译Jellyfish
-wget https://github.com/gmarcais/Jellyfish/releases/download/v2.3.0/jellyfish-2.3.0.tar.gz -O $DEP_DOWNLOAD_DIR/jellyfish-2.3.0.tar.gz
+wget $JARVIS_PROXY/gmarcais/Jellyfish/releases/download/v2.3.0/jellyfish-2.3.0.tar.gz -O $DEP_DOWNLOAD_DIR/jellyfish-2.3.0.tar.gz
 tar -zxvf $DEP_DOWNLOAD_DIR/ellyfish-2.3.0.tar.gz -C $DEP_BUILD_DIR
 cd $DEP_BUILD_DIR/ellyfish-2.3.0
 ./configure --prefix=$DEP_INSTALL_DIR/jellyfish
@@ -130,7 +130,7 @@ echo "export PATH=$DEP_INSTALL_DIR/jellyfish/bin:$PATH" >> ~/.bashrc && source ~
 echo "export LD_LIBRARY_PATH=$DEP_INSTALL_DIR/jellyfish/lib:$LD_LIBRARY_PATH" >> ~/.bashrc && source ~/.bashrc
 
 # 下载并编译Samtools
-wget https://github.com/samtools/samtools/releases/download/1.15/samtools-1.15.tar.bz2 -O $DEP_DOWNLOAD_DIR/samtools-1.15.tar.bz2
+wget $JARVIS_PROXY/samtools/samtools/releases/download/1.15/samtools-1.15.tar.bz2 -O $DEP_DOWNLOAD_DIR/samtools-1.15.tar.bz2
 tar -xJf $DEP_DOWNLOAD_DIR/samtools-1.15.tar.bz2 -C $DEP_BUILD_DIR
 cd $DEP_BUILD_DIR/samtools-1.15
 ./configure --prefix=$DEP_INSTALL_DIR/samtools
@@ -139,7 +139,7 @@ make install
 echo "export PATH=$DEP_INSTALL_DIR/samtools/bin:$PATH" >> ~/.bashrc && source ~/.bashrc
 
 # 下载并编译Bowtie2
-wget https://github.com/BenLangmead/bowtie2/archive/refs/tags/v2.4.5.tar.gz -O $DEP_DOWNLOAD_DIR/v2.4.5.tar.gz
+wget $JARVIS_PROXY/BenLangmead/bowtie2/archive/refs/tags/v2.4.5.tar.gz -O $DEP_DOWNLOAD_DIR/v2.4.5.tar.gz
 tar -xzf $DEP_DOWNLOAD_DIR/v2.4.5.tar.gz -C $DEP_BUILD_DIR
 cd $DEP_BUILD_DIR/bowtie2-2.4.5
 make -j
@@ -158,7 +158,7 @@ echo "export PATH=$DEP_INSTALL_DIR/bowtie2/bin:$PATH" >> ~/.bashrc && source ~/.
 ```bash
 
 # 下载源码文件
-wget https://github.com/trinityrnaseq/trinityrnaseq/releases/download/Trinity-v2.14.0/trinityrnaseq-v2.14.0.FULL_with_extendedTestData.tar.gz -O $DEP_DOWNLOAD_DIR/trinityrnaseq-v2.14.0.FULL_with_extendedTestData.tar.gz
+wget $JARVIS_PROXY/trinityrnaseq/trinityrnaseq/releases/download/Trinity-v2.14.0/trinityrnaseq-v2.14.0.FULL_with_extendedTestData.tar.gz -O $DEP_DOWNLOAD_DIR/trinityrnaseq-v2.14.0.FULL_with_extendedTestData.tar.gz
 # 解压源码文件
 tar -xvf $DEP_DOWNLOAD_DIR/trinityrnaseq-v2.14.0.FULL_with_extendedTestData.tar.gz -C $DEP_BUILD_DIR
 cd $DEP_BUILD_DIR/trinityrnaseq-v2.14.0
@@ -287,7 +287,7 @@ echo "export PATH=$HOME/install/go/bin:$PATH" >> ~/.bashrc && source ~/.bashrc
 
 #安装singularity
 cd ~/build
-wget https://github.com/sylabs/singularity/releases/download/v3.10.2/singularity-ce-3.10.2.tar.gz
+wget $JARVIS_PROXY/sylabs/singularity/releases/download/v3.10.2/singularity-ce-3.10.2.tar.gz
 tar -xf singularity-ce-3.10.2.tar.gz
 cd singularity-ce-3.10.2
 ./mconfig --prefix=$HOME/install/singularity

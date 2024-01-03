@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x
 set -e
-. ${DOWNLOAD_TOOL} -u https://github.com/evaleev/libint/archive/v2.6.0.tar.gz -f libint-2.6.0.tar.gz
+. ${DOWNLOAD_TOOL} -u $JARVIS_PROXY/evaleev/libint/archive/v2.6.0.tar.gz -f libint-2.6.0.tar.gz
 cd ${JARVIS_TMP}
 #export GCC_LIBS=/home/HT3/HPCRunner2/software/libs/kgcc9
 rm -rf libint-2.6.0

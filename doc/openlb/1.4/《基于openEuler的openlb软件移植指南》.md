@@ -61,10 +61,10 @@
 | :--------------- | :---------------------- | :------------------------------------------------------------------------------------------------------------------------------------ |
 | Bisheng Compiler | 1.3.3                   | https://mirrors.huaweicloud.com/kunpeng/archive/compiler/bisheng_compiler/bisheng-compiler-1.3.3-aarch64-linux.tar.gz                 |
 | Hyper MPI        | 1.1.1（二进制包）       | https://mirrors.huaweicloud.com/kunpeng/archive/HyperMPI/1.1.1/Hyper-MPI_1.1.1_aarch64_OpenEuler20.03-LTS_Bisheng2.1.0_MLNX-OFED5.4.tar.gz                                                      |
-|                  | 1.1.1（源码）           | https://github.com/kunpengcompute/hmpi/archive/refs/tags/v1.1.1-huawei.tar.gz                                                         |
+|                  | 1.1.1（源码）           | $JARVIS_PROXY/kunpengcompute/hmpi/archive/refs/tags/v1.1.1-huawei.tar.gz                                                         |
 | KML              | 1.6.0（毕昇编译器版本） | https://kunpeng-repo.obs.cn-north-4.myhuaweicloud.com/Kunpeng%20BoostKit/Kunpeng%20BoostKit%2022.0.RC3/BoostKit-kml_1.6.0_bisheng.zip |
 |                  | 1.6.0（GCC编译器版本）  | https://kunpeng-repo.obs.cn-north-4.myhuaweicloud.com/Kunpeng%20BoostKit/Kunpeng%20BoostKit%2022.0.RC3/BoostKit-kml_1.6.0.zip         |
-| OpenBlas         | 0.3.21                  | https://github.com/xianyi/OpenBLAS/archive/refs/tags/v0.3.21.tar.gz                                                                   |
+| OpenBlas         | 0.3.21                  | $JARVIS_PROXY/xianyi/OpenBLAS/archive/refs/tags/v0.3.21.tar.gz                                                                   |
 | OpenLB           | 1.4r0                   | https://www.openlb.net/wp-content/uploads/2020/11/olb-1.4r0.tgz                                                                       |
 
 ### 2.3 环境管理
@@ -119,9 +119,9 @@
 - 下载解压源码文件
 
   ```shell
-  wget https://github.com/kunpengcompute/hucx/archive/refs/tags/v1.1.1-huawei.zip -O $OLB_PACKAGE_DIR/hucx-1.1.1-huawei.zip
-  wget https://github.com/kunpengcompute/xucg/archive/refs/tags/v1.1.1-huawei.zip -O $OLB_PACKAGE_DIR/xucg-1.1.1-huawei.zip
-  wget https://github.com/kunpengcompute/hmpi/archive/refs/tags/v1.1.1-huawei.zip -O $OLB_PACKAGE_DIR/hmpi-1.1.1-huawei.zip
+  wget $JARVIS_PROXY/kunpengcompute/hucx/archive/refs/tags/v1.1.1-huawei.zip -O $OLB_PACKAGE_DIR/hucx-1.1.1-huawei.zip
+  wget $JARVIS_PROXY/kunpengcompute/xucg/archive/refs/tags/v1.1.1-huawei.zip -O $OLB_PACKAGE_DIR/xucg-1.1.1-huawei.zip
+  wget $JARVIS_PROXY/kunpengcompute/hmpi/archive/refs/tags/v1.1.1-huawei.zip -O $OLB_PACKAGE_DIR/hmpi-1.1.1-huawei.zip
 
   cd $OLB_BUILD_DIR
   unzip -q $OLB_PACKAGE_DIR/hucx-1.1.1-huawei.zip
@@ -194,7 +194,7 @@
 
   ```shell
   cd ${OLB_PACKAGE_DIR}
-  wget -c https://github.com/xianyi/OpenBLAS/archive/refs/tags/v0.3.21.tar.gz -O openblas-0.3.21.tar.gz
+  wget -c $JARVIS_PROXY/xianyi/OpenBLAS/archive/refs/tags/v0.3.21.tar.gz -O openblas-0.3.21.tar.gz
   cd ${OLB_BUILD_DIR}
   tar -xvf ${OLB_PACKAGE_DIR}/openblas-0.3.21.tar.gz -C .
   cd openblas-0.3.21

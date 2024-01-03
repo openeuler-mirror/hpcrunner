@@ -3,8 +3,8 @@ set -x
 set -e
 kml_version=2.0.0
 . ${DOWNLOAD_TOOL} -u https://kunpeng-repo.obs.cn-north-4.myhuaweicloud.com/Kunpeng%20BoostKit/Kunpeng%20BoostKit%2023.0.RC2/BoostKit-kml_${kml_version}_bisheng.zip
-. ${DOWNLOAD_TOOL} -u https://github.com/Reference-LAPACK/lapack/archive/refs/tags/v3.10.1.tar.gz -f lapack-3.10.1.tar.gz
-. ${DOWNLOAD_TOOL} -u https://github.com/Reference-ScaLAPACK/scalapack/archive/refs/tags/v2.2.0.tar.gz -f scalapack-2.2.0.tar.gz
+. ${DOWNLOAD_TOOL} -u $JARVIS_PROXY/Reference-LAPACK/lapack/archive/refs/tags/v3.10.1.tar.gz -f lapack-3.10.1.tar.gz
+. ${DOWNLOAD_TOOL} -u $JARVIS_PROXY/Reference-ScaLAPACK/scalapack/archive/refs/tags/v2.2.0.tar.gz -f scalapack-2.2.0.tar.gz
 
 cd ${JARVIS_TMP}
 rm -rf boostkit-kml-${kml_version}-1.aarch64.rpm

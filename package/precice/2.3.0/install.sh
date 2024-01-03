@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x
 set -e
-. ${DOWNLOAD_TOOL} -u https://github.com/precice/precice/archive/v2.3.0.tar.gz -f precice-2.3.0.tar.gz
+. ${DOWNLOAD_TOOL} -u $JARVIS_PROXY/precice/precice/archive/v2.3.0.tar.gz -f precice-2.3.0.tar.gz
 cd ${JARVIS_TMP}
 tar xvf ${JARVIS_DOWNLOAD}/precice-2.3.0.tar.gz
 cd precice-2.3.0

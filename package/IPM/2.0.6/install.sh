@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x
 
-. ${DOWNLOAD_TOOL} -u https://github.com/nerscadmin/IPM/archive/refs/tags/2.0.6.tar.gz -f IPM-2.0.6.tar.gz
+. ${DOWNLOAD_TOOL} -u $JARVIS_PROXY/nerscadmin/IPM/archive/refs/tags/2.0.6.tar.gz -f IPM-2.0.6.tar.gz
 cd ${JARVIS_TMP}
 tar -xvf ${JARVIS_DOWNLOAD}/IPM-2.0.6.tar.gz
 cd IPM-2.0.6

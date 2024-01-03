@@ -1,9 +1,9 @@
-#download from https://github.com/wxWidgets/wxWidgets/archive/refs/tags/v3.0.5.tar.gz
+#download from $JARVIS_PROXY/wxWidgets/wxWidgets/archive/refs/tags/v3.0.5.tar.gz
 #!/bin/bash
 set -x
 set -e
 
-. ${DOWNLOAD_TOOL} -u https://github.com/wxWidgets/wxWidgets/archive/refs/tags/v3.0.5.tar.gz -f wxWidgets-3.0.5.tar.gz
+. ${DOWNLOAD_TOOL} -u $JARVIS_PROXY/wxWidgets/wxWidgets/archive/refs/tags/v3.0.5.tar.gz -f wxWidgets-3.0.5.tar.gz
 cd ${JARVIS_TMP}
 rm -rf wxWidgets-3.0.5
 tar -xvf ${JARVIS_DOWNLOAD}/wxWidgets-3.0.5.tar.gz

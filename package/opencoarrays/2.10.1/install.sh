@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x
 set -e
-. ${DOWNLOAD_TOOL} -u https://github.com/sourceryinstitute/OpenCoarrays/releases/download/2.10.1/OpenCoarrays-2.10.1.tar.gz
+. ${DOWNLOAD_TOOL} -u $JARVIS_PROXY/sourceryinstitute/OpenCoarrays/releases/download/2.10.1/OpenCoarrays-2.10.1.tar.gz
 cd ${JARVIS_TMP}
 rm -rf OpenCoarrays-2.10.1
 tar -xvf ${JARVIS_DOWNLOAD}/OpenCoarrays-2.10.1.tar.gz

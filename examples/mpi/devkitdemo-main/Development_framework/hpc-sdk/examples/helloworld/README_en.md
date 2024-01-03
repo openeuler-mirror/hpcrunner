@@ -17,7 +17,7 @@ English | [简体中文](README.md)
 1. Obtain the code.
 
    ```shell
-   git clone https://github.com/kunpengcompute/devkitdemo.git
+   git clone $JARVIS_PROXY/kunpengcompute/devkitdemo.git
    ```
 
 2. Switch to the project root path.

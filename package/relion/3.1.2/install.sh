@@ -1,9 +1,9 @@
-#download from https://github.com/3dem/relion/archive/refs/tags/3.1.2.tar.gz relion-3.1.2.tar.gz
+#download from $JARVIS_PROXY/3dem/relion/archive/refs/tags/3.1.2.tar.gz relion-3.1.2.tar.gz
 #!/bin/bash
 set -x
 set -e
 
-. ${DOWNLOAD_TOOL} -u  https://github.com/3dem/relion/archive/refs/tags/3.1.2.tar.gz relion-3.1.2.tar.gz
+. ${DOWNLOAD_TOOL} -u  $JARVIS_PROXY/3dem/relion/archive/refs/tags/3.1.2.tar.gz relion-3.1.2.tar.gz
 cd ${JARVIS_TMP}
 rm -rf relion-3.1.2 
 tar -xvf ${JARVIS_DOWNLOAD}/relion-3.1.2.tar.gz

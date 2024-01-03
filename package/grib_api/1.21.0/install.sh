@@ -1,9 +1,9 @@
-#download from https://github.com/weathersource/grib_api/archive/refs/tags/v1.21.0.tar.gz
+#download from $JARVIS_PROXY/weathersource/grib_api/archive/refs/tags/v1.21.0.tar.gz
 #module  load  bisheng/2.1.0   hmpi/1.1.1   netcdf/4.7.0   pnetcdf/1.11.2 
 #!/bin/bash
 set -x
 set -e
-. ${DOWNLOAD_TOOL} -u  https://github.com/weathersource/grib_api/archive/refs/tags/v1.21.0.tar.gz grib_api-1.21.0.tar.gz
+. ${DOWNLOAD_TOOL} -u  $JARVIS_PROXY/weathersource/grib_api/archive/refs/tags/v1.21.0.tar.gz grib_api-1.21.0.tar.gz
 cd ${JARVIS_TMP}
 rm -rf grib_api-1.21.0
 tar  -xvf ${JARVIS_DOWNLOAD}/grib_api-1.21.0.tar.gz

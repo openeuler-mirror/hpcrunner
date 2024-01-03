@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x
 set -e
-. $DOWNLOAD_TOOL -u https://github.com/Reference-LAPACK/lapack/archive/refs/tags/v3.10.1.tar.gz 
+. $DOWNLOAD_TOOL -u $JARVIS_PROXY/Reference-LAPACK/lapack/archive/refs/tags/v3.10.1.tar.gz 
 cd ${JARVIS_TMP}
 tar -xvf ${JARVIS_DOWNLOAD}/lapack-3.10.1.tar.gz
 cd lapack-3.10.1

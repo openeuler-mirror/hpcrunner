@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# download from https://github.com/NCAR/ncl/archive/refs/tags/6.6.2.tar.gz
+# download from $JARVIS_PROXY/NCAR/ncl/archive/refs/tags/6.6.2.tar.gz
 . $CHECK_ROOT && yum install zlib zlib-devel expat-devel freetype freetype-devel freetype-demos python-freetype ftgl ftgl-devel udunits2  udunits2-devel 
 set -x
 set -e
-. ${DOWNLOAD_TOOL} -u https://github.com/NCAR/ncl/archive/refs/tags/6.6.2.tar.gz
+. ${DOWNLOAD_TOOL} -u $JARVIS_PROXY/NCAR/ncl/archive/refs/tags/6.6.2.tar.gz
 cd ${JARVIS_TMP}
 rm -rf ncl-6.6.2
 tar -xvf ${JARVIS_DOWNLOAD}/6.6.2.tar.gz

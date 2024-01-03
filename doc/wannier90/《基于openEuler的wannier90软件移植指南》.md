@@ -6,7 +6,7 @@
 
 - 官网地址：<http://www.wannier.org/>
 
-- GITHUB托管地址：<https://github.com/wannier-developers/wannier90>
+- GITHUB托管地址：<$JARVIS_PROXY/wannier-developers/wannier90>
 
 - 特性：
 
@@ -36,11 +36,11 @@
 
 | 名称     | 版本   | 软件下载地址                                                                                   |
 | -------- | ------ | ---------------------------------------------------------------------------------------------- |
-| hmpi     | 1.2.0  | <https://github.com/kunpengcompute/hmpi/archive/refs/tags/v1.2.0-huawei.zip>                   |
+| hmpi     | 1.2.0  | <$JARVIS_PROXY/kunpengcompute/hmpi/archive/refs/tags/v1.2.0-huawei.zip>                   |
 | kgcc     | 10.3.1  | <https://mirrors.huaweicloud.com/kunpeng/archive/compiler/kunpeng_gcc/gcc-10.3.1-2021.09-aarch64-linux.tar.gz>                                       |
 | BLAS      | 3.10.1 | <http://www.netlib.org/blas/blas-3.10.0.tgz >                          |
 | Python3  | 3.7.10 | <https://repo.huaweicloud.com/python/3.7.10/Python-3.7.10.tgz>                                 |
-| lapack | 3.10.1 | <https://github.com/Reference-LAPACK/lapack/archive/refs/tags/v3.10.1.tar.gz >                                      |
+| lapack | 3.10.1 | <$JARVIS_PROXY/Reference-LAPACK/lapack/archive/refs/tags/v3.10.1.tar.gz >                                      |
 
 ### 3.2.创建文件夹
 
@@ -94,9 +94,9 @@ export CXX=`which clang++`
 yum -y install libstdc++ libstdc++-devel
 yum -y install unzip make autoconf automake git libtool
 #下载解压源码文件
-wget https://github.com/kunpengcompute/hucx/archive/refs/tags/v1.2.0-huawei.zip -O $DEP_DOWNLOAD_DIR/hucx-1.2.0-huawei.zip
-wget https://github.com/kunpengcompute/xucg/archive/refs/tags/v1.2.0-huawei.zip -O $DEP_DOWNLOAD_DIR/xucg-1.2.0-huawei.zip
-wget https://github.com/kunpengcompute/hmpi/archive/refs/tags/v1.2.0-huawei.zip -O $DEP_DOWNLOAD_DIR/hmpi-1.2.0-huawei.zip
+wget $JARVIS_PROXY/kunpengcompute/hucx/archive/refs/tags/v1.2.0-huawei.zip -O $DEP_DOWNLOAD_DIR/hucx-1.2.0-huawei.zip
+wget $JARVIS_PROXY/kunpengcompute/xucg/archive/refs/tags/v1.2.0-huawei.zip -O $DEP_DOWNLOAD_DIR/xucg-1.2.0-huawei.zip
+wget $JARVIS_PROXY/kunpengcompute/hmpi/archive/refs/tags/v1.2.0-huawei.zip -O $DEP_DOWNLOAD_DIR/hmpi-1.2.0-huawei.zip
 
 cd $DEP_BUILD_DIR
 unzip -q $DEP_DOWNLOAD_DIR/hucx-1.2.0-huawei.zip
@@ -151,7 +151,7 @@ echo "export PATH=$DEP_INSTALL_DIR/python3/bin:$PATH" >> ~/.bashrc && source ~/.
 echo "export LD_LIBRARY_PATH=$DEP_INSTALL_DIR/python3/lib:$LD_LIBRARY_PATH" >> ~/.bashrc && source ~/.bashrc
 
 # 下载并编译lapack
-wget -u https://github.com/Reference-LAPACK/lapack/archive/refs/tags/v3.10.1.tar.gz -O $DEP_DOWNLOAD_DIR/lapack=3.10.1.tar.gz
+wget -u $JARVIS_PROXY/Reference-LAPACK/lapack/archive/refs/tags/v3.10.1.tar.gz -O $DEP_DOWNLOAD_DIR/lapack=3.10.1.tar.gz
 cd $DEP_DOWNLOAD_DIR
 tar -xvf $DEP_DOWNLOAD_DIR/lapack-3.10.1.tar.gz
 cd lapack-3.10.1
@@ -174,7 +174,7 @@ cp *.a /usr/local/lib
 
 # 下载源码文件
 cd $DEP_DOWNLOAD_DIR
-git clone https://github.com/wannier-developers/wannier90.git
+git clone $JARVIS_PROXY/wannier-developers/wannier90.git
 # 解压源码文件
 cd $DEP_BUILD_DIR/wannier90
 #编译源码
@@ -314,7 +314,7 @@ echo "export PATH=$HOME/install/go/bin:$PATH" >> ~/.bashrc && source ~/.bashrc
 
 #安装singularity
 cd ~/build
-wget https://github.com/sylabs/singularity/releases/download/v3.10.2/singularity-ce-3.10.2.tar.gz
+wget $JARVIS_PROXY/sylabs/singularity/releases/download/v3.10.2/singularity-ce-3.10.2.tar.gz
 tar -xf singularity-ce-3.10.2.tar.gz
 cd singularity-ce-3.10.2
 ./mconfig --prefix=$HOME/install/singularity

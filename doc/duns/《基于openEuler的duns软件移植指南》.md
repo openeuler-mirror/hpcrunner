@@ -229,7 +229,7 @@ echo "export PATH=$HOME/install/go/bin:$PATH" >> ~/.bashrc && source ~/.bashrc
 
 #安装singularity
 cd ~/build
-wget https://github.com/sylabs/singularity/releases/download/v3.10.2/singularity-ce-3.10.2.tar.gz
+wget $JARVIS_PROXY/sylabs/singularity/releases/download/v3.10.2/singularity-ce-3.10.2.tar.gz
 tar -xf singularity-ce-3.10.2.tar.gz
 cd singularity-ce-3.10.2
 ./mconfig --prefix=$HOME/install/singularity
