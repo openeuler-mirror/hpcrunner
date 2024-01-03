@@ -1,9 +1,9 @@
-#download from https://github.com/opencv/opencv/archive/refs/tags/4.5.5.tar.gz
+#download from $JARVIS_PROXY/opencv/opencv/archive/refs/tags/4.5.5.tar.gz
 #!/bin/bash
 set -x
 set -e
 
-. ${DOWNLOAD_TOOL} -u https://github.com/opencv/opencv/archive/refs/tags/4.5.5.tar.gz -f opencv-4.5.5.tar.gz
+. ${DOWNLOAD_TOOL} -u $JARVIS_PROXY/opencv/opencv/archive/refs/tags/4.5.5.tar.gz -f opencv-4.5.5.tar.gz
 cd ${JARVIS_TMP}
 rm -rf opencv-4.5.5
 tar -xvf ${JARVIS_DOWNLOAD}/opencv-4.5.5.tar.gz

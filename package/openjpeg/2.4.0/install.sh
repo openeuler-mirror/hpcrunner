@@ -1,8 +1,8 @@
 #!/bin/bash
-#https://github.com/uclouvain/openjpeg/archive/refs/tags/v2.4.0.tar.gz
+#$JARVIS_PROXY/uclouvain/openjpeg/archive/refs/tags/v2.4.0.tar.gz
 set -x
 set -e
-. ${DOWNLOAD_TOOL} -u https://github.com/uclouvain/openjpeg/archive/refs/tags/v2.4.0.tar.gz -f /openjpeg-2.4.0.tar.gz
+. ${DOWNLOAD_TOOL} -u $JARVIS_PROXY/uclouvain/openjpeg/archive/refs/tags/v2.4.0.tar.gz -f /openjpeg-2.4.0.tar.gz
 cd ${JARVIS_TMP}
 rm -rf openjpeg-2.4.0
 tar -xvf ${JARVIS_DOWNLOAD}/openjpeg-2.4.0.tar.gz

@@ -8,7 +8,7 @@
 
 - 官网地址：<https://www.intel.com/content/www/us/en/develop/documentation/imb-user-guide/top.html>
 
-- GITHUB托管地址：<https://github.com/intel/mpi-benchmarks.git>
+- GITHUB托管地址：<$JARVIS_PROXY/intel/mpi-benchmarks.git>
 
 ## 2.环境要求
 
@@ -28,7 +28,7 @@
 
 | 名称     | 版本   | 软件下载地址                                                                                   |
 | -------- | ------ | ---------------------------------------------------------------------------------------------- |
-| hmpi     | 1.1.1  | <https://github.com/kunpengcompute/hmpi/archive/refs/tags/v1.1.1-huawei.zip>                   |
+| hmpi     | 1.1.1  | <$JARVIS_PROXY/kunpengcompute/hmpi/archive/refs/tags/v1.1.1-huawei.zip>                   |
 | gcc      | 9.3.0  | <https://ftp.gnu.org/gnu/gcc/gcc-9.3.0/gcc-9.3.0.tar.gz>                                       |
 
 ### 3.2.创建文件夹
@@ -84,9 +84,9 @@ export CXX=`which clang++`
 yum -y install libstdc++ libstdc++-devel
 yum -y install unzip make autoconf automake git libtool
 #下载解压源码文件
-wget https://github.com/kunpengcompute/hucx/archive/refs/tags/v1.1.1-huawei.zip -O $DEP_DOWNLOAD_DIR/hucx-1.1.1-huawei.zip
-wget https://github.com/kunpengcompute/xucg/archive/refs/tags/v1.1.1-huawei.zip -O $DEP_DOWNLOAD_DIR/xucg-1.1.1-huawei.zip
-wget https://github.com/kunpengcompute/hmpi/archive/refs/tags/v1.1.1-huawei.zip -O $DEP_DOWNLOAD_DIR/hmpi-1.1.1-huawei.zip
+wget $JARVIS_PROXY/kunpengcompute/hucx/archive/refs/tags/v1.1.1-huawei.zip -O $DEP_DOWNLOAD_DIR/hucx-1.1.1-huawei.zip
+wget $JARVIS_PROXY/kunpengcompute/xucg/archive/refs/tags/v1.1.1-huawei.zip -O $DEP_DOWNLOAD_DIR/xucg-1.1.1-huawei.zip
+wget $JARVIS_PROXY/kunpengcompute/hmpi/archive/refs/tags/v1.1.1-huawei.zip -O $DEP_DOWNLOAD_DIR/hmpi-1.1.1-huawei.zip
 
 cd $DEP_BUILD_DIR
 unzip -q $DEP_DOWNLOAD_DIR/hucx-1.1.1-huawei.zip
@@ -124,7 +124,7 @@ export CC=mpicc CXX=mpicxx FC=mpifort F77=mpifort
 ```bash
 
 # 下载源码文件
-wget https://github.com/intel/mpi-benchmarks/archive/refs/tags/IMB-v2021.3.tar.gz -O $DEP_DOWNLOAD_DIR/IMB-v2021.3.tar.gz
+wget $JARVIS_PROXY/intel/mpi-benchmarks/archive/refs/tags/IMB-v2021.3.tar.gz -O $DEP_DOWNLOAD_DIR/IMB-v2021.3.tar.gz
 # 解压源码文件
 tar -xvf $DEP_DOWNLOAD_DIR/IMB-v2021.3.tar.gz -C $DEP_BUILD_DIR
 cd $DEP_BUILD_DIR/IMB-v2021.3
@@ -256,7 +256,7 @@ echo "export PATH=$HOME/install/go/bin:$PATH" >> ~/.bashrc && source ~/.bashrc
 
 #安装singularity
 cd ~/build
-wget https://github.com/sylabs/singularity/releases/download/v3.10.2/singularity-ce-3.10.2.tar.gz
+wget $JARVIS_PROXY/sylabs/singularity/releases/download/v3.10.2/singularity-ce-3.10.2.tar.gz
 tar -xf singularity-ce-3.10.2.tar.gz
 cd singularity-ce-3.10.2
 ./mconfig --prefix=$HOME/install/singularity

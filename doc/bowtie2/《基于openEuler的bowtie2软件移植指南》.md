@@ -8,7 +8,7 @@
 
 - 官网地址：http://bowtie-bio.sourceforge.net/bowtie2/manual.shtml
 
-- GITHUB托管地址：https://github.com/BenLangmead/bowtie2
+- GITHUB托管地址：$JARVIS_PROXY/BenLangmead/bowtie2
 
 - 特征：
 
@@ -35,7 +35,7 @@
 | 名称     | 版本   | 软件下载地址                                                                                   |
 | -------- | ------ | ---------------------------------------------------------------------------------------------- |
 | gcc      | 9.3.0  | <https://ftp.gnu.org/gnu/gcc/gcc-9.3.0/gcc-9.3.0.tar.gz>                                       |
-| CMake    | 3.23.1 | <https://github.com/Kitware/CMake/releases/download/v3.23.1/cmake-3.23.1-linux-aarch64.tar.gz> |
+| CMake    | 3.23.1 | <$JARVIS_PROXY/Kitware/CMake/releases/download/v3.23.1/cmake-3.23.1-linux-aarch64.tar.gz> |
 
 ### 3.2.创建文件夹
 
@@ -88,7 +88,7 @@ export CXX=`which g++`
 
 ```bash
 # 下载CMake
-wget https://github.com/Kitware/CMake/releases/download/v3.23.1/cmake-3.23.1-linux-x86_64.tar.gz -O $DEP_DOWNLOAD_DIR/cmake-3.23.1.tar.gz
+wget $JARVIS_PROXY/Kitware/CMake/releases/download/v3.23.1/cmake-3.23.1-linux-x86_64.tar.gz -O $DEP_DOWNLOAD_DIR/cmake-3.23.1.tar.gz
 tar -xvf $DEP_DOWNLOAD_DIR/cmake-3.23.1-linux-x86_64.tar.gz -C $DEP_INSTALL_DIR/cmake --strip-components=1
 echo "export PATH=$DEP_INSTALL_DIR/cmake/bin:$PATH" >> ~/.bashrc && source ~/.bashrc
 ```
@@ -100,7 +100,7 @@ echo "export PATH=$DEP_INSTALL_DIR/cmake/bin:$PATH" >> ~/.bashrc && source ~/.ba
 获取bowtie2软件源码并解压文件
 ```bash
 # 下载源码文件
-wget https://github.com/BenLangmead/bowtie2/archive/refs/tags/v2.4.5.tar.gz
+wget $JARVIS_PROXY/BenLangmead/bowtie2/archive/refs/tags/v2.4.5.tar.gz
 # 解压源码文件
 tar -xvf $DEP_DOWNLOAD_DIR/v2.4.5.tar.gz -C $DEP_BUILD_DIR
 cd $DEP_BUILD_DIR/bowtie2-2.4.5
@@ -230,7 +230,7 @@ echo "export PATH=$HOME/install/go/bin:$PATH" >> ~/.bashrc && source ~/.bashrc
 
 #安装singularity
 cd ~/build
-wget https://github.com/sylabs/singularity/releases/download/v3.10.2/singularity-ce-3.10.2.tar.gz
+wget $JARVIS_PROXY/sylabs/singularity/releases/download/v3.10.2/singularity-ce-3.10.2.tar.gz
 tar -xf singularity-ce-3.10.2.tar.gz
 cd singularity-ce-3.10.2
 ./mconfig --prefix=$HOME/install/singularity

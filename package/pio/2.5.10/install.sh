@@ -2,7 +2,7 @@
 set -x
 set -e
 pio_ver="2_5_10"
-. ${DOWNLOAD_TOOL} -u https://github.com/NCAR/ParallelIO/archive/refs/tags/pio${pio_ver}.tar.gz -f pio${pio_ver}.tar.gz
+. ${DOWNLOAD_TOOL} -u $JARVIS_PROXY/NCAR/ParallelIO/archive/refs/tags/pio${pio_ver}.tar.gz -f pio${pio_ver}.tar.gz
 cd ${JARVIS_TMP}
 rm -rf ParallelIO-pio${pio_ver}
 tar -xvf ${JARVIS_DOWNLOAD}/pio${pio_ver}.tar.gz

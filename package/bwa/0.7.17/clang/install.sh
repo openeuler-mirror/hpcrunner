@@ -1,9 +1,9 @@
-#download from https://github.com/jratcliff63367/sse2neon  https://sourceforge.net/projects/bio-bwa/files/bwa-0.7.17.tar.bz2
+#download from $JARVIS_PROXY/jratcliff63367/sse2neon  https://sourceforge.net/projects/bio-bwa/files/bwa-0.7.17.tar.bz2
 #module  load  bisheng/2.1.0    
 #!/bin/bash
 set -x
 set -e
-. ${DOWNLOAD_TOOL} -u https://github.com/jratcliff63367/sse2neon/archive/refs/heads/master.zip -f sse2neon-master.zip
+. ${DOWNLOAD_TOOL} -u $JARVIS_PROXY/jratcliff63367/sse2neon/archive/refs/heads/master.zip -f sse2neon-master.zip
 . ${DOWNLOAD_TOOL} -u https://sourceforge.net/projects/bio-bwa/files/bwa-0.7.17.tar.bz2
 cd ${JARVIS_TMP}
 rm -rf bwa-0.7.17  sse2neon-master

@@ -2,9 +2,9 @@
 set -x
 set -e
 hmpi_version='1.2.0'
-. ${DOWNLOAD_TOOL} -u https://github.com/kunpengcompute/hucx/archive/refs/tags/v${hmpi_version}-huawei.zip -f hucx-${hmpi_version}-huawei.zip
-. ${DOWNLOAD_TOOL} -u https://github.com/kunpengcompute/xucg/archive/refs/tags/v${hmpi_version}-huawei.zip -f xucg-${hmpi_version}-huawei.zip
-. ${DOWNLOAD_TOOL} -u https://github.com/kunpengcompute/hmpi/archive/refs/tags/v${hmpi_version}-huawei.zip -f hmpi-${hmpi_version}-huawei.zip
+. ${DOWNLOAD_TOOL} -u $JARVIS_PROXY/kunpengcompute/hucx/archive/refs/tags/v${hmpi_version}-huawei.zip -f hucx-${hmpi_version}-huawei.zip
+. ${DOWNLOAD_TOOL} -u $JARVIS_PROXY/kunpengcompute/xucg/archive/refs/tags/v${hmpi_version}-huawei.zip -f xucg-${hmpi_version}-huawei.zip
+. ${DOWNLOAD_TOOL} -u $JARVIS_PROXY/kunpengcompute/hmpi/archive/refs/tags/v${hmpi_version}-huawei.zip -f hmpi-${hmpi_version}-huawei.zip
 cd ${JARVIS_TMP}
 . $CHECK_ROOT && yum install -y perl-Data-Dumper autoconf automake libtool binutils flex
 rm -rf hmpi-${hmpi_version}-huawei hucx-${hmpi_version}-huawei xucg-${hmpi_version}-huawei

@@ -14,7 +14,7 @@
 ## NCO
 - netCDF Operators (NCO) 工具用来操作和分析 netCDF 自描述数据存储格式
 
-- 官网地址：<https://github.com/nco/nco>
+- 官网地址：<$JARVIS_PROXY/nco/nco>
 
 - 特性：
 
@@ -48,7 +48,7 @@
 
 | 名称     | 版本   | 软件下载地址                                                                                   |
 | -------- | ------ | ---------------------------------------------------------------------------------------------- |
-| openmpi     | 4.1.2  | <https://github.com/kunpengcompute/hmpi/archive/refs/tags/v1.2.0-huawei.zip>                   |
+| openmpi     | 4.1.2  | <$JARVIS_PROXY/kunpengcompute/hmpi/archive/refs/tags/v1.2.0-huawei.zip>                   |
 | gcc     | 10.3.0  | <https://mirrors.huaweicloud.com/kunpeng/archive/compiler/kunpeng_gcc/gcc-10.3.1-2021.09-aarch64-linux.tar.gz>                                       |
 | antlr      | 2.7.7 | <https://www.antlr2.org/download/antlr-2.7.7.tar.gz>                          |
 | cairo  | 1.16.0 | <https://www.cairographics.org/releases/cairo-1.16.0.tar.xz>                                 |
@@ -386,7 +386,7 @@ ncview依赖为 hdf5 pnetcdf netcdf udunits
 
 # 下载源码文件
 cd $DEP_DOWNLOAD_DIR
-git clone https://github.com/wannier-developers/wannier90.git
+git clone $JARVIS_PROXY/wannier-developers/wannier90.git
 # 解压源码文件
 cd $DEP_BUILD_DIR/wannier90
 #编译源码
@@ -543,7 +543,7 @@ echo "export PATH=$HOME/install/go/bin:$PATH" >> ~/.bashrc && source ~/.bashrc
 
 #安装singularity
 cd ~/build
-wget https://github.com/sylabs/singularity/releases/download/v3.10.2/singularity-ce-3.10.2.tar.gz
+wget $JARVIS_PROXY/sylabs/singularity/releases/download/v3.10.2/singularity-ce-3.10.2.tar.gz
 tar -xf singularity-ce-3.10.2.tar.gz
 cd singularity-ce-3.10.2
 ./mconfig --prefix=$HOME/install/singularity

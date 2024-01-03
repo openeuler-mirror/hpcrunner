@@ -3,7 +3,7 @@ set -x
 set -e
 kml_version=1.4.0
 . ${DOWNLOAD_TOOL} -u https://kunpeng-repo.obs.cn-north-4.myhuaweicloud.com/Kunpeng%20BoostKit/Kunpeng%20BoostKit%2021.0.1/BoostKit-kml_${kml_version}zip -f BoostKit-kml_${kml_version}-gcc.zip
-. ${DOWNLOAD_TOOL} -u https://github.com/Reference-LAPACK/lapack/archive/refs/tags/v3.9.1.tar.gz -f lapack-3.9.1.tar.gz
+. ${DOWNLOAD_TOOL} -u $JARVIS_PROXY/Reference-LAPACK/lapack/archive/refs/tags/v3.9.1.tar.gz -f lapack-3.9.1.tar.gz
 cd ${JARVIS_TMP}
 
 unzip -o ${JARVIS_DOWNLOAD}/BoostKit-kml_${kml_version}_bisheng.zip

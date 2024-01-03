@@ -22,7 +22,7 @@ PNETCDF_DIR=${PNETCDF_PATH}
 
 cd include/
 rm -rf ncconfigure.h
-wget https://github.com/Unidata/netcdf-c/files/3234181/ncconfigure.zip --no-ch
+wget $JARVIS_PROXY/Unidata/netcdf-c/files/3234181/ncconfigure.zip --no-ch
 unzip ncconfigure.zip
 cd ..
 

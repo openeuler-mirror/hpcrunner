@@ -6,7 +6,7 @@
 
 - 官网地址：<http://www.opencoarrays.org/>
 
-- GITHUB托管地址：<https://github.com/opencoarrays/opencoarrays>
+- GITHUB托管地址：<$JARVIS_PROXY/opencoarrays/opencoarrays>
 
 ## 2.环境要求
 
@@ -28,15 +28,15 @@
 
 | 名称     | 版本   | 软件下载地址                                                                                   |
 | -------- | ------ | ---------------------------------------------------------------------------------------------- |
-| hmpi     | 1.1.1  | <https://github.com/kunpengcompute/hmpi/archive/refs/tags/v1.1.1-huawei.zip>                   |
+| hmpi     | 1.1.1  | <$JARVIS_PROXY/kunpengcompute/hmpi/archive/refs/tags/v1.1.1-huawei.zip>                   |
 | gcc      | 9.3.0  | <https://ftp.gnu.org/gnu/gcc/gcc-9.3.0/gcc-9.3.0.tar.gz>                                       |
-| CMake    | 3.23.1 | <https://github.com/Kitware/CMake/releases/download/v3.23.1/cmake-3.23.1-linux-aarch64.tar.gz> |
-| OpenBLAS | 0.3.18 | <https://github.com/xianyi/OpenBLAS/archive/refs/tags/v0.3.18.tar.gz>                          |
+| CMake    | 3.23.1 | <$JARVIS_PROXY/Kitware/CMake/releases/download/v3.23.1/cmake-3.23.1-linux-aarch64.tar.gz> |
+| OpenBLAS | 0.3.18 | <$JARVIS_PROXY/xianyi/OpenBLAS/archive/refs/tags/v0.3.18.tar.gz>                          |
 | HDF5     | 1.10.1 | <https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-1.10.1/src/hdf5-1.10.1.tar.gz>  |
 | BOOST    | 1.72.0 | <https://boostorg.jfrog.io/artifactory/main/release/1.72.0/source/boost_1_72_0.tar.gz>         |
 | FFTW     | 3.3.10 | <http://www.fftw.org/fftw-3.3.10.tar.gz>                                                       |
 | Python3  | 3.7.10 | <https://repo.huaweicloud.com/python/3.7.10/Python-3.7.10.tgz>                                 |
-| LibXml2  | 2.10.1 | <https://github.com/GNOME/libxml2/archive/v2.10.1.tar.gz>                                      |
+| LibXml2  | 2.10.1 | <$JARVIS_PROXY/GNOME/libxml2/archive/v2.10.1.tar.gz>                                      |
 
 ### 3.2.创建文件夹
 
@@ -91,9 +91,9 @@ export CXX=`which clang++`
 yum -y install libstdc++ libstdc++-devel
 yum -y install unzip make autoconf automake git libtool
 #下载解压源码文件
-wget https://github.com/kunpengcompute/hucx/archive/refs/tags/v1.1.1-huawei.zip -O $DEP_DOWNLOAD_DIR/hucx-1.1.1-huawei.zip
-wget https://github.com/kunpengcompute/xucg/archive/refs/tags/v1.1.1-huawei.zip -O $DEP_DOWNLOAD_DIR/xucg-1.1.1-huawei.zip
-wget https://github.com/kunpengcompute/hmpi/archive/refs/tags/v1.1.1-huawei.zip -O $DEP_DOWNLOAD_DIR/hmpi-1.1.1-huawei.zip
+wget $JARVIS_PROXY/kunpengcompute/hucx/archive/refs/tags/v1.1.1-huawei.zip -O $DEP_DOWNLOAD_DIR/hucx-1.1.1-huawei.zip
+wget $JARVIS_PROXY/kunpengcompute/xucg/archive/refs/tags/v1.1.1-huawei.zip -O $DEP_DOWNLOAD_DIR/xucg-1.1.1-huawei.zip
+wget $JARVIS_PROXY/kunpengcompute/hmpi/archive/refs/tags/v1.1.1-huawei.zip -O $DEP_DOWNLOAD_DIR/hmpi-1.1.1-huawei.zip
 
 cd $DEP_BUILD_DIR
 unzip -q $DEP_DOWNLOAD_DIR/hucx-1.1.1-huawei.zip
@@ -126,12 +126,12 @@ export CC=mpicc CXX=mpicxx FC=mpifort F77=mpifort
 
 ```bash
 # 下载CMake
-wget https://github.com/Kitware/CMake/releases/download/v3.23.1/cmake-3.23.1-linux-x86_64.tar.gz -O $DEP_DOWNLOAD_DIR/cmake-3.23.1.tar.gz
+wget $JARVIS_PROXY/Kitware/CMake/releases/download/v3.23.1/cmake-3.23.1-linux-x86_64.tar.gz -O $DEP_DOWNLOAD_DIR/cmake-3.23.1.tar.gz
 tar -xvf $DEP_DOWNLOAD_DIR/cmake-3.23.1-linux-x86_64.tar.gz -C $DEP_INSTALL_DIR/cmake --strip-components=1
 echo "export PATH=$DEP_INSTALL_DIR/cmake/bin:$PATH" >> ~/.bashrc && source ~/.bashrc
 
 # 下载并编译OpenBLAS
-wget https://github.com/xianyi/OpenBLAS/archive/refs/tags/v0.3.18.tar.gz -O $DEP_DOWNLOAD_DIR/OpenBLAS-0.3.18.tar.gz
+wget $JARVIS_PROXY/xianyi/OpenBLAS/archive/refs/tags/v0.3.18.tar.gz -O $DEP_DOWNLOAD_DIR/OpenBLAS-0.3.18.tar.gz
 tar -xzvf $DEP_DOWNLOAD_DIR/OpenBLAS-0.3.18.tar.gz -C $DEP_BUILD_DIR
 cd $DEP_BUILD_DIR/OpenBLAS-0.3.18
 make -j 
@@ -179,7 +179,7 @@ echo "export PATH=$DEP_INSTALL_DIR/python3/bin:$PATH" >> ~/.bashrc && source ~/.
 echo "export LD_LIBRARY_PATH=$DEP_INSTALL_DIR/python3/lib:$LD_LIBRARY_PATH" >> ~/.bashrc && source ~/.bashrc
 
 # 下载并编译LibXml2
-wget https://github.com/GNOME/libxml2/archive/v2.10.1.tar.gz -O $DEP_DOWNLOAD_DIR/libxml2-2.10.1.tar.gz
+wget $JARVIS_PROXY/GNOME/libxml2/archive/v2.10.1.tar.gz -O $DEP_DOWNLOAD_DIR/libxml2-2.10.1.tar.gz
 tar -xvf $DEP_DOWNLOAD_DIR/libxml2-2.10.1.tar.gz -C $DEP_BUILD_DIR
 cd $DEP_BUILD_DIR/libxml2-2.10.1
 ./autogen.sh
@@ -198,7 +198,7 @@ make install
 ```bash
 
 # 下载源码文件
-wget https://github.com/opencoarrays/opencoarrays/archive/refs/tags/v3.13.0.tar.gz -O $DEP_DOWNLOAD_DIR/opencoarrays-2.10.1.tar.gz
+wget $JARVIS_PROXY/opencoarrays/opencoarrays/archive/refs/tags/v3.13.0.tar.gz -O $DEP_DOWNLOAD_DIR/opencoarrays-2.10.1.tar.gz
 # 解压源码文件
 tar -xvf $DEP_DOWNLOAD_DIR/opencoarrays-2.10.1.tar.gz -C $DEP_BUILD_DIR
 cd $DEP_BUILD_DIR/opencoarrays-2.10.1/build
@@ -338,7 +338,7 @@ echo "export PATH=$HOME/install/go/bin:$PATH" >> ~/.bashrc && source ~/.bashrc
 
 #安装singularity
 cd ~/build
-wget https://github.com/sylabs/singularity/releases/download/v3.10.2/singularity-ce-3.10.2.tar.gz
+wget $JARVIS_PROXY/sylabs/singularity/releases/download/v3.10.2/singularity-ce-3.10.2.tar.gz
 tar -xf singularity-ce-3.10.2.tar.gz
 cd singularity-ce-3.10.2
 ./mconfig --prefix=$HOME/install/singularity

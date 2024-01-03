@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x
 set -e
-. ${DOWNLOAD_TOOL} -u https://github.com/blitzpp/blitz/archive/refs/tags/1.0.1.tar.gz -f blitz-1.0.1.tar.gz
+. ${DOWNLOAD_TOOL} -u $JARVIS_PROXY/blitzpp/blitz/archive/refs/tags/1.0.1.tar.gz -f blitz-1.0.1.tar.gz
 cd ${JARVIS_TMP}
 rm -rf blitz-1.0.1
 tar -xzvf ${JARVIS_DOWNLOAD}/blitz-1.0.1.tar.gz

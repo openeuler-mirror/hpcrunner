@@ -22,7 +22,7 @@ KML_FFT有多个版本：
 1. 获取代码
 
    ```shell
-   git clone https://github.com/kunpengcompute/devkitdemo.git
+   git clone $JARVIS_PROXY/kunpengcompute/devkitdemo.git
    ```
 
 2. 切入到项目根路径

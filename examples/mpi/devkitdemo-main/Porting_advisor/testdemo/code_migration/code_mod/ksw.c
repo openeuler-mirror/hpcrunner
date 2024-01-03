@@ -15,7 +15,7 @@
  */
 #if defined __aarch64__
     #include "avx2neon.h"
-    //Suggestion: visit 'https://github.com/kunpengcomputer/AvxToNeon' and obtain the 'avx2neon.h' source code according to the README.md file.
+    //Suggestion: visit '$JARVIS_PROXY/kunpengcomputer/AvxToNeon' and obtain the 'avx2neon.h' source code according to the README.md file.
 #endif
 #include <stdlib.h>
 #include <stdint.h>

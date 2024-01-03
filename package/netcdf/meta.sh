@@ -1,6 +1,6 @@
 #!/bin/bash
-. ${DOWNLOAD_TOOL} -u https://github.com/Unidata/netcdf-fortran/archive/refs/tags/v${netcdf_f_version}.tar.gz -f netcdf-fortran-${netcdf_f_version}.tar.gz
-. ${DOWNLOAD_TOOL} -u https://github.com/Unidata/netcdf-c/archive/refs/tags/v${netcdf_c_version}.tar.gz -f netcdf-c-${netcdf_c_version}.tar.gz 
+. ${DOWNLOAD_TOOL} -u $JARVIS_PROXY/Unidata/netcdf-fortran/archive/refs/tags/v${netcdf_f_version}.tar.gz -f netcdf-fortran-${netcdf_f_version}.tar.gz
+. ${DOWNLOAD_TOOL} -u $JARVIS_PROXY/Unidata/netcdf-c/archive/refs/tags/v${netcdf_c_version}.tar.gz -f netcdf-c-${netcdf_c_version}.tar.gz 
 cd ${JARVIS_TMP}
 rm -rf netcdf-c-${netcdf_c_version} netcdf-fortran-${netcdf_f_version}
 tar -xvf ${JARVIS_DOWNLOAD}/netcdf-c-${netcdf_c_version}.tar.gz

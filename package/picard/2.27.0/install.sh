@@ -6,7 +6,7 @@ cd ${JARVIS_TMP}
 rm -rf picard
 git config --global --add core.compression -1
 git config --global http.sslVerify False
-git clone https://github.com/broadinstitute/picard.git
+git clone $JARVIS_PROXY/broadinstitute/picard.git
 cd picard
 ./gradlew shadowJar
 cp -a build/ $1
