@@ -5,6 +5,7 @@ set -e
 cd ${JARVIS_TMP}
 tar -xvf ${JARVIS_DOWNLOAD}/lapack-3.10.1.tar.gz
 cd lapack-3.10.1
+cp make.inc.example make.inc
 sed -i '9s/gcc/clang/g' ./make.inc
 sed -i '10s/$/& -march=native/g' ./make.inc
 sed -i '20s/gfortran/flang/g' ./make.inc
