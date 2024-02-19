@@ -14,8 +14,6 @@
 # 3.修改数据规模让运行总耗时在1000ms以上
 # 4.优化代码，使优化效果稳定在20%以上
 # 5.回合循环，查看加速效果
-import time
-import os
 import re
 from toolService import ToolService
 from dataService import DataService
