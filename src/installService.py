@@ -296,6 +296,7 @@ class InstallService:
         bins_dir = []
         libs_dir = []
         incs_dir = []
+        compiler_values = ''
         bins_str = ''
         libs_str = ''
         incs_str = ''
@@ -317,6 +318,12 @@ class InstallService:
             libs_str = "prepend-path    LD_LIBRARY_PATH            "+':'.join(libs_dir)
         if len(incs_dir) >= 1:
             incs_str = "prepend-path	INCLUDE	   " + ':'.join(incs_dir)
+        if "bisheng" in sname:
+              compiler_values = "setenv CC clang \nsetenv CXX clang++ \nsetenv FC flang \nsetenv F77 flang \nsetenv F90 flang "
+        elif "gcc" in sname:
+              compiler_values = "setenv CC gcc \nsetenv CXX g++ \nsetenv FC gfortran \nsetenv F77 gfortran \nsetenv F90 gfortran "
+        elif "hmpi" in sname or "openmpi" in sname:
+              compiler_values = "setenv CC mpicc \nsetenv CXX mpicxx \nsetenv FC mpifort \nsetenv F77 mpifort \nsetenv F90 mpifort "
         if self.is_mpi_software(sname):
             opal_prefix = f"setenv OPAL_PREFIX {install_path}"
         module_file_content = f'''#%Module1.0#####################################################################
@@ -324,6 +331,7 @@ set     prefix  {install_path}
 set     version			    {sversion}
 
 setenv    {sname.upper().replace('-','_')}_PATH {install_path}
+{compiler_values}
 {opal_prefix}
 {bins_str}
 {libs_str}
