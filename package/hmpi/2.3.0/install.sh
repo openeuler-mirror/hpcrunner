@@ -11,7 +11,7 @@ rm hucx-v${hmpi_version}-huawei -rf
 tar xf ${JARVIS_DOWNLOAD}/hucx-${hmpi_version}-huawei.tar.gz
 cd hucx-v${hmpi_version}-huawei
 ./autogen.sh
-./contrib/configure-opt --prefix=$1/hucx --disable-numa --enable-mt CFLAGS="-Wno-unused-but-set-variable -Wno-error=int-conversion" CXXFLAGS="-Wno-unused-but-set-variable -Wno-error=int-conversion"
+./contrib/configure-opt --prefix=$1/hucx --disable-numa --enable-mt CFLAGS="-Wno-unused-but-set-variable -Wno-error=int-conversion" CXXFLAGS="-Wno-unused-but-set-variable -Wno-error=int-conversion" LDFLAGS="-L/usr/lib64 -lbfd"
 make -j
 make -j install
 cd -
