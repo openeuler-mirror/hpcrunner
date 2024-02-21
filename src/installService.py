@@ -301,6 +301,7 @@ class InstallService:
         libs_str = ''
         incs_str = ''
         opal_prefix = ''
+        pmix_install_prefix = ''
         for file in file_list:
             if not os.path.isdir(file):
                 continue
@@ -326,6 +327,7 @@ class InstallService:
               compiler_values = "setenv CC mpicc \nsetenv CXX mpicxx \nsetenv FC mpifort \nsetenv F77 mpifort \nsetenv F90 mpifort "
         if self.is_mpi_software(sname):
             opal_prefix = f"setenv OPAL_PREFIX {install_path}"
+            pmix_install_prefix = f"setenv PMIX_INSTALL_PREFIX {install_path}"
         module_file_content = f'''#%Module1.0#####################################################################
 set     prefix  {install_path}
 set     version			    {sversion}
@@ -333,6 +335,7 @@ set     version			    {sversion}
 setenv    {sname.upper().replace('-','_')}_PATH {install_path}
 {compiler_values}
 {opal_prefix}
+{pmix_install_prefix}
 {bins_str}
 {libs_str}
 {incs_str}
