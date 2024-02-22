@@ -6,7 +6,13 @@ cd ${JARVIS_TMP}
 rm -rf lapack-3.8.0
 tar -xvf ${JARVIS_DOWNLOAD}/lapack-3.8.0.tgz
 cd lapack-3.8.0
-cp make.inc.example make.inc
-make -j
-mkdir $1/lib/
-cp *.a $1/lib/
+mkdir build
+cd build
+cmake ../ -DCMAKE_INSTALL_PREFIX=$1 -DBUILD_SHARED_LIBS=ON
+make -j $(nproc)
+make install
+ln -s $1/lib64 $1/lib
+#cp make.inc.example make.inc
+#make -j
+#mkdir $1/lib/
+#cp *.a $1/lib/
