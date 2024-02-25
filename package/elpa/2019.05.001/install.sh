@@ -30,5 +30,5 @@ fi
 
 ./configure --prefix=$1 --enable-openmp --enable-shared=no LIBS="$scalapack_path/libscalapack.a $openblas_path/libopenblas.a" --disable-sse --disable-sse-assembly --disable-avx --disable-avx2
 
-make -j
+make -j 4
 make install
