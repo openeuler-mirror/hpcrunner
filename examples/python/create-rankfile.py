@@ -6,7 +6,7 @@ def generate_rankfile(hostfile_path):
             hosts = hostfile.readlines()
             num_hosts = len(hosts)
             ranks_per_host = 64
-            for host_id, host in enumerate(hosts):
+            for host in enumerate(hosts):
                 hostname = host.strip()
                 for rank in range(ranks_per_host):
                     rank_content = f"rank {rank_id}={hostname} slot=0-63"
