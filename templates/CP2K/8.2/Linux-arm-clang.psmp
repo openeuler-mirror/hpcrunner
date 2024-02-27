@@ -39,7 +39,7 @@ DFLAGS     += -D__MPI_VERSION=3 -D__PLUMED2 -D__SPGLIB
 DFLAGS     += -D__parallel -D__SCALAPACK
 
 FCFLAGS     = $(CFLAGS) $(DFLAGS)
-FCFLAGS    += -ffree-form -ffree-line-length-none -fconvert=big-endian
+FCFLAGS    += -ffree-form -ffree-line-length-none
 FCFLAGS    += -fopenmp
 FCFLAGS    += -ftree-vectorize -funroll-loops -std=f2008
 FCFLAGS    += -I$(ELPA_INC)/elpa -I$(ELPA_INC)/modules
