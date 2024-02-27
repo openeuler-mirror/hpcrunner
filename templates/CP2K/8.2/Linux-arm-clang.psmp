@@ -11,9 +11,11 @@ GNU_PATH        = path2
 
 include       $(MPI_PATH)/plumed/2.6.2/lib/plumed/src/lib/Plumed.inc.static
 
-ELPA_VER    = 2019.05.001
+ELPA_VER    = 2020.11.001
 ELPA_INC    = $(MPI_PATH)/elpa/$(ELPA_VER)/include/elpa_openmp-$(ELPA_VER)
 ELPA_LIB    = $(MPI_PATH)/elpa/$(ELPA_VER)/lib
+
+LIBVORI     = $(GNU_PATH)/libvori/21.04.12/lib
 
 FFTW_INC    = $(MPI_PATH)/fftw/3.3.8/include
 FFTW_LIB    = $(MPI_PATH)/fftw/3.3.8/lib
@@ -21,8 +23,8 @@ FFTW_LIB    = $(MPI_PATH)/fftw/3.3.8/lib
 LIBINT_INC  = $(MPI_PATH)/libint/2.6.0/include
 LIBINT_LIB  = $(MPI_PATH)/libint/2.6.0/lib
 
-LIBXC_INC   = $(GNU_PATH)/libxc/4.3.4/include
-LIBXC_LIB   = $(GNU_PATH)/libxc/4.3.4/lib
+LIBXC_INC   = $(GNU_PATH)/libxc/5.1.4/include
+LIBXC_LIB   = $(GNU_PATH)/libxc/5.1.4/lib
 
 SPGLIB_INC  = $(GNU_PATH)/spglib/1.16.0/include
 SPGLIB_LIB  = $(GNU_PATH)/spglib/1.16.0/lib64
@@ -30,14 +32,14 @@ SPGLIB_LIB  = $(GNU_PATH)/spglib/1.16.0/lib64
 #LIBXSMM_INC = $(GNU_PATH)/libxsmm/1.14/include
 #LIBXSMM_LIB = $(GNU_PATH)/libxsmm/1.14/lib
 
-CFLAGS      = -O2 -g -mtune=native
+CFLAGS      = -O2 -g -mtune=native -fopenmp
 
 DFLAGS      = -D__FFTW3 -D__LIBINT -D__LIBXC -D__ELPA  #-D__LIBXSMM -D__ELPA
 DFLAGS     += -D__MPI_VERSION=3 -D__PLUMED2 -D__SPGLIB
 DFLAGS     += -D__parallel -D__SCALAPACK
 
 FCFLAGS     = $(CFLAGS) $(DFLAGS)
-FCFLAGS    += -ffree-form -ffree-line-length-none
+FCFLAGS    += -ffree-form -ffree-line-length-none -fconvert=big-endian
 FCFLAGS    += -fopenmp
 FCFLAGS    += -ftree-vectorize -funroll-loops -std=f2008
 FCFLAGS    += -I$(ELPA_INC)/elpa -I$(ELPA_INC)/modules
@@ -46,6 +48,7 @@ FCFLAGS    += -I$(FFTW_INC) -I$(LIBINT_INC) -I$(LIBXC_INC) #-I$(LIBXSMM_INC)
 LDFLAGS     = $(FCFLAGS) -static-libgfortran
 
 LIBS        = $(PLUMED_DEPENDENCIES) -L$(GNU_PATH)/gsl/2.6/lib/ -lgsl -lgslcblas -lz
+LIBS       += $(LIBVORI)/libvori.a
 LIBS       += $(ELPA_LIB)/libelpa_openmp.a
 LIBS       += $(LIBXC_LIB)/libxcf03.a
 LIBS       += $(LIBXC_LIB)/libxc.a
@@ -53,7 +56,7 @@ LIBS       += $(LIBINT_LIB)/libint2.a
 LIBS       += $(SPGLIB_LIB)/libsymspg.a
 LIBS       += $(FFTW_LIB)/libfftw3.a
 LIBS       += $(FFTW_LIB)/libfftw3_threads.a
-LIBS       += $(MPI_PATH)/scalapack-lapack-bisheng/2.1.0/lib/libscalapack.a
+LIBS       += $(MPI_PATH)/scalapack-clang/2.1.0/lib/libscalapack.a
 LIBS       += $(GNU_PATH)/lapack-bisheng/3.8.0/lib/liblapack.a
 LIBS       += $(GNU_PATH)/lapack-bisheng/3.8.0/lib/librefblas.a
 LIBS       += -ldl -lpthread -lstdc++
