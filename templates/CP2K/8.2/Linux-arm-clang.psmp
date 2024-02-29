@@ -32,7 +32,7 @@ SPGLIB_LIB  = $(GNU_PATH)/spglib/1.16.0/lib64
 #LIBXSMM_INC = $(GNU_PATH)/libxsmm/1.14/include
 #LIBXSMM_LIB = $(GNU_PATH)/libxsmm/1.14/lib
 
-CFLAGS      = -O2 -g -mtune=native -Mbackslash -Hx,2,0x400000
+CFLAGS      = -O2 -g -mtune=native -fopenmp -Mbackslash -Hx,2,0x400000
 
 DFLAGS      = -D__FFTW3 -D__LIBINT -D__LIBXC -D__ELPA  #-D__LIBXSMM -D__ELPA
 DFLAGS     += -D__MPI_VERSION=3 -D__PLUMED2 -D__SPGLIB
