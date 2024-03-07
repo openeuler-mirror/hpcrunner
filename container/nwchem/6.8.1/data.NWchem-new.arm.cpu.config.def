@@ -46,7 +46,7 @@ From: helloxusuo/repo/base:oe2203sp2
     # run hpc
     ./jarvis -r
     # clean tmp directory
-    rm -rf  downloads
+    rm  downloads/* tmp/nwchem-6.8.1-release/src/tools/ga-5.6.5.tar.gz -rf
 
     
 %labels
