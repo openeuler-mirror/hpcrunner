@@ -1,0 +1,38 @@
+--- OpenFOAM-v1906.bak/src/OpenFOAM/db/IOstreams/memory/IListStream.H	2019-11-08 01:12:53.000000000 +0800
++++ OpenFOAM-v1906/src/OpenFOAM/db/IOstreams/memory/IListStream.H	2024-01-16 14:31:40.575241000 +0800
+@@ -115,7 +115,7 @@
+             reset_gbuffer();
+         }
+ 
+-        //- Transfer contents to other list
++        //- Transfer contents to other List
+         inline void swap(List<char>& list)
+         {
+             List<char>::swap(list);
+@@ -128,7 +128,7 @@
+ 
+ /*---------------------------------------------------------------------------*\
+                          Class IListStream Declaration
+-\*----------------------------------------------d-----------------------------*/
++\*---------------------------------------------------------------------------*/
+ 
+ //- An ISstream with internal List storage
+ class IListStream
+@@ -158,7 +158,7 @@
+         //- Move construct from List
+         IListStream
+         (
+-            List<char>&& buffer,
++	    ::Foam::List<char>&& buffer, // Fully qualify (issue #1521)
+             streamFormat format=ASCII,
+             versionNumber version=currentVersion,
+             const Foam::string& name="input"
+@@ -184,7 +184,7 @@
+         {}
+ 
+ 
+-    // Member functions
++    // Member Functions
+ 
+         //- The current get position in the buffer
+         using allocator_type::size;
