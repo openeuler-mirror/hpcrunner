@@ -1,0 +1,3 @@
+功能：应用运行前的集群环境检查
+操作：
+clush --hostfile hostfile ./envcheck.sh
