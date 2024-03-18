@@ -29,7 +29,7 @@
 # First the defaults
 #
                FC := mpifort
-           FFLAGS := -frepack-arrays -fvectorize -funroll-loops -mllvm -unroll-indirect-loads=true -mcpu=tsv110 -mllvm -prefetch-loop-depth=3 -mllvm -min-prefetch-stride=4 -mllvm -prefetch-distance=1600 -fstack-arrays -lstringlib -Wl,--wrap=memset -Wl,--wrap=memcpy -ljemalloc
+           FFLAGS := -mcpu=tsv110 -Wl, -O3 -w
        FIXEDFLAGS := -ffixed-form
         FREEFLAGS := -ffree-form -ffree-line-length-none
               CPP := /usr/bin/cpp
@@ -40,7 +40,7 @@
              LIBS := $(SCRATCH_DIR)/libNLM.a         # cyclic dependencies
        MOD_SUFFIX := mod
                LD := $(FC)
-          LDFLAGS := -lstringlib -Wl,--wrap=memset -Wl,--wrap=memcpy -ljemalloc
+          LDFLAGS :=
                AR := ar
           ARFLAGS := -r
             MKDIR := mkdir -p
@@ -170,7 +170,7 @@ ifdef USE_SCORPIO
 endif
 
 ifdef USE_NETCDF4
-        NF_CONFIG ?= nf-config
+        NF_CONFIG ?= $(NETCDF_CLANG_PATH)/bin/nf-config
     NETCDF_INCDIR ?= $(shell $(NF_CONFIG) --prefix)/include
              LIBS += $(shell $(NF_CONFIG) --flibs)
            INCDIR += $(NETCDF_INCDIR) $(INCDIR)
@@ -185,8 +185,8 @@ endif
 ifdef USE_HDF5
 #     HDF5_INCDIR ?= /opt/gfortransoft/serial/hdf5/include
 #     HDF5_LIBDIR ?= /opt/gfortransoft/serial/hdf5/lib
-      HDF5_INCDIR ?= $(HDF5_INC)
-      HDF5_LIBDIR ?= $(HDF5_LIBDIR)
+      HDF5_INCDIR ?= $(HDF5_CLANG_PATH)/include
+      HDF5_LIBDIR ?= $(HDF5_CLANG_PATH)/lib
         HDF5_LIBS ?= -lhdf5_fortran -lhdf5hl_fortran -lhdf5 -lz
              LIBS += -L$(HDF5_LIBDIR) $(HDF5_LIBS)
            INCDIR += $(HDF5_INCDIR)
@@ -204,7 +204,7 @@ endif
 ifdef USE_MPI
          CPPFLAGS += -DMPI
  ifdef USE_MPIF90
-               FC := mpif90
+               FC := mpifort
  else
              LIBS += -lfmpi -lmpi
  endif
