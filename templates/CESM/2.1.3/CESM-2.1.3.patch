@@ -1,0 +1,117 @@
+diff -uprN CESM-release-cesm2.1.3/cime/config/cesm/machines/config_compilers.xml CESM-release-cesm2.1.3_1/cime/config/cesm/machines/config_compilers.xml
+--- CESM-release-cesm2.1.3/cime/config/cesm/machines/config_compilers.xml	2023-08-01 11:02:27.000000000 +0800
++++ CESM-release-cesm2.1.3_1/cime/config/cesm/machines/config_compilers.xml	2024-03-11 10:38:25.077406000 +0800
+@@ -1273,9 +1273,9 @@ using a fortran linker.
+   </SLIBS>
+ </compiler>
+ 
+-<compiler COMPILER="gnu" MACH="openeuler">
++<compiler MACH="openeuler" COMPILER="gnu">
+   <CFLAGS>
+-    <base> -std=gnu99 -O3 -mcpu=tsv110 </base>
++    <base> -std=gnu99 -O3 -mcpu=linxicore9100 -mllvm -force-customized-pipeline=true </base>
+     <append compile_threaded="true"> -fopenmp </append>
+     <append DEBUG="TRUE">  -mllvm -alias-set-saturation-threshold=10000 </append>
+     <append DEBUG="FALSE">  -mllvm -alias-set-saturation-threshold=10000 </append>
+@@ -1291,7 +1291,7 @@ using a fortran linker.
+   <FFLAGS>
+     <!-- -ffree-line-length-none and -ffixed-line-length-none need to be in FFLAGS rather than in FIXEDFLAGS/FREEFLAGS
+        so that these are passed to cmake builds (cmake builds don't use FIXEDFLAGS and FREEFLAGS). -->
+-    <base> -mno-fcmla -fconvert=big-endian -O3 -mcpu=tsv110 -Hx,54,0x08  -Hx,54,0x800 -Mx,54,0x1000 -mllvm -alias-set-saturation-threshold=10000 -lstringlib -Wl,--wrap=memcpy -Wl,--wrap=memset -I/workspace/public/software/libs/netcdf/netcdf_c_4.7.4_fortran_4.5.3/bisheng2.5.0_hmpi1.2.0/include -I/workspace/public/software/libs/pnetcdf/1.12.1/bisheng2.5.0_hmpi1.2.0/include -I/workspace/public/software/libs/hdf5/1.12.0/bisheng2.5.0_hmpi1.2.0/include -I/workspace/public/software/libs/kml/1.6.0/include -I./ -I../ </base>
++    <base> -mno-fcmla -fconvert=big-endian -O3 -mcpu=linxicore9100 -mllvm -force-customized-pipeline=true -Hx,54,0x08  -Hx,54,0x800 -Mx,54,0x1000 -mllvm -alias-set-saturation-threshold=10000 -lstringlib -Wl,--wrap=memcpy -Wl,--wrap=memset -I/hpcrunner/software/libs/bisheng3.2.0/hmpi2.3.0/netcdf-clang/4.8.1/include -I/hpcrunner/software/libs/bisheng3.2.0/hmpi2.3.0/pnetcdf/1.12.1/include -I/hpcrunner/software/libs/bisheng3.2.0/hmpi2.3.0/hdf5-clang/1.12.0/include -I/hpcrunner/software/libs/bisheng3.2.0/kml-bisheng/2.2.0/include -I./ -I../ </base>
+     <append compile_threaded="true"> -fopenmp </append>
+     <!-- Ideally, we would also have 'invalid' in the ffpe-trap list. But at
+          least with some versions of gfortran (confirmed with 5.4.0, 6.3.0 and
+@@ -1312,7 +1312,7 @@ using a fortran linker.
+   </FREEFLAGS>
+   <HAS_F2008_CONTIGUOUS>FALSE</HAS_F2008_CONTIGUOUS>
+   <LDFLAGS>
+-    <append compile_threaded="true"> -fopenmp  -L/workspace/public/software/libs/netcdf/netcdf_c_4.7.4_fortran_4.5.3/bisheng2.5.0_hmpi1.2.0/lib -L/workspace/public/software/libs/pnetcdf/1.12.1/bisheng2.5.0_hmpi1.2.0/lib -L/workspace/public/software/libs/hdf5/1.12.0/bisheng2.5.0_hmpi1.2.0/lib -L/workspace/public/software/libs/kml/1.7.0_lapack3.10.1_scalapack2.2.0/lib -L/workspace/public/software/libs/kml/1.7.0_lapack3.10.1_scalapack2.2.0/lib/kblas/omp -lkblas -lklapack_full -lnetcdff -lnetcdf -lpnetcdf -lhdf5_hl -lhdf5 -lm -lz </append>
++    <append compile_threaded="true"> -fopenmp  -L/hpcrunner/software/libs/bisheng3.2.0/hmpi2.3.0/netcdf-clang/4.8.1/lib -L/hpcrunner/software/libs/bisheng3.2.0/hmpi2.3.0/pnetcdf/1.12.1/lib -L/hpcrunner/software/libs/bisheng3.2.0/hmpi2.3.0/hdf5-clang/1.12.0/lib -L/hpcrunner/software/libs/bisheng3.2.0/kml-bisheng/2.2.0/lib -L/hpcrunner/software/libs/bisheng3.2.0/kml-bisheng/2.2.0/lib/kblas/omp -lkblas -lklapack_full -lnetcdff -lnetcdf -lpnetcdf -lhdf5_hl -lhdf5 -lm -lz </append>
+   </LDFLAGS>
+   <MPICC> mpicc  </MPICC>
+   <MPICXX> mpicxx </MPICXX>
+@@ -1322,7 +1322,7 @@ using a fortran linker.
+   <SFC> flang </SFC>
+   <SUPPORTS_CXX>TRUE</SUPPORTS_CXX>
+   <SLIBS>
+-      <append> -L/workspace/public/software/libs/netcdf/netcdf_c_4.7.4_fortran_4.5.3/bisheng2.5.0_hmpi1.2.0/lib -L/workspace/public/software/libs/pnetcdf/1.12.1/bisheng2.5.0_hmpi1.2.0/lib -L/workspace/public/software/libs/hdf5/1.12.0/bisheng2.5.0_hmpi1.2.0/lib -L/workspace/public/software/libs/kml/1.7.0_lapack3.10.1_scalapack2.2.0/lib -L/workspace/public/software/libs/kml/1.7.0_lapack3.10.1_scalapack2.2.0/lib/kblas/omp -lkblas -lklapack_full -lnetcdff -lnetcdf -lpnetcdf -lhdf5_hl -lhdf5 -lm -lz </append>
++      <append> -L/hpcrunner/software/libs/bisheng3.2.0/hmpi2.3.0/netcdf-clang/4.8.1/lib -L/hpcrunner/software/libs/bisheng3.2.0/hmpi2.3.0/pnetcdf/1.12.1/lib -L/hpcrunner/software/libs/bisheng3.2.0/hmpi2.3.0/hdf5-clang/1.12.0/lib -L/hpcrunner/software/libs/bisheng3.2.0/kml-bisheng/2.2.0/lib -L/hpcrunner/software/libs/bisheng3.2.0/kml-bisheng/2.2.0/lib/kblas/omp -lkblas -lklapack_full -lnetcdff -lnetcdf -lpnetcdf -lhdf5_hl -lhdf5 -lm -lz </append>
+   </SLIBS>
+ </compiler>
+ 
+diff -uprN CESM-release-cesm2.1.3/cime/config/cesm/machines/config_machines.xml CESM-release-cesm2.1.3_1/cime/config/cesm/machines/config_machines.xml
+--- CESM-release-cesm2.1.3/cime/config/cesm/machines/config_machines.xml	2023-07-07 16:36:49.000000000 +0800
++++ CESM-release-cesm2.1.3_1/cime/config/cesm/machines/config_machines.xml	2024-03-11 14:46:00.188891000 +0800
+@@ -2499,21 +2499,21 @@ This allows using a different mpirun com
+       Example port to centos7 linux system with gcc, netcdf, pnetcdf and mpich
+       using modules from http://www.admin-magazine.com/HPC/Articles/Environment-Modules
+     </DESC>
+-    <NODENAME_REGEX>DC5-19-002</NODENAME_REGEX>
++    <NODENAME_REGEX>DC5-19-004</NODENAME_REGEX>
+     <OS>LINUX</OS>
+     <PROXY> https://howto.get.out </PROXY>
+     <COMPILERS>gnu</COMPILERS>
+     <MPILIBS>openmpi</MPILIBS>
+     <PROJECT>none</PROJECT>
+     <SAVE_TIMING_DIR> </SAVE_TIMING_DIR>
+-    <CIME_OUTPUT_ROOT>/workspace/home/jcyz/tezhandui/cesm/scratch</CIME_OUTPUT_ROOT>
+-    <DIN_LOC_ROOT>/workspace/home/jcyz/tezhandui/cesm/inputdata</DIN_LOC_ROOT>
+-    <DIN_LOC_ROOT_CLMFORC>/workspace/home/jcyz/tezhandui/cesminputdata/lmwg</DIN_LOC_ROOT_CLMFORC>
+-    <DOUT_S_ROOT>/workspace/home/jcyz/tezhandui/cesm/archive/$CASE</DOUT_S_ROOT>
+-    <BASELINE_ROOT>/workspace/home/jcyz/tezhandui/cesm/cesm_baselines</BASELINE_ROOT>
+-    <CCSM_CPRNC>/workspace/home/jcyz/tezhandui/cesm/tools/cime/tools/cprnc/cprnc</CCSM_CPRNC>
++    <CIME_OUTPUT_ROOT>/hpcrunner/CESM-release-cesm2.1.3/cesm/scratch</CIME_OUTPUT_ROOT>
++    <DIN_LOC_ROOT>/hpcrunner/CESM-release-cesm2.1.3/cesm/inputdata</DIN_LOC_ROOT>
++    <DIN_LOC_ROOT_CLMFORC>/hpcrunner/CESM-release-cesm2.1.3/cesm/inputdata/lmwg</DIN_LOC_ROOT_CLMFORC>
++    <DOUT_S_ROOT>/hpcrunner/CESM-release-cesm2.1.3/cesm/archive/$CASE</DOUT_S_ROOT>
++    <BASELINE_ROOT>/hpcrunner/CESM-release-cesm2.1.3/cesm/cesm_baselines</BASELINE_ROOT>
++    <CCSM_CPRNC>/hpcrunner/CESM-release-cesm2.1.3/cesm/tools/cime/tools/cprnc/cprnc</CCSM_CPRNC>
+     <GMAKE>make</GMAKE>
+-    <GMAKE_J>8</GMAKE_J>
++    <GMAKE_J>32</GMAKE_J>
+     <BATCH_SYSTEM>none</BATCH_SYSTEM>
+     <SUPPORTED_BY>me@my.address</SUPPORTED_BY>
+     <MAX_TASKS_PER_NODE>128</MAX_TASKS_PER_NODE>
+@@ -2522,7 +2522,7 @@ This allows using a different mpirun com
+     <mpirun mpilib="default">
+       <executable>mpirun</executable>
+       <arguments>
+-        <arg name="ntasks"> --allow-run-as-root -x PATH -x LD_LIBRARY_PATH -np {{ total_tasks }}  $CCS_MPI_OPTIONS  </arg>
++        <arg name="ntasks"> --allow-run-as-root --mca btl ^openib -np {{ total_tasks }} </arg>
+       </arguments>
+     </mpirun>
+     <module_system type="module" allow_error="true">
+@@ -2537,21 +2537,20 @@ This allows using a different mpirun com
+       <modules>
+         <command name="purge"/>
+       </modules>
+-      <modules compiler="gnu">	
+-	<command name="load">/workspace/public/software/modules/compilers/bisheng/2.5.0/bisheng2.5.0</command>
+-	<command name="load">/workspace/public/software/modules/mpi/hmpi/1.2.0/bisheng2.5.0</command>
+-	<command name="load">/workspace/public/software/modules/libs/hdf5/1.12.0/bisheng2.5.0_hmpi1.2.0</command>
+-	<command name="load">/workspace/public/software/modules/libs/netcdf/netcdf_c_4.7.4_fortran_4.5.3/bisheng2.5.0_hmpi1.2.0</command>
+-	<command name="load">/workspace/public/software/modules/libs/pnetcdf/1.12.1/bisheng2.5.0_hmpi1.2.0</command>
+-	<command name="load">/workspace/public/software/modules/libs/kml/1.7.0/kml_1.7.0_lapack3.10.1_scalapack2.2.0_bisheng2.4.0</command>
++      <modules compiler="gnu">
++        <command name="load">/hpcrunner/software/modulefiles/bisheng/3.2.0-mini</command>
++        <command name="load">/hpcrunner/software/moduledeps/bisheng3.2.0/hmpi/2.3.0</command>
++        <command name="load">/hpcrunner/software/moduledeps/bisheng3.2.0-hmpi2.3.0/netcdf-clang/4.8.1</command>
++        <command name="load">/hpcrunner/software/moduledeps/bisheng3.2.0-hmpi2.3.0/pnetcdf/1.12.1</command>
++        <command name="load">/hpcrunner/software/moduledeps/bisheng3.2.0-hmpi2.3.0/hdf5-clang/1.12.0</command>
++        <command name="load">/hpcrunner/software/moduledeps/bisheng3.2.0/kml-bisheng/2.2.0</command>
+       </modules>
+     </module_system>
+     <environment_variables>
+-	    <env name="OMP_STACKSIZE">256M</env>
+-	    <env name="NETCDF_PATH">/workspace/public/software/libs/netcdf/netcdf_c_4.7.4_fortran_4.5.3/bisheng2.5.0_hmpi1.2.0</env>
+-	    <env name="HDF5_PATH">/workspace/public/software/libs/hdf5/1.12.0/bisheng2.5.0_hmpi1.2.0</env>
+-	    <env name="PNETCDF_PATH">/workspace/public/software/libs/pnetcdf/1.12.1/bisheng2.5.0_hmpi1.2.0</env>
+-	    <env name="KML_PATH">/workspace/public/software/libs/kml/1.7.0_lapack3.10.1_scalapack2.2.0</env>
++      <env name="OMP_STACKSIZE">256M</env>
++      <env name="NETCDF_PATH">/hpcrunner/software/libs/bisheng3.2.0/hmpi2.3.0/netcdf-clang/4.8.1</env>
++      <env name="HDF5_PATH">/hpcrunner/software/libs/bisheng3.2.0/hmpi2.3.0/hdf5-clang/1.12.0</env>
++      <env name="PNETCDF_PATH">/hpcrunner/software/libs/bisheng3.2.0/hmpi2.3.0/pnetcdf/1.12.1</env>
+     </environment_variables>
+     <resource_limits>
+       <resource name="RLIMIT_STACK">-1</resource>
