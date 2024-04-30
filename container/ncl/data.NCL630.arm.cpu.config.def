@@ -46,7 +46,7 @@ From: helloxusuo/repo/base:oe2203sp2
     ./jarvis -e
     ./jarvis -r
     # clean tmp directory
-    rm -rf  downloads/* /hpcrunner/ncl_ncarg-6.3.0
+    rm -rf  downloads/* /hpcrunner/ncl_ncarg-6.3.0 /hpcrunner/tmp/*
 
     
 %labels
