@@ -1,0 +1,53 @@
+BootStrap: library
+From: helloxusuo/repo/base:oe2203sp2 
+
+%environment
+    source /etc/profile || true
+    source /etc/profile.d/modules.sh
+    cd /hpcrunner
+    source env.sh
+
+%post
+    # Install the necessary development environment
+    #yum install -y environment-modules git dmidecode pciutils wget vim unzip curl zlib zlib-devel
+    # Install base gcc
+    #yum install -y gcc gcc-c++ gcc-gfortran glibc-devel make libgfortran cmake
+    # install network package
+    #yum install -y flex tcsh tcl lsof tk bc
+    
+    cd /hpcrunner
+    mkdir templates/ncl/6.3.0/ -p
+    git init
+    git config --global http.sslVerify false
+    git status
+    
+    #git pull https://gitee.com/openeuler/hpcrunner
+    mkdir tmpppp
+    cd tmpppp
+    git clone -b container https://gitee.com/chenshaoheng/hpcrunner.git
+    cp hpcrunner/templates/ncl/6.3.0/data.NCL.arm-container-bisheng-sve.cpu.config /hpcrunner/templates/ncl/6.3.0  -f
+    cp hpcrunner/templates/ncl/6.3.0/Site.local /hpcrunner/templates/ncl/6.3.0  -f
+    mkdir /hpcrunner/package/hdf5/1.8.20/clang -p
+    cp hpcrunner/package/hdf5/1.8.20/clang/install.sh /hpcrunner/package/hdf5/1.8.20/clang
+    cd -
+    rm tmpppp -rf
+    source ./init.sh
+    # add your personal files here
+    
+    # Switch config
+    ./jarvis -use templates/ncl/6.3.0/data.NCL.arm-container-bisheng-sve.cpu.config
+    # download dependency
+    ./jarvis -d
+    # install dependency
+    ./jarvis -dp
+    # build hpc
+    ./jarvis -b
+    # run hpc
+    ./jarvis -e
+    ./jarvis -r
+    # clean tmp directory
+    rm -rf  downloads/* /hpcrunner/ncl_ncarg-6.3.0
+
+    
+%labels
+    Author chen

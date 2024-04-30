@@ -1,0 +1,56 @@
+--- src/basic/accel_inc.F90	2022-01-28 03:22:53.000000000 +0800
++++ src/basic/accel_inc.F90	2024-04-28 11:01:31.926887000 +0800
+@@ -70,7 +70,7 @@ subroutine X(accel_write_buffer_1)(this,
+     if (ierr /= CL_SUCCESS) call opencl_print_error(ierr, "EnqueueWriteBuffer")
+ #endif
+ #ifdef HAVE_CUDA
+-    call cuda_memcpy_htod(this%mem, data(1), fsize, offset_, async_)
++    call cuda_memcpy_htod(this%mem, c_loc(data(1)), fsize, offset_, async_)
+ #endif
+ 
+     call profiling_count_transfers(size, data(1))
+@@ -117,7 +117,7 @@ subroutine X(accel_write_buffer_2)(this,
+     if (ierr /= CL_SUCCESS) call opencl_print_error(ierr, "EnqueueWriteBuffer")
+ #endif
+ #ifdef HAVE_CUDA
+-    call cuda_memcpy_htod(this%mem, data(1, 1), fsize, offset_, async_)
++    call cuda_memcpy_htod(this%mem, c_loc(data(1, 1)), fsize, offset_, async_)
+ #endif
+ 
+     call profiling_count_transfers(size, data(1, 1))
+@@ -164,7 +164,7 @@ subroutine X(accel_write_buffer_3)(this,
+     if (ierr /= CL_SUCCESS) call opencl_print_error(ierr, "EnqueueWriteBuffer")
+ #endif
+ #ifdef HAVE_CUDA
+-    call cuda_memcpy_htod(this%mem, data(1, 1, 1), fsize, offset_, async_)
++    call cuda_memcpy_htod(this%mem, c_loc(data(1, 1, 1)), fsize, offset_, async_)
+ #endif
+ 
+     call profiling_count_transfers(size, data(1, 1, 1))
+@@ -211,7 +211,7 @@ subroutine X(accel_read_buffer_1)(this,
+     if (ierr /= CL_SUCCESS) call opencl_print_error(ierr, "EnqueueReadBuffer")
+ #endif
+ #ifdef HAVE_CUDA
+-    call cuda_memcpy_dtoh(this%mem, data(1), fsize, offset_, async_)
++    call cuda_memcpy_dtoh(this%mem, c_loc(data(1)), fsize, offset_, async_)
+ #endif
+ 
+     call profiling_count_transfers(size, data(1))
+@@ -258,7 +258,7 @@ subroutine X(accel_read_buffer_2)(this,
+     if (ierr /= CL_SUCCESS) call opencl_print_error(ierr, "EnqueueReadBuffer")
+ #endif
+ #ifdef HAVE_CUDA
+-    call cuda_memcpy_dtoh(this%mem, data(1, 1), fsize, offset_, async_)
++    call cuda_memcpy_dtoh(this%mem,c_loc(data(1, 1)), fsize, offset_, async_)
+ #endif
+ 
+     call profiling_count_transfers(size, data(1, 1))
+@@ -305,7 +305,7 @@ subroutine X(accel_read_buffer_3)(this,
+     if (ierr /= CL_SUCCESS) call opencl_print_error(ierr, "EnqueueReadBuffer")
+ #endif
+ #ifdef HAVE_CUDA
+-    call cuda_memcpy_dtoh(this%mem, data(1, 1, 1), fsize, offset_, async_)
++    call cuda_memcpy_dtoh(this%mem, c_loc(data(1, 1, 1)), fsize, offset_, async_)
+ #endif
+ 
+     call profiling_count_transfers(size, data(1, 1, 1))

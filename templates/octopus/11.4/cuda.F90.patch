@@ -1,0 +1,20 @@
+--- src/basic/cuda.F90	2022-01-28 03:22:53.000000000 +0800
++++ src/basic/cuda.F90	2024-04-28 10:55:46.703086000 +0800
+@@ -296,7 +296,7 @@ module cuda_oct_m
+       implicit none
+ 
+       type(c_ptr),     intent(inout) :: cuda_ptr
+-      type(*),         intent(in)    :: data
++      type(c_ptr),         intent(in)    :: data
+       integer(8),      intent(in)    :: size
+       integer(8),      intent(in)    :: offset
+       logical(c_bool), intent(in)    :: async
+@@ -309,7 +309,7 @@ module cuda_oct_m
+       implicit none
+ 
+       type(c_ptr),     intent(inout) :: cuda_ptr
+-      type(*),         intent(inout) :: data
++      type(c_ptr),         intent(inout) :: data
+       integer(8),      intent(in)    :: size
+       integer(8),      intent(in)    :: offset
+       logical(c_bool), intent(in)    :: async

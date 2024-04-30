@@ -1,0 +1,11 @@
+--- src/main/run.F90	2022-01-28 03:22:53.000000000 +0800
++++ src/main/run.F90	2024-04-28 11:30:35.229811000 +0800
+@@ -270,7 +270,7 @@ contains
+     end select
+ 
+     ! Finalize systems
+-    SAFE_DEALLOCATE_P(systems)
++    !SAFE_DEALLOCATE_P(systems)
+ 
+     call fft_all_end()
+ 
