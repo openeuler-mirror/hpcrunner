@@ -42,7 +42,7 @@ From: helloxusuo/repo/base:oe2203sp2
     ./jarvis -e
     ./jarvis -r
     # clean tmp directory
-    rm -rf  downloads/* /hpcrunner/octopus-11.4 
+    rm -rf  downloads/* /hpcrunner/octopus-11.4 /hpcrunner/tmp/*  
 
     
 %labels
