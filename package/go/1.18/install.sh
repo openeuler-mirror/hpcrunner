@@ -10,4 +10,4 @@ else
     file_name='go1.18.linux-amd64'
 fi
 . ${DOWNLOAD_TOOL} -u  https://go.dev/dl/${file_name}.tar.gz
-tar -xzvf ${JARVIS_DOWNLOAD}/${file_name} -C $1
+tar -xzvf ${JARVIS_DOWNLOAD}/${file_name}.tar.gz -C $1
