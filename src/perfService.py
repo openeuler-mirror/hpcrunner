@@ -67,16 +67,16 @@ python3 {kperf_script} --rawdata --hotfunc --topdown --cache --tlb --imix {DataS
         return re.sub(' |:', '-', self.tool.get_time_stamp())
 
     def gpu_perf(self):
-        print(f"start gpu perf")
-        run_cmd = self.hpc_data.get_run()
-        nsys_para = '-y 5s -d 100s'
-        if DataService.nsys_para != '':
-            nsys_para = DataService.nsys_para
-        gperf_cmd = f'''
-{self.hpc_data.get_env()}
-cd {DataService.case_dir}
-nsys profile {nsys_para} -o nsys-{self.get_arch()}-{self.get_cur_time()} {run_cmd}
-'''
+        print("start gpu perf")  
+        run_cmd = self.hpc_data.get_run()  
+        env_cmd = self.hpc_data.get_env()  
+        nsys_para = '-y 5s -d 100s'  
+        if DataService.nsys_para:  
+            nsys_para = DataService.nsys_para  
+        
+        output_file = f"nsys-{self.get_arch()}-{self.get_cur_time()}"  
+        gperf_cmd = f"{env_cmd}\ncd {DataService.case_dir}\nnsys profile {nsys_para} -o {output_file} {run_cmd}"  
+        
         self.exe.exec_raw(gperf_cmd)
 
     def ncu_perf(self, kernel):
