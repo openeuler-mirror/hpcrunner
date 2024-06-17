@@ -1,6 +1,6 @@
 
 
-# 精度分析库libcruiser.so
+# 悟合精度分析库libcruiser.so
 
 ### 工具简介
 
@@ -325,15 +325,15 @@ subroutine function
 	real :: param2
 	double :: param3(:)
 		...
-    call hash(&param1, correct("param1", kind(param1), 1, correct("/path/to/source.F90|function|call function1|START|8"), -1)
-    call hash(&param3, correct("param3", kind(param3), size(param3), "/path/to/source.F90|function|call function1|START|9"), -1)
+    call hash(&param1, correct("param1"), kind(param1), 1, correct("/path/to/source.F90|function|call function1|START|8"), -1)
+    call hash(&param3, correct("param3"), kind(param3), size(param3), "/path/to/source.F90|function|call function1|START|9"), -1)
 	call function(param1, param3)
-	call hash(&param1, correct("param1", kind(param1), 1, correct("/path/to/source.F90|function|call function1|END|11"), -1)
-    call hash(&param3, correct("param3", kind(param3), size(param3), correct("/path/to/source.F90|function|call function1|END|12"), -1)
+	call hash(&param1, correct("param1"), kind(param1), 1, correct("/path/to/source.F90|function|call function1|END|11"), -1)
+    call hash(&param3, correct("param3"), kind(param3), size(param3), correct("/path/to/source.F90|function|call function1|END|12"), -1)
 		...
-	call hash(&param1, correct("param1", kind(param1), 1, correct("/path/to/source.F90|function|assign param2|START|14"), -1)
+	call hash(&param1, correct("param1"), kind(param1), 1, correct("/path/to/source.F90|function|assign param2|START|14"), -1)
 	param2 = call function2()
-	call hash(&param1, correct("param1", kind(param1), 1, correct("/path/to/source.F90|function|assign param2|START|16"), -1)
+	call hash(&param1, correct("param1"), kind(param1), 1, correct("/path/to/source.F90|function|assign param2|START|16"), -1)
 		...
 end subroutine function
 
