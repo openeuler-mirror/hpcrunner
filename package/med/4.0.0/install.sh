@@ -14,7 +14,7 @@ hdf5_ver=`awk '{print $3}' hdf5_ver.txt`
 ver1=$(echo $hdf5_ver | cut -d'.' -f1)
 ver2=$(echo $hdf5_ver | cut -d'.' -f2)
 ver3=$(echo $hdf5_ver | cut -d'.' -f3)
-if [[ "$HDF5_DIR" &&  $ver1 -eq 1 && $ver2 -eq 10 && $ver3 -ge 2 ]]; then
+if [[ "$HDF5_DIR" &&  $ver1 -eq 1 && $ver2 -eq 10 && $ver3 -eq 3 ]]; then
     echo "The HDF5 environment variable is ready"
 else
     echo "The HDF5_DIR environment variable does not exist or the version does not match, please make sure that it is configured correctly"
