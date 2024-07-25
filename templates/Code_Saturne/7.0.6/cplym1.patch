@@ -1,0 +1,149 @@
+--- cplym1.f90	2023-05-10 16:03:43.000000000 +0800
++++ cplym1.f90	2024-07-25 15:28:18.616509346 +0800
+@@ -170,16 +170,16 @@ double precision ai(ngazem)  , bi(ngazem
+ double precision anu1 , anu2 , anu3
+ double precision s1, s2, s3, sm1, sm2
+ double precision den1   , den2   , somm
+-#ifdef DEBUG
++!#ifdef DEBUG
+ double precision sommf  , mom0   , mom1   , mom2
+-#endif
++!#endif
+ double precision zchx10 , zchx20 , zco0   , zco20
+ double precision zn20   , zh2o0  , zo20
+ double precision ychx10 , ychx20
+-#ifdef DEBUG
++!#ifdef DEBUG
+ double precision yco0   , yco20
+ double precision yn20   , yh2o0  , yo20
+-#endif
++!#endif
+ double precision zchx11 , zchx21 , zco1   , zco21
+ double precision zn21   , zh2o1  , zo21
+ double precision zchx12 , zchx22 , zco2   , zco22
+@@ -359,7 +359,7 @@ do iel = 1, ncel
+     zco20   = zero
+     zh2o0   = zero
+ ! ---- Test
+-#ifdef DEBUG
++!#ifdef DEBUG
+     ychx10  = zchx10*wmchx1
+     ychx20  = zchx20*wmchx2
+     yco0    = zco0 * wmco
+@@ -377,7 +377,7 @@ do iel = 1, ncel
+       write(NFECRA,*) 'F3M',F3M(IEL)
+       write(NFECRA,*) 'F4M',F4M(IEL)
+     endif
+-#endif
++!#endif
+ ! ---- Fin test
+ 
+ ! --> Calcul de la composition du melange
+@@ -421,7 +421,7 @@ do iel = 1, ncel
+     xiner(iel) = zn23   * wmn2
+ 
+ ! ---- Test
+-#ifdef DEBUG
++!#ifdef DEBUG
+     somm = fuel1(iel) + fuel2(iel) + fuel3(iel)                   &
+          + prod1(iel) + prod2(iel)                                &
+          + oxyd(iel)  + xiner(iel)
+@@ -461,7 +461,7 @@ do iel = 1, ncel
+       write(NFECRA,*) 'Prod2',PROD2(IEL)
+       write(NFECRA,*) 'SOMME Y', SOMM
+     endif
+-#endif
++!#endif
+ ! ---- Fin Test
+ 
+   endif
+@@ -543,7 +543,7 @@ do iel = 1, ncel
+     bc0(in2  ) = an2f4*cc4
+ 
+ ! ---- Test
+-#ifdef DEBUG
++!#ifdef DEBUG
+     wmole(ichx1) = wmchx1
+     wmole(ichx2) = wmchx2
+     somm  = 0.d0
+@@ -561,7 +561,7 @@ do iel = 1, ncel
+       write(NFECRA,*) 'PB CELLULE ',IEL
+       write(NFECRA,*) 'SOMM BC0', SOMMF
+     endif
+-#endif
++!#endif
+ ! ---- Fin Test
+ 
+ ! --> Les pics de Dirac sont situes dans des domaines
+@@ -629,7 +629,7 @@ do iel = 1, ncel
+ !      CHX1 ne doit plus exister AC1(ICHX1) = BC1(ICHX1) = 0
+ 
+ ! ---- Test
+-#ifdef DEBUG
++!#ifdef DEBUG
+     somm  = 0.d0
+     sommf = 0.d0
+     do ige = 1, (ngaze-2*ncharb)
+@@ -655,7 +655,7 @@ do iel = 1, ncel
+       write(NFECRA,*) 'AC01(IO2)', AC0(IO2),AC1(IO2)
+       write(NFECRA,*) 'BC01(IO2)', BC0(IO2),BC1(IO2)
+     endif
+-#endif
++!#endif
+ ! ---- Fin Test
+ 
+     endif
+@@ -707,7 +707,7 @@ do iel = 1, ncel
+ !      AC2(ICHX1) = BC2(ICHX1) = AC2(ICHX2) = BC2(ICHX2) = 0
+ 
+ ! ---- Test
+-#ifdef DEBUG
++!#ifdef DEBUG
+     somm  = 0.d0
+     sommf = 0.d0
+     do ige = 1, (ngaze-2*ncharb)
+@@ -737,7 +737,7 @@ do iel = 1, ncel
+       write(NFECRA,*) 'AC12(IO2)', AC1(IO2),AC2(IO2)
+       write(NFECRA,*) 'BC12(IO2)', BC1(IO2),BC2(IO2)
+     endif
+-#endif
++!#endif
+ ! ---- Fin Test
+ 
+ ! --> Integration dans le domaine intermediaire
+@@ -784,7 +784,7 @@ do iel = 1, ncel
+ !      AC3(ICO  ) = BC3(ICO  ) = 0
+ 
+ ! ---- Test
+-#ifdef DEBUG
++!#ifdef DEBUG
+     somm  = 0.d0
+     sommf = 0.d0
+     do ige = 1, (ngaze-2*ncharb)
+@@ -818,7 +818,7 @@ do iel = 1, ncel
+       write(NFECRA,*) 'AC23(IO2)', AC2(IO2),AC3(IO2)
+       write(NFECRA,*) 'BC23(IO2)', BC2(IO2),BC3(IO2)
+     endif
+-#endif
++!#endif
+ ! ---- Fin Test
+ 
+ ! --> Integration dans le domaine pauvre
+@@ -849,7 +849,7 @@ do iel = 1, ncel
+     xiner(iel) = zc(in2  ) * wmn2
+ 
+ ! ---- Test
+-#ifdef DEBUG
++!#ifdef DEBUG
+     somm = fuel1(iel) + fuel2(iel) + fuel3(iel)                   &
+          + prod1(iel) + prod2(iel)                                &
+          + oxyd(iel)  + xiner(iel)
+@@ -908,7 +908,7 @@ do iel = 1, ncel
+       write(NFECRA,*) 'Prod2',PROD2(IEL)
+       write(NFECRA,*) 'SOMME', SOMM
+     endif
+-#endif
++!#endif
+ ! ---- Fin Test
+ 
+   endif
