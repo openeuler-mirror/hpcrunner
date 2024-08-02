@@ -1,0 +1,63 @@
+#!/bin/bash
+MPI='true'
+CC=mpicc
+FC=mpif77
+F90C=mpif90
+DEFINES='-DWORDLENGTH=4 -DNML_TERMINATOR -DALLOW_USE_MPI -DALWAYS_USE_MPI'
+EXTENDED_SRC_FLAG='-ffixed-line-length-132'
+F90FIXEDFORMAT='-ffixed-form'
+GET_FC_VERSION="--version"
+OMPFLAG='-fopenmp'
+NOOPTFLAGS='-O0 -g'
+NOOPTFILES=''
+CFLAGS='-O3 -Wno-implicit-int -Wno-implicit-function-declaration -Wno-incompatible-function-pointer-types '
+FFLAGS="$FFLAGS -fconvert=big-endian -fimplicit-none"
+CFLAGS="$CFLAGS -fPIC"
+FFLAGS="$FFLAGS -fPIC"
+#- with FC 19, need to use this without -fPIC (which cancels -mcmodel option):
+# CFLAGS="$CFLAGS -mcmodel=medium"
+# FFLAGS="$FFLAGS -mcmodel=medium"
+#- might want to use '-fdefault-real-8' for fizhi pkg:
+#FFLAGS="$FFLAGS -fdefault-real-8 -fdefault-double-8"
+if test "x$IEEE" = x ; then #- with optimisation:
+#- full optimisation
+FOPTIM='-O3 -funroll-loops'
+NOOPTFILES="$NOOPTFILES ini_masks_etc.F"
+#- can use -O2 (safe optimisation) to avoid Pb with some gcc version of -O3:
+#FOPTIM='-O2 -funroll-loops'
+else
+# these may also be useful, but require specific gfortran versions:
+# -Wnonstd-intrinsics for gfortran <= 4.3
+# -Wintrinsics-std for gfortran >= 4.4
+# -Wno-tabs for gfortran >= 4.3
+# -Wno-unused-dummy-argument for gfortran >= 4.6
+#FFLAGS="$FFLAGS -Waliasing -Wampersand -Wsurprising -Wline-truncation"
+#- or simply:
+FFLAGS="$FFLAGS -Wall"
+#- to get plenty of warnings: -Wall -Wextra (older form: -Wall -W) or:
+#FFLAGS="$FFLAGS -Wconversion -Wimplicit-interface -Wunused-labels"
+if test "x$DEVEL" = x ; then #- no optimisation + IEEE :
+FOPTIM='-O0'
+else #- development/check options:
+FOPTIM='-O0 -g -fbounds-check'
+FOPTIM="$FOPTIM -ffpe-trap=invalid,zero,overflow -finit-real=inf"
+fi
+fi
+F90FLAGS=$FFLAGS
+F90OPTIM=$FOPTIM
+# --------------------------
+# NETCDF DIRECTORIES
+# --------------------------
+HDF5_HOME=/path/to/HDF5
+NETCDF_HOME=/path/to/NETCDF
+INCLUDEDIRS=''
+INCLUDES="-I$NETCDF_DIR/include -I$HDF5_DIR/include"
+LIBS="-L$NETCDF_DIR/lib -lnetcdff -lnetcdf -L$HDF5_DIR/lib -lhdf5_hl -lhdf5"
+# -----------------------
+# INCLUDE MPI DIRECTORIES
+# -----------------------
+MPI_HOME=$HMPI_PATH
+MPI_INC_DIR=$MPI_HOME/include
+INCLUDES="$INCLUDES -I$MPI_HOME/include"
+INCLUDEDIRS="$INCLUDEDIRS $MPI_HOME/include"
+MPIINCLUDEDIR="$MPI_INC_DIR"
