@@ -1,0 +1,64 @@
+BootStrap: docker
+From: openeuler/openeuler:22.03-lts-sp2 
+
+%environment
+
+    source /etc/profile || true
+    source /etc/profile.d/modules.sh
+    cd /hpcrunner
+    source ./env.sh
+
+%post
+    # Install the necessary development environment
+    yum install -y environment-modules git dmidecode pciutils wget vim unzip curl zlib zlib-devel
+    # Install base gcc
+    yum install -y gcc gcc-c++ gcc-gfortran glibc-devel make libgfortran cmake
+    # install network package
+    yum install -y flex tcsh tcl lsof tk bc
+    source /etc/profile || true
+    git config --global http.sslVerify false
+    git config --global user.name 'chenshaoheng'
+    git config --global user.email 'chenshaoheng3@h-partners.com'
+    git clone https://gitee.com/openeuler/hpcrunner.git
+    cd /hpcrunner
+    
+    #install mlnx
+    wget https://content.mellanox.com/ofed/MLNX_OFED-5.8-1.1.2.1/MLNX_OFED_LINUX-5.8-1.1.2.1-openeuler22.03-aarch64.tgz
+    tar -xvf MLNX_OFED_LINUX-5.8-1.1.2.1-openeuler22.03-aarch64.tgz
+    cd MLNX_OFED_LINUX-5.8-1.1.2.1-openeuler22.03-aarch64
+    yum install ethtool fuse-devel libnl3 pciutils-devel libusbx libmnl -y
+    echo "y" | ./mlnxofedinstall --user-space-only
+    cd -
+    rm MLNX_OFED_LINUX-5.8-1.1.2.1-openeuler22.03-aarch64 MLNX_OFED_LINUX-5.8-1.1.2.1-openeuler22.03-aarch64.tgz /opt software/utils -rf
+    cd /hpcrunner
+    mkdir tmpppp
+    cd tmpppp
+    git clone -b container https://gitee.com/chenshaoheng/hpcrunner.git
+    mkdir /hpcrunner/templates/ncl/6.3.0
+    cp hpcrunner/templates/ncl/6.3.0/data.NCL.arm-container.cpu.config /hpcrunner/templates/ncl/6.3.0  -f
+    mkdir /hpcrunner/package/hdf5/1.8.20
+    cp hpcrunner/package/hdf5/1.8.20/install.sh /hpcrunner/package/hdf5/1.8.20
+    cp hpcrunner/templates/ncl/6.3.0/Site.local  /hpcrunner/templates/ncl/6.3.0
+    rm /hpcrunner/package/g2clib/1.6.0/install.sh -f
+    cp hpcrunner/package/g2clib/1.6.0/install.sh /hpcrunner/package/g2clib/1.6.0/
+    cd -
+    rm tmpppp -rf
+    source ./init.sh
+    # add your personal files here
+    # Switch config
+    ls -l /hpcrunner/templates/ncl/6.3.0
+    cat /hpcrunner/templates/ncl/6.3.0/data.NCL.arm-container.cpu.config
+    ./jarvis -use templates/ncl/6.3.0/data.NCL.arm-container.cpu.config
+    # download dependency
+    ./jarvis -d
+    # install dependency
+    ./jarvis -dp
+    # build hpc
+    ./jarvis -b
+    # run hpc
+    ./jarvis -e
+    ./jarvis -r
+    # clean tmp directory
+    rm -rf  downloads/*  /hpcrunner/ncl_ncarg-6.3.0 /hpcrunner/tmp/* 
+%labels
+    Author chen
