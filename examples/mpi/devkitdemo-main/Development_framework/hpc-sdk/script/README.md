@@ -22,8 +22,8 @@
 | openEuler20.03 sp3  | N | Y | Y | Y (GCC7.3及以上) |
 | 麒麟V10 SP1  | Y (GCC9.3,毕昇2.1.0) | Y | Y | N  |
 | 麒麟V10 SP2  | Y (GCC9.3,毕昇2.1.0) | Y | Y | N  |
-| unbuntu18.04  | N | Y | Y | Y (GCC7.3及以上)| 
-| unbuntu20.04  | N | Y | Y | Y (GCC7.3及以上) |
+| ubuntu18.04  | N | Y | Y | Y (GCC7.3及以上)| 
+| ubuntu20.04  | N | Y | Y | Y (GCC7.3及以上) |
 | UOS 1020e | N | Y | Y | N  |  
 
 说明：以上表中均为aarch64架构;小括号中为GCC、毕昇编译器的版本代表依赖最小版本，表中的Y代表系统支持安装，N代表不支持安装。
