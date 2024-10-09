@@ -167,7 +167,7 @@ cmake \
 -DCMAKE_BUILD_TYPE=Release \
 ..
 make -j
-make instal
+make install
 ```
 
 ### 4.2. 运行测试文件
