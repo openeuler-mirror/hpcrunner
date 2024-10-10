@@ -233,7 +233,7 @@ int function(int param1, float param2){
 一般情况
 
 ```c
-#incldue<cruiser.h>
+#include<cruiser.h>
 
 int function(int param1, float param2){
 	double param3[] = {...};
@@ -265,7 +265,7 @@ int function(int param1, float param2){
 指定进程号
 
 ```c
-#incldue<cruiser.h>
+#include<cruiser.h>
 
 int function(int param1, float param2){
 	double param3[] = {...};

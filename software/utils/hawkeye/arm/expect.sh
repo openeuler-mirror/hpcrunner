@@ -40,11 +40,11 @@ expect ">" {send "end\n"}
 
 expect "(gdb)" {send "b $breakpoint \n"}
 expect "(gdb)" {send "r \n"}
-expect "(gdb)" {send "shell echo before invoke funcion\n"}
+expect "(gdb)" {send "shell echo before invoke function\n"}
 #expect "(gdb)" {send "writeargs $args\n"}
 expect "(gdb)" {send "readargs $args\n"}
 expect "(gdb)" {send "printmd5 $args\n"}
 expect "(gdb)" {send "n \n"}
-expect "(gdb)" {send "shell echo after invoke funcion\n"}
+expect "(gdb)" {send "shell echo after invoke function\n"}
 expect "(gdb)" {send "printmd5 $args\n"}
 expect "(gdb)" {send "q\n"}
