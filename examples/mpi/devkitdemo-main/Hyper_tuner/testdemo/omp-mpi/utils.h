@@ -91,13 +91,13 @@ void set_thread_affinity(uint16_t core_id)
 
         if(sched_setaffinity(0, sizeof(cpu_mask), &cpu_mask)==-1)
         {
-          printf("set cpu affinity faild ...\n");
+          printf("set cpu affinity failed ...\n");
           exit(1);
         }
        
         if(sched_getaffinity(0, sizeof(get), &get)==-1)
         {
-           printf("get affinity faild...\n");
+           printf("get affinity failed...\n");
            exit(1);
         }
 }

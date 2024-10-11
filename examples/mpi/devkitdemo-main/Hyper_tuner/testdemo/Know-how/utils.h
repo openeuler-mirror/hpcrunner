@@ -77,7 +77,7 @@ static inline double ComputPointDistance(Point *pointA, Point *pointB)
     double horizontal, vertical, pointDis;
     horizontal = pointA->x - pointB->x;
     vertical = pointA->y - pointB->y;
-    pointDis = sqrt((horizontal * horizontal) + (vertical + vertical));
+    pointDis = sqrt((horizontal * horizontal) + (vertical * vertical));
     return pointDis;
 }
 
