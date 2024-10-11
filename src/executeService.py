@@ -55,7 +55,7 @@ class ExecuteService:
             print(f"failed at {self.end_time}:{state}".upper())
             return False
         else:
-            print(f"successfully executed at {self.end_time}, congradulations!!!".upper())
+            print(f"successfully executed at {self.end_time}, congratulations!!!".upper())
             return True
 
     def exec_raw(self, rows):
