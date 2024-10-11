@@ -8,7 +8,7 @@
 # Include file for GNU Fortran compiler on Linux
 # -------------------------------------------------------------------------
 #
-# ARPACK_LIBDIR  ARPACK libary directory
+# ARPACK_LIBDIR  ARPACK library directory
 # FC             Name of the fortran compiler to use
 # FFLAGS         Flags to the fortran compiler
 # CPP            Name of the C-preprocessor
