@@ -365,31 +365,31 @@ mpirun -machinefile nodes -np 12 -npernode 4 --bind-to numa --mca btl ^vader,tcp
 ```shell
 Warning: Permanently added 'n2,192.168.0.3' (ECDSA) to the list of known hosts.
 Warning: Permanently added 'n3,192.168.0.4' (ECDSA) to the list of known hosts.
-[MpiManager] Sucessfully initialized, numThreads=12
-[[[[[[OmpManager] [[[OmpManager] [[[OmpManager] OmpManager] OmpManager] OmpManagerOmpManager] ] [OmpManager] Sucessfully initialized, numThreads=24
-OmpManager] [Sucessfully initialized, numThreads=24
-Sucessfully initialized, numThreads=24
-Sucessfully initialized, numThreads=24
-Sucessfully initialized, numThreads=24
-Sucessfully initialized, numThreads=24
-Sucessfully initialized, numThreads=24
-OmpManager] Sucessfully initialized, numThreads=24
-OmpManager] OmpManager] [Sucessfully initialized, numThreads=24
-OmpManager] [OmpManager] Sucessfully initialized, numThreads=24
-Sucessfully initialized, numThreads=24
-Sucessfully initialized, numThreads=24
-OmpManagerSucessfully initialized, numThreads=24
-[OmpManager] OmpManager] Sucessfully initialized, numThreads=24
-Sucessfully initialized, numThreads=24
-] [OmpManager] Sucessfully initialized, numThreads=24
-Sucessfully initialized, numThreads=24
-Sucessfully initialized, numThreads=24
-[OmpManager] Sucessfully initialized, numThreads=24
-[OmpManager] Sucessfully initialized, numThreads=24
-[OmpManager] Sucessfully initialized, numThreads=24
-[OmpManager] Sucessfully initialized, numThreads=24
-[OmpManager] Sucessfully initialized, numThreads=24
-[OmpManager] Sucessfully initialized, numThreads=24
+[MpiManager] Successfully initialized, numThreads=12
+[[[[[[OmpManager] [[[OmpManager] [[[OmpManager] OmpManager] OmpManager] OmpManagerOmpManager] ] [OmpManager] Successfully initialized, numThreads=24
+OmpManager] [Successfully initialized, numThreads=24
+Successfully initialized, numThreads=24
+Successfully initialized, numThreads=24
+Successfully initialized, numThreads=24
+Successfully initialized, numThreads=24
+Successfully initialized, numThreads=24
+OmpManager] Successfully initialized, numThreads=24
+OmpManager] OmpManager] [Successfully initialized, numThreads=24
+OmpManager] [OmpManager] Successfully initialized, numThreads=24
+Successfully initialized, numThreads=24
+Successfully initialized, numThreads=24
+OmpManagerSuccessfully initialized, numThreads=24
+[OmpManager] OmpManager] Successfully initialized, numThreads=24
+Successfully initialized, numThreads=24
+] [OmpManager] Successfully initialized, numThreads=24
+Successfully initialized, numThreads=24
+Successfully initialized, numThreads=24
+[OmpManager] Successfully initialized, numThreads=24
+[OmpManager] Successfully initialized, numThreads=24
+[OmpManager] Successfully initialized, numThreads=24
+[OmpManager] Successfully initialized, numThreads=24
+[OmpManager] Successfully initialized, numThreads=24
+[OmpManager] Successfully initialized, numThreads=24
 [prepareGeometry] Prepare Geometry ...
 [SuperGeometry3D] cleaned 4104 outer boundary voxel(s)
 [SuperGeometry3D] cleaned 0 inner boundary voxel(s)
@@ -458,31 +458,31 @@ Sucessfully initialized, numThreads=24
 ```shell
 Warning: Permanently added 'n2,192.168.0.3' (ECDSA) to the list of known hosts.
 Warning: Permanently added 'n3,192.168.0.4' (ECDSA) to the list of known hosts.
-[MpiManager] Sucessfully initialized, numThreads=12
-[[[[OmpManager] [[[OmpManager] [[[OmpManager] OmpManager] OmpManagerSucessfully initialized, numThreads=24
-[OmpManager] [OmpManager] Sucessfully initialized, numThreads=24
-] [OmpManager] [Sucessfully initialized, numThreads=24
-Sucessfully initialized, numThreads=24
-Sucessfully initialized, numThreads=24
-Sucessfully initialized, numThreads=24
-[OmpManager] [OmpManager] Sucessfully initialized, numThreads=24
-OmpManager] [Sucessfully initialized, numThreads=24
-OmpManager] Sucessfully initialized, numThreads=24
-[OmpManager] OmpManager] Sucessfully initialized, numThreads=24
-[OmpManager] Sucessfully initialized, numThreads=24
-OmpManager] [OmpManager] Sucessfully initialized, numThreads=24
-Sucessfully initialized, numThreads=24
-Sucessfully initialized, numThreads=24
-OmpManager] OmpManager] Sucessfully initialized, numThreads=24
-OmpManager] Sucessfully initialized, numThreads=24
-Sucessfully initialized, numThreads=24
-Sucessfully initialized, numThreads=24
-[OmpManager] Sucessfully initialized, numThreads=24
-Sucessfully initialized, numThreads=24
-Sucessfully initialized, numThreads=24
-[OmpManager] Sucessfully initialized, numThreads=24
-[OmpManager] Sucessfully initialized, numThreads=24
-[OmpManager] Sucessfully initialized, numThreads=24
+[MpiManager] Successfully initialized, numThreads=12
+[[[[OmpManager] [[[OmpManager] [[[OmpManager] OmpManager] OmpManagerSuccessfully initialized, numThreads=24
+[OmpManager] [OmpManager] Successfully initialized, numThreads=24
+] [OmpManager] [Successfully initialized, numThreads=24
+Successfully initialized, numThreads=24
+Successfully initialized, numThreads=24
+Successfully initialized, numThreads=24
+[OmpManager] [OmpManager] Successfully initialized, numThreads=24
+OmpManager] [Successfully initialized, numThreads=24
+OmpManager] Successfully initialized, numThreads=24
+[OmpManager] OmpManager] Successfully initialized, numThreads=24
+[OmpManager] Successfully initialized, numThreads=24
+OmpManager] [OmpManager] Successfully initialized, numThreads=24
+Successfully initialized, numThreads=24
+Successfully initialized, numThreads=24
+OmpManager] OmpManager] Successfully initialized, numThreads=24
+OmpManager] Successfully initialized, numThreads=24
+Successfully initialized, numThreads=24
+Successfully initialized, numThreads=24
+[OmpManager] Successfully initialized, numThreads=24
+Successfully initialized, numThreads=24
+Successfully initialized, numThreads=24
+[OmpManager] Successfully initialized, numThreads=24
+[OmpManager] Successfully initialized, numThreads=24
+[OmpManager] Successfully initialized, numThreads=24
 [UnitConverter] ----------------- UnitConverter information -----------------
 [UnitConverter] -- Parameters:
 [UnitConverter] Resolution:                       N=              75
