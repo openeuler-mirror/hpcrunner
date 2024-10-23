@@ -486,7 +486,7 @@ del_math_kml() {
   else
     $install_package_kind -P "${boost_math_name}"
   fi
-  logger "Deleting kml successfull" ${TIP_COLOR_ECHO}
+  logger "Deleting kml successful" ${TIP_COLOR_ECHO}
 }
 
 del_hyper_mpi() {
@@ -515,7 +515,7 @@ del_compiler() {
   if [[ -f "${compiler_modules_path}" ]] || [[ -d "${compiler_path}" ]];then
     [[ -f "${compiler_modules_path}" ]] && logger "${compiler_modules_path} file already exists." ${TIP_COLOR_WARNING}
     [[ -d "${compiler_path}" ]] && logger "${compiler_path} directory is not empty." ${TIP_COLOR_WARNING}
-    read_answer "Are you sure you want to continue the instllation? if yes, the ${compiler_path} directory or ${compiler_modules_path} file will be overwritten."
+    read_answer "Are you sure you want to continue the installation? if yes, the ${compiler_path} directory or ${compiler_modules_path} file will be overwritten."
     if [[ $? != 0 ]];then 
       logger "Do not install the ${compiler_type^^} repeatedly." ${TIP_COLOR_ECHO}
       return 1
