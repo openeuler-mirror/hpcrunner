@@ -39,7 +39,7 @@ There are multiple versions of KML_MATH:
    # The MATH library of the high-performance version is used by default.
    cmake ..
    make
-   # Use the MATH library of the high-precition version.
+   # Use the MATH library of the high-precision version.
    cmake -DMATH=precision ..
    make
    ```
