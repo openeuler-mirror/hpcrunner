@@ -5,6 +5,7 @@ echo '2) 美国高速源1'
 echo '3) 美国高速源2'
 echo '4) 美国高速源3'
 echo '5) 韩国高速源1'
+echo '6) 韩国高速源2'
 
 echo '你输入的数字为:'
 read aNum
@@ -19,7 +20,9 @@ case $aNum in
     ;;
     5)  sed -i -e 's/JARVIS_PROXY=.*/JARVIS_PROXY=https:\/\/ghproxy.com\/https:\/\/github.com/g' init.sh
     ;;
-    *)  echo '你没有输入 1 到 5 之间的数字'
+    6)  sed -i -e 's/JARVIS_PROXY=.*/JARVIS_PROXY=https:\/\/ghproxy.cc\/https:\/\/github.com/g' init.sh
+    ;;
+    *)  echo '你没有输入 1 到 6 之间的数字'
     ;;
 esac
 
