@@ -20,6 +20,7 @@ export JARVIS_EXE=${CUR_PATH}/exe
 export JARVIS_PROXY=https://gh.ddlc.top/https://github.com
 
 
+
 export DOWNLOAD_TOOL=${CUR_PATH}/package/common/download.sh
 export CHECK_DEPS=${CUR_PATH}/package/common/check_deps.sh
 export CHECK_ROOT=${CUR_PATH}/package/common/check_root.sh

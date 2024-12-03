@@ -140,7 +140,7 @@ int main()
     pthread_join(thread1, NULL);
     pthread_join(thread2, NULL);
 
-    printf("destroy thread to get g_count=%d\n", g_count);
+    printf("destory thread to get g_count=%d\n", g_count);
 
     return 0;
 }
