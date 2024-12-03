@@ -48,7 +48,7 @@ git checkout -b new_branch
 
 git add .
 
-git commit --no-verify -m "Add XXX function"
+git commit --no-verif -m "Add XXX function"
 
 git push origin new_branch
 
