@@ -113,8 +113,8 @@ class InstallService:
         return version    
 
     def get_hmpi_info(self):
-        hmpi_v2_info = self.get_cmd_output('ucx_info -c | grep -i BUILT')[0]
-        hmpi_v3_info = self.get_cmd_output('ucg_info -c | grep -i PLANC')[0]
+        hmpi_v2_info = (self.get_cmd_output('ucx_info -c | grep -i BUILT')[0]).upper()
+        hmpi_v3_info = (self.get_cmd_output('ucg_info -c | grep -i PLANC')[0]).upper()
         if "BUILT" not in hmpi_v2_info and "PLANC" not in hmpi_v3_info:
             return None
         name = 'hmpi'
