@@ -1,0 +1,11 @@
+--- ../bk/WRF-3.9.1/arch/postamble_new	2024-08-22 19:40:45.689841000 +0800
++++ arch/postamble_new	2024-08-22 19:57:29.207681000 +0800
+@@ -30,7 +30,7 @@
+ 		      -DNMM_NEST=$(WRF_NMM_NEST)
+ CFLAGS          =    $(CFLAGS_LOCAL) CONFIGURE_DMPARALLEL CONFIGURE_STUBMPI \
+                       -DMAX_HISTORY=$(MAX_HISTORY) CONFIGURE_NMM_CORE
+-FCFLAGS         =    $(FCOPTIM) $(FCBASEOPTS)
++FCFLAGS         =    $(FCBASEOPTS) $(FCOPTIM) 
+ ESMF_LIB_FLAGS  =    ESMFLIBFLAG
+ # ESMF 5 -- these are defined in esmf.mk, included above
+ #NOWIN ESMF_IO_LIB     =    ESMFIOLIB

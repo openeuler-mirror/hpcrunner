@@ -1,0 +1,4 @@
+33c33
+< FCFLAGS         =    $(FCOPTIM) $(FCBASEOPTS)
+---
+> FCFLAGS         =    $(FCBASEOPTS) $(FCOPTIM)

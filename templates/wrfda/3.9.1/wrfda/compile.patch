@@ -1,0 +1,30 @@
+332a333,344
+>     set hdf5path = ( `grep "^HDF5PATH" configure.wrf | cut -d"=" -f2-` )
+>     if ( $hdf5path == "" ) then
+>        setenv HDF5_INC ""
+>        unsetenv HDF5
+>     else
+>        echo "  "
+>        echo "Compiling with HDF5 libraries in:"
+>        echo $hdf5path
+>        echo "  "
+>        setenv HDF5_INC "-I${hdf5path}/include"
+>        setenv HDF5 1
+>     endif
+355c367
+<           setenv RTTOV_LIB "-L${RTTOV}/lib -lrttov11_coef_io -lrttov11_emis_atlas -lrttov11_main"
+---
+>           setenv RTTOV_LIB "-L${hdf5path}/lib -lhdf5hl_fortran -lhdf5_hl -lhdf5_fortran -lhdf5 -L${RTTOV}/lib -lrttov11_coef_io -lrttov11_emis_atlas -lrttov11_main -lrttov11_hdf"
+363,374d374
+<     endif
+<     set hdf5path = ( `grep "^HDF5PATH" configure.wrf | cut -d"=" -f2-` )
+<     if ( $hdf5path == "" ) then
+<        setenv HDF5_INC ""
+<        unsetenv HDF5
+<     else
+<        echo "  "
+<        echo "Compiling with HDF5 libraries in:"
+<        echo $hdf5path
+<        echo "  "
+<        setenv HDF5_INC "-I${hdf5path}/include"
+<        setenv HDF5 1
