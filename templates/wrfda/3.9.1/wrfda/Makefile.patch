@@ -1,0 +1,4 @@
+126c126
+< 	( cd var/build; make depend; $(MAKE) $(J) all_wrfvar )
+---
+> 	( cd var/build; make depend; $(MAKE) $(J) all_wrfvar V=1)

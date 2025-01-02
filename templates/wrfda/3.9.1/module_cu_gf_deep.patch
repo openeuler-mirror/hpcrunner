@@ -1,0 +1,33 @@
+--- ../bk/WRF-3.9.1/phys/module_cu_gf_deep.F	2024-08-22 19:40:46.953909000 +0800
++++ phys/module_cu_gf_deep.F	2024-08-22 20:01:26.549405000 +0800
+@@ -4006,8 +4006,11 @@
+         !-local vars
+         real   :: dp,l_mid,l_shal,first_deriv(kts:kte),sec_deriv(kts:kte)
+         integer:: ken,kadd,kj,i,k,ilev,kk,ix,k800,k550,mid,shal
++        real   :: sec_deriv_tmp(kts:kte)
+         !
+         !-initialize k_inv_layers as undef
++        first_deriv=0.
++        sec_deriv=0.
+         l_mid=300.
+         l_shal=100.
+         k_inv_layers(:,:) = 1
+@@ -4071,14 +4074,16 @@
+            dp=p_cup(i,k_inv_layers(i,k))-p_cup(i,kstart(i))
+            sec_deriv(k)=abs(dp)-l_shal
+          enddo
+-         k800=minloc(abs(sec_deriv),1)
++         sec_deriv_tmp = abs(sec_deriv)
++         k800=minloc(sec_deriv_tmp,1)
+         sec_deriv(:)=1.e9
+ 
+          do k=1,maxloc(k_inv_layers(i,:),1) !kts,kte !kstart(i),kend(i) !kts,kte
+            dp=p_cup(i,k_inv_layers(i,k))-p_cup(i,kstart(i))
+            sec_deriv(k)=abs(dp)-l_mid
+          enddo
+-         k550=minloc(abs(sec_deriv),1)
++         sec_deriv_tmp = abs(sec_deriv)
++         k550=minloc(sec_deriv_tmp,1)
+          !-save k800 and k550 in k_inv_layers array
+          shal=1
+          mid=2

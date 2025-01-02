@@ -1,0 +1,13 @@
+--- ../bk/WRF-3.9.1/phys/module_ra_goddard.F	2024-08-22 19:40:47.476028000 +0800
++++ phys/module_ra_goddard.F	2024-08-22 20:03:35.600593000 +0800
+@@ -3273,8 +3273,8 @@
+         if (ntop.lt.np+1) then
+          do k= ntop+1,np+1 !cloud top -> surface
+           if(overcast .and. fast_overcast) then  !use ratio in LUT
+-            i_cos = int(cosz(i)*10.)+1 !1~10
+-            i_tau = int(cld_alb*10.)+1 !1~10
++            i_cos = min(max(int(cosz(i)*10.)+1,1), 10) !1~10
++            i_tau = min(max(int(cld_alb*10.)+1,1), 10) !1~10
+             ratio = ratio_lut(i_tau,i_cos)
+           else !use computed clear and cloudy flux ratio (not fast_overcast)
+             ratio = max(0.01_fp_kind, min(1._fp_kind,(flx(i,k)/flc(i,k))))

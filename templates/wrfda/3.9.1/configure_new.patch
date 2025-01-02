@@ -1,0 +1,51 @@
+--- ../bk/WRF-3.9.1/arch/configure_new.defaults	2024-08-22 19:40:45.667373000 +0800
++++ arch/configure_new.defaults	2024-08-22 19:56:29.933846000 +0800
+@@ -1917,7 +1917,47 @@
+ CC_TOOLS        =      $(SCC) 
+ 
+ #insert new stanza here
+-
++################################################## #########
++#ARCH   Linux   aarch64,gnu OpenMPI #serial smpar dmpar dm+sm
++DESCRIPTION     =       CLANG ($SFC/$SCC)
++DMPARALLEL      =        1
++OMPCPP          =        -D_OPENMP
++OMP             =        -fopenmp
++OMPCC           =        -fopenmp
++SFC             =       flang
++SCC             =       clang -Wno-implicit-function-declaration -Wno-implicit-int
++CCOMP           =       clang
++DM_FC           =       mpif90 -f90=$(SFC)
++DM_CC           =       mpicc -cc=$(SCC) -DMPI2_SUPPORT
++FC              =       CONFIGURE_FC
++CC              =       CONFIGURE_CC
++LD              =       $(FC)
++RWORDSIZE       =       CONFIGURE_RWORDSIZE
++PROMOTION       =       #-fdefault-real-8
++ARCH_LOCAL      =       -DNONSTANDARD_SYSTEM_SUBR  -DWRF_USE_CLM
++CFLAGS_LOCAL    =       -w -O3 -c -march=armv8.2-a -Wno-implicit-function-declaration -Wno-implicit-int -I/usr/include/tirpc/
++LDFLAGS_LOCAL   =	-ltirpc
++CPLUSPLUSLIB    =
++ESMF_LDFLAG     =      $(CPLUSPLUSLIB)
++FCOPTIM         =       -O3 -ftree-vectorize -funroll-loops -march=armv8.2-a -L/path/to/MATH/lib -lmathlib
++FCREDUCEDOPT    =       $(FCOPTIM)
++FCNOOPT         =       -O0
++FCDEBUG         =        -g  # -fbacktrace -ggdb-fcheck=bounds,do,mem,pointer -ffpe-trap=invalid,zero,overflow
++FORMAT_FIXED    =       -ffixed-form
++FORMAT_FREE     =       -ffree-form -ffree-line-length-none
++FCSUFFIX        =
++BYTESWAPIO      =       -fconvert=big-endian 
++FCBASEOPTS_NO_G =       -w $(FORMAT_FREE) $(BYTESWAPIO)
++FCBASEOPTS      =       -mcpu=native $(OMP) $(FCBASEOPTS_NO_G)
++MODULE_SRCH_FLAG =
++TRADFLAG        =      -traditional
++CPP             =      /lib/cpp -P
++AR              =      ar
++ARFLAGS         =      ru
++M4              =      m4 -G
++RANLIB          =      ranlib
++RLFLAGS         =
++CC_TOOLS        =      $(SCC)
+ ###########################################################
+ #ARCH    Fujitsu FX10/FX100 Linux x86_64 SPARC64IXfx/SPARC64Xlfx, mpifrtpx and mpifccpx compilers #serial smpar dmpar dm+sm
+ #

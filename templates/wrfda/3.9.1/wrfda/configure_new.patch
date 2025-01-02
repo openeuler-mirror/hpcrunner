@@ -1,0 +1,44 @@
+1875a1876,1918
+> #ARCH    Linux aarch64, bisheng, hmpi #serial smpar dmpar dm+sm
+> #
+> DESCRIPTION     =       CLANG ($SFC/$SCC)
+> DMPARALLEL      =        1
+> OMPCPP          =        -D_OPENMP
+> OMP             =        -fopenmp
+> OMPCC           =        -fopenmp
+> SFC             =       flang
+> SCC             =       clang -Wno-implicit-function-declaration -Wno-implicit-int
+> CCOMP           =       clang
+> DM_FC           =       mpif90 -mllvm -disable-sincos-opt -mllvm -enable-alt-precision-math-functions
+> DM_CC           =       mpicc -cc=$(SCC) -DMPI2_SUPPORT -Wno-implicit-function-declaration -Wno-implicit-int
+> FC              =       time $(DM_FC)
+> CC              =       $(DM_CC) -DFSEEKO64_OK
+> LD              =       $(FC) -fuse-ld=lld 
+> RWORDSIZE       =       $(NATIVE_RWORDSIZE)
+> PROMOTION       =       -fdefault-real-8 -fdefault-double-8
+> ARCH_LOCAL      =       -DNONSTANDARD_SYSTEM_SUBR -DWRF_USE_CLM
+> CFLAGS_LOCAL    =       -w -O0 -g -ffp-model=precise -ffp-contract=off -c -march=armv8.2-a -I/usr/include/tirpc/
+> LDFLAGS_LOCAL   =       -Wl,--build-id -ltirpc
+> CPLUSPLUSLIB    =
+> ESMF_LDFLAG     =       $(CPLUSPLUSLIB)
+> FCOPTIM         =       -O0 -g -ffp-model=precise -faarch64-pow-alt-precision=21 -ffp-contract=off -faarch64-minmax-alt-precision -Hx,124,0xc00000 -finline-functions -ftree-vectorize -falign-functions -mllvm -min-prefetch-stride=2 -mrecip=vec-div:1 -fstack-arrays
+> FCREDUCEDOPT    =       $(FCOPTIM)
+> FCNOOPT         =       -O0 -g -ffp-model=precise -ffp-contract=off -frecursive -fopenmp -faarch64-pow-alt-precision=21 -faarch64-minmax-alt-precision
+> FCDEBUG         =
+> FORMAT_FIXED    =       -ffixed-form
+> FORMAT_FREE     =       -ffree-form
+> FCSUFFIX        =
+> BYTESWAPIO      =       -fconvert=big-endian
+> FCBASEOPTS_NO_G =       -O0 -g -ffp-model=precise -faarch64-pow-alt-precision=21 -ffp-contract=off -faarch64-minmax-alt-precision
+> FCBASEOPTS      =       $(FCBASEOPTS_NO_G) $(FORMAT_FREE) $(BYTESWAPIO)
+> MODULE_SRCH_FLAG =      -module $(WRF_SRC_ROOT_DIR)/main
+> TRADFLAG        =      -traditional
+> CPP             =      /lib/cpp -P -C -nostdinc
+> AR              =      ar
+> ARFLAGS         =      ru
+> M4              =      m4 -G
+> RANLIB          =      ranlib
+> RLFLAGS         =
+> CC_TOOLS        =      $(SCC)
+> 
+> ###########################################################

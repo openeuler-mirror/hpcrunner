@@ -1,0 +1,17 @@
+--- ../bk/WRF-3.9.1/phys/module_sf_noahmpdrv.F	2024-08-22 19:40:47.153891000 +0800
++++ phys/module_sf_noahmpdrv.F	2024-08-22 20:07:18.973466000 +0800
+@@ -1457,7 +1457,13 @@
+ 	     
+ 	     lai        (I,J) = max(lai(i,j),0.05)             ! at least start with 0.05 for arbitrary initialization (v3.7)
+              xsaixy     (I,J) = max(0.1*lai(I,J),0.05)         ! MB: arbitrarily initialize SAI using input LAI (v3.7)
+-             masslai = 1000. / max(SLA_TABLE(IVGTYP(I,J)),1.0) ! conversion from lai to mass  (v3.7)
++             !masslai = 1000. / max(SLA_TABLE(IVGTYP(I,J)),1.0) ! conversion from lai to mass  (v3.7)
++             IF (IVGTYP(I,J) .EQ. 31 .OR. IVGTYP(I,J) .EQ. 32 .OR. &
++                     IVGTYP(I,J) .EQ. 33) THEN
++                     masslai = 1000. / max(SLA_TABLE(ISURBAN_TABLE),1.0)
++             ELSE
++                     masslai = 1000. / max(SLA_TABLE(IVGTYP(I,J)),1.0)
++             ENDIF
+              lfmassxy   (I,J) = lai(i,j)*masslai               ! use LAI to initialize (v3.7)
+              masssai = 1000. / 3.0                             ! conversion from lai to mass (v3.7)
+              stmassxy   (I,J) = xsaixy(i,j)*masssai            ! use SAI to initialize (v3.7)
