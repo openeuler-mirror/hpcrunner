@@ -23,9 +23,8 @@ class ConfigService:
         keys = ["DOWNLOAD","DEPENDENCY","ENV","APP","BUILD","RUN"]
         for key in keys:
             if f"[{key}]" not in contents:
-                print(f"key [{key}] not found, switch failed.")
-                self.tool.del_file(self.meta_path)
-            return
+                print(f"key [{key}] not found in {config_file}, switch failed.")
+                return
         self.tool.write_file(self.meta_path, config_file.strip())
         print("Successfully switched. config file saved in file .meta")
 
