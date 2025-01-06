@@ -18,6 +18,14 @@ class ConfigService:
         if not os.path.isfile(config_path):
             print("config_path not found, switch failed.")
             return
+        contents = self.tool.read_file(config_file)
+        # keys should contains in config
+        keys = ["DOWNLOAD","DEPENDENCY","ENV","APP","BUILD","RUN"]
+        for key in keys:
+            if f"[{key}]" not in contents:
+                print(f"key [{key}] not found, switch failed.")
+                self.tool.del_file(self.meta_path)
+            return
         self.tool.write_file(self.meta_path, config_file.strip())
         print("Successfully switched. config file saved in file .meta")
 
