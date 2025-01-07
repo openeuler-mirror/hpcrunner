@@ -42,6 +42,12 @@ class ToolService:
         with open(filename, 'w') as f:
             f.write(content)
 
+    def del_file(self, filepath):
+        """
+        删除文件。
+        """
+        if os.path.exists(filepath):
+            os.remove(filepath)
 
     def mkdirs(self, path):
         """
