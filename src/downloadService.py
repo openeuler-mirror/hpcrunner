@@ -45,7 +45,7 @@ yum makecache
         download_flag = False
         # create directory
         for url_info in self.download_list:
-            url_list = url_info.split(' ')
+            url_list = url_info.split()
             if len(url_list) < 2:
                 continue
             url_link = url_list[1].strip()
@@ -59,7 +59,7 @@ yum makecache
         for filename, url in filename_url_map.items():
             download_flag = True
             file_path = os.path.join(self.download_path, filename)
-            if os.path.exists(file_path):
+            if os.path.exists(file_path) and os.path.getsize(file_path) != 0:
                 self.tool.prt_content(f"FILE {filename} already DOWNLOADED")
                 continue
             download_url = self.gen_wget_url(self.download_path, url, filename)
