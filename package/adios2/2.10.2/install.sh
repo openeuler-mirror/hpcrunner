@@ -4,7 +4,7 @@ set -e
 adios2_version="2.10.2"
 . ${DOWNLOAD_TOOL} -u https://github.com/ornladios/ADIOS2/archive/refs/tags/v${adios2_version}.tar.gz -f ADIOS2-${adios2_version}.tar.gz
 . $CHECK_DEPS mpicc
-. $CHECK_DEPS h5pcc
+. $CHECK_DEPS HDF5
 . $CHECK_ROOT && yum install -y bzip2 bzip2-devel
 cd ${JARVIS_TMP}
 rm -rf ADIOS2-${adios2_version}
