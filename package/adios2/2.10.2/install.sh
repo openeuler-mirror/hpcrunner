@@ -10,7 +10,7 @@ cd ${JARVIS_TMP}
 rm -rf ADIOS2-${adios2_version}
 tar -xvf ${JARVIS_DOWNLOAD}/ADIOS2-${adios2_version}.tar.gz
 cd ADIOS2-${adios2_version}
-mkdir -p build
+mkdir -p build && cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$1 -DUCX_LIBRARIES=${HMPI_PATH}/hucx/lib/libucp.so -DCMAKE_C_FLAGS="-I${HMPI_PATH}/hucx/include" -DCMAKE_CXX_FLAGS="-L${HMPI_PATH}/hucx/lib -lucs"
 make -j
 make install
