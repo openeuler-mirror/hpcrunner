@@ -1,0 +1,90 @@
+ 
+ 
+CC          = mpicc
+FC          = mpif90
+LD          = mpif90
+AR          = ar -r
+ 
+HMPI_LIB_PATH=path1
+BISHENG_LIB_PATH=path2
+
+ELPA_DIR    = $(HMPI_LIB_PATH)/elpa/2019.05.001
+ELPA_INC    = $(ELPA_DIR)/include/elpa_openmp-2019.05.001
+ELPA_LIB    = $(ELPA_DIR)/lib
+ 
+FFTW_DIR    = $(HMPI_LIB_PATH)/fftw/3.3.8
+FFTW_INC    = $(FFTW_DIR)/include
+FFTW_LIB    = $(FFTW_DIR)/lib
+ 
+LIBINT_DIR  = $(HMPI_LIB_PATH)/libint/2.6.0
+LIBINT_INC  = $(LIBINT_DIR)/include
+LIBINT_LIB  = $(LIBINT_DIR)/lib
+ 
+LIBXC_DIR   = $(BISHENG_LIB_PATH)/libxc/4.3.4
+LIBXC_INC   = $(LIBXC_DIR)/include
+LIBXC_LIB   = $(LIBXC_DIR)/lib
+ 
+GSL_DIR     = $(BISHENG_LIB_PATH)/gsl/2.6
+GSL_INC     = $(GSL_DIR)/include
+GSL_LIB     = $(GSL_DIR)/lib
+ 
+PLUMED_DIR  = $(HMPI_LIB_PATH)/plumed/2.6.2
+PLUMED_INC  = $(PLUMED_DIR)/include
+PLUMED_LIB  = $(PLUMED_DIR)/lib
+ 
+SPGLIB_DIR  = $(BISHENG_LIB_PATH)/spglib/1.16.0
+SPGLIB_INC  = $(SPGLIB_DIR)/include
+SPGLIB_LIB  = $(SPGLIB_DIR)/lib64
+ 
+#LIBXSMM_DIR =
+#LIBXSMM_INC = $(LIBXSMM_DIR)/include
+#LIBXSMM_LIB = $(LIBXSMM_DIR)/lib
+
+BLAS_DIR    = $(BISHENG_LIB_PATH)/kml-bisheng/2.4.0
+BLAS_INC    = $(BLAS_DIR)/include
+BLAS_LIB    = $(BLAS_DIR)/lib/kblas/omp
+ 
+LAPACK_DIR    = $(BISHENG_LIB_PATH)/kml-bisheng/2.4.0
+LAPACK_INC    = $(LAPACK_DIR)/include
+LAPACK_LIB    = $(LAPACK_DIR)/lib
+ 
+SCALAPACK_DIR    = $(BISHENG_LIB_PATH)/kml-bisheng/2.4.0
+SCALAPACK_INC    = $(SCALAPACK_DIR)/include
+SCALAPACK_LIB    = $(SCALAPACK_DIR)/lib
+ 
+MATHLIB_DIR = $(BISHENG_LIB_PATH)/kml-bisheng/2.4.0
+MATHLIB_INC = $(MATHLIB_DIR)/include
+MATHLIB_LIB = $(MATHLIB_DIR)/lib
+    
+
+include       $(PLUMED_LIB)/plumed/src/lib/Plumed.inc.shared
+ 
+CFLAGS      = -O3 -mtune=native -Mbackslash -march=armv8.2-a+sve # +sve2 -mcpu=linxicore6100 #-Hx,2,0x400000 -Hx,47,0x1000000
+ 
+DFLAGS      = -D__ELPA -D__FFTW3 -D__LIBINT -D__LIBXC
+DFLAGS     += -D__MPI_VERSION=3 -D__PLUMED2 -D__SPGLIB
+DFLAGS     += -D__parallel -D__SCALAPACK
+#DFLAGS     += -D__LIBXSMM
+
+FCFLAGS     = $(CFLAGS) $(DFLAGS)
+FCFLAGS    += -ffree-form -ffree-line-length-none
+FCFLAGS    += -fopenmp
+FCFLAGS    += -ftree-vectorize -funroll-loops -std=f2008
+FCFLAGS    += -I$(ELPA_INC)/elpa -I$(ELPA_INC)/modules
+FCFLAGS    += -I$(FFTW_INC) -I$(LIBINT_INC) -I$(LIBXC_INC) -I$(GSL_INC) -I$(PLUMED_INC) -I$(SPGLIB_INC) # -I$(LIBXSMM_INC)
+ 
+LDFLAGS     = $(FCFLAGS)
+ 
+LIBS        = -L/usr/lib64 -ldl -lpthread -lstdc++
+LIBS       += -L$(PLUMED_LIB) -lplumedKernel -lplumed
+LIBS       += -L$(GSL_LIB)  -lgsl -lgslcblas -lz
+LIBS       += -L$(ELPA_LIB) -lelpa_openmp
+LIBS       += -L$(LIBXC_LIB) -lxcf03 -lxc
+LIBS       += -L$(LIBINT_LIB) -lint2
+LIBS       += -L$(SPGLIB_LIB) -lsymspg
+LIBS       += -L$(FFTW_LIB) -lfftw3 -lfftw3_omp
+LIBS       += -L$(BLAS_LIB) -lkblas
+LIBS       += -L$(SCALAPACK_LIB) -lkscalapack_full -lkscalapack
+LIBS       += -L$(LAPACK_LIB) -lklapack_full -lklapack
+LIBS       += -L$(MATHLIB_LIB) -lkm
+#LIBS       += -L$(LIBXSMM_LIB) -lxsmmf -lxsmmext -lxsmm -ldl
