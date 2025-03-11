@@ -22,7 +22,6 @@ make -j $(nproc)
 make install
 ln -s $1/lib64 $1/lib
 
-rm * -rf
-cmake ../ -DCMAKE_INSTALL_PREFIX=$1 -DBUILD_SHARED_LIBS=OFF
-make -j $(nproc)
-make install
+cd ..
+sed -i "s|\$(TOPSRCDIR)|$1/lib64|g" make.inc
+make -j $(nproc) blaslib
