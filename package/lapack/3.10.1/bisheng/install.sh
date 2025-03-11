@@ -21,3 +21,8 @@ cmake ../ -DCMAKE_INSTALL_PREFIX=$1 -DBUILD_SHARED_LIBS=ON
 make -j $(nproc)
 make install
 ln -s $1/lib64 $1/lib
+
+rm * -rf
+cmake ../ -DCMAKE_INSTALL_PREFIX=$1 -DBUILD_SHARED_LIBS=OFF
+make -j $(nproc)
+make install
