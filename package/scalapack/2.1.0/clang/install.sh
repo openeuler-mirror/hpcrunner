@@ -11,6 +11,7 @@ if ! [ -z ${LAPACK_BISHENG_PATH} ]; then
 else
     echo "Need to set environment var LAPACK_BISHENG_PATH" && exit 1;
 fi
+sed -i "33s/$/ -Wno-implicit-function-declaration -Wno-implicit-int/g" ./SLmake.inc
 sed -i "58s/-lblas//g" ./SLmake.inc
 sed -i "59s/-llapack//g" ./SLmake.inc
 sed -i "58s%$%${LAPACK_BISHENG_PATH}/lib/librefblas.a%g" ./SLmake.inc
