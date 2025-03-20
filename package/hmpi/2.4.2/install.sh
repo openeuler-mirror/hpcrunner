@@ -28,7 +28,7 @@ mkdir build && cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=$1/xucg -DCMAKE_BUILD_TYPE=Release -DUCG_BUILD_WITH_UCX=$1/hucx -DUCG_ENABLE_MT=ON -DUCG_BUILD_TESTS=OFF -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -DCMAKE_Fortran_COMPILER=$FC
 make -j
 make -j install
-cd -
+cd ../..
 export LD_LIBRARY_PATH=$1/xucg/lib:$LD_LIBRARY_PATH
 export C_INCLUDE_PATH=$1/xucg/include:$C_INCLUDE_PATH
 export CPLUS_INCLUDE_PATH=$1/xucg/include:$CPLUS_INCLUDE_PATH
