@@ -9,5 +9,5 @@ tar -zxf ${JARVIS_DOWNLOAD}/v0.13.2.tar.gz
 cd qtkeychain-0.13.2
 mkdir build && cd build
 cmake -DCMAKE_INSTALL_PREFIX=$1 ..
-make -j4
+make -j
 make install

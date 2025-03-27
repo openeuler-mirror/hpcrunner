@@ -13,5 +13,5 @@ cd PDAL-2.3.0
 
 mkdir build && cd build
 cmake -DCMAKE_INSTALL_PREFIX=$1 ..
-make -j4
+make -j
 make install

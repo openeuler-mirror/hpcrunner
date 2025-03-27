@@ -8,5 +8,5 @@ tar -zxf ${JARVIS_DOWNLOAD}/1.9.3.tar.gz
 cd libspatialindex-1.9.3
 mkdir build && cd build
 cmake -DCMAKE_INSTALL_PREFIX=$1 ..
-make -j4
+make -j
 make install

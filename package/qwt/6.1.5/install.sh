@@ -9,5 +9,5 @@ tar -xjf ${JARVIS_DOWNLOAD}/qwt-6.1.5.tar.bz2
 cd qwt-6.1.5
 sed -i "22c \    QWT_INSTALL_PREFIX    = $1" qwtconfig.pri
 qmake-qt5 qwt.pro
-make -j4
+make -j
 make install

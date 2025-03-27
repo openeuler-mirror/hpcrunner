@@ -16,6 +16,6 @@ else
     ./configure --prefix=$1 --with-hdf5=${HDF5_CLANG_PATH}
 fi
 
-make -j4
+make -j
 make install
 
