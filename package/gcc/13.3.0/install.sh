@@ -8,4 +8,4 @@ tar -xzvf ${JARVIS_DOWNLOAD}/gcc-13.3.0.tar.gz
 cd gcc-13.3.0
 ./contrib/download_prerequisites
 ./configure --disable-multilib --enable-languages="c,c++,fortran" --prefix=$1 --disable-static --enable-shared
-make -j4 && make install
+make -j && make install
