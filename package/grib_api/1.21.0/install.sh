@@ -11,5 +11,4 @@ cd grib_api-1.21.0
 CC=mpicc F77=mpifort FC=mpifort ./configure --with-netcdf=${NETCDF_CLANG_PATH} --prefix=${1} --build=aarch64-unknown-linux-gnu --disable-jpeg
 sed -i '10270c wl="-Wl,"' libtool
 make
-make VERBOSE=1
 make install
