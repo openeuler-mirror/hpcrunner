@@ -5,7 +5,7 @@ set -e
 cd ${JARVIS_TMP}
 rm -rf gcc-13.3.0
 tar -xzvf ${JARVIS_DOWNLOAD}/gcc-13.3.0.tar.gz
-cd gcc-10.3.0
+cd gcc-13.3.0
 ./contrib/download_prerequisites
 ./configure --disable-multilib --enable-languages="c,c++,fortran" --prefix=$1 --disable-static --enable-shared
 make -j && make install
