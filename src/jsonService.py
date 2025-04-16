@@ -30,11 +30,13 @@ class JSONService:
     # 添加数据
     def add_data(self, key, value):
         self.data[key] = value
+        self.write_file()
 
     # 删除数据
     def delete_data(self, key):
         if key in self.data:
             del self.data[key]
+            self.write_file()
         else:
             print("Key not found")
 
@@ -42,6 +44,7 @@ class JSONService:
     def update_data(self, key, value):
         if key in self.data:
             self.data[key] = value
+            self.write_file()
         else:
             print("Key not found")
 

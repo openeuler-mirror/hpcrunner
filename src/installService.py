@@ -17,6 +17,8 @@ class SType(Enum):
     MPI = 2
     UTIL = 3
     LIB = 4
+    MISC = 5
+    APP = 6
 
 class InstallService:
     def __init__(self):
@@ -24,18 +26,94 @@ class InstallService:
         self.exe = ExecuteService()
         self.tool = ToolService()
         self.ROOT = os.getcwd()
+        self.MODE = os.getenv('JARVIS_MODE')
+        self.PRO = "0"
+        self.NORMAL = "1"
+        self.IS_PRO = self.MODE == self.PRO
+        self.IS_NORMAL = self.MODE == self.NORMAL
+        modes = {"1": "normal", "0": "professional"}
+        print(f"current MODE: {modes.get(self.MODE, 'unknown')}")
         self.PACKAGE = 'package'
         self.FULL_VERSION='fullver'
         self.PACKAGE_PATH = os.path.join(self.ROOT, self.PACKAGE)
-        self.SOFTWARE_PATH = os.path.join(self.ROOT, 'software')
+        paths = {
+            'SOFTWARE_PATH': 'JARVIS_SOFT_ROOT',
+            'COMPILER_PATH': 'JARVIS_COMPILER',
+            'LIBS_PATH': 'JARVIS_LIBS',
+            'MODULE_FILES': 'JARVIS_MODULES',
+            'MPI_PATH': 'JARVIS_MPI',
+            'UTILS_PATH': 'JARVIS_UTILS',
+            'MISC_PATH': 'JARVIS_MISC',
+            'APP_PATH': 'JARVIS_APP'
+        }
+        if self.IS_PRO: paths['MODULE_DEPS_PATH'] = 'JARVIS_MODULEDEPS'
+        if self.IS_NORMAL:
+            paths['MODULE_LIB_PATH'] = 'JARVIS_MODULES_LIB'
+            paths['MODULE_TOOL_PATH'] = 'JARVIS_MODULES_TOOL'
+            paths['MODULE_COMPILER_PATH'] = 'JARVIS_MODULES_COMPILER'
+            paths['MODULE_MISC_PATH'] = 'JARVIS_MODULES_MISC'
+            paths['MODULE_MPI_PATH'] = 'JARVIS_MODULES_MPI'
+            paths['MODULE_MOD_PATH'] = 'JARVIS_MODULES_MODS'
+
+        for attr, env_var in paths.items():
+            cur_path = os.getenv(env_var)
+            setattr(self, attr, cur_path)
+        self.LINK_FILE = os.path.join(self.MODULE_FILES,'linkpathtomodules.sh')
         self.INSTALL_INFO_PATH = os.path.join(self.SOFTWARE_PATH, "install.json")
-        self.COMPILER_PATH = os.path.join(self.SOFTWARE_PATH, 'compiler')
-        self.LIBS_PATH = os.path.join(self.SOFTWARE_PATH, 'libs')
-        self.MODULE_DEPS_PATH = os.path.join(self.SOFTWARE_PATH, 'moduledeps')
-        self.MODULE_FILES = os.path.join(self.SOFTWARE_PATH, 'modulefiles')
-        self.MPI_PATH = os.path.join(self.SOFTWARE_PATH, 'mpi')
-        self.UTILS_PATH = os.path.join(self.SOFTWARE_PATH, 'utils')
+        # create dirs
+        if not os.path.exists(self.INSTALL_INFO_PATH):
+            for item in paths.keys():
+                dir_item = getattr(self,item)
+                os.makedirs(dir_item, mode=0o755, exist_ok=True)
+            if self.IS_NORMAL: self.init_linkfile()
+
+            self.json = JSONService(self.INSTALL_INFO_PATH)
+            self.json.add_data('MODE',self.MODE)
+            return
+            
         self.json = JSONService(self.INSTALL_INFO_PATH)
+        install_mode = self.json.query_data('MODE')
+        if not install_mode: install_mode = self.PRO
+        if self.MODE != install_mode:
+            print("current diretory is not suitable for selected mode, please reset JARVIS_MODE in init.sh.")
+            sys.exit()
+        self.json.add_data('MODE',self.MODE)
+    
+    def init_linkfile(self):
+        linkfile_content = '''
+#!/bin/bash
+
+# 源目录数组
+SOURCEDIRS=("compiler/" "lib/" "misc/" "mpi/" "tool/")
+
+# 目标目录
+TARGETDIR="modules/"
+
+# 确保目标目录存在
+mkdir -p "$TARGETDIR"
+
+# 函数用于递归遍历目录并创建软链接
+link_files() {
+    local SOURCEDIR="$1"
+    local TARGETDIR="$2"
+    # 遍历源目录中的所有文件和子目录
+    for FILE in "$SOURCEDIR"*; do
+        # 检查是否为目录
+        if [ -d "$FILE" ] && [ "$FILE" != "$SOURCEDIR"." ] && [ "$FILE" != "$SOURCEDIR".." ]; then
+            # 创建软链接
+            SUBDIRNAME=$(basename "$FILE")
+            rel_path=$(realpath "$FILE")
+            ln -sfn "$rel_path" "$TARGETDIR/$SUBDIRNAME"
+        fi
+    done
+}
+
+# 遍历所有源目录
+for SOURCEDIR in "${SOURCEDIRS[@]}"; do
+    link_files "$SOURCEDIR" "$TARGETDIR"
+done
+'''
+        self.tool.write_file(self.LINK_FILE, linkfile_content)
 
     def get_version_info(self, info, reg = r'(\d+)\.(\d+)\.(\d+)'):
         matched_group = re.search(reg ,info)
@@ -162,7 +240,7 @@ class InstallService:
         return abs_software_path
 
     def check_compiler_mpi(self, compiler_list, compiler_mpi_info):
-        no_compiler = ["COM","ANY"]
+        no_compiler = ["COM","ANY","MISC","APP"]
         is_valid = False
         compiler_mpi_info = compiler_mpi_info.upper()
         valid_list = []
@@ -189,6 +267,10 @@ class InstallService:
             return SType.COMPILER
         elif compiler_mpi_info == "ANY":
             return SType.UTIL
+        elif compiler_mpi_info == "MISC":
+            return SType.MISC
+        elif compiler_mpi_info == "APP":
+            return SType.APP
         else:
             return SType.LIB
 
@@ -241,7 +323,10 @@ class InstallService:
             return False
         mpi_str = mpi_info["name"]+mpi_info[self.FULL_VERSION]
         print("Use MPI: "+mpi_str)
-        install_path = os.path.join(install_path, mpi_str)
+        if self.IS_PRO:
+            install_path = os.path.join(install_path, mpi_str)
+        elif self.IS_NORMAL:
+            install_path = f"{install_path}-{mpi_str}"
         return install_path
 
     def get_install_path(self, software_info, env_info):
@@ -254,17 +339,31 @@ class InstallService:
             software_info['sname'] += '-' + suffix
         sname = software_info['sname']
         if stype == SType.MPI:
-            return os.path.join(self.MPI_PATH, f"{sname}{sversion}-{cname}{cfullver}", sversion)
+            if self.IS_PRO:
+                mpi_path = os.path.join(self.MPI_PATH, f"{sname}{sversion}-{cname}{cfullver}", sversion)
+            if self.IS_NORMAL:
+                mpi_path = os.path.join(self.MPI_PATH,sname, f"{sversion}-{cname}{cfullver}")
+            print(f"mpi_path:{mpi_path}")
+            return mpi_path
         if stype == SType.COMPILER:
             install_path = os.path.join(self.COMPILER_PATH, f'{sname}/{sversion}')
         elif stype == SType.UTIL:
             install_path = os.path.join(self.UTILS_PATH, f'{sname}/{sversion}')
-        else:
-            # install library
-            install_path = os.path.join(self.LIBS_PATH, cname+cfullver)
-            # get mpi name and version
+        elif stype == SType.MISC:
+            install_path = os.path.join(self.MISC_PATH, f'{sname}/{sversion}')
+        elif stype == SType.APP:
+            install_path = os.path.join(self.APP_PATH, f'{sname}/{sversion}-{cname}{cfullver}')
             install_path = self.add_mpi_path(software_info, install_path)
-            install_path = os.path.join(install_path, f'{sname}/{sversion}')
+        else:
+            if self.IS_PRO:
+                # install library
+                install_path = os.path.join(self.LIBS_PATH, cname+cfullver)
+                # get mpi name and version
+                install_path = self.add_mpi_path(software_info, install_path)
+                install_path = os.path.join(install_path, f'{sname}/{sversion}')
+            elif self.IS_NORMAL:
+                install_path = os.path.join(self.LIBS_PATH, f'{sname}/{sversion}-{cname}{cfullver}')
+                install_path = self.add_mpi_path(software_info, install_path)
         return install_path
 
     def is_contained_mpi(self, compiler_mpi_info):
@@ -286,6 +385,38 @@ class InstallService:
             libs_dir.append(os.path.join(prefix, "lib/kspblas/single"))
             libs_dir.append(os.path.join(prefix, "lib/kspblas/multi"))
         return libs_dir
+
+    def get_loaded_modules(self):
+        import subprocess
+        try:
+            # 执行module list命令(需初始化module环境)
+            cmd = "source /etc/profile.d/modules.sh; module list 2>&1"
+            output = subprocess.check_output(cmd, shell=True, executable='/bin/bash')
+            raw_list = output.decode().split()
+            modules = []
+            for item in raw_list:
+                if '/' in item:
+                    modules.append(item)
+            return modules
+        except subprocess.CalledProcessError as e:
+            print(f"module list执行失败: {e}")
+            return []
+
+    def complement_dep(self):
+        loaded_modules = self.get_loaded_modules()
+        print(f"loaded: {loaded_modules}")
+        deps = self.dependencies.split()
+        depsmap = {}
+        for dep in deps:
+            depsmap[dep] = False
+            for loaded_module in loaded_modules:
+                if loaded_module.startswith(dep):
+                    depsmap[dep] = loaded_module
+                    print(f"{loaded_module} for dependency {dep} loaded.")
+            if not depsmap[dep]:
+                print(f"{dep} not loaded, please use module load first.")
+                sys.exit(0)
+        return " ".join(depsmap.values())
 
     def get_module_file_content(self, install_path, sname, sversion):
         module_file_content = ''
@@ -328,10 +459,20 @@ class InstallService:
         if self.is_mpi_software(sname):
             opal_prefix = f"setenv OPAL_PREFIX {install_path}"
             pmix_install_prefix = f"setenv PMIX_INSTALL_PREFIX {install_path}"
+        depend_content=''
+        if self.dependencies:
+            # complement dependencies
+            depend_content='''
+foreach dep {%s} {
+    if { ![is-loaded $dep] } {
+        module load $dep
+    }
+}
+''' % self.dependencies
         module_file_content = f'''#%Module1.0#####################################################################
 set     prefix  {install_path}
-set     version			    {sversion}
-
+set     version	{sversion}
+{depend_content}
 setenv    {sname.upper().replace('-','_')}_PATH {install_path}
 {compiler_values}
 {opal_prefix}
@@ -365,41 +506,110 @@ setenv    {sname.upper().replace('-','_')}_PATH {install_path}
         if stype == SType.MPI:
             compiler_str = cname + cfullversion
             software_str = sname + sversion
-            module_path = os.path.join(self.MODULE_DEPS_PATH, compiler_str ,sname)
-            attach_module_path = os.path.join(self.MODULE_DEPS_PATH, compiler_str+'-'+software_str)
-            self.tool.mkdirs(attach_module_path)
-            module_file_content += f"\nprepend-path    MODULEPATH     {attach_module_path}"
-            print(f'attach module file {attach_module_path} successfully generated.')
-        else:
-            if stype == SType.COMPILER:
-                software_str = sname + sversion
-                module_path = os.path.join(self.MODULE_FILES, sname)
-                attach_module_path = os.path.join(self.MODULE_DEPS_PATH, software_str)
+            if self.IS_PRO:
+                module_path = os.path.join(self.MODULE_DEPS_PATH, compiler_str ,sname)
+                attach_module_path = os.path.join(self.MODULE_DEPS_PATH, compiler_str+'-'+software_str)
                 self.tool.mkdirs(attach_module_path)
                 module_file_content += f"\nprepend-path    MODULEPATH     {attach_module_path}"
                 print(f'attach module file {attach_module_path} successfully generated.')
+            elif self.IS_NORMAL:
+                module_path = os.path.join(self.MODULE_COMPILER_PATH, sname, f'{sversion}-{compiler_str}')
+        else:
+            if stype == SType.COMPILER:
+                software_str = sname + sversion
+                if self.IS_PRO:
+                    module_path = os.path.join(self.MODULE_FILES, sname)
+                    attach_module_path = os.path.join(self.MODULE_DEPS_PATH, software_str)
+                    self.tool.mkdirs(attach_module_path)
+                    module_file_content += f"\nprepend-path    MODULEPATH     {attach_module_path}"
+                    print(f'attach module file {attach_module_path} successfully generated.')
+                elif self.IS_NORMAL:
+                    module_path = os.path.join(self.MODULE_COMPILER_PATH, sname, sversion)
             elif stype == SType.UTIL:
-                module_path = os.path.join(self.MODULE_FILES, sname)
+                if self.IS_PRO:
+                    module_path = os.path.join(self.MODULE_FILES, sname)
+                elif self.IS_NORMAL:
+                    module_path = os.path.join(self.MODULE_TOOL_PATH, sname, sversion)
+            elif stype == SType.MISC:
+                if self.IS_PRO:
+                    module_path = os.path.join(self.MODULE_FILES, sname)
+                elif self.IS_NORMAL:
+                    module_path = os.path.join(self.MODULE_MISC_PATH, sname, sversion)
             else:
+                if self.IS_NORMAL:
+                    if stype == SType.APP:
+                        BASE_PATH = self.MODULE_APP_PATH
+                    else:
+                        BASE_PATH = self.MODULE_LIB_PATH
                 compiler_str = cname + cfullversion
                 if software_info['is_use_mpi']:
                     mpi_info = self.get_mpi_info()
                     mpi_str = mpi_info['name'] + mpi_info[self.FULL_VERSION]
-                    module_path = os.path.join(self.MODULE_DEPS_PATH, f"{compiler_str}-{mpi_str}" ,sname)
+                    if self.IS_PRO:
+                        module_path = os.path.join(self.MODULE_DEPS_PATH, f"{compiler_str}-{mpi_str}" ,sname)
+                    if self.IS_NORMAL:
+                        module_path = os.path.join(BASE_PATH, sname, f"{sversion}-{compiler_str}-{mpi_str}")
                 else:
-                    module_path = os.path.join(self.MODULE_DEPS_PATH, compiler_str, sname)
-        self.tool.mkdirs(module_path)
-        module_file = os.path.join(module_path, sversion)
+                    if self.IS_PRO:
+                        module_path = os.path.join(self.MODULE_DEPS_PATH, compiler_str, sname)
+                    elif self.IS_NORMAL:
+                        module_path = os.path.join(BASE_PATH, sname, f"{sversion}-{compiler_str}")
+        if self.IS_PRO:
+            self.tool.mkdirs(module_path)
+            module_file = os.path.join(module_path, sversion)
+        elif self.IS_NORMAL:
+            self.tool.mkdirs(os.path.dirname(module_path))
+            module_file = module_path
         self.tool.write_file(module_file, module_file_content)
         print(f"module file {module_file} successfully generated")
         row = self.json.query_data(install_path)
         row["module_path"] = module_file
         self.json.update_data(install_path, row)
         self.json.write_file()
+        #更新linkfile
+        if self.IS_NORMAL:self.update_modules()
+
+    def update_modules(self):
+        upd_cmd = f'''
+cd {self.MODULE_FILES}
+source {self.LINK_FILE}
+'''
+        result = self.exe.exec_raw(upd_cmd)
+        if result:
+            print(f"update modules successful")
+        else:
+            print("update failed")
+
+    def extract_dependency_variable(self,file_path):
+        """
+        从 install.sh 文件中提取环境变量的值
+        :param file_path: install.sh 文件路径
+        :return: extract 的值（字符串），未找到时返回 None
+        """
+        ex_value = None
+        # 正则匹配 export AA=value 或 AA=value 的行（忽略注释和空格）
+        pattern = re.compile(r'^\s*(?:export\s+)?DEPENDENCIES\s*=\s*(.*?)(?:\s*#.*)?$', re.IGNORECASE)
+        
+        with open(file_path, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith('#'):
+                    continue  # 跳过注释行
+                match = pattern.match(line)
+                if match:
+                    value = match.group(1)
+                    # 去除两侧的引号（单引号、双引号）
+                    if value.startswith(('"', "'")) and value.endswith(('"', "'")):
+                        value = value[1:-1]
+                    ex_value = value
+        return ex_value 
 
     def install_package(self, abs_software_path, install_path, other_args):
         install_script = 'install.sh'
         install_script_path = os.path.join(abs_software_path, install_script)
+        # Extracting dependency information
+        self.dependencies = self.extract_dependency_variable(install_script_path)
+        if self.dependencies:self.dependencies = self.complement_dep()
         print("start installing..."+ abs_software_path)
         if not os.path.exists(install_script_path):
             print("install script not exists, skipping...")
@@ -521,6 +731,7 @@ chmod +x {depend_file}
     def list(self):
         self.tool.prt_content("Installed list".upper())
         installed_list = self.json.read_file()
+        installed_list.pop('MODE', None)
         if len(installed_list) == 0:
             print("no software installed.")
             return
