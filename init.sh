@@ -7,7 +7,7 @@ chmod +x ./*.sh
 chmod +x jarvis
 mkdir -p tmp
 export JARVIS_ROOT=${CUR_PATH}
-export JARVIS_SOFT_ROOT=/workspace/home/shenchao/wubingcheng/fang/software
+export JARVIS_SOFT_ROOT=$JARVIS_ROOT/share/software
 export JARVIS_MODE=1
 if [ "$JARVIS_MODE" -eq 0 ]; then
     #professional mode:Clustered Directory Structure
@@ -34,7 +34,8 @@ elif [ "$JARVIS_MODE" -eq 1 ]; then
     export JARVIS_MODULES_COMPILER=${JARVIS_SOFT_ROOT}/modulefile/compiler
     export JARVIS_MODULES_MPI=${JARVIS_SOFT_ROOT}/modulefile/mpi
     export JARVIS_MODULES_LIB=${JARVIS_SOFT_ROOT}/modulefile/lib
-    export JARVIS_MODULES_MISC=${JARVIS_SOFT_ROOT}/modulefile/misc    export JARVIS_MODULES_APP=${JARVIS_SOFT_ROOT}/modulefile/app
+    export JARVIS_MODULES_MISC=${JARVIS_SOFT_ROOT}/modulefile/misc
+    export JARVIS_MODULES_APP=${JARVIS_SOFT_ROOT}/modulefile/app
     export JARVIS_MODULES_MODS=${JARVIS_SOFT_ROOT}/modulefile/modules
 fi
 export JARVIS_TMP=/tmp

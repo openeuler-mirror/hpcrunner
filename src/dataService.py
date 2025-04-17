@@ -26,6 +26,8 @@ class DataService(object,metaclass=Singleton):
 
     # Application Info
     app_name = ''
+    app_version = ''
+    app_compiler = ''
     build_dir = ''
     binary_dir =  ''
     binary_file = ''
@@ -52,6 +54,7 @@ class DataService(object,metaclass=Singleton):
     ncu_para = ''
     hpccollect_para = ''
     hpcreport_para = ''
+    pre_cond = ['[SERVER]','[DOWNLOAD]','[DEPENDENCY]','[ENV]','[APP]','[BUILD]','[CLEAN]','[RUN]','[BATCH]','[LOOP]','[JOB]','[JOB2]','[PERF]']
     def get_abspath(self, relpath):
         return os.path.join(DataService.root_path, relpath)
 
@@ -89,7 +92,7 @@ class DataService(object,metaclass=Singleton):
         row = rows[start_row]
         if needs_strip:
             row = row.strip()
-        while not row.startswith('['):
+        while row not in DataService.pre_cond:
             if not self.is_empty(row):
                 data += row + '\n'
             start_row += 1
@@ -103,7 +106,7 @@ class DataService(object,metaclass=Singleton):
     def read_rows_kv(self, rows, start_row):
         data = {}
         row = rows[start_row].strip()
-        while not row.startswith('['):
+        while row not in DataService.pre_cond:
             if '=' in row:
                 key, value = row.split('=', 1)
                 data[key.strip()] = value.strip()
@@ -115,6 +118,8 @@ class DataService(object,metaclass=Singleton):
 
     def set_app_info(self, data):
         DataService.app_name = data['app_name']
+        DataService.app_version = data['app_version']
+        DataService.app_compiler = data['compiler']
         DataService.build_dir = data['build_dir']
         DataService.binary_dir = data['binary_dir']
         DataService.case_dir = data['case_dir']

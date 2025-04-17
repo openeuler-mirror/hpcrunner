@@ -36,6 +36,7 @@ class InstallService:
         self.PACKAGE = 'package'
         self.FULL_VERSION='fullver'
         self.PACKAGE_PATH = os.path.join(self.ROOT, self.PACKAGE)
+        self.dependencies = False       
         paths = {
             'SOFTWARE_PATH': 'JARVIS_SOFT_ROOT',
             'COMPILER_PATH': 'JARVIS_COMPILER',
@@ -54,6 +55,7 @@ class InstallService:
             paths['MODULE_MISC_PATH'] = 'JARVIS_MODULES_MISC'
             paths['MODULE_MPI_PATH'] = 'JARVIS_MODULES_MPI'
             paths['MODULE_MOD_PATH'] = 'JARVIS_MODULES_MODS'
+            paths['MODULE_APP_PATH'] = 'JARVIS_MODULES_APP'
 
         for attr, env_var in paths.items():
             cur_path = os.getenv(env_var)
@@ -84,7 +86,7 @@ class InstallService:
 #!/bin/bash
 
 # 源目录数组
-SOURCEDIRS=("compiler/" "lib/" "misc/" "mpi/" "tool/")
+SOURCEDIRS=("compiler/" "lib/" "misc/" "mpi/" "tool/" "app/")
 
 # 目标目录
 TARGETDIR="modules/"
@@ -279,12 +281,15 @@ done
             return software_info_list[2]
         return ""
 
-    def get_software_info(self, software_path, compiler_mpi_info):
+    def get_software_info(self, software_path, compiler_mpi_info, isapp = False):
         software_info_list = software_path.split('/')
         software_name = software_info_list[0]
         software_version = software_info_list[1]
         software_main_version = self.get_main_version(software_version)
-        software_type = self.get_software_type(software_name, compiler_mpi_info)
+        if isapp: 
+            software_type = SType.APP
+        else:
+            software_type = self.get_software_type(software_name, compiler_mpi_info)
         software_info = {
             "sname":software_name, 
             "sversion": software_version, 
@@ -292,7 +297,7 @@ done
             "type" : software_type,
             "suffix": self.get_suffix(software_info_list)
         }
-        if software_type == SType.LIB or software_type == SType.MPI:
+        if software_type == SType.LIB or software_type == SType.MPI or software_type == SType.APP:
             software_info["is_use_mpi"] = self.is_contained_mpi(compiler_mpi_info)
             software_info["use_compiler"] = self.get_used_compiler(compiler_mpi_info)
         return software_info
@@ -648,8 +653,8 @@ chmod +x {install_script}
             software_path = software_path.replace('./', '', 1)
             software_path = software_path.replace('package/', '', 1)
         return software_path
-
-    def install(self, install_args):
+    
+    def install(self, install_args, isapp = False):
         software_path = install_args[0]
         compiler_mpi_info = install_args[1]
         other_args = install_args[2:]
@@ -659,15 +664,16 @@ chmod +x {install_script}
 		             "BISHENG":self.get_clang_info}
         software_path = self.remove_prefix(software_path)
         # software_path should exists
-        abs_software_path = self.check_software_path(software_path)
-        if not abs_software_path: return
+        if not isapp:
+            abs_software_path = self.check_software_path(software_path)
+            if not abs_software_path: return
         compiler_mpi_info = self.check_compiler_mpi(compilers.keys(), compiler_mpi_info)
         if not compiler_mpi_info: return
-        software_info = self.get_software_info(software_path, compiler_mpi_info)
+        software_info = self.get_software_info(software_path, compiler_mpi_info, isapp)
         stype = software_info['type']
         # get compiler name and version
         env_info = self.get_compiler_info(compilers, compiler_mpi_info)
-        if stype == SType.LIB or stype == SType.MPI:
+        if stype == SType.LIB or stype == SType.MPI or stype == SType.APP:
             cmversion = env_info['cmversion']
             cfullver = env_info[self.FULL_VERSION]
             if cmversion == None:
@@ -678,7 +684,16 @@ chmod +x {install_script}
         
         # get install path
         install_path = self.get_install_path(software_info, env_info)
-        if not install_path: return
+        if not install_path: 
+            return
+        else:
+            self.tool.mkdirs(install_path)
+        if isapp: 
+            return {
+                "install_path": install_path,
+                "software_info":software_info,
+                "env_info":env_info
+            }
         # get install script
         self.install_package(abs_software_path, install_path, other_args)
         # add install info
