@@ -1,0 +1,14 @@
+	hd、system、host指定参数为主机名，请用户根据实际规划修改
+	vdbench指定参数为执行测试路径，请用户根据实际规划修改
+	anchor表明在哪个路径下创建新的目录结构，通常情况为DPC挂载路径，请用户根据实际规划修改
+	depth为目录的深度
+	width是每一层目录的数量
+	files为目录下面文件的数量
+	size是文件大小
+	fileio、fileselect表示文件操作方式，分为sequential和random
+	operation表示最终操作，分为read、write、create
+	threads为format的线程数
+	xfersize是步长，相当于blocksize，没有这一行也行，format默认是64k
+	fwdrate是每秒的操作数，max表示不做限制，按最大强度自适应，也可以设置指定大小或递增变化
+	format是文件预处理参数，有三个选项，“no”是不改变当前文件，如operation=read但指定目录中没有文件，则不运行；“yes”会删除当前的目录结构，重新按照fsd的要求来生成新的目录结构，并初始化文件到size的大小；“restart”仅创建尚未创建的文件，并将文件扩展到适当的大小
+	interval是结果输出间隔，每秒输出一次
