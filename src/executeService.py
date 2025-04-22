@@ -5,6 +5,7 @@ import logging
 from asyncio.log import logger
 from datetime import datetime
 from toolService import ToolService
+import subprocess
 
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 DATE_FORMAT = "%m/%d/%Y %H:%M:%S %p"
@@ -33,7 +34,7 @@ class ExecuteService:
     def exec_popen(self, cmd, isPrint=True):
         if isPrint:
             self.print_cmd(cmd)
-        output = os.popen(f"bash -c '{cmd}'").readlines()
+        output = os.popen(f"bash -c '{cmd} 2>&1'").readlines()
         return output
 
     def get_duration(self):
@@ -60,3 +61,20 @@ class ExecuteService:
 
     def exec_raw(self, rows):
         return self.exec_list(self.tool.gen_list(rows))
+
+    def exec_inject(self, cmd_str):
+        cmd = f'{cmd_str} && env -0'
+        result = subprocess.run(
+            cmd,
+            shell=True,
+            stdout=subprocess.PIPE,
+            text=True
+        )
+        # 处理错误并注入变量
+        if result.returncode != 0:
+            print(f"execute {cmd} failed: {result.stderr}")
+            return
+        for line in result.stdout.strip('\0').split('\0'):
+            if '=' in line:
+                key, value = line.split('=', 1)
+                os.environ[key] = value

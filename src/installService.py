@@ -12,6 +12,18 @@ from toolService import ToolService
 from executeService import ExecuteService
 from jsonService import JSONService
 
+class Singleton(type):
+
+    def __init__(self, name, bases, dictItem):
+        super(Singleton,self).__init__(name,bases, dictItem)
+        self._instance = None
+
+    def __call__(self, *args, **kwargs):
+        if self._instance is None:
+            self._instance = super(Singleton,self).__call__(*args, **kwargs)
+        return self._instance
+
+
 class SType(Enum):
     COMPILER = 1
     MPI = 2
@@ -20,9 +32,9 @@ class SType(Enum):
     MISC = 5
     APP = 6
 
-class InstallService:
+class InstallService(object,metaclass=Singleton):
     def __init__(self):
-        self.hpc_data = DataService()
+        self.ds = DataService()
         self.exe = ExecuteService()
         self.tool = ToolService()
         self.ROOT = os.getcwd()
@@ -45,7 +57,8 @@ class InstallService:
             'MPI_PATH': 'JARVIS_MPI',
             'UTILS_PATH': 'JARVIS_UTILS',
             'MISC_PATH': 'JARVIS_MISC',
-            'APP_PATH': 'JARVIS_APP'
+            'APP_PATH': 'JARVIS_APP',
+            'MODULE_APP_PATH': 'JARVIS_MODULES_APP'
         }
         if self.IS_PRO: paths['MODULE_DEPS_PATH'] = 'JARVIS_MODULEDEPS'
         if self.IS_NORMAL:
@@ -55,7 +68,6 @@ class InstallService:
             paths['MODULE_MISC_PATH'] = 'JARVIS_MODULES_MISC'
             paths['MODULE_MPI_PATH'] = 'JARVIS_MODULES_MPI'
             paths['MODULE_MOD_PATH'] = 'JARVIS_MODULES_MODS'
-            paths['MODULE_APP_PATH'] = 'JARVIS_MODULES_APP'
 
         for attr, env_var in paths.items():
             cur_path = os.getenv(env_var)
@@ -193,8 +205,8 @@ done
         return version    
 
     def get_hmpi_info(self):
-        hmpi_v2_info = (self.get_cmd_output('ucx_info -c | grep -i BUILT')[0]).upper()
-        hmpi_v3_info = (self.get_cmd_output('ucg_info -c | grep -i PLANC')[0]).upper()
+        hmpi_v2_info = (self.get_cmd_output('(ucx_info -c | grep -i BUILT)')[0]).upper()
+        hmpi_v3_info = (self.get_cmd_output('(ucg_info -c | grep -i PLANC)')[0]).upper()
         if "BUILT" not in hmpi_v2_info and "PLANC" not in hmpi_v3_info:
             return None
         name = 'hmpi'
@@ -546,17 +558,22 @@ setenv    {sname.upper().replace('-','_')}_PATH {install_path}
                         BASE_PATH = self.MODULE_APP_PATH
                     else:
                         BASE_PATH = self.MODULE_LIB_PATH
+                elif self.IS_PRO:
+                    if stype == SType.APP:
+                        BASE_PATH = self.MODULE_APP_PATH
+                    else:
+                        BASE_PATH = self.MODULE_DEPS_PATH
                 compiler_str = cname + cfullversion
                 if software_info['is_use_mpi']:
                     mpi_info = self.get_mpi_info()
                     mpi_str = mpi_info['name'] + mpi_info[self.FULL_VERSION]
                     if self.IS_PRO:
-                        module_path = os.path.join(self.MODULE_DEPS_PATH, f"{compiler_str}-{mpi_str}" ,sname)
+                        module_path = os.path.join(self.BASE_PATH, f"{compiler_str}-{mpi_str}" ,sname)
                     if self.IS_NORMAL:
                         module_path = os.path.join(BASE_PATH, sname, f"{sversion}-{compiler_str}-{mpi_str}")
                 else:
                     if self.IS_PRO:
-                        module_path = os.path.join(self.MODULE_DEPS_PATH, compiler_str, sname)
+                        module_path = os.path.join(self.BASE_PATH, compiler_str, sname)
                     elif self.IS_NORMAL:
                         module_path = os.path.join(BASE_PATH, sname, f"{sversion}-{compiler_str}")
         if self.IS_PRO:
@@ -702,16 +719,13 @@ chmod +x {install_script}
         self.gen_module_file( install_path, software_info, env_info)
 
     def install_depend(self):
-        depend_file = 'depend_install.sh'
-        print(f"start installing dependendcy of {DataService.app_name}")
-        depend_content = f'''
-source ./init.sh
-{DataService.dependency}
-'''
+        depend_file = self.ds.get_depend_file()
+        print(f"start installing dependendcy of {self.ds.app_config.name}")
+        depend_content = f'''{self.ds.get_dependency()}'''
         self.tool.write_file(depend_file, depend_content)
         run_cmd = f'''
 chmod +x {depend_file}
-./{depend_file}
+sh {depend_file}
 '''
         self.exe.exec_raw(run_cmd)
     

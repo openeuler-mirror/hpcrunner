@@ -38,9 +38,17 @@ class ToolService:
     def write_file(self, filename, content=""):
         """
         将内容写入文件。
-        """   
-        with open(filename, 'w') as f:
-            f.write(content)
+        """
+        # 获取目标目录路径
+        dir_path = os.path.dirname(filename)
+        # 若目录不存在，则递归创建（包括所有父目录）
+        if dir_path:  # 避免根目录（如 file_path 是 "file.txt"）
+            os.makedirs(dir_path, exist_ok=True)
+        try:
+            with open(filename, 'w', encoding='utf-8') as f:
+                f.write(content)
+        except Exception as e:
+            print(f"str(e)")
 
     def del_file(self, filepath):
         """

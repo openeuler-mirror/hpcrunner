@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*- 
-
 from machineService import MachineService
 from configService import ConfigService
 from downloadService import DownloadService
@@ -16,11 +15,11 @@ from loopService import LoopService
 
 class AnalysisService:
     def __init__(self):
+        self.jenv = EnvService()
         self.jmachine = MachineService()
         self.jconfig = ConfigService()
         self.jdownload = DownloadService()
         self.jinstall = InstallService()
-        self.jenv = EnvService()
         self.jbuild = BuildService()
         self.jrun = RunService()
         self.jperf = PerfService()

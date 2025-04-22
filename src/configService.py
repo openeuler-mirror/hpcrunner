@@ -2,15 +2,14 @@
 # -*- coding: utf-8 -*- 
 import os
 from dataService import DataService
-from executeService import ExecuteService
 from toolService import ToolService
 
 class ConfigService:
     def __init__(self):
-        self.exe = ExecuteService()
+        self.ds = DataService()
         self.tool = ToolService()
         self.ROOT = os.getcwd()
-        self.meta_path = os.path.join(self.ROOT, DataService.meta_file)
+        self.meta_path = os.path.join(self.ROOT, self.ds.META_FILE)
 
     def switch_config(self, config_file):
         print(f"Switch config file to {config_file}")
@@ -20,7 +19,7 @@ class ConfigService:
             return
         contents = self.tool.read_file(config_file)
         # keys should contains in config
-        keys = ["DOWNLOAD","DEPENDENCY","ENV","APP","BUILD","RUN"]
+        keys = self.ds.KEY_CONFIG_SECTIONS
         for key in keys:
             if f"[{key}]" not in contents:
                 print(f"key [{key}] not found in {config_file}, switch failed.")

@@ -1,7 +1,7 @@
 #!/bin/bash
 CUR_PATH=$(pwd)
 chmod -R +x ./benchmark
-chmod -R +x ./package
+#chmod -R +x ./package
 chmod -R +x ./test
 chmod +x ./*.sh
 chmod +x jarvis
@@ -19,6 +19,7 @@ if [ "$JARVIS_MODE" -eq 0 ]; then
     export JARVIS_MODULEDEPS=${JARVIS_SOFT_ROOT}/moduledeps
     export JARVIS_MISC=${JARVIS_SOFT_ROOT}/misc
     export JARVIS_APP=${JARVIS_SOFT_ROOT}/app
+    export JARVIS_MODULES_APP=${JARVIS_SOFT_ROOT}/modulefiles/app
 elif [ "$JARVIS_MODE" -eq 1 ]; then
     #normal mode: Flat Directory Structure
     export JARVIS_COMPILER=${JARVIS_SOFT_ROOT}/soft/compiler
@@ -37,11 +38,13 @@ elif [ "$JARVIS_MODE" -eq 1 ]; then
     export JARVIS_MODULES_MISC=${JARVIS_SOFT_ROOT}/modulefile/misc
     export JARVIS_MODULES_APP=${JARVIS_SOFT_ROOT}/modulefile/app
     export JARVIS_MODULES_MODS=${JARVIS_SOFT_ROOT}/modulefile/modules
+    export JARVIS_JOBSCRIPT=${JARVIS_SOFT_ROOT}/jobscript
 fi
 export JARVIS_TMP=/tmp
 export JARVIS_DOWNLOAD=${CUR_PATH}/downloads
 export JARVIS_TMP_DOWNLOAD=${CUR_PATH}/tmp
 export JARVIS_EXE=${CUR_PATH}/exe
+export JARVIS_TPL=${CUR_PATH}/template
 export JARVIS_PROXY=https://gh.ddlc.top/https://github.com
 
 export DOWNLOAD_TOOL=${CUR_PATH}/package/common/download.sh
