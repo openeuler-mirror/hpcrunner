@@ -437,6 +437,11 @@ done
 
     def get_module_file_content(self, install_path, sname, sversion):
         module_file_content = ''
+        if "hpckit" in sname.lower():
+            module_file_content = f'''#%Module1.0#####################################################################
+prepend-path MODULEPATH  {install_path}/HPCKit/latest/modulefiles
+'''
+            return module_file_content
         file_list = self.get_files(install_path)
         bins_dir_type = ["bin"]
         libs_dir_type = ["libs", "lib", "lib64"]
