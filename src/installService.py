@@ -6,11 +6,17 @@ import re
 import fnmatch
 from enum import Enum
 from glob import glob
+from typing import Tuple, Optional, Dict
 
 from dataService import DataService
 from toolService import ToolService
 from executeService import ExecuteService
 from jsonService import JSONService
+from installStrategy import PathStrategyFactory
+from installTypes import InstallMode
+from versionParser import VersionParser
+from detectorService import GCCDetector, ClangDetector,NVCCDetector,ICCDetector
+from detectorService import HMPIDetector, OpenMPIDetector, MPICHDetector
 
 class Singleton(type):
 
@@ -33,65 +39,84 @@ class SType(Enum):
     APP = 6
 
 class InstallService(object,metaclass=Singleton):
+    PACKAGE = 'package'
+    FULL_VERSION='full_version'
     def __init__(self):
         self.ds = DataService()
         self.exe = ExecuteService()
         self.tool = ToolService()
         self.ROOT = os.getcwd()
-        self.MODE = os.getenv('JARVIS_MODE')
-        self.PRO = "0"
-        self.NORMAL = "1"
-        self.IS_PRO = self.MODE == self.PRO
-        self.IS_NORMAL = self.MODE == self.NORMAL
-        modes = {"1": "normal", "0": "professional"}
-        print(f"current MODE: {modes.get(self.MODE, 'unknown')}")
-        self.PACKAGE = 'package'
-        self.FULL_VERSION='fullver'
+
+        self.gcc_detector = GCCDetector()
+        self.clang_detector = ClangDetector()
+        self.icc_detector = ICCDetector()
+        self.nvcc_detector = NVCCDetector()
+
+        self.hmpi_detector = HMPIDetector()
+        self.openmpi_detector = OpenMPIDetector()
+        self.mpich_detector = MPICHDetector()
+        
+        self._mode = self._detect_mode()
+        self._paths = self._init_paths()
+        self.INSTALL_INFO_PATH = os.path.join(self.SOFTWARE_PATH, "install.json")
+        self._is_first_install = self._set_first_install()
+        self.IS_PRO = self._mode == InstallMode.PRO
+        self.IS_NORMAL = self._mode == InstallMode.NORMAL
         self.PACKAGE_PATH = os.path.join(self.ROOT, self.PACKAGE)
         self.dependencies = False       
-        paths = {
-            'SOFTWARE_PATH': 'JARVIS_SOFT_ROOT',
-            'COMPILER_PATH': 'JARVIS_COMPILER',
-            'LIBS_PATH': 'JARVIS_LIBS',
-            'MODULE_FILES': 'JARVIS_MODULES',
-            'MPI_PATH': 'JARVIS_MPI',
-            'UTILS_PATH': 'JARVIS_UTILS',
-            'MISC_PATH': 'JARVIS_MISC',
-            'APP_PATH': 'JARVIS_APP',
-            'MODULE_APP_PATH': 'JARVIS_MODULES_APP'
-        }
-        if self.IS_PRO: paths['MODULE_DEPS_PATH'] = 'JARVIS_MODULEDEPS'
-        if self.IS_NORMAL:
-            paths['MODULE_LIB_PATH'] = 'JARVIS_MODULES_LIB'
-            paths['MODULE_TOOL_PATH'] = 'JARVIS_MODULES_TOOL'
-            paths['MODULE_COMPILER_PATH'] = 'JARVIS_MODULES_COMPILER'
-            paths['MODULE_MISC_PATH'] = 'JARVIS_MODULES_MISC'
-            paths['MODULE_MPI_PATH'] = 'JARVIS_MODULES_MPI'
-            paths['MODULE_MOD_PATH'] = 'JARVIS_MODULES_MODS'
-
-        for attr, env_var in paths.items():
-            cur_path = os.getenv(env_var)
-            setattr(self, attr, cur_path)
         self.LINK_FILE = os.path.join(self.MODULE_FILES,'linkpathtomodules.sh')
-        self.INSTALL_INFO_PATH = os.path.join(self.SOFTWARE_PATH, "install.json")
-        # create dirs
-        if not os.path.exists(self.INSTALL_INFO_PATH):
-            for item in paths.keys():
-                dir_item = getattr(self,item)
-                os.makedirs(dir_item, mode=0o755, exist_ok=True)
-            if self.IS_NORMAL: self.init_linkfile()
+        self._create_install_json(self.INSTALL_INFO_PATH)
+        self._validate_installation()
+        self._prepare_infrastructure()
 
-            self.json = JSONService(self.INSTALL_INFO_PATH)
-            self.json.add_data('MODE',self.MODE)
+    def _create_install_json(self, filename):
+        if self._is_first_install:
+            self.tool.write_file(filename, "{}")
+            self.json = JSONService(filename)
+            self.json.set("MODE", self._mode, True)
             return
-            
-        self.json = JSONService(self.INSTALL_INFO_PATH)
-        install_mode = self.json.query_data('MODE')
-        if not install_mode: install_mode = self.PRO
-        if self.MODE != install_mode:
-            print("current diretory is not suitable for selected mode, please reset JARVIS_MODE in init.sh.")
+        # 处理老的目录结构
+        self.json = JSONService(filename)
+        stored_mode = self.json.get('MODE')
+        if not stored_mode:
+            self.json.set("MODE", InstallMode.PRO.value, True)
+
+    def _set_first_install(self):
+        if not os.path.exists(self.INSTALL_INFO_PATH):
+            return True
+        return False
+
+    def _detect_mode(self) -> InstallMode:
+        """安全模式检测"""
+        env_mode = os.getenv('JARVIS_MODE')
+        if env_mode not in (InstallMode.PRO.value, InstallMode.NORMAL.value):
+            print(f"Invalid JARVIS_MODE: {env_mode}")
             sys.exit()
-        self.json.add_data('MODE',self.MODE)
+        modes = {"1": "normal", "0": "professional"}
+        print(f"current MODE: {modes.get(env_mode)}")
+        return InstallMode(env_mode)
+
+    def _init_paths(self) -> Dict[str, str]:
+        """路径初始化策略化"""
+        strategy = PathStrategyFactory.create(self._mode)
+        self._paths = strategy.get_paths()
+        for attr, cur_path in self._paths.items():
+            setattr(self, attr, cur_path)
+
+    def _validate_installation(self) -> None:
+        """安装一致性校验"""
+        stored_mode = self.json.get('MODE')
+        if stored_mode and stored_mode != self._mode.value:
+            print(f"Mode conflict: Current {self._mode.value} vs Stored {stored_mode}")
+            sys.exit()
+
+    def _prepare_infrastructure(self) -> None:
+        """基础设施准备（原子化操作）"""
+        if self.IS_NORMAL and self._is_first_install:
+            self.init_linkfile()
+        if self._is_first_install:
+            for dir_item in self._paths.values():
+                os.makedirs(dir_item, mode=0o755, exist_ok=True)
     
     def init_linkfile(self):
         linkfile_content = '''
@@ -129,120 +154,13 @@ done
 '''
         self.tool.write_file(self.LINK_FILE, linkfile_content)
 
-    def get_version_info(self, info, reg = r'(\d+)\.(\d+)\.(\d+)'):
-        matched_group = re.search(reg ,info)
-        if not matched_group:
-            return None
-        mversion = matched_group.group(1)
-        mid_ver = matched_group.group(2)
-        last_ver = matched_group.group(3)
-        return ( mversion, f'{mversion}.{mid_ver}.{last_ver}')
-
-    def gen_compiler_dict(self, cname, version):
-        return {"cname": cname, "cmversion": version[0], self.FULL_VERSION: version[1]}
-    
-    def gen_mpi_dict(self, name, version):
-        return {"name": name, "mversion": version[0], self.FULL_VERSION: version[1]}
-
-    # some command don't generate output, must redirect to a tmp file
-    def get_cmd_output(self, cmd):
-        tmp_path = os.path.join(self.ROOT, 'tmp')
-        tmp_file = os.path.join(tmp_path, 'tmp.txt')
-        self.tool.mkdirs(tmp_path)
-        cmd += f' &> {tmp_file}'
-        self.exe.exec_popen(cmd, False)
-        info_list = self.tool.read_file(tmp_file).split('\n')
-        return info_list
-
-    def get_gcc_info(self):
-        gcc_info_list = self.get_cmd_output('gcc -v')
-        gcc_info = gcc_info_list[-1].strip()
-        version = self.get_version_info(gcc_info)
-        if not version:
-            print("GCC not found, please install gcc first")
-            sys.exit()
-        name = 'gcc'
-        if 'kunpeng' in gcc_info.lower():
-            name =  'kgcc'
-        return self.gen_compiler_dict(name, version)
-
-    def get_clang_info(self):
-        clang_info_list = self.get_cmd_output('clang -v')
-        clang_info = clang_info_list[0].strip()
-        version = self.get_version_info(clang_info)
-        if not version:
-            print("clang not found, please install clang first")
-            sys.exit()
-        name = 'clang'
-        if 'bisheng' in clang_info.lower():
-            name =  'bisheng'
-        return self.gen_compiler_dict(name, version)
-
-    def get_nvc_info(self):
-        return self.gen_compiler_dict("nvc", ('11', "11.4"))
-
-    def get_icc_info(self):
-        return self.gen_compiler_dict("icc", ('2018', "2018.4"))
-    
-    def get_hmpi_version(self, hmpi_v3_info):
-        if hmpi_v3_info != "":
-            ucg_path = self.get_cmd_output('which ucg_info')[0] 
-        else: 
-            ucg_path = self.get_cmd_output('which ucx_info')[0]
-        ver_dict = {('2','2.0.0'): ('1','1.3.0')}
-        ucg_path = os.path.dirname(ucg_path)
-        ucg_path = os.path.dirname(ucg_path)
-        libucg_path = os.path.join(ucg_path, "lib")
-        libucg_so_flag = "libucg.so."
-        version = None
-        for file_name in os.listdir(libucg_path):
-            if libucg_so_flag in file_name:
-                version = self.get_version_info(file_name)
-                if version in ver_dict:
-                    return ver_dict[version]
-                elif version:
-                    break
-        return version    
-
-    def get_hmpi_info(self):
-        hmpi_v2_info = (self.get_cmd_output('(ucx_info -c | grep -i BUILT)')[0]).upper()
-        hmpi_v3_info = (self.get_cmd_output('(ucg_info -c | grep -i PLANC)')[0]).upper()
-        if "BUILT" not in hmpi_v2_info and "PLANC" not in hmpi_v3_info:
-            return None
-        name = 'hmpi'
-        version = self.get_hmpi_version(hmpi_v3_info)
-        return self.gen_mpi_dict(name, version)
- 
-    def get_openmpi_info(self):
-        mpi_info_list = self.get_cmd_output('mpirun -version')
-        mpi_info = mpi_info_list[0].strip()
-        name = 'openmpi'
-        version = self.get_version_info(mpi_info)
-        if not version:
-            return None
-        return self.gen_mpi_dict(name, version)
-
-    def get_mpich_info(self):
-        mpi_info_list = self.get_cmd_output('mpirun -version')
-        mpi_info = "".join(mpi_info_list).strip()
-        name = 'mpich'
-        if name not in mpi_info:
-            return None
-        version = self.get_version_info(mpi_info)
-        if not version:
-            return None
-        return self.gen_mpi_dict(name, version)
-
     def get_mpi_info(self):
-        mpich_info = self.get_mpich_info()
-        if mpich_info:
-            return mpich_info
-        hmpi_info = self.get_hmpi_info()
-        if hmpi_info:
-            return hmpi_info
-        openmpi_info = self.get_openmpi_info()
-        if openmpi_info:
-            return openmpi_info
+        mpich_info = self.mpich_detector.detect()
+        if mpich_info:return mpich_info
+        hmpi_info = self.hmpi_detector.detect()
+        if hmpi_info:return hmpi_info
+        openmpi_info = self.openmpi_detector.detect()
+        if openmpi_info:return openmpi_info
         print("MPI not found, please install MPI first.")
         sys.exit()
 
@@ -510,7 +428,7 @@ setenv    {sname.upper().replace('-','_')}_PATH {install_path}
         installed_file_path = os.path.join(install_path, "installed")
         if self.tool.read_file(installed_file_path) == "1":
             return True
-        return self.json.query_data(install_path)
+        return self.json.get(install_path)
 
     def gen_module_file(self, install_path, software_info, env_info):
         sname = software_info['sname']
@@ -589,10 +507,9 @@ setenv    {sname.upper().replace('-','_')}_PATH {install_path}
             module_file = module_path
         self.tool.write_file(module_file, module_file_content)
         print(f"module file {module_file} successfully generated")
-        row = self.json.query_data(install_path)
+        row = self.json.get(install_path)
         row["module_path"] = module_file
-        self.json.update_data(install_path, row)
-        self.json.write_file()
+        self.json.set(install_path, row, True)
         #更新linkfile
         if self.IS_NORMAL:self.update_modules()
 
@@ -667,8 +584,7 @@ chmod +x {install_script}
         software_dict['name'] = software_info['sname']
         software_dict['version'] = software_info['sversion']
         software_dict['module_path'] = ''
-        self.json.add_data(install_path, software_dict)
-        self.json.write_file()
+        self.json.set(install_path, software_dict, True)
 
     def remove_prefix(self, software_path):
         if software_path.startswith('package/') or software_path.startswith('./'):
@@ -681,9 +597,10 @@ chmod +x {install_script}
         compiler_mpi_info = install_args[1]
         other_args = install_args[2:]
         self.tool.prt_content("INSTALL " + software_path)
-        compilers = {"GCC":self.get_gcc_info, "CLANG":self.get_clang_info,
-                     "NVC":self.get_nvc_info, "ICC":self.get_icc_info,
-		             "BISHENG":self.get_clang_info}
+
+        compilers = {"GCC":self.gcc_detector.detect, "CLANG":self.clang_detector.detect,
+                     "NVC":self.nvcc_detector.detect, "ICC":self.icc_detector.detect,
+		             "BISHENG": self.clang_detector.detect}
         software_path = self.remove_prefix(software_path)
         # software_path should exists
         if not isapp:
@@ -737,7 +654,7 @@ sh {depend_file}
     def remove(self, software_info):
         self.tool.prt_content("UNINSTALL " + software_info)
         remove_list = []
-        installed_dict = self.json.read_file()
+        installed_dict = self.json.data
         for path, software_row in installed_dict.items():
             if software_info in software_row['name']:
                 remove_list.append((path, software_row))
@@ -758,13 +675,12 @@ sh {depend_file}
                     return
             except:
                 sys.exit("please enter a valid number!")
-        self.json.delete_data(remove_list[choice-1][0])
-        self.json.write_file()
+        self.json.delete(remove_list[choice-1][0], True)
         print("Successfully remove "+software_info)
         
     def list(self):
         self.tool.prt_content("Installed list".upper())
-        installed_list = self.json.read_file()
+        installed_list = self.json.data
         installed_list.pop('MODE', None)
         if len(installed_list) == 0:
             print("no software installed.")
@@ -789,7 +705,7 @@ sh {depend_file}
 
     def find(self, content):
         self.tool.prt_content(f"Looking for package {content}")
-        installed_list = list(self.json.read_file().values())
+        installed_list = list(self.json.data.values())
         for row in installed_list:
             if content in row['name']:
                 print(row)

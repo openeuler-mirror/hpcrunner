@@ -18,6 +18,7 @@ class ExecuteService:
         self.tool = ToolService()
         self.flags = '*' * 80
         self.end_flag = 'END: '
+        self.ROOT = os.getcwd()
 
     # tools function
     def join_cmd(self, arrs):
@@ -61,6 +62,15 @@ class ExecuteService:
 
     def exec_raw(self, rows):
         return self.exec_list(self.tool.gen_list(rows))
+    
+    def exec_get_output(self, cmd):
+        tmp_path = os.path.join(self.ROOT, 'tmp')
+        tmp_file = os.path.join(tmp_path, 'tmp.txt')
+        self.tool.mkdirs(tmp_path)
+        cmd += f' &> {tmp_file}'
+        self.exec_popen(cmd, False)
+        info_list = self.tool.read_file(tmp_file).split('\n')
+        return info_list
 
     def exec_inject(self, cmd_str):
         cmd = f'{cmd_str} && env -0'
