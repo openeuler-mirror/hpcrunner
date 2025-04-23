@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*- 
 import argparse
-
+from initService import InitService
 from dataService import DataService
 from analysisService import AnalysisService
 
 class Jarvis:
     def __init__(self):
+        self.init = InitService()
         self.analysis = AnalysisService()
+        self.ds = DataService()
+        self.app_name = self.ds.get_app_name()
         # Argparser set
-        parser = argparse.ArgumentParser(description=f'please put me into CASE directory, used for {DataService.app_name} Compiler/Clean/Run/Compare',
+        parser = argparse.ArgumentParser(description=f'please put me into CASE directory, used for {self.app_name} Compiler/Clean/Run/Compare',
                     usage='%(prog)s [-h] [--build] [--clean] [...]')
         parser.add_argument("-v","--version", help=f"get version info", action="store_true")
         parser.add_argument("-use","--use", help="Switch config file...", nargs=1)
@@ -23,15 +26,15 @@ class Jarvis:
         #find
         parser.add_argument("-find","--find", help=f"find software", nargs=1)
         # dependency install
-        parser.add_argument("-dp","--depend", help=f"{DataService.app_name} dependency install", action="store_true")
-        parser.add_argument("-e","--env", help=f"set environment {DataService.app_name}", action="store_true")
-        parser.add_argument("-b","--build", help=f"compile {DataService.app_name}", action="store_true")
-        parser.add_argument("-cls","--clean", help=f"clean {DataService.app_name}", action="store_true")
-        parser.add_argument("-r","--run", help=f"run {DataService.app_name}", action="store_true")
-        parser.add_argument("-j","--job", help=f"run job {DataService.app_name}", action="store_true")
-        parser.add_argument("-j2","--job2", help=f"run job 2 {DataService.app_name}", action="store_true")
-        parser.add_argument("-p","--perf", help=f"auto perf {DataService.app_name}", action="store_true")
-        parser.add_argument("-kp","--kperf", help=f"auto kperf {DataService.app_name}", action="store_true")
+        parser.add_argument("-dp","--depend", help=f"{self.app_name} dependency install", action="store_true")
+        parser.add_argument("-e","--env", help=f"set environment {self.app_name}", action="store_true")
+        parser.add_argument("-b","--build", help=f"compile {self.app_name}", action="store_true")
+        parser.add_argument("-cls","--clean", help=f"clean {self.app_name}", action="store_true")
+        parser.add_argument("-r","--run", help=f"run {self.app_name}", action="store_true")
+        parser.add_argument("-j","--job", help=f"run job {self.app_name}", action="store_true")
+        parser.add_argument("-j2","--job2", help=f"run job 2 {self.app_name}", action="store_true")
+        parser.add_argument("-p","--perf", help=f"auto perf {self.app_name}", action="store_true")
+        parser.add_argument("-kp","--kperf", help=f"auto kperf {self.app_name}", action="store_true")
         # GPU perf
         parser.add_argument("-gp","--gpuperf", help="GPU perf...", action="store_true")
         # hpctool perf
@@ -39,9 +42,9 @@ class Jarvis:
 
         # NCU perf
         parser.add_argument("-ncu","--ncuperf", help="NCU perf...", nargs=1)
-        parser.add_argument("-c","--compare", help=f"compare {DataService.app_name}", nargs=2)
+        parser.add_argument("-c","--compare", help=f"compare {self.app_name}", nargs=2)
         # batch run
-        parser.add_argument("-rb","--rbatch", help=f"run batch {DataService.app_name}", action="store_true")
+        parser.add_argument("-rb","--rbatch", help=f"run batch {self.app_name}", action="store_true")
         # batch download
         parser.add_argument("-d","--download", help="Batch Download...", action="store_true")
         # generate singularity def file

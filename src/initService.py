@@ -2,9 +2,7 @@
 # -*- coding: utf-8 -*- 
 import os
 
-from commandBuilder import CommandBuilder
 from executeService import ExecuteService
-from dataService import DataService
 
 class Singleton(type):
     def __init__(self, name, bases, dictItem):
@@ -16,14 +14,20 @@ class Singleton(type):
             self._instance = super(Singleton,self).__call__(*args, **kwargs)
         return self._instance
 
-class EnvService(object,metaclass=Singleton):
+class InitService(object,metaclass=Singleton):
+    INIT_FILE = 'init.sh'
     def __init__(self):
-        self.command = CommandBuilder()  # 注入命令生成组件
         self.exe = ExecuteService()
-        self.ds = DataService()
-        self.env()
+        self.init_jarvis()
+    
+    def jarvis_activation(self) -> str:
+        """环境激活命令 (模板方法)"""
+        return f'source ./{self.INIT_FILE}'
 
-    def env(self):
-        print(f"set environment...{self.ds.get_app_name()}")
-        env_cmd = self.command.env_generate()
-        self.exe.exec_raw(env_cmd)
+    def init_jarvis(self):
+        init_cmd = self.jarvis_activation()
+        self.exe.exec_inject(init_cmd)
+        print("JARVIS IS READY ^_^")
+
+
+

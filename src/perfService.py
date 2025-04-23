@@ -6,21 +6,23 @@ import re
 import os
 from glob import glob
 
+from commandBuilder import CommandBuilder
 from dataService import DataService
 from executeService import ExecuteService
 from toolService import ToolService
 
 class PerfService:
     def __init__(self):
-        self.hpc_data = DataService()
+        self.ds = DataService()
         self.exe = ExecuteService()
         self.tool = ToolService()
         self.ROOT = os.getcwd()
+        self.command = CommandBuilder()
         self.isARM = platform.machine() == 'aarch64'
 
     def get_pid(self):
         #get pid
-        pid_cmd = f'pidof {DataService.binary_file}'
+        pid_cmd = f'pidof {self.ds.get_binary_file()}'
         result = self.exe.exec_popen(pid_cmd)
         if len(result) == 0:
             print("failed to get pid.")
@@ -31,19 +33,19 @@ class PerfService:
         return pid_list[mid].strip()
 
     def perf(self):
-        print(f"start perf {DataService.app_name}")
+        print(f"start perf {self.ds.app_config.name}")
         #get pid
         pid = self.get_pid()
         #start perf && analysis
         perf_cmd = f'''
 yum install -y perf
-perf record {DataService.perf_para} -a -g -p {pid}
+perf record {self.perf_config.perf} -a -g -p {pid}
 perf report  -i ./perf.data -F period,sample,overhead,symbol,dso,comm -s overhead --percent-limit 0.1% --stdio
 '''
         self.exe.exec_raw(perf_cmd)
         
     def kperf(self):
-        print(f"start kperf {DataService.app_name}")
+        print(f"start kperf {self.ds.app_config.name}")
         python3_libs_path = './software/libs/python3/'
         #get pid
         pid = self.get_pid()
@@ -52,7 +54,7 @@ perf report  -i ./perf.data -F period,sample,overhead,symbol,dso,comm -s overhea
         #start kperf
         kperf_cmd = f'''
 chmod +x {kperf_script}
-python3 {kperf_script} --rawdata --hotfunc --topdown --cache --tlb --imix {DataService.kperf_para} --duration 1 --interval 15 --pid {pid} {kperf_log}
+python3 {kperf_script} --rawdata --hotfunc --topdown --cache --tlb --imix {self.ds.perf_config.kperf_para} --duration 1 --interval 15 --pid {pid} {kperf_log}
 '''
         self.exe.exec_raw(kperf_cmd)
         print("kperf.data.txt is generated")
@@ -68,8 +70,8 @@ python3 {kperf_script} --rawdata --hotfunc --topdown --cache --tlb --imix {DataS
 
     def gpu_perf(self):
         print("start gpu perf")  
-        run_cmd = self.hpc_data.get_run()  
-        env_cmd = self.hpc_data.get_env()  
+        run_cmd = self.command.full_run()  
+        env_cmd = self.command.env_activation()  
         nsys_para = '-y 5s -d 100s'  
         if DataService.nsys_para:  
             nsys_para = DataService.nsys_para  
@@ -135,8 +137,8 @@ ncu --export ncu-{self.get_arch()}-{self.get_cur_time()} --import-source=yes --s
         #collect
         hpccollect_path = f'$JARVIS_UTILS/hpctool/{max_version}/bin/hpccollect'
         hpccollect_para = f' -l detail -o ./{output_file}'
-        if DataService.hpccollect_para != '':
-            hpccollect_para = DataService.hpccollect_para + hpccollect_para
+        if self.ds.perf_config.hpccollect != '':
+            hpccollect_para = self.ds.perf_config.hpccollect + hpccollect_para
         collect_cmd = self.hpc_data.get_run(f'{hpccollect_path} {hpccollect_para}')
         #analysis
         hpcreport_path = f'$JARVIS_UTILS/hpctool/{max_version}/bin/hpcreport'
@@ -144,14 +146,14 @@ ncu --export ncu-{self.get_arch()}-{self.get_cur_time()} --import-source=yes --s
             hpcreport_para = f'-i ./{output_file}.v{max_version}.hpcstat hotspots -g parallel-region function'
         else:
             hpcreport_para = f'-i ./{output_file}.v{max_version}.hpcstat mpi-wait -g function'
-        if DataService.hpcreport_para != '':
-            hpcreport_para = DataService.hpcreport_para
+        if self.ds.perf_config.hpcreport != '':
+            hpcreport_para = self.ds.perf_config.hpcreport
         report_cmd = f'{hpcreport_path} {hpcreport_para}'
         collect_and_report_cmd = f'''
 {self.hpc_data.get_env()}
 ./jarvis -install hpctool/{max_version} any
 echo "1">/proc/sys/kernel/perf_event_paranoid
-cd {DataService.case_dir}
+cd {self.ds.app_config.case_dir}
 {collect_cmd}
 {report_cmd}
 '''

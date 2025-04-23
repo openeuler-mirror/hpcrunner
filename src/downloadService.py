@@ -7,11 +7,11 @@ from toolService import ToolService
 
 class DownloadService:
     def __init__(self):
-        self.hpc_data = DataService()
+        self.ds = DataService()
         self.exe = ExecuteService()
         self.tool = ToolService()
         self.ROOT = os.getcwd()
-        self.download_list = self.tool.gen_list(DataService.download_info)
+        self.download_list = self.tool.gen_list(self.ds.get_download_info())
         self.download_path = os.path.join(self.ROOT, 'downloads')
         self.package_path = os.path.join(self.ROOT, 'package')
 
