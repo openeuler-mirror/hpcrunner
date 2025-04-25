@@ -18,9 +18,10 @@ class SoftwareProfile:
     suffix: str = ""
     use_mpi: bool = False
     compiler_name: str = None
+    install_script_path: str = None
 
 @dataclass
-class CompilerInfo:
-    name: str
-    full_version: str
-    major_version: str
+class EnvironmentProfile:
+    compiler_name: str
+    compiler_version: str
+    compiler_major_version: str

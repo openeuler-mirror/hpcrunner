@@ -31,7 +31,7 @@ elif [ "$JARVIS_MODE" -eq 1 ]; then
     export JARVIS_MISC=${JARVIS_SOFT_ROOT}/soft/misc
     export JARVIS_APP=${JARVIS_SOFT_ROOT}/soft/app
     export JARVIS_MODULES_LIB=${JARVIS_SOFT_ROOT}/modulefile/lib
-    export JARVIS_MODULES_TOOL=${JARVIS_SOFT_ROOT}/modulefile/tool
+    export JARVIS_MODULES_UTIL=${JARVIS_SOFT_ROOT}/modulefile/tool
     export JARVIS_MODULES_COMPILER=${JARVIS_SOFT_ROOT}/modulefile/compiler
     export JARVIS_MODULES_MPI=${JARVIS_SOFT_ROOT}/modulefile/mpi
     export JARVIS_MODULES_LIB=${JARVIS_SOFT_ROOT}/modulefile/lib

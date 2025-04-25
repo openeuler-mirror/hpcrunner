@@ -33,6 +33,7 @@ class NormalPathStrategy(PathStrategy):
             'MODULE_COMPILER_PATH': 'JARVIS_MODULES_COMPILER',
             'MODULE_MISC_PATH': 'JARVIS_MODULES_MISC',
             'MODULE_MPI_PATH': 'JARVIS_MODULES_MPI',
+            'MODULE_UTIL_PATH': 'JARVIS_MODULES_UTIL',
             'MODULE_MOD_PATH': 'JARVIS_MODULES_MODS',
             'JOBSCRIPT_PATH': 'JARVIS_JOBSCRIPT'
             })
