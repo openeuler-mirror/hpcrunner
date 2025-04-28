@@ -194,10 +194,13 @@ done
                 sys.exit(0)
         return " ".join(depsmap.values())
 
-    def get_module_file_content(self, install_path, software_info):
+    def get_module_file_content(self, install_path, software_info, env_info):
         sname = software_info.name
         sversion = software_info.full_version
         stype = software_info.software_type
+        if stype == SoftwareType.MPI or stype == SoftwareType.APP or stype == SoftwareType.LIB:
+            cname = env_info.compiler_name
+            cfullversion = env_info.compiler_version
         module_file_content = ''
         if "hpckit" in sname.lower():
             module_file_content = f'''#%Module1.0#####################################################################
@@ -265,6 +268,20 @@ setenv    {sname.upper().replace('-','_')}_PATH {install_path}
 {libs_str}
 {incs_str}
 '''
+        if self.IS_PRO:
+            if stype == SoftwareType.MPI:
+                compiler_str = cname + cfullversion
+                software_str = sname + sversion
+                attach_module_path = os.path.join(self.MODULE_DEPS_PATH, software_str)
+                self.tool.mkdirs(attach_module_path)
+                module_file_content += f"\nprepend-path    MODULEPATH     {attach_module_path}"
+                print(f'attach module file {attach_module_path} successfully generated.')
+            elif stype == SoftwareType.COMPILER:
+                module_path = os.path.join(self.MODULE_FILES, sname)
+                attach_module_path = os.path.join(self.MODULE_DEPS_PATH, software_str)
+                self.tool.mkdirs(attach_module_path)
+                module_file_content += f"\nprepend-path    MODULEPATH     {attach_module_path}"
+                print(f'attach module file {attach_module_path} successfully generated.')
         return module_file_content
 
     def is_installed(self, install_path):
@@ -273,89 +290,6 @@ setenv    {sname.upper().replace('-','_')}_PATH {install_path}
         if self.tool.read_file(installed_file_path) == "1":
             return True
         return self.json.get(install_path)
-
-    def gen_module_file(self, install_path, software_info, env_info):
-        sname = software_info.name
-        sversion = software_info.full_version
-        stype = software_info.software_type
-        if stype == SoftwareType.MPI or stype == SoftwareType.APP or stype == SoftwareType.LIB:
-            cname = env_info.compiler_name
-            cfullversion = env_info.compiler_version
-        module_file_content = self.get_module_file_content(install_path, software_info)
-        if not self.is_installed(install_path):
-            return ''
-        # if install_path is empty, The module file should not generated.
-        if len(os.listdir(install_path)) == 0:
-            print('module file did not generated because no file generated under install path')
-            return ''
-        if stype == SoftwareType.MPI:
-            compiler_str = cname + cfullversion
-            software_str = sname + sversion
-            if self.IS_PRO:
-                module_path = os.path.join(self.MODULE_DEPS_PATH, compiler_str ,sname)
-                attach_module_path = os.path.join(self.MODULE_DEPS_PATH, compiler_str+'-'+software_str)
-                self.tool.mkdirs(attach_module_path)
-                module_file_content += f"\nprepend-path    MODULEPATH     {attach_module_path}"
-                print(f'attach module file {attach_module_path} successfully generated.')
-            elif self.IS_NORMAL:
-                module_path = os.path.join(self.MODULE_COMPILER_PATH, sname, f'{sversion}-{compiler_str}')
-        else:
-            if stype == SoftwareType.COMPILER:
-                software_str = sname + sversion
-                if self.IS_PRO:
-                    module_path = os.path.join(self.MODULE_FILES, sname)
-                    attach_module_path = os.path.join(self.MODULE_DEPS_PATH, software_str)
-                    self.tool.mkdirs(attach_module_path)
-                    module_file_content += f"\nprepend-path    MODULEPATH     {attach_module_path}"
-                    print(f'attach module file {attach_module_path} successfully generated.')
-                elif self.IS_NORMAL:
-                    module_path = os.path.join(self.MODULE_COMPILER_PATH, sname, sversion)
-            elif stype == SoftwareType.UTIL:
-                if self.IS_PRO:
-                    module_path = os.path.join(self.MODULE_FILES, sname)
-                elif self.IS_NORMAL:
-                    module_path = os.path.join(self.MODULE_UTIL_PATH, sname, sversion)
-            elif stype == SoftwareType.MISC:
-                if self.IS_PRO:
-                    module_path = os.path.join(self.MODULE_FILES, sname)
-                elif self.IS_NORMAL:
-                    module_path = os.path.join(self.MODULE_MISC_PATH, sname, sversion)
-            else:
-                if self.IS_NORMAL:
-                    if stype == SoftwareType.APP:
-                        BASE_PATH = self.MODULE_APP_PATH
-                    else:
-                        BASE_PATH = self.MODULE_LIB_PATH
-                elif self.IS_PRO:
-                    if stype == SoftwareType.APP:
-                        BASE_PATH = self.MODULE_APP_PATH
-                    else:
-                        BASE_PATH = self.MODULE_DEPS_PATH
-                compiler_str = cname + cfullversion
-                if software_info.use_mpi:
-                    mpi_str = env_info.mpi_name + env_info.mpi_version
-                    if self.IS_PRO:
-                        module_path = os.path.join(self.BASE_PATH, f"{compiler_str}-{mpi_str}" ,sname)
-                    if self.IS_NORMAL:
-                        module_path = os.path.join(BASE_PATH, sname, f"{sversion}-{compiler_str}-{mpi_str}")
-                else:
-                    if self.IS_PRO:
-                        module_path = os.path.join(self.BASE_PATH, compiler_str, sname)
-                    elif self.IS_NORMAL:
-                        module_path = os.path.join(BASE_PATH, sname, f"{sversion}-{compiler_str}")
-        if self.IS_PRO:
-            self.tool.mkdirs(module_path)
-            module_file = os.path.join(module_path, sversion)
-        elif self.IS_NORMAL:
-            self.tool.mkdirs(os.path.dirname(module_path))
-            module_file = module_path
-        self.tool.write_file(module_file, module_file_content)
-        print(f"module file {module_file} successfully generated")
-        row = self.json.get(install_path)
-        row["module_path"] = module_file
-        self.json.set(install_path, row, True)
-        #更新linkfile
-        if self.IS_NORMAL:self.update_modules()
 
     def update_modules(self):
         upd_cmd = f'''
@@ -429,6 +363,25 @@ chmod +x {install_script}
         software_dict['version'] = software_info.full_version
         software_dict['module_path'] = ''
         self.json.set(install_path, software_dict, True)
+    
+    def _write_modulefile(self, install_path, module_path, content):
+        base_name = os.path.basename(module_path)
+        self.tool.mkdirs(base_name)
+        self.tool.write_file(module_path, content)
+        print(f"module file {module_path} successfully generated")
+        row = self.json.get(install_path)
+        row["module_path"] = module_path
+        self.json.set(install_path, row, True)
+        #更新linkfile
+        if self.IS_NORMAL:self.update_modules()
+
+    def gen_module_file(self, install_path, software_info, env_info):
+        stype = software_info.software_type
+        module_file_content = self.get_module_file_content(install_path, software_info, env_info)
+        # gen module file
+        module_path = self.path_factory.get_module_builder(stype).build_path(software_info, env_info)
+        module_path = str(module_path)
+        self._write_modulefile(install_path, module_path, module_file_content)
 
     def install(self, install_args, isapp = False):
         software_path = install_args[0]
@@ -457,8 +410,9 @@ chmod +x {install_script}
         self.install_package(software_info.install_script_path, install_path, other_args)
         # add install info
         self.add_install_info(software_info, install_path)
-        # gen module file
-        self.gen_module_file( install_path, software_info, env_info)
+        if not self.is_installed(install_path):
+            return ''
+        self.gen_module_file(install_path, software_info, env_info)
 
     def install_depend(self):
         depend_file = self.ds.get_depend_file()

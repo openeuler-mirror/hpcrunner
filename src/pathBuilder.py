@@ -74,9 +74,58 @@ class AppPathBuilder(PathBuilder):
         app_path = self.add_mpi_path(software, env, app_path)
         return app_path
 
+class MpiModulePathBuilder(PathBuilder):
+    def build_path(self, software: SoftwareProfile, env: EnvironmentProfile) -> Path:
+        folder_pattern = (
+            self.config.pro_module_path_pattern if self.config.is_pro
+            else self.config.normal_path_pattern
+        )
+        return self._construct_mpi_path(folder_pattern, software, env)
+
+    def _construct_mpi_path(self, pattern: str, software: SoftwareProfile, env: EnvironmentProfile) -> Path:
+        path_vars = {
+                'name': software.name,
+                'version': software.full_version,
+                'compiler': env.compiler_name,
+                'compiler_ver': env.compiler_version
+            }
+        return self.config.mpi_module_base / pattern.format(**path_vars)
+
+class CompilerModulePathBuilder(PathBuilder):
+    def build_path(self, software: SoftwareProfile, _: EnvironmentProfile) -> Path:
+        return self.config.compiler_module_base / f"{software.name}/{software.full_version}"
+
+class UtilModulePathBuilder(PathBuilder):
+    def build_path(self, software: SoftwareProfile, _: EnvironmentProfile) -> Path:
+        return self.config.util_module_base / f"{software.name}/{software.full_version}"
+
+class MiscModulePathBuilder(PathBuilder):
+    def build_path(self, software: SoftwareProfile, _: EnvironmentProfile) -> Path:
+        return self.config.misc_module_base / f"{software.name}/{software.full_version}"
+
+class LibModulePathBuilder(PathBuilder):
+    def build_path(self, software: SoftwareProfile, env: EnvironmentProfile) -> Path:
+        base_path = self.config.lib_module_base
+        if self.config.is_pro:
+            if software.use_mpi:
+                lib_path = os.path.join(base_path, f"{env.compiler_name}{env.compiler_version}-{env.mpi_name}{env.mpi_version}", software.name, software.full_version)
+            else:
+                lib_path = os.path.join(base_path, f"{env.compiler_name}{env.compiler_version}", software.name, software.full_version)
+        else:
+            lib_path = os.path.join(base_path, f"{software.name}/{software.full_version}-{env.compiler_name}{env.compiler_version}")
+            lib_path = self.add_mpi_path(software, env, lib_path)
+        return lib_path
+
+class AppModulePathBuilder(PathBuilder):
+    def build_path(self, software: SoftwareProfile, env: EnvironmentProfile) -> Path:
+        base_path = self.config.app_module_base
+        app_path = os.path.join(base_path, f"{software.name}/{software.full_version}-{env.compiler_name}{env.compiler_version}")
+        app_path = self.add_mpi_path(software, env, app_path)
+        return app_path
+
 class PathFactory:
     _builder_registry = defaultdict(lambda: None)
-
+    _builder_module_registry = defaultdict(lambda: None)
     def __init__(self, config: DeploymentConfig):
         self.config = config
         self._initialize_builders()
@@ -90,9 +139,22 @@ class PathFactory:
             SoftwareType.UTIL: UtilPathBuilder(self.config),
             SoftwareType.MISC: MiscPathBuilder(self.config)
         })
-
+        self._builder_module_registry.update({
+            SoftwareType.MPI: MpiModulePathBuilder(self.config),
+            SoftwareType.COMPILER: CompilerModulePathBuilder(self.config),
+            SoftwareType.LIB: LibModulePathBuilder(self.config),
+            SoftwareType.APP: AppModulePathBuilder(self.config),
+            SoftwareType.UTIL: UtilModulePathBuilder(self.config),
+            SoftwareType.MISC: MiscModulePathBuilder(self.config)
+        })
     def get_builder(self, software_type: SoftwareType) -> PathBuilder:
         builder = self._builder_registry[software_type]
+        if builder:
+            return builder
+        raise ValueError(f"No path builder registered for {software_type}")
+
+    def get_module_builder(self, software_type: SoftwareType) -> PathBuilder:
+        builder = self._builder_module_registry[software_type]
         if builder:
             return builder
         raise ValueError(f"No path builder registered for {software_type}")
