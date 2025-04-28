@@ -7,6 +7,7 @@ import fnmatch
 from enum import Enum
 from glob import glob
 from typing import Tuple, Optional, Dict
+from pathlib import Path
 
 from dataService import DataService
 from toolService import ToolService
@@ -20,6 +21,8 @@ from envFactory import EnvFactory
 from softwareTypes import SoftwareType
 from pathBuilder import PathFactory
 from deploymentConfig import DeploymentConfig
+from moduleConfig import ModuleConfig
+from moduleController import ModulefileEngine
 
 class Singleton(type):
 
@@ -145,23 +148,6 @@ done
 '''
         self.tool.write_file(self.LINK_FILE, linkfile_content)
 
-    def get_files(self, abs_path):
-        file_list = [d for d in glob(str(abs_path)+'/**', recursive=True)]
-        return file_list
-
-    def add_special_library_path(self, install_path, sname, libs_dir):
-        prefix = install_path.replace(install_path, "$prefix")
-        if "kml" in sname:
-            libs_dir.append(os.path.join(prefix, "lib/kblas/nolocking"))
-            libs_dir.append(os.path.join(prefix, "lib/kblas/pthread"))
-            libs_dir.append(os.path.join(prefix, "lib/kblas/omp"))
-            libs_dir.append(os.path.join(prefix, "lib/kblas/locking"))
-            libs_dir.append(os.path.join(prefix, "lib/kvml/single"))
-            libs_dir.append(os.path.join(prefix, "lib/kvml/multi"))
-            libs_dir.append(os.path.join(prefix, "lib/kspblas/single"))
-            libs_dir.append(os.path.join(prefix, "lib/kspblas/multi"))
-        return libs_dir
-
     def get_loaded_modules(self):
         import subprocess
         try:
@@ -193,96 +179,6 @@ done
                 print(f"{dep} not loaded, please use module load first.")
                 sys.exit(0)
         return " ".join(depsmap.values())
-
-    def get_module_file_content(self, install_path, software_info, env_info):
-        sname = software_info.name
-        sversion = software_info.full_version
-        stype = software_info.software_type
-        if stype == SoftwareType.MPI or stype == SoftwareType.APP or stype == SoftwareType.LIB:
-            cname = env_info.compiler_name
-            cfullversion = env_info.compiler_version
-        module_file_content = ''
-        if "hpckit" in sname.lower():
-            module_file_content = f'''#%Module1.0#####################################################################
-prepend-path MODULEPATH  {install_path}/HPCKit/latest/modulefiles
-'''
-            return module_file_content
-        file_list = self.get_files(install_path)
-        bins_dir_type = ["bin"]
-        libs_dir_type = ["libs", "lib", "lib64"]
-        incs_dir_type = ["include"]
-        bins_dir = []
-        libs_dir = []
-        incs_dir = []
-        compiler_values = ''
-        bins_str = ''
-        libs_str = ''
-        incs_str = ''
-        opal_prefix = ''
-        pmix_install_prefix = ''
-        for file in file_list:
-            if not os.path.isdir(file):
-                continue
-            last_dir = file.split('/')[-1]
-            if last_dir in bins_dir_type:
-                bins_dir.append(file.replace(install_path, "$prefix"))
-            elif last_dir in libs_dir_type:
-                libs_dir.append(file.replace(install_path, "$prefix"))
-            elif last_dir in incs_dir_type:
-                incs_dir.append(file.replace(install_path, "$prefix"))
-        self.add_special_library_path(install_path, sname, libs_dir)
-        if len(bins_dir) >= 1:
-            bins_str = "prepend-path    PATH              "+':'.join(bins_dir)
-        if len(libs_dir) >= 1:
-            libs_str = "prepend-path    LD_LIBRARY_PATH            "+':'.join(libs_dir)
-        if len(incs_dir) >= 1:
-            incs_str = "prepend-path	INCLUDE	   " + ':'.join(incs_dir)
-        if "bisheng" in sname:
-              compiler_values = "setenv CC clang \nsetenv CXX clang++ \nsetenv FC flang \nsetenv F77 flang \nsetenv F90 flang "
-        elif "gcc" in sname:
-              compiler_values = "setenv CC gcc \nsetenv CXX g++ \nsetenv FC gfortran \nsetenv F77 gfortran \nsetenv F90 gfortran "
-        elif "hmpi" in sname or "openmpi" in sname:
-              compiler_values = "setenv CC mpicc \nsetenv CXX mpicxx \nsetenv FC mpifort \nsetenv F77 mpifort \nsetenv F90 mpifort "
-        if stype == SoftwareType.MPI:
-            opal_prefix = f"setenv OPAL_PREFIX {install_path}"
-            pmix_install_prefix = f"setenv PMIX_INSTALL_PREFIX {install_path}"
-        depend_content=''
-        if self.dependencies:
-            # complement dependencies
-            depend_content='''
-foreach dep {%s} {
-    if { ![is-loaded $dep] } {
-        module load $dep
-    }
-}
-''' % self.dependencies
-        module_file_content = f'''#%Module1.0#####################################################################
-set     prefix  {install_path}
-set     version	{sversion}
-{depend_content}
-setenv    {sname.upper().replace('-','_')}_PATH {install_path}
-{compiler_values}
-{opal_prefix}
-{pmix_install_prefix}
-{bins_str}
-{libs_str}
-{incs_str}
-'''
-        if self.IS_PRO:
-            if stype == SoftwareType.MPI:
-                compiler_str = cname + cfullversion
-                software_str = sname + sversion
-                attach_module_path = os.path.join(self.MODULE_DEPS_PATH, software_str)
-                self.tool.mkdirs(attach_module_path)
-                module_file_content += f"\nprepend-path    MODULEPATH     {attach_module_path}"
-                print(f'attach module file {attach_module_path} successfully generated.')
-            elif stype == SoftwareType.COMPILER:
-                module_path = os.path.join(self.MODULE_FILES, sname)
-                attach_module_path = os.path.join(self.MODULE_DEPS_PATH, software_str)
-                self.tool.mkdirs(attach_module_path)
-                module_file_content += f"\nprepend-path    MODULEPATH     {attach_module_path}"
-                print(f'attach module file {attach_module_path} successfully generated.')
-        return module_file_content
 
     def is_installed(self, install_path):
         #为了兼容老版本，只要安装路径下存在installed也算做已安装
@@ -374,11 +270,38 @@ chmod +x {install_script}
         self.json.set(install_path, row, True)
         #更新linkfile
         if self.IS_NORMAL:self.update_modules()
+    
+    def _get_attach_module_path(self, software_info, env_info):
+        if self.IS_NORMAL:
+            return ""
+        stype = software_info.software_type
+        attach_module_path = ""
+        if stype == SoftwareType.MPI:
+            attach_module_path = os.path.join(self.MODULE_DEPS_PATH, f"{env_info.compiler_name}{env_info.compiler_version}-{software_info.name}{software_info.full_version}")
+            self.tool.mkdirs(attach_module_path)
+        elif stype == SoftwareType.COMPILER:
+            attach_module_path = os.path.join(self.MODULE_DEPS_PATH, f"{software_info.name}{software_info.full_version}")
+            self.tool.mkdirs(attach_module_path)
+        return attach_module_path
 
     def gen_module_file(self, install_path, software_info, env_info):
         stype = software_info.software_type
-        module_file_content = self.get_module_file_content(install_path, software_info, env_info)
-        # gen module file
+        # 构建配置对象
+        deps = self.dependencies.split() if self.dependencies else []
+        attach_mod_path = self._get_attach_module_path(software_info, env_info)
+        config = ModuleConfig(
+            is_pro = self.IS_PRO,
+            install_root=Path(install_path),
+            software_name=software_info.name,
+            full_version=software_info.full_version,
+            category=stype,
+            dependencies=deps,
+            attach_module_path=attach_mod_path 
+        )
+
+        # 生成模块文件
+        engine = ModulefileEngine()
+        module_file_content = engine.generate(config)
         module_path = self.path_factory.get_module_builder(stype).build_path(software_info, env_info)
         module_path = str(module_path)
         self._write_modulefile(install_path, module_path, module_file_content)
