@@ -1,7 +1,6 @@
 from pathlib import Path
 from generationStrategy import IGenerationStrategy, BaseStrategy, GCCStrategy, ClangStrategy, MPIStrategy, HPCKitStrategy, KMLStrategy
 from pathManager import PathOrganizer
-from envVarGenerator import EnvVarGenerator
 from softwareTypes import SoftwareType
 from moduleConfig import ModuleConfig
 from dependencyManager import DependencyResolver
@@ -15,7 +14,8 @@ class ModulefileEngine:
         "openmpi": MPIStrategy(),
         "hmpi": MPIStrategy(),
         "hpckit": HPCKitStrategy(),
-        "kml": KMLStrategy()
+        "kml-gcc": KMLStrategy(),
+        "kml-bisheng": KMLStrategy()
     }
 
     def __init__(self, strategy: IGenerationStrategy = None):
@@ -40,6 +40,7 @@ class ModulefileEngine:
 prepend-path PATH {PathOrganizer.format_paths(path_config['bins'])}
 prepend-path LD_LIBRARY_PATH {PathOrganizer.format_paths(path_config['libs'])}
 prepend-path C_INCLUDE_PATH {PathOrganizer.format_paths(path_config['includes'])}
+prepend-path INCLUDE {PathOrganizer.format_paths(path_config['includes'])}
 """
 
     def _generate_dependencies(self, config: ModuleConfig) -> str:

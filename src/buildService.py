@@ -4,6 +4,7 @@ from dataService import DataService
 from executeService import ExecuteService
 from toolService import ToolService
 from commandBuilder import CommandBuilder
+from installTypes import InstallProfile
 from installService import InstallService
 import subprocess
 import os
@@ -51,13 +52,13 @@ class BuildService:
         app_version = self.ds.get_app_version() or self.DEFAULT_APP_VERSION
         app_compiler = self.ds.get_app_compiler() or self.DEFAULT_COMPILER
 
-        result = self.installService.install([f"{app_name}/{app_version}", app_compiler], True)
-        self._handle_install_result(result)
+        install_profile = self.installService.install([f"{app_name}/{app_version}", app_compiler], True)
+        self._handle_install_result(install_profile)
 
     def _handle_install_result(self, result):
-        install_path = result["install_path"]
-        software_info = result["software_info"]
-        env_info = result["env_info"]
+        install_path = result.install_path
+        software_info = result.software_info
+        env_info = result.env_info
         build_cmd = self.command.build()
         self._execute_script(self.get_build_file(), build_cmd, "build", install_path)
         self.installService.add_install_info(software_info, install_path)

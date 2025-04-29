@@ -32,7 +32,8 @@ setenv {sname}_PATH $prefix
 
 class CompilerStrategy(BaseStrategy):
     def generate_body(self, config: ModuleConfig) -> str:
-        return f"""
+        base = super().generate_body(config)
+        return base + f"""
 prepend-path MANPATH $prefix/share/man
 """
     
@@ -63,7 +64,8 @@ setenv FC flang
 
 class MPIStrategy(BaseStrategy):
     def generate_body(self, config: ModuleConfig) -> str:
-        return f"""
+        base = super().generate_body(config)
+        return base + f"""
 setenv MPI_HOME $prefix
 
 setenv OMPI_CC $env(CC)

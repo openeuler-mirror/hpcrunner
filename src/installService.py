@@ -14,7 +14,7 @@ from toolService import ToolService
 from executeService import ExecuteService
 from jsonService import JSONService
 from installStrategy import PathStrategyFactory
-from installTypes import InstallMode
+from installTypes import InstallMode, InstallProfile
 from versionParser import VersionParser
 from softwareFactory import SoftwareFactory
 from envFactory import EnvFactory
@@ -318,23 +318,19 @@ chmod +x {install_script}
         # get install path
         install_path = self.path_factory.get_builder(stype).build_path(software_info, env_info)
         install_path = str(install_path)
-        print(install_path)
         if not install_path: 
             return
-        else:
-            self.tool.mkdirs(install_path)
-        if isapp: 
-            return {
-                "install_path": install_path,
-                "software_info":software_info,
-                "env_info":env_info
-            }
+        self.tool.mkdirs(install_path)
+        install_profile = InstallProfile(
+                install_path = install_path,
+                software_info = software_info,
+                env_info = env_info
+                )
+        if isapp: return install_profile
         # get install script
         self.install_package(software_info.install_script_path, install_path, other_args)
         # add install info
         self.add_install_info(software_info, install_path)
-        if not self.is_installed(install_path):
-            return ''
         self.gen_module_file(install_path, software_info, env_info)
 
     def install_depend(self):
