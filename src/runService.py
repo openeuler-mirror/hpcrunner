@@ -5,11 +5,13 @@ import sys
 from toolService import ToolService
 from executeService import ExecuteService
 from dataService import DataService
+from envService import EnvService
 from commandBuilder import CommandBuilder
 
 class RunService:
     def __init__(self):
         self.ds = DataService()
+        self.env_service = EnvService()
         self.exe = ExecuteService()
         self.tool = ToolService()
         self.command = CommandBuilder()  # 注入命令生成组件
@@ -32,13 +34,16 @@ class RunService:
         print(f"start run {self.ds.get_app_name()}")
         nodes = int(self.ds.get_run_cmd('nodes'))
         self.gen_hostfile(nodes)
+        self.env_service.env()
         run_cmd = self.command.full_run()
         self.exe.exec_raw(run_cmd)
 
     def batch_run(self):
+        self.env_service.env()
         batch_cmd = self.command.batch_run()
         self.exe.exec_raw(run_cmd)
 
     def job_run(self,num):
+        self.env_service.env()
         job_cmd = self.command.job_run(num)
         self.exe.exec_raw(job_cmd)

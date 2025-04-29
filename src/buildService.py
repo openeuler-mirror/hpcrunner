@@ -6,6 +6,7 @@ from toolService import ToolService
 from commandBuilder import CommandBuilder
 from installTypes import InstallProfile
 from installService import InstallService
+from envService import EnvService
 import subprocess
 import os
 
@@ -20,6 +21,7 @@ class BuildService:
         self.ds = DataService()
         self.exe = ExecuteService()
         self.tool = ToolService()
+        self.env_service = EnvService()
         self.command = CommandBuilder()
         self.installService = InstallService()
 
@@ -37,12 +39,12 @@ class BuildService:
             clean_root_path = self.ds.root_path
         return os.path.join(clean_root_path, self.CLEAN_FILE_NAME)
 
-
     def clean(self):
         clean_cmd = self.ds.get_clean_cmd()
         self._execute_script(self.get_clean_file(), clean_cmd, "clean")
 
     def inject_env(self):
+        self.env_service.env()
         env_cmd = self.command.env_activation()
         self.exe.exec_inject(env_cmd)
 
