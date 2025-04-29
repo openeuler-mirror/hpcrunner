@@ -283,3 +283,6 @@ class DataService(metaclass=Singleton):
 
     def get_binary_file(self):
         return self.binary_file
+
+    def get_binary_para(self):
+        return self.binary_para

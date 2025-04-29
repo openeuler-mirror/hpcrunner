@@ -4,7 +4,9 @@ from dataService import DataService
 from executeService import ExecuteService
 from toolService import ToolService
 from commandBuilder import CommandBuilder
+from installTypes import InstallProfile
 from installService import InstallService
+from envService import EnvService
 import subprocess
 import os
 
@@ -19,6 +21,7 @@ class BuildService:
         self.ds = DataService()
         self.exe = ExecuteService()
         self.tool = ToolService()
+        self.env_service = EnvService()
         self.command = CommandBuilder()
         self.installService = InstallService()
 
@@ -36,12 +39,12 @@ class BuildService:
             clean_root_path = self.ds.root_path
         return os.path.join(clean_root_path, self.CLEAN_FILE_NAME)
 
-
     def clean(self):
         clean_cmd = self.ds.get_clean_cmd()
         self._execute_script(self.get_clean_file(), clean_cmd, "clean")
 
     def inject_env(self):
+        self.env_service.env()
         env_cmd = self.command.env_activation()
         self.exe.exec_inject(env_cmd)
 
@@ -51,13 +54,13 @@ class BuildService:
         app_version = self.ds.get_app_version() or self.DEFAULT_APP_VERSION
         app_compiler = self.ds.get_app_compiler() or self.DEFAULT_COMPILER
 
-        result = self.installService.install([f"{app_name}/{app_version}", app_compiler], True)
-        self._handle_install_result(result)
+        install_profile = self.installService.install([f"{app_name}/{app_version}", app_compiler], True)
+        self._handle_install_result(install_profile)
 
     def _handle_install_result(self, result):
-        install_path = result["install_path"]
-        software_info = result["software_info"]
-        env_info = result["env_info"]
+        install_path = result.install_path
+        software_info = result.software_info
+        env_info = result.env_info
         build_cmd = self.command.build()
         self._execute_script(self.get_build_file(), build_cmd, "build", install_path)
         self.installService.add_install_info(software_info, install_path)

@@ -41,6 +41,7 @@ elif [ "$JARVIS_MODE" -eq 1 ]; then
     export JARVIS_JOBSCRIPT=${JARVIS_SOFT_ROOT}/jobscript
 fi
 export JARVIS_TMP=/tmp
+export JARVIS_DEV=${CUR_PATH}/dev
 export JARVIS_DOWNLOAD=${CUR_PATH}/downloads
 export JARVIS_TMP_DOWNLOAD=${CUR_PATH}/tmp
 export JARVIS_EXE=${CUR_PATH}/exe

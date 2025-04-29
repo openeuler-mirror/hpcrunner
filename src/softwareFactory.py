@@ -14,18 +14,19 @@ class SoftwareFactory:
             'default': DefaultStrategy()
         }
     
-    def create_profile(self, software_path: str, compiler_info: str, isapp=False) -> SoftwareProfile:
+    def create_profile(self, software_path: str, compiler_mpi_info: str, isapp=False) -> SoftwareProfile:
         """创建软件信息对象的统一入口"""
+        compiler_mpi_info = compiler_mpi_info.upper()
         (software_name, version, suffix) = self._parse_name_and_version(software_path)
-        software_type = self._determine_type(software_name, compiler_info, isapp)
+        software_type = self._determine_type(software_name, compiler_mpi_info, isapp)
         profile = SoftwareProfile(
             name=self._handle_suffix(software_name, suffix),
             full_version=version,
             major_version=self._parse_major_version(version),
             software_type=software_type,
             suffix=suffix,
-            use_mpi='+MPI' in compiler_info,
-            compiler_name=compiler_info.split('+')[0] if '+' in compiler_info else compiler_info,
+            use_mpi='+MPI' in compiler_mpi_info,
+            compiler_name=compiler_mpi_info.split('+')[0] if '+' in compiler_mpi_info else compiler_mpi_info,
             install_script_path=self._get_install_script_path(software_name, version, software_type, suffix),
         )
         return profile

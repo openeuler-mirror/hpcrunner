@@ -21,7 +21,6 @@ class EnvService(object,metaclass=Singleton):
         self.command = CommandBuilder()  # 注入命令生成组件
         self.exe = ExecuteService()
         self.ds = DataService()
-        self.env()
 
     def env(self):
         print(f"set environment...{self.ds.get_app_name()}")

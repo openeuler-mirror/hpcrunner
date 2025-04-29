@@ -25,3 +25,6 @@ class EnvironmentProfile:
     compiler_name: str
     compiler_version: str
     compiler_major_version: str
+    mpi_name: str = None
+    mpi_version: str = None
+    mpi_major_version: str = None

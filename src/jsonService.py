@@ -67,11 +67,16 @@ class JSONService:
         :param auto_save: 是否自动保存到文件
         :raises TypeError: 当键名不是字符串时抛出
         """
+        key = self.path_to_str(key)
         if not isinstance(key, str):
             raise TypeError("键名必须是字符串类型")
         self._data[key] = value
         if auto_save:
             self.save()
+    
+    def path_to_str(self, obj) -> str:
+        """若对象是 Path 类型则返回字符串，否则返回原对象"""
+        return str(obj) if isinstance(obj, Path) else obj
 
     def delete(self, key: str, auto_save: bool = False) -> bool:
         """

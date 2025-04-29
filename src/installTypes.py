@@ -1,18 +1,17 @@
-# types.py
+from dataclasses import dataclass
 from enum import Enum
 from typing import Tuple, Optional, Dict
+from softwareTypes import SoftwareProfile, EnvironmentProfile
 
 class InstallMode(Enum):
     PRO = "0"
     NORMAL = "1"
 
-class SoftwareCategory(Enum):
-    COMPILER = 1
-    MPI = 2
-    UTIL = 3
-    LIB = 4
-    MISC = 5
-    APP = 6
+@dataclass
+class InstallProfile:
+    install_path: str = ""
+    software_info: SoftwareProfile = None
+    env_info: EnvironmentProfile = None
 
 VersionInfo = Tuple[str, str]  # (major_version, full_version)
 

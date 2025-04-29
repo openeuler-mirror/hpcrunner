@@ -7,18 +7,22 @@ import fnmatch
 from enum import Enum
 from glob import glob
 from typing import Tuple, Optional, Dict
+from pathlib import Path
 
 from dataService import DataService
 from toolService import ToolService
 from executeService import ExecuteService
 from jsonService import JSONService
 from installStrategy import PathStrategyFactory
-from installTypes import InstallMode
+from installTypes import InstallMode, InstallProfile
 from versionParser import VersionParser
-from detectorService import GCCDetector, ClangDetector,NVCCDetector,ICCDetector
-from detectorService import HMPIDetector, OpenMPIDetector, MPICHDetector
 from softwareFactory import SoftwareFactory
+from envFactory import EnvFactory
 from softwareTypes import SoftwareType
+from pathBuilder import PathFactory
+from deploymentConfig import DeploymentConfig
+from moduleConfig import ModuleConfig
+from moduleController import ModulefileEngine
 
 class Singleton(type):
 
@@ -34,31 +38,27 @@ class Singleton(type):
 class InstallService(object,metaclass=Singleton):
     PACKAGE = 'package'
     FULL_VERSION='full_version'
+    INSTALL_JSON = "install.json"
+    LINK_FILE_NAME = 'linkpathtomodules.sh'
     def __init__(self):
         self.ds = DataService()
         self.exe = ExecuteService()
         self.tool = ToolService()
+        self.env_factory = EnvFactory()
         self.software_factory = SoftwareFactory()
         self.ROOT = os.getcwd()
 
-        self.gcc_detector = GCCDetector()
-        self.clang_detector = ClangDetector()
-        self.icc_detector = ICCDetector()
-        self.nvcc_detector = NVCCDetector()
-
-        self.hmpi_detector = HMPIDetector()
-        self.openmpi_detector = OpenMPIDetector()
-        self.mpich_detector = MPICHDetector()
-        
         self._mode = self._detect_mode()
         self._init_paths()
-        self.INSTALL_INFO_PATH = os.path.join(self.SOFTWARE_PATH, "install.json")
+        self.deployment_config = DeploymentConfig(self._mode, self._paths)
+        self.path_factory = PathFactory(self.deployment_config)
+        self.INSTALL_INFO_PATH = os.path.join(self.SOFTWARE_PATH, self.INSTALL_JSON)
         self._is_first_install = self._set_first_install()
         self.IS_PRO = self._mode == InstallMode.PRO
         self.IS_NORMAL = self._mode == InstallMode.NORMAL
         self.PACKAGE_PATH = os.path.join(self.ROOT, self.PACKAGE)
         self.dependencies = False       
-        self.LINK_FILE = os.path.join(self.MODULE_FILES,'linkpathtomodules.sh')
+        self.LINK_FILE = os.path.join(self.MODULE_FILES, self.LINK_FILE_NAME)
         self._create_install_json(self.INSTALL_INFO_PATH)
         self._validate_installation()
         self._prepare_infrastructure()
@@ -148,137 +148,6 @@ done
 '''
         self.tool.write_file(self.LINK_FILE, linkfile_content)
 
-    def get_mpi_info(self):
-        mpich_info = self.mpich_detector.detect()
-        if mpich_info:return mpich_info
-        hmpi_info = self.hmpi_detector.detect()
-        if hmpi_info:return hmpi_info
-        openmpi_info = self.openmpi_detector.detect()
-        if openmpi_info:return openmpi_info
-        print("MPI not found, please install MPI first.")
-        sys.exit()
-
-    def check_compiler_mpi(self, compiler_list, compiler_mpi_info):
-        no_compiler = ["COM","ANY","MISC","APP"]
-        is_valid = False
-        compiler_mpi_info = compiler_mpi_info.upper()
-        valid_list = []
-        for compiler in compiler_list:
-            valid_list.append(compiler)
-            valid_list.append(f'{compiler}+MPI')
-        valid_list += no_compiler
-        for valid_para in valid_list:
-            if compiler_mpi_info == valid_para:
-                is_valid = True
-                break
-        if not is_valid:
-            print(f"compiler or mpi info error, Only {valid_list.join('/').lower()} is supported")
-            sys.exit()
-        return compiler_mpi_info
-
-    def get_used_compiler(self, compiler_mpi_info):
-        return compiler_mpi_info.split('+')[0]
-
-    def get_software_type(self,software_name, compiler_mpi_info):
-        if self.is_mpi_software(software_name):
-            return SoftwareType.MPI
-        if compiler_mpi_info == "COM":
-            return SoftwareType.COMPILER
-        elif compiler_mpi_info == "ANY":
-            return SoftwareType.UTIL
-        elif compiler_mpi_info == "MISC":
-            return SoftwareType.MISC
-        elif compiler_mpi_info == "APP":
-            return SoftwareType.APP
-        else:
-            return SoftwareType.LIB
-
-    def get_compiler_info(self, compilers, compiler_mpi_info):
-        compiler_info = {"cname":None, "cmversion": None, self.FULL_VERSION: None}
-        for compiler, info_func in compilers.items():
-            if compiler in compiler_mpi_info:
-                compiler_info = info_func()
-        return compiler_info
-
-    def get_main_version(self, version):
-        return version.split('.')[0]
-
-    def is_mpi_software(self, software_name):
-        mpis = ['hmpi', 'openmpi', 'hpcx', 'mpich']
-        for mpi in mpis:
-            if software_name.startswith(mpi):
-                return True
-        return False
-
-    def add_mpi_path(self, software_info, install_path):
-        if not software_info.use_mpi:
-            return install_path
-        mpi_info = self.get_mpi_info()
-        if mpi_info[self.FULL_VERSION] == None:
-            print("MPI not found!")
-            return False
-        mpi_str = mpi_info["name"]+mpi_info[self.FULL_VERSION]
-        print("Use MPI: "+mpi_str)
-        if self.IS_PRO:
-            install_path = os.path.join(install_path, mpi_str)
-        elif self.IS_NORMAL:
-            install_path = f"{install_path}-{mpi_str}"
-        return install_path
-
-    def get_install_path(self, software_info, env_info):
-        sversion = software_info.full_version
-        stype = software_info.software_type
-        cname = env_info['cname']
-        cfullver = env_info[self.FULL_VERSION]
-        sname = software_info.name
-        if stype == SoftwareType.MPI:
-            if self.IS_PRO:
-                mpi_path = os.path.join(self.MPI_PATH, f"{sname}{sversion}-{cname}{cfullver}", sversion)
-            if self.IS_NORMAL:
-                mpi_path = os.path.join(self.MPI_PATH,sname, f"{sversion}-{cname}{cfullver}")
-            print(f"mpi_path:{mpi_path}")
-            return mpi_path
-        if stype == SoftwareType.COMPILER:
-            install_path = os.path.join(self.COMPILER_PATH, f'{sname}/{sversion}')
-        elif stype == SoftwareType.UTIL:
-            install_path = os.path.join(self.UTILS_PATH, f'{sname}/{sversion}')
-        elif stype == SoftwareType.MISC:
-            install_path = os.path.join(self.MISC_PATH, f'{sname}/{sversion}')
-        elif stype == SoftwareType.APP:
-            install_path = os.path.join(self.APP_PATH, f'{sname}/{sversion}-{cname}{cfullver}')
-            install_path = self.add_mpi_path(software_info, install_path)
-        else:
-            if self.IS_PRO:
-                # install library
-                install_path = os.path.join(self.LIBS_PATH, cname+cfullver)
-                # get mpi name and version
-                install_path = self.add_mpi_path(software_info, install_path)
-                install_path = os.path.join(install_path, f'{sname}/{sversion}')
-            elif self.IS_NORMAL:
-                install_path = os.path.join(self.LIBS_PATH, f'{sname}/{sversion}-{cname}{cfullver}')
-                install_path = self.add_mpi_path(software_info, install_path)
-        return install_path
-
-    def is_contained_mpi(self, compiler_mpi_info):
-        return "MPI" in compiler_mpi_info
-    
-    def get_files(self, abs_path):
-        file_list = [d for d in glob(abs_path+'/**', recursive=True)]
-        return file_list
-
-    def add_special_library_path(self, install_path, sname, libs_dir):
-        prefix = install_path.replace(install_path, "$prefix")
-        if "kml" in sname:
-            libs_dir.append(os.path.join(prefix, "lib/kblas/nolocking"))
-            libs_dir.append(os.path.join(prefix, "lib/kblas/pthread"))
-            libs_dir.append(os.path.join(prefix, "lib/kblas/omp"))
-            libs_dir.append(os.path.join(prefix, "lib/kblas/locking"))
-            libs_dir.append(os.path.join(prefix, "lib/kvml/single"))
-            libs_dir.append(os.path.join(prefix, "lib/kvml/multi"))
-            libs_dir.append(os.path.join(prefix, "lib/kspblas/single"))
-            libs_dir.append(os.path.join(prefix, "lib/kspblas/multi"))
-        return libs_dir
-
     def get_loaded_modules(self):
         import subprocess
         try:
@@ -311,165 +180,12 @@ done
                 sys.exit(0)
         return " ".join(depsmap.values())
 
-    def get_module_file_content(self, install_path, sname, sversion):
-        module_file_content = ''
-        if "hpckit" in sname.lower():
-            module_file_content = f'''#%Module1.0#####################################################################
-prepend-path MODULEPATH  {install_path}/HPCKit/latest/modulefiles
-'''
-            return module_file_content
-        file_list = self.get_files(install_path)
-        bins_dir_type = ["bin"]
-        libs_dir_type = ["libs", "lib", "lib64"]
-        incs_dir_type = ["include"]
-        bins_dir = []
-        libs_dir = []
-        incs_dir = []
-        compiler_values = ''
-        bins_str = ''
-        libs_str = ''
-        incs_str = ''
-        opal_prefix = ''
-        pmix_install_prefix = ''
-        for file in file_list:
-            if not os.path.isdir(file):
-                continue
-            last_dir = file.split('/')[-1]
-            if last_dir in bins_dir_type:
-                bins_dir.append(file.replace(install_path, "$prefix"))
-            elif last_dir in libs_dir_type:
-                libs_dir.append(file.replace(install_path, "$prefix"))
-            elif last_dir in incs_dir_type:
-                incs_dir.append(file.replace(install_path, "$prefix"))
-        self.add_special_library_path(install_path, sname, libs_dir)
-        if len(bins_dir) >= 1:
-            bins_str = "prepend-path    PATH              "+':'.join(bins_dir)
-        if len(libs_dir) >= 1:
-            libs_str = "prepend-path    LD_LIBRARY_PATH            "+':'.join(libs_dir)
-        if len(incs_dir) >= 1:
-            incs_str = "prepend-path	INCLUDE	   " + ':'.join(incs_dir)
-        if "bisheng" in sname:
-              compiler_values = "setenv CC clang \nsetenv CXX clang++ \nsetenv FC flang \nsetenv F77 flang \nsetenv F90 flang "
-        elif "gcc" in sname:
-              compiler_values = "setenv CC gcc \nsetenv CXX g++ \nsetenv FC gfortran \nsetenv F77 gfortran \nsetenv F90 gfortran "
-        elif "hmpi" in sname or "openmpi" in sname:
-              compiler_values = "setenv CC mpicc \nsetenv CXX mpicxx \nsetenv FC mpifort \nsetenv F77 mpifort \nsetenv F90 mpifort "
-        if self.is_mpi_software(sname):
-            opal_prefix = f"setenv OPAL_PREFIX {install_path}"
-            pmix_install_prefix = f"setenv PMIX_INSTALL_PREFIX {install_path}"
-        depend_content=''
-        if self.dependencies:
-            # complement dependencies
-            depend_content='''
-foreach dep {%s} {
-    if { ![is-loaded $dep] } {
-        module load $dep
-    }
-}
-''' % self.dependencies
-        module_file_content = f'''#%Module1.0#####################################################################
-set     prefix  {install_path}
-set     version	{sversion}
-{depend_content}
-setenv    {sname.upper().replace('-','_')}_PATH {install_path}
-{compiler_values}
-{opal_prefix}
-{pmix_install_prefix}
-{bins_str}
-{libs_str}
-{incs_str}
-'''
-        return module_file_content
-
     def is_installed(self, install_path):
         #为了兼容老版本，只要安装路径下存在installed也算做已安装
         installed_file_path = os.path.join(install_path, "installed")
         if self.tool.read_file(installed_file_path) == "1":
             return True
         return self.json.get(install_path)
-
-    def gen_module_file(self, install_path, software_info, env_info):
-        sname = software_info.name
-        sversion = software_info.full_version
-        stype = software_info.software_type
-        cname = env_info['cname']
-        cfullversion = env_info[self.FULL_VERSION]
-        module_file_content = self.get_module_file_content(install_path, sname, sversion)
-        if not self.is_installed(install_path):
-            return ''
-        # if install_path is empty, The module file should not generated.
-        if len(os.listdir(install_path)) == 0:
-            print('module file did not generated because no file generated under install path')
-            return ''
-        if stype == SoftwareType.MPI:
-            compiler_str = cname + cfullversion
-            software_str = sname + sversion
-            if self.IS_PRO:
-                module_path = os.path.join(self.MODULE_DEPS_PATH, compiler_str ,sname)
-                attach_module_path = os.path.join(self.MODULE_DEPS_PATH, compiler_str+'-'+software_str)
-                self.tool.mkdirs(attach_module_path)
-                module_file_content += f"\nprepend-path    MODULEPATH     {attach_module_path}"
-                print(f'attach module file {attach_module_path} successfully generated.')
-            elif self.IS_NORMAL:
-                module_path = os.path.join(self.MODULE_COMPILER_PATH, sname, f'{sversion}-{compiler_str}')
-        else:
-            if stype == SoftwareType.COMPILER:
-                software_str = sname + sversion
-                if self.IS_PRO:
-                    module_path = os.path.join(self.MODULE_FILES, sname)
-                    attach_module_path = os.path.join(self.MODULE_DEPS_PATH, software_str)
-                    self.tool.mkdirs(attach_module_path)
-                    module_file_content += f"\nprepend-path    MODULEPATH     {attach_module_path}"
-                    print(f'attach module file {attach_module_path} successfully generated.')
-                elif self.IS_NORMAL:
-                    module_path = os.path.join(self.MODULE_COMPILER_PATH, sname, sversion)
-            elif stype == SoftwareType.UTIL:
-                if self.IS_PRO:
-                    module_path = os.path.join(self.MODULE_FILES, sname)
-                elif self.IS_NORMAL:
-                    module_path = os.path.join(self.MODULE_UTIL_PATH, sname, sversion)
-            elif stype == SoftwareType.MISC:
-                if self.IS_PRO:
-                    module_path = os.path.join(self.MODULE_FILES, sname)
-                elif self.IS_NORMAL:
-                    module_path = os.path.join(self.MODULE_MISC_PATH, sname, sversion)
-            else:
-                if self.IS_NORMAL:
-                    if stype == SoftwareType.APP:
-                        BASE_PATH = self.MODULE_APP_PATH
-                    else:
-                        BASE_PATH = self.MODULE_LIB_PATH
-                elif self.IS_PRO:
-                    if stype == SoftwareType.APP:
-                        BASE_PATH = self.MODULE_APP_PATH
-                    else:
-                        BASE_PATH = self.MODULE_DEPS_PATH
-                compiler_str = cname + cfullversion
-                if software_info.use_mpi:
-                    mpi_info = self.get_mpi_info()
-                    mpi_str = mpi_info['name'] + mpi_info[self.FULL_VERSION]
-                    if self.IS_PRO:
-                        module_path = os.path.join(self.BASE_PATH, f"{compiler_str}-{mpi_str}" ,sname)
-                    if self.IS_NORMAL:
-                        module_path = os.path.join(BASE_PATH, sname, f"{sversion}-{compiler_str}-{mpi_str}")
-                else:
-                    if self.IS_PRO:
-                        module_path = os.path.join(self.BASE_PATH, compiler_str, sname)
-                    elif self.IS_NORMAL:
-                        module_path = os.path.join(BASE_PATH, sname, f"{sversion}-{compiler_str}")
-        if self.IS_PRO:
-            self.tool.mkdirs(module_path)
-            module_file = os.path.join(module_path, sversion)
-        elif self.IS_NORMAL:
-            self.tool.mkdirs(os.path.dirname(module_path))
-            module_file = module_path
-        self.tool.write_file(module_file, module_file_content)
-        print(f"module file {module_file} successfully generated")
-        row = self.json.get(install_path)
-        row["module_path"] = module_file
-        self.json.set(install_path, row, True)
-        #更新linkfile
-        if self.IS_NORMAL:self.update_modules()
 
     def update_modules(self):
         upd_cmd = f'''
@@ -543,54 +259,79 @@ chmod +x {install_script}
         software_dict['version'] = software_info.full_version
         software_dict['module_path'] = ''
         self.json.set(install_path, software_dict, True)
-
-    def remove_prefix(self, software_path):
-        if software_path.startswith('package/') or software_path.startswith('./'):
-            software_path = software_path.replace('./', '', 1)
-            software_path = software_path.replace('package/', '', 1)
-        return software_path
     
+    def _write_modulefile(self, install_path, module_path, content):
+        base_path = os.path.dirname(module_path)
+        self.tool.mkdirs(base_path)
+        self.tool.write_file(module_path, content)
+        print(f"module file {module_path} successfully generated")
+        row = self.json.get(install_path)
+        row["module_path"] = module_path
+        self.json.set(install_path, row, True)
+        #更新linkfile
+        if self.IS_NORMAL:self.update_modules()
+    
+    def _get_attach_module_path(self, software_info, env_info):
+        if self.IS_NORMAL:
+            return ""
+        stype = software_info.software_type
+        attach_module_path = ""
+        if stype == SoftwareType.MPI:
+            attach_module_path = os.path.join(self.MODULE_DEPS_PATH, f"{env_info.compiler_name}{env_info.compiler_version}-{software_info.name}{software_info.full_version}")
+            self.tool.mkdirs(attach_module_path)
+        elif stype == SoftwareType.COMPILER:
+            attach_module_path = os.path.join(self.MODULE_DEPS_PATH, f"{software_info.name}{software_info.full_version}")
+            self.tool.mkdirs(attach_module_path)
+        return attach_module_path
+
+    def gen_module_file(self, install_path, software_info, env_info):
+        stype = software_info.software_type
+        # 构建配置对象
+        deps = self.dependencies.split() if self.dependencies else []
+        attach_mod_path = self._get_attach_module_path(software_info, env_info)
+        config = ModuleConfig(
+            is_pro = self.IS_PRO,
+            install_root=Path(install_path),
+            software_name=software_info.name,
+            full_version=software_info.full_version,
+            category=stype,
+            dependencies=deps,
+            attach_module_path=attach_mod_path 
+        )
+
+        # 生成模块文件
+        engine = ModulefileEngine()
+        module_file_content = engine.generate(config)
+        module_path = self.path_factory.get_module_builder(stype).build_path(software_info, env_info)
+        module_path = str(module_path)
+        self._write_modulefile(install_path, module_path, module_file_content)
+
     def install(self, install_args, isapp = False):
         software_path = install_args[0]
         compiler_mpi_info = install_args[1]
         other_args = install_args[2:]
         self.tool.prt_content("INSTALL " + software_path)
 
-        compilers = {"GCC":self.gcc_detector.detect, "CLANG":self.clang_detector.detect,
-                     "NVC":self.nvcc_detector.detect, "ICC":self.icc_detector.detect,
-		             "BISHENG": self.clang_detector.detect}
-        compiler_mpi_info = self.check_compiler_mpi(compilers.keys(), compiler_mpi_info)
         software_info = self.software_factory.create_profile(software_path, compiler_mpi_info, isapp)
+        env_info = self.env_factory.create_profile(software_info, compiler_mpi_info)
         stype = software_info.software_type
-        # get compiler name and version
-        env_info = self.get_compiler_info(compilers, compiler_mpi_info)
-        if stype == SoftwareType.LIB or stype == SoftwareType.MPI or stype == SoftwareType.APP:
-            cmversion = env_info['cmversion']
-            cfullver = env_info[self.FULL_VERSION]
-            if cmversion == None:
-                print(f"The specified {software_info.compiler_name} Compiler not found!")
-                return False
-            else:
-                print(f"Use Compiler: {env_info['cname']} {cfullver}")
-        
         # get install path
-        install_path = self.get_install_path(software_info, env_info)
+        install_path = self.path_factory.get_builder(stype).build_path(software_info, env_info)
+        install_path = str(install_path)
         if not install_path: 
             return
-        else:
-            self.tool.mkdirs(install_path)
-        if isapp: 
-            return {
-                "install_path": install_path,
-                "software_info":software_info,
-                "env_info":env_info
-            }
+        self.tool.mkdirs(install_path)
+        install_profile = InstallProfile(
+                install_path = install_path,
+                software_info = software_info,
+                env_info = env_info
+                )
+        if isapp: return install_profile
         # get install script
         self.install_package(software_info.install_script_path, install_path, other_args)
         # add install info
         self.add_install_info(software_info, install_path)
-        # gen module file
-        self.gen_module_file( install_path, software_info, env_info)
+        self.gen_module_file(install_path, software_info, env_info)
 
     def install_depend(self):
         depend_file = self.ds.get_depend_file()

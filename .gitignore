@@ -72,3 +72,4 @@ app/*
 test.sh
 *.swp
 workloads/*
+dev
