@@ -49,9 +49,9 @@ class CommandBuilder:
         # 拼接二进制路径和参数
         binary_path = os.path.join(
             self.ds.app_config.binary_dir,
-            self.ds.binary_file[0]
+            self.ds.binary_file
         )
-        return f'{cmd} {binary_path} {self.ds.binary_file[1]}'
+        return f'{cmd} {binary_path} {self.ds.get_binary_para()}'
 
     def full_run(self) -> str:
         """完整运行环境命令链"""
@@ -77,10 +77,11 @@ class CommandBuilder:
 
     def job_run(self, num):
         job_file_path = self.ds.get_job_run_file()
-        print(f"start job run {self.ds.get_app_name}")
+        print(f"start job run {self.ds.get_app_name()}")
         job_cmd = self.ds.get_job_cmd() if num == 1 else self.ds.get_job2_cmd()
         job_content = f'''
 {self.env_activation()}
+mkdir -p {self.ds.app_config.case_dir}
 cd {self.ds.app_config.case_dir}
 cat > job_run.sh << \EOF
 {job_cmd}

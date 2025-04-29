@@ -261,8 +261,8 @@ chmod +x {install_script}
         self.json.set(install_path, software_dict, True)
     
     def _write_modulefile(self, install_path, module_path, content):
-        base_name = os.path.basename(module_path)
-        self.tool.mkdirs(base_name)
+        base_path = os.path.dirname(module_path)
+        self.tool.mkdirs(base_path)
         self.tool.write_file(module_path, content)
         print(f"module file {module_path} successfully generated")
         row = self.json.get(install_path)
