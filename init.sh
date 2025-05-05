@@ -45,7 +45,7 @@ export JARVIS_DEV=${CUR_PATH}/dev
 export JARVIS_DOWNLOAD=${CUR_PATH}/downloads
 export JARVIS_TMP_DOWNLOAD=${CUR_PATH}/tmp
 export JARVIS_EXE=${CUR_PATH}/exe
-export JARVIS_TPL=${CUR_PATH}/template
+export JARVIS_TPL=${CUR_PATH}/templates
 export JARVIS_PROXY=https://gh.ddlc.top/https://github.com
 
 export DOWNLOAD_TOOL=${CUR_PATH}/package/common/download.sh
