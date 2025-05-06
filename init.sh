@@ -51,6 +51,8 @@ export JARVIS_PROXY=https://gh.ddlc.top/https://github.com
 export DOWNLOAD_TOOL=${CUR_PATH}/package/common/download.sh
 export CHECK_DEPS=${CUR_PATH}/package/common/check_deps.sh
 export CHECK_ROOT=${CUR_PATH}/package/common/check_root.sh
+export PATCH_TOOL=${CUR_PATH}/package/common/applypatch.sh
+export RUN_TOOL=${CUR_PATH}/package/common/run_cmd.sh
 
 #Install modules
 if ! type module >/dev/null 2>&1;then
