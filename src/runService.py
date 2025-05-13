@@ -41,7 +41,7 @@ class RunService:
     def batch_run(self):
         self.env_service.env()
         batch_cmd = self.command.batch_run()
-        self.exe.exec_raw(run_cmd)
+        self.exe.exec_raw(batch_cmd)
 
     def job_run(self,num):
         self.env_service.env()
