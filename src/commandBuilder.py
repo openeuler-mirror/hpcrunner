@@ -72,7 +72,7 @@ class CommandBuilder:
         self.tool_service.write_file(batch_file_path, batch_content)
         return self._chain_commands([
             f"chmod +x {batch_file_path}",
-            f"sh {batch_file}"
+            f"sh {batch_file_path}"
         ])
 
     def job_run(self, num):
