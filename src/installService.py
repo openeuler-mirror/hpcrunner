@@ -284,7 +284,13 @@ chmod +x {install_script}
             self.tool.mkdirs(attach_module_path)
         return attach_module_path
 
+    def is_dir_empty(self, directory):
+        return not os.listdir(directory)
+
     def gen_module_file(self, install_path, software_info, env_info):
+        if self.is_dir_empty(install_path):
+            print(f"install path {install_path} is empty, module file not generated")
+            return
         stype = software_info.software_type
         # 构建配置对象
         deps = self.dependencies.split() if self.dependencies else []

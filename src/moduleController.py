@@ -32,19 +32,8 @@ class ModulefileEngine:
         ]
         return "\n".join(filter(None, sections))
 
-    def _generate_paths2(self, config: ModuleConfig) -> str:
-        if config.software_name == "hpckit":
-            return ""
-        path_config = PathOrganizer.auto_discover(config.install_root)
-        return f"""
-prepend-path PATH {PathOrganizer.format_paths(path_config['bins'])}
-prepend-path LD_LIBRARY_PATH {PathOrganizer.format_paths(path_config['libs'])}
-prepend-path C_INCLUDE_PATH {PathOrganizer.format_paths(path_config['includes'])}
-prepend-path INCLUDE {PathOrganizer.format_paths(path_config['includes'])}
-"""
-
     def _generate_paths(self, config: ModuleConfig) -> str:
-        if config.software_name == "hpckit":
+        if config.software_name == "hpckit" or "anaconda" in config.software_name:
             return ""
         
         path_config = PathOrganizer.auto_discover(config.install_root)
