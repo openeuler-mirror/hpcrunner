@@ -11,7 +11,7 @@ cd hdf5-${hdf5_version}
 #获取除了第一个参数之外的参数
 args=${@:2}
 if [ -z "$args" ]; then
-    ./configure --prefix=$1  --enable-fortran --enable-static=yes --enable-parallel --enable-shared --with-zlib=/usr/lib
+    ./configure --prefix=$1  --enable-fortran --enable-static=yes --enable-parallel --enable-shared --with-zlib=/usr
 else
     ./configure --prefix=$1 $args
 fi
