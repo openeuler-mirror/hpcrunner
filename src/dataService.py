@@ -256,6 +256,13 @@ class DataService(metaclass=Singleton):
         else:
             env_root_path = self.root_path
         return os.path.join(env_root_path, self.ENV_FILE)
+    
+    def get_job_env_file(self):
+        if self.app_config.case_dir:
+            env_root_path = self.app_config.case_dir
+        else:
+            env_root_path = self.root_path
+        return os.path.join(env_root_path, self.ENV_FILE)
 
     def get_depend_file(self):
         if self.app_config.build_dir:

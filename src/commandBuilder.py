@@ -77,6 +77,9 @@ class CommandBuilder:
 
     def job_run(self, num):
         job_file_path = self.ds.get_job_run_file()
+        #generate job env file
+        job_env_file = self.ds.get_job_env_file()
+        self.tool_service.write_file(job_env_file, self.ds.env_content)
         print(f"start job run {self.ds.get_app_name()}")
         job_cmd = self.ds.get_job_cmd() if num == 1 else self.ds.get_job2_cmd()
         job_content = f'''
