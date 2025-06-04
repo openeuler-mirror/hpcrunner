@@ -10,6 +10,7 @@ kml_version=2.4.0
 cd ${JARVIS_TMP}
 rm -rf kml-${kml_version}-1.aarch64.rpm
 unzip -o ${JARVIS_DOWNLOAD}/KML_${kml_version}_bisheng.zip
+rpm -q kml-2.4.0-1.aarch64 && rpm -e --nodeps --noscripts kml-2.4.0-1.aarch64 2>/dev/null
 rpm --force --nodeps -ivh --prefix=$1 kml-${kml_version}-1.aarch64.rpm
 mv $1/kml/* $1/
 
