@@ -9,8 +9,8 @@ wget https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/data/NA12878/alignment/NA
 
 gunzip chr20.fa.gz
 mv NA12878.chrom20.ILLUMINA.bwa.CEU.low_coverage.20121211.bam NA12878_ali.bam
-../src/samtools/samtools index NA12878_ali.bam
-../src/samtools/samtools faidx chr20.fa
+../src/samtools/bin/samtools index NA12878_ali.bam
+../src/samtools/bin/samtools faidx chr20.fa
 
 ../src/cnvnator -root NA12878_ali.root -tree NA12878_ali.bam -chrom 20
 ../src/cnvnator -root NA12878_ali.root -his 1000 -chrom 20
