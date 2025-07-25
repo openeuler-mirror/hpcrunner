@@ -66,7 +66,7 @@ yum makecache
             self.tool.prt_content("DOWNLOAD " + filename)
             ret = os.system(download_url)
             if ret:
-               os.remove(file_path)
+                os.remove(file_path)
 
         if not download_flag:
             print("The download list is empty!")
