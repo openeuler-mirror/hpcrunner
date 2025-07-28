@@ -10,12 +10,15 @@ cp ioapi/Makeinclude.Linux2_ia64gfort ioapi/Makeinclude.Linux4_aarch64
 sed -i "14c\CC   = mpicc" ioapi/Makeinclude.Linux4_aarch64
 sed -i "15c\CXX  = mpicxx" ioapi/Makeinclude.Linux4_aarch64
 sed -i "16c\FC   = mpifort" ioapi/Makeinclude.Linux4_aarch64
+sed -i '21 s/^/# /' ioapi/Makeinclude.Linux4_aarch64
+sed -i '25 s/^/# /' ioapi/Makeinclude.Linux4_aarch64
+sed -i '26 s/^/# /' ioapi/Makeinclude.Linux4_aarch64
 sed -i "30c\#FSFLAGS   = -save" ioapi/Makeinclude.Linux4_aarch64
 cp ioapi/Makefile.nocpl ioapi/Makefile
 export HOME=${JARVIS_TMP}
 cp m3tools/Makefile.nocpl m3tools/Makefile
-sed -i "65c\LIBS = -L\${OBJDIR} -lioapi -L${JARVIS_ROOT}/software/libs/kgcc9.3.1/hmpi1.1.1/netcdf/4.7.0/lib/ -lnetcdff -lnetcdf -L${JARVIS_ROOT}/software/libs/kgcc9.3.1/hmpi1.1.1/hdf5/1.10.1/lib -lhdf5_hl -lhdf5 -lz \$(OMPLIBS) \$(ARCHLIB) \$(ARCHLIBS)" m3tools/Makefile
-sed -i "146c\LIBS = -L\${OBJDIR} -lioapi -L${JARVIS_ROOT}/software/libs/kgcc9.3.1/hmpi1.1.1/netcdf/4.7.0/lib/ -lnetcdff -lnetcdf -L${JARVIS_ROOT}/software/libs/kgcc9.3.1/hmpi1.1.1/hdf5/1.10.1/lib -lhdf5_hl -lhdf5 -lz \$(OMPLIBS) \$(ARCHLIB) \$(ARCHLIBS)" m3tools/Makefile
+sed -i "65c\LIBS = -L\${OBJDIR} -lioapi -L${NETCDF_PATH}/lib -lnetcdff -lnetcdf -L${HDF5_PATH}/lib -lhdf5_hl -lhdf5 -lz \$(OMPLIBS) \$(ARCHLIB) \$(ARCHLIBS)" m3tools/Makefile
+#sed -i "146c\LIBS = -L\${OBJDIR} -lioapi -L${JARVIS_ROOT}/software/libs/kgcc9.3.1/hmpi1.1.1/netcdf/4.7.0/lib/ -lnetcdff -lnetcdf -L${JARVIS_ROOT}/software/libs/kgcc9.3.1/hmpi1.1.1/hdf5/1.10.1/lib -lhdf5_hl -lhdf5 -lz \$(OMPLIBS) \$(ARCHLIB) \$(ARCHLIBS)" m3tools/Makefile
 
 cp Makefile.template Makefile
 sed -i "138c\BIN        = Linux4_aarch64" Makefile
@@ -25,7 +28,8 @@ sed -i "141c\LIBINST    = \$(INSTALL)/\$(BIN)" Makefile
 sed -i "142c\BININST    = \$(INSTALL)/\$(BIN)" Makefile
 sed -i "143c\CPLMODE    = nocpl" Makefile
 sed -i '144c\IOAPIDEFS  = "-DIOAPI_NCF4"' Makefile
-sed -i "193c\NCFLIBS    = -L${JARVIS_ROOT}/software/libs/kgcc9.3.1/hmpi1.1.1/netcdf/4.7.0/lib/ -lnetcdff -lnetcdf -L${JARVIS_ROOT}/software/libs/kgcc9.3.1/hmpi1.1.1/hdf5/1.10.1/lib -lhdf5_hl -lhdf5 -lz" Makefile
+sed -i "146c\NCFLIBS    = -L${NETCDF_PATH}/lib -lnetcdff -lnetcdf -L${HDF5_PATH}/lib -lhdf5_hl -lhdf5 -lz" Makefile
+sed -i "193c\NCFLIBS    = -L${NETCDF_PATH}/lib -lnetcdff -lnetcdf -L${HDF5_PATH}/lib -lhdf5_hl -lhdf5 -lz" Makefile
 make BIN=Linux4_aarch64
 sed -i "174c\        COMMON  / BSTATE3 /                                              " ioapi/STATE3.EXT
 sed -i "175c\     &          P_ALP3, P_BET3, P_GAM3,                                  " ioapi/STATE3.EXT
@@ -41,5 +45,7 @@ sed -i "184c\     &          BSIZE3, LDATE3, LTIME3, NDATE3, NTIME3, ILAST3,    
 sed -i "185c\     &          VTYPE3,                                                  " ioapi/STATE3.EXT
 sed -i "186c\     &          ILCNT3, NLIST3, IFRST3, ILIST3, BEGRC3, ENDRC3,          " ioapi/STATE3.EXT
 sed -i "191c\        COMMON  / CSTATE3 /                                              " ioapi/STATE3.EXT
-cp -a Linux4_aarch64 $1/bin
 
+cp -r Linux4_aarch64 $1/
+cp -r ioapi $1/
+cp -a Linux4_aarch64 $1/bin
