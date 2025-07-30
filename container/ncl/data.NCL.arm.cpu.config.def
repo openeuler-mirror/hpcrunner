@@ -31,11 +31,9 @@ From: centos:8.2.2004
     sed -i '16 s/^#//' /etc/yum.repos.d/CentOS-PowerTools.repo
     sed -i '18c enabled=1' /etc/yum.repos.d/CentOS-PowerTools.repo
     yum makecache
-    yum install -y rpm-build
-    yum install rpmdevtools -y
     rpmdev-setuptree
     cd /
-    yum install -y tar
+
     # Install the necessary development environment
     yum install -y environment-modules git dmidecode pciutils wget vim zlib expat-devel python3 cpio
     # Install base gcc
