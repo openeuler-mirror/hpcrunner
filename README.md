@@ -33,7 +33,7 @@ HPC被喻为是IT行业“金字塔上的明珠”，其部署、编译、运行
 ## 下载贾维斯
 执行如下命令安装相关依赖并下载贾维斯
 ```
-yum -y install environment python3 python3-devel cmake
+yum -y install git environment-modules python python3 python3-devel python3-libs python3-pip cmake make numactl-libs rpmbuild rpmdevtools wget unzip flex tar patch
 git clone https://gitee.com/openeuler/hpcrunner.git
 ```
 
@@ -164,12 +164,13 @@ option支持列表如下所示
 
 # FAQ
 
-Q1：如何在没有网络的环境下使用贾维斯部署软件？
+Q1：如何在没有网络的环境或者网速很慢的环境下，使用贾维斯完成软件安装部署？
 
 ```
 A：
-步骤1：寻找一台有外网链接的服务器环境，执行jarvis -d命令，下载相关依赖
-步骤2：将事先下载好的安装包放置到downloads目录下即可进行后续安装操作。
+步骤1：寻找一台有外网链接的服务器环境B，执行jarvis -d命令，下载相关依赖
+步骤2：将事先下载好的安装包即环境B下downloads目录里所有内容，放置到原环境的downloads目录下
+步骤3：在原来环境下进行后续安装操作
 ```
 
 # 欢迎贡献
