@@ -112,7 +112,7 @@ git clone https://gitee.com/openeuler/hpcrunner.git
 
 ## 运行示例
 
-使用默认的应用配置部署运行应用QE
+使用默认的应用配置部署运行应用QE-6.4
 
 ```
 ./jarvis -use templates/qe/6.4/data.qe.arm.cpu.config
@@ -165,6 +165,7 @@ option支持列表如下所示
 # FAQ
 
 Q1：如何在没有网络的环境下使用贾维斯部署软件？
+
 ```
 A：
 步骤1：寻找一台有外网链接的服务器环境，执行jarvis -d命令，下载相关依赖
