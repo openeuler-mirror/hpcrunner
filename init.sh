@@ -17,8 +17,8 @@ export JARVIS_MODULEDEPS=${CUR_PATH}/software/moduledeps
 export JARVIS_TMP=/tmp
 export JARVIS_TMP_DOWNLOAD=${CUR_PATH}/tmp
 export JARVIS_EXE=${CUR_PATH}/exe
-export JARVIS_PROXY=https://gh.ddlc.top/https://github.com
-
+export JARVIS_PROXY=https://github.com
+export UseGitee=1
 
 
 export DOWNLOAD_TOOL=${CUR_PATH}/package/common/download.sh

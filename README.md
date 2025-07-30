@@ -58,6 +58,15 @@ git clone https://gitee.com/openeuler/hpcrunner.git
 ## 使用贾维斯安装应用流程
 以安装 xapp 为例：
 
+步骤1：配置网络代理
+```
+#执行proxy脚本，并选择合适的源
+./proxy.sh
+#执行初始化脚本，完成环境变量配置
+source init.sh
+```
+
+
 步骤1：生效应用模板
 进入hpcrunner根目录执行如下命令：
 ```
