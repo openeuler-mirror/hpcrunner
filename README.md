@@ -1,13 +1,13 @@
 # HPCRunner : 贾维斯智能助手
-## **愿景：自动容器化助力极简部署，一站式调优HPC应用**
+
 ![贾维斯](./images/jarvis-logo.png)
 ### 项目背景
-
+ **愿景：自动容器化助力极简部署，一站式调优HPC应用**
 ​        HPC被喻为是IT行业“金字塔上的明珠”，其部署、编译、运行、性能采集分析的门槛非常高，不同的机器上部署HPC应用耗费大量精力，而且很多情况下需要同时部署ARM/X86两套环境进行验证，增加了很多的重复性工作，无法聚焦核心算法优化。
 
 ![贾维斯功能概览](./images/jarvis.png)
 
-### 项目特色
+## 项目特色
 
 - 支持ARM/X86,一键部署，采用业界权威依赖目录结构管理海量依赖，自动生成module file
 - 根据HPC配置实现一键编译运行、一键CPU/GPU性能采集、一键Benchmark.
@@ -19,27 +19,27 @@
 - (未来) 集群性能分析工具.
 - (未来) 智能调优.
 
-### 贾维斯开发规划
+## 贾维斯开发规划
 
 ![RoadMap](./images/roadmap.png)
 
-### 环境依赖
+## 环境依赖
 
 - X86/ARM架构 + LinuxOS 
 - python3
 - environment-modules
 - cmake
 
-## 贾维斯使用指导
+# 贾维斯使用指导
 ### 下载贾维斯
 执行如下命令安装相关依赖并下载贾维斯
 ```
 yum -y install environment python3 python3-devel cmake
 git clone https://gitee.com/openeuler/hpcrunner.git
-
 ```
 
-### 贾维斯目录结构
+
+## 贾维斯目录结构
 
 | 目录/文件 | 说明                               | 备注     |
 | --------- | ---------------------------------- | -------- |
@@ -56,7 +56,7 @@ git clone https://gitee.com/openeuler/hpcrunner.git
 | init.sh   | 贾维斯初始化文件                   |          |
 | jarvis    | 贾维斯启动入口                     |          |
 
-### 使用贾维斯安装应用流程
+## 使用贾维斯安装应用流程
 以安装 xapp 为例：
 
 步骤1：生效应用模板
@@ -111,7 +111,7 @@ git clone https://gitee.com/openeuler/hpcrunner.git
 
 
 
-### 运行示例
+## 运行示例
 
 使用默认的应用配置部署运行应用QE
 
@@ -125,8 +125,7 @@ git clone https://gitee.com/openeuler/hpcrunner.git
 
 
 
-## 贾维斯命令大全
-### 贾维斯常用命令
+# 贾维斯运行指令
 
 | **功能**                        | **命令**                                                     | **示例/说明**                                                |
 | ------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
@@ -149,7 +148,7 @@ git clone https://gitee.com/openeuler/hpcrunner.git
 | 一键生成Singularity容器定义文件 | ./jarvis -container docker-hub-address                       | 需要事先指定应用配置./jarvis -use data.config <br>参数"docker-hub-address"指定基础镜像<br>示例：./jarvis -container openeuler/openeuler |
 | 更新依赖库的路径                | ./jarvis -u                                                  | 如果移动了贾维斯的路径，将自动更新software/modulefiles的路径 |
 
-### option介绍
+** option介绍**
 option支持列表如下所示
 
 | **选项值**  | **解释**                        | **安装目录**              |
@@ -163,7 +162,7 @@ option支持列表如下所示
 
 
 
-## FAQ
+# FAQ
 
 Q1：如何在没有网络的环境下使用贾维斯部署软件？
 ```
@@ -172,7 +171,7 @@ A：
 步骤2：将事先下载好的安装包放置到downloads目录下即可进行后续安装操作。
 ```
 
-## 欢迎贡献
+# 欢迎贡献
 
 贾维斯项目欢迎您的专业技能和热情参与！
 
@@ -190,7 +189,7 @@ A：
 
 ![微信群](./images/wechat-group-qr.png)
 
-## 技术文章
+# 技术文章
 
 揭开HPC应用的神秘面纱：https://zhuanlan.zhihu.com/p/489828346
 
