@@ -84,7 +84,7 @@ git clone https://gitee.com/openeuler/hpcrunner.git
 
 
 
-步骤2：下载安装包
+步骤2：下载安装包以及相关依赖
 
 ```
 ./jarvis -d
