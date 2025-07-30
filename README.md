@@ -1,9 +1,8 @@
-# HPCRunner : 贾维斯智能助手
+# HPCRunner : 贾维斯智能助手，一站式部署调优HPC应用
 
 ![贾维斯](./images/jarvis-logo.png)
 ### 项目背景
- **愿景：自动容器化助力极简部署，一站式调优HPC应用**
-​        HPC被喻为是IT行业“金字塔上的明珠”，其部署、编译、运行、性能采集分析的门槛非常高，不同的机器上部署HPC应用耗费大量精力，而且很多情况下需要同时部署ARM/X86两套环境进行验证，增加了很多的重复性工作，无法聚焦核心算法优化。
+HPC被喻为是IT行业“金字塔上的明珠”，其部署、编译、运行、性能采集分析的门槛非常高，不同的机器上部署HPC应用耗费大量精力，而且很多情况下需要同时部署ARM/X86两套环境进行验证，增加了很多的重复性工作，无法聚焦核心算法优化。
 
 ![贾维斯功能概览](./images/jarvis.png)
 
@@ -31,7 +30,7 @@
 - cmake
 
 # 贾维斯使用指导
-### 下载贾维斯
+## 下载贾维斯
 执行如下命令安装相关依赖并下载贾维斯
 ```
 yum -y install environment python3 python3-devel cmake
@@ -126,6 +125,7 @@ git clone https://gitee.com/openeuler/hpcrunner.git
 
 
 # 贾维斯运行指令
+##功能指令介绍
 
 | **功能**                        | **命令**                                                     | **示例/说明**                                                |
 | ------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
@@ -148,7 +148,7 @@ git clone https://gitee.com/openeuler/hpcrunner.git
 | 一键生成Singularity容器定义文件 | ./jarvis -container docker-hub-address                       | 需要事先指定应用配置./jarvis -use data.config <br>参数"docker-hub-address"指定基础镜像<br>示例：./jarvis -container openeuler/openeuler |
 | 更新依赖库的路径                | ./jarvis -u                                                  | 如果移动了贾维斯的路径，将自动更新software/modulefiles的路径 |
 
-** option介绍**
+##option介绍
 option支持列表如下所示
 
 | **选项值**  | **解释**                        | **安装目录**              |
