@@ -125,7 +125,7 @@ git clone https://gitee.com/openeuler/hpcrunner.git
 
 
 # 贾维斯运行指令
-##功能指令介绍
+## 功能指令介绍
 
 | **功能**                        | **命令**                                                     | **示例/说明**                                                |
 | ------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
@@ -148,7 +148,7 @@ git clone https://gitee.com/openeuler/hpcrunner.git
 | 一键生成Singularity容器定义文件 | ./jarvis -container docker-hub-address                       | 需要事先指定应用配置./jarvis -use data.config <br>参数"docker-hub-address"指定基础镜像<br>示例：./jarvis -container openeuler/openeuler |
 | 更新依赖库的路径                | ./jarvis -u                                                  | 如果移动了贾维斯的路径，将自动更新software/modulefiles的路径 |
 
-##option介绍
+## option介绍
 option支持列表如下所示
 
 | **选项值**  | **解释**                        | **安装目录**              |
