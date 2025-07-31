@@ -1,4 +1,18 @@
-# 项目特色
+# 贾维斯项目欢迎您的专业技能和热情参与！
+
+小的改进或修复总是值得赞赏的；先从文档开始可能是一个很好的起点。如果您正在考虑做出更大贡献，请提交一个issue或者在hpc.openeuler.org进行讨论。
+
+编写代码并不是为贾维斯做出贡献的唯一方法。您还可以：
+
+- 贡献安装脚本
+- 帮助我们测试新的HPC应用
+- 开发教程、演示
+- 为我们宣传
+- 帮助新的贡献者加入
+
+请添加openEuler HPC SIG微信群了解更多HPC部署调优知识
+
+## 贾维斯项目特色
 ![贾维斯功能概览](./images/jarvis.png)
 - 支持ARM/X86,一键部署，采用业界权威依赖目录结构管理海量依赖，自动生成module file
 - 根据HPC配置实现一键编译运行、一键CPU/GPU性能采集、一键Benchmark.
@@ -10,11 +24,13 @@
 - (未来) 集群性能分析工具.
 - (未来) 智能调优.
 
-# 贾维斯开发规划
+## 贾维斯开发规划
 
 ![RoadMap](./images/roadmap.png)
 
-# **GITEE提交前提工作**
+# **代码合入指导**
+
+## **GITEE提交前提工作**
 
 **1.设置SSH**
 
@@ -46,7 +62,7 @@ git remote add upstream git@gitee.com:openeuler/hpcrunner.git
 
 
 
-# **社区提交代码流程**
+## **社区提交代码流程**
 
 **1.先切回master分支，拉取最新社区代码**
 
@@ -72,7 +88,8 @@ git push origin new_branch
 
 https://gitee.com/iotwins/hpcrunner
 
-**FAQ**
+
+## **FAQ**
 
 **1.某次commit的信息提交错误怎么办？**
 
@@ -123,22 +140,8 @@ export JARVIS_ROOT=/hpcrunner
 
 
 
-# 欢迎贡献
-贾维斯项目欢迎您的专业技能和热情参与！
 
-小的改进或修复总是值得赞赏的；先从文档开始可能是一个很好的起点。如果您正在考虑做出更大贡献，请提交一个issue或者在hpc.openeuler.org进行讨论。
 
-编写代码并不是为贾维斯做出贡献的唯一方法。您还可以：
-
-- 贡献安装脚本
-- 帮助我们测试新的HPC应用
-- 开发教程、演示
-- 为我们宣传
-- 帮助新的贡献者加入
-
-请添加openEuler HPC SIG微信群了解更多HPC部署调优知识
-
-![微信群](./images/wechat-group-qr.png)
 
 # 技术文章
 
@@ -147,3 +150,4 @@ export JARVIS_ROOT=/hpcrunner
 我和容器有个约会：https://zhuanlan.zhihu.com/p/499544308
 
 贾维斯：完美而凛然HPC应用管家 https://zhuanlan.zhihu.com/p/518460349
+![微信群](./images/wechat-group-qr.png)
