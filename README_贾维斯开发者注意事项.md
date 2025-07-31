@@ -13,5 +13,8 @@ module load bisheng/compiler4.1.0/bishengmodule bisheng/hmpi2.4.3/hmpi
 module use software/moduledeps/bisheng2.1.0
 module load hmpi/1.1.1
 ```
-
+# 2、开发模板路径禁止使用绝对路径
+如不建议使用如下方式
+```
 export JARVIS_ROOT=/hpcrunner
+```
