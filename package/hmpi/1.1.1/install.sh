@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x
 set -e
-hmpi_version='1.1.0'
+hmpi_version='1.1.1'
 if [[ $UseGitee -eq 1 ]]; then
 . ${DOWNLOAD_TOOL} -u https://gitee.com/kp-hpc-mod/hpc-src/raw/master/hucx-1.1.1-huawei.zip -f hucx-1.1.1-huawei.zip
 . ${DOWNLOAD_TOOL} -u https://gitee.com/kp-hpc-mod/hpc-src/raw/master/xucg-1.1.1-huawei.zip -f xucg-1.1.1-huawei.zip
