@@ -188,7 +188,7 @@ A：
 按照模板开发规则，应用在使用jarvis安装后，会安装的${JARVIS_TMP}目录，默认情况，为保障安装速度，${JARVIS_TMP}路径为 ‘/tmp’
 ```
 # 欢迎贡献
-[查看example.txt](README_CONTRIBUTING.md)
+[查看Jarvis贡献方法](README_CONTRIBUTING.md)
 
 贾维斯项目欢迎您的专业技能和热情参与！
 

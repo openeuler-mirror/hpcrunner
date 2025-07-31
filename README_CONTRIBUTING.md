@@ -1,4 +1,4 @@
-## **GITEE提交前提工作**
+# **GITEE提交前提工作**
 
 **1.设置SSH**
 
@@ -30,7 +30,7 @@ git remote add upstream git@gitee.com:openeuler/hpcrunner.git
 
 
 
-## **社区提交代码流程**
+# **社区提交代码流程**
 
 **1.先切回master分支，拉取最新社区代码**
 
@@ -82,3 +82,52 @@ Successfully rebased and updated xxx
 
 提交到远程仓库：
 git push --force origin master 
+
+
+# HPCRunner 开发者注意事项
+## 1、使用安装HPCKIT的方式替代单独安装HMPI、BISHENG以及数学库
+建议使用如下方式安装并使能hpckit
+```
+./jarvis -install package/hpckit/2024.12.30/ any
+module use software/utils/hpckit/2024.12.30/HPCKit/24.12.30/modulefiles
+module purge
+module load bisheng/compiler4.1.0/bishengmodule bisheng/hmpi2.4.3/hmpi
+```
+不建议使用如下方式
+```
+./jarvis -install hmpi/1.1.1 clang
+module use software/moduledeps/bisheng2.1.0
+module load hmpi/1.1.1
+```
+## 2、开发模板路径禁止使用绝对路径
+如不建议使用如下方式
+```
+export JARVIS_ROOT=/hpcrunner
+```
+
+
+
+# 欢迎贡献
+贾维斯项目欢迎您的专业技能和热情参与！
+
+小的改进或修复总是值得赞赏的；先从文档开始可能是一个很好的起点。如果您正在考虑做出更大贡献，请提交一个issue或者在hpc.openeuler.org进行讨论。
+
+编写代码并不是为贾维斯做出贡献的唯一方法。您还可以：
+
+- 贡献安装脚本
+- 帮助我们测试新的HPC应用
+- 开发教程、演示
+- 为我们宣传
+- 帮助新的贡献者加入
+
+请添加openEuler HPC SIG微信群了解更多HPC部署调优知识
+
+![微信群](./images/wechat-group-qr.png)
+
+# 技术文章
+
+揭开HPC应用的神秘面纱：https://zhuanlan.zhihu.com/p/489828346
+
+我和容器有个约会：https://zhuanlan.zhihu.com/p/499544308
+
+贾维斯：完美而凛然HPC应用管家 https://zhuanlan.zhihu.com/p/518460349
