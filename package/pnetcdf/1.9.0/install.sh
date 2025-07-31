@@ -8,6 +8,6 @@ cd ${JARVIS_TMP}
 rm -rf pnetcdf-${pnetcdf_ver}
 tar zxvf ${JARVIS_DOWNLOAD}/parallel-netcdf-1.9.0.tar.gz
 cd parallel-netcdf-1.9.0
-./configure --prefix=$1 --enable-shared --enable-fortran --enable-large-file-test
+./configure --prefix=$1 --enable-shared --enable-fortran --enable-large-file-test FFLAGS="-fallow-argument-mismatch" FCFLAGS="-fallow-argument-mismatch" 
 make -j16
 make install
