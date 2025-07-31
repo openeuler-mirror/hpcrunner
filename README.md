@@ -190,26 +190,4 @@ A：
 # 欢迎贡献
 [查看Jarvis贡献方法](README_CONTRIBUTING.md)
 
-贾维斯项目欢迎您的专业技能和热情参与！
 
-小的改进或修复总是值得赞赏的；先从文档开始可能是一个很好的起点。如果您正在考虑做出更大贡献，请提交一个issue或者在hpc.openeuler.org进行讨论。
-
-编写代码并不是为贾维斯做出贡献的唯一方法。您还可以：
-
-- 贡献安装脚本
-- 帮助我们测试新的HPC应用
-- 开发教程、演示
-- 为我们宣传
-- 帮助新的贡献者加入
-
-请添加openEuler HPC SIG微信群了解更多HPC部署调优知识
-
-![微信群](./images/wechat-group-qr.png)
-
-# 技术文章
-
-揭开HPC应用的神秘面纱：https://zhuanlan.zhihu.com/p/489828346
-
-我和容器有个约会：https://zhuanlan.zhihu.com/p/499544308
-
-贾维斯：完美而凛然HPC应用管家 https://zhuanlan.zhihu.com/p/518460349
