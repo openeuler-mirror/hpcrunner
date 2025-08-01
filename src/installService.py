@@ -37,7 +37,7 @@ class InstallService:
         self.UTILS_PATH = os.path.join(self.SOFTWARE_PATH, 'utils')
         self.json = JSONService(self.INSTALL_INFO_PATH)
 
-    def get_version_info(self, info, reg = r'(\d+)+'):
+    def get_version_info(self, info, reg = r'(\d+)(\.(\d+))+'):
         matched_group = re.search(reg ,info)
         if not matched_group:
             return None
