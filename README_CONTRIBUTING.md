@@ -10,7 +10,7 @@
 - 为我们宣传
 - 帮助新的贡献者加入
 
-请添加openEuler HPC SIG微信群了解更多HPC部署调优知识
+
 
 ## 贾维斯项目特色
 ![贾维斯功能概览](./images/jarvis.png)
@@ -150,4 +150,6 @@ export JARVIS_ROOT=/hpcrunner
 我和容器有个约会：https://zhuanlan.zhihu.com/p/499544308
 
 贾维斯：完美而凛然HPC应用管家 https://zhuanlan.zhihu.com/p/518460349
+
+更多信息请添加openEuler HPC SIG微信群了解更多HPC部署调优知识
 ![微信群](./images/wechat-group-qr.png)

@@ -171,9 +171,10 @@ A：
 Q2：软件会安装到哪里？
 ```
 A：
-按照模板开发规则，应用在使用jarvis安装后，会安装的${JARVIS_TMP}目录，默认情况，为保障安装速度，${JARVIS_TMP}路径为 ‘/tmp’
+按照模板开发规则，应用在使用jarvis安装后，会安装的${JARVIS_TMP}目录，默认情况，为保障安装速度，${JARVIS_TMP}路径为 ‘/tmp’，如果需要修改${JARVIS_TMP}指向路径可修改init.sh,并重新source
 ```
 # 欢迎贡献
+小的改进或修复总是值得赞赏的，可以提交一个issue或者在hpc.openeuler.org进行讨论。
 [查看Jarvis贡献方法](README_CONTRIBUTING.md)
 
 
