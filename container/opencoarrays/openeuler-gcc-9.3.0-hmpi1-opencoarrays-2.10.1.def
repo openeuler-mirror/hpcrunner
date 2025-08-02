@@ -4,7 +4,7 @@ From: openeuler/openeuler:22.03-lts-sp1
 %environment
     source /etc/profile || true
     source /etc/profile.d/modules.sh
-    cd /hpcrunner
+    cd $JARVIS_ROOT
     source env.sh
 
 %post

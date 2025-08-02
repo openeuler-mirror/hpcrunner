@@ -4,7 +4,7 @@ From: helloxusuo/repo/base:oe2203sp2
 %environment
     source /etc/profile || true
     source /etc/profile.d/modules.sh
-    cd /hpcrunner
+    cd $JARVIS_ROOT
     module use ./software/moduledeps/bisheng3.2.0
     source env.sh
 
@@ -17,7 +17,7 @@ From: helloxusuo/repo/base:oe2203sp2
     #yum install -y flex tcsh tcl lsof tk bc
     
     #source /etc/profile || true
-    cd /hpcrunner
+    cd $JARVIS_ROOT
     git init
     git config --global http.sslVerify false
     git status
@@ -31,7 +31,7 @@ From: helloxusuo/repo/base:oe2203sp2
    
     cd -
     rm linshi -rf
-    cd /hpcrunner
+    cd $JARVIS_ROOT
     source ./init.sh
     # add your personal files here
     

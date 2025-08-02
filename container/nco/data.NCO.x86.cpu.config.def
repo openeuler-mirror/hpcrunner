@@ -3,7 +3,7 @@ From: openeuler/openeuler:20.03
 
 %environment
     source /etc/profile || true
-    cd /hpcrunner
+    cd $JARVIS_ROOT
     source env.sh
 
 %post

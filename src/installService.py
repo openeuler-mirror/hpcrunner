@@ -50,6 +50,7 @@ class InstallService:
         for i in range(1, group_len):
             print(matched_group[i])
             version_str += '.' + matched_group[i]
+        print (version_str)
         return (version_str,version_str)
     
 
@@ -111,6 +112,8 @@ class InstallService:
         libucg_so_flag = "libucg.so."
         version = None
         for file_name in os.listdir(libucg_path):
+            print ("filename = ")
+            print (file_name)
             if libucg_so_flag in file_name:
                 version = self.get_version_info(file_name)
                 if version in ver_dict:
@@ -248,7 +251,7 @@ class InstallService:
             return False
         mpi_str = mpi_info["name"]+mpi_info[self.FULL_VERSION]
         print("Use MPI: "+mpi_str)
-        install_path = os.path.join(install_path, mpi_str)
+        #install_path = os.path.join(install_path, mpi_str)
         return install_path
 
     def get_install_path(self, software_info, env_info):
