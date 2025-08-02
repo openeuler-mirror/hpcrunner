@@ -37,14 +37,21 @@ class InstallService:
         self.UTILS_PATH = os.path.join(self.SOFTWARE_PATH, 'utils')
         self.json = JSONService(self.INSTALL_INFO_PATH)
 
-    def get_version_info(self, info, reg = r'(\d+)(\.(\d+))+'):
+    def get_version_info(self, info, reg = r'\d+(?:\.\d+)*'):
+               
         matched_group = re.search(reg ,info)
+        group_len = 0
         if not matched_group:
             return None
-        mversion = matched_group.group(1)
-        mid_ver = matched_group.group(2)
-        last_ver = matched_group.group(3)
-        return ( mversion, f'{mversion}.{mid_ver}.{last_ver}')
+        # 统计非None的组（排除未匹配的嵌套组）
+        digit_groups = [g for g in matched_group.groups()[::2] if g is not None]
+        group_len = len(digit_groups)
+        version_str = matched_group.group(0)
+        for i in range(1, group_len):
+            print(matched_group[i])
+            version_str += '.' + matched_group[i]
+        return (version_str,version_str)
+    
 
     def gen_compiler_dict(self, cname, version):
         return {"cname": cname, "cmversion": version[0], self.FULL_VERSION: version[1]}
