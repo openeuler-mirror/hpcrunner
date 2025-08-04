@@ -105,22 +105,14 @@ class InstallService:
             ucg_path = self.get_cmd_output('which ucg_info')[0] 
         else: 
             ucg_path = self.get_cmd_output('which ucx_info')[0]
-        ver_dict = {('2','2.0.0'): ('1','1.3.0')}
         ucg_path = os.path.dirname(ucg_path)
         ucg_path = os.path.dirname(ucg_path)
-        libucg_path = os.path.join(ucg_path, "lib")
-        libucg_so_flag = "libucg.so."
+        libr_path = os.path.join(ucg_path, "../../../../../../")
+        
         version = None
-        for file_name in os.listdir(libucg_path):
-            print ("filename = ")
-            print (file_name)
-            if libucg_so_flag in file_name:
-                version = self.get_version_info(file_name)
-                if version in ver_dict:
-                    return ver_dict[version]
-                elif version:
-                    break
-        return version    
+        for version in os.listdir(libr_path):
+            return self.get_version_info(version)
+        return self.get_version_info(version)
 
     def get_hmpi_info(self):
         hmpi_v2_info = (self.get_cmd_output('ucx_info -c | grep -i BUILT')[0]).upper()
