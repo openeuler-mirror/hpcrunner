@@ -106,11 +106,11 @@ class InstallService:
         else: 
             ucg_path = self.get_cmd_output('which ucx_info')[0]
         ucg_path = os.path.dirname(ucg_path)
-        ucg_path = os.path.dirname(ucg_path)
-        libr_path = os.path.join(ucg_path, "../../../../../../")
-        
+        libr_path = os.path.join(ucg_path, "../../../../../")
+        print(libr_path)
         version = None
         for version in os.listdir(libr_path):
+            print(version)
             return self.get_version_info(version)
         return self.get_version_info(version)
 
