@@ -15,7 +15,7 @@ From: {image}
 
 %environment
     source /etc/profile || true
-    cd /hpcrunner
+    cd $JARVIS_ROOT
     source env.sh
 
 %post
