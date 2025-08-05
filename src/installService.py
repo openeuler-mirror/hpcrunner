@@ -7,6 +7,8 @@ import fnmatch
 from enum import Enum
 from glob import glob
 
+import subprocess
+
 from dataService import DataService
 from toolService import ToolService
 from executeService import ExecuteService
@@ -36,6 +38,14 @@ class InstallService:
         self.MPI_PATH = os.path.join(self.SOFTWARE_PATH, 'mpi')
         self.UTILS_PATH = os.path.join(self.SOFTWARE_PATH, 'utils')
         self.json = JSONService(self.INSTALL_INFO_PATH)
+
+    def command_exists(self, command):
+        try:
+            subprocess.run([command, '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            return True
+        except FileNotFoundError:
+            return False
+ 
 
     def get_version_info(self, info, reg = r'\d+(?:\.\d+)*'):
                
@@ -103,10 +113,13 @@ class InstallService:
     def get_hmpi_version(self, hmpi_v3_info):
         if hmpi_v3_info != "":
             ucg_path = self.get_cmd_output('which ucg_info')[0] 
+            ucg_path = os.path.dirname(ucg_path)
+            libr_path = os.path.join(ucg_path, "../../../../../")
         else: 
             ucg_path = self.get_cmd_output('which ucx_info')[0]
-        ucg_path = os.path.dirname(ucg_path)
-        libr_path = os.path.join(ucg_path, "../../../../../")
+            ucg_path = os.path.dirname(ucg_path)
+            libr_path = os.path.join(ucg_path, "../../../")
+
         print(libr_path)
         version = None
         for version in os.listdir(libr_path):
@@ -115,8 +128,9 @@ class InstallService:
         return self.get_version_info(version)
 
     def get_hmpi_info(self):
+        hmpi_v3_info = (self.get_cmd_output('ucg_info -c | grep -i PLANC')[0]).upper() 
         hmpi_v2_info = (self.get_cmd_output('ucx_info -c | grep -i BUILT')[0]).upper()
-        hmpi_v3_info = (self.get_cmd_output('ucg_info -c | grep -i PLANC')[0]).upper()
+        
         if "BUILT" not in hmpi_v2_info and "PLANC" not in hmpi_v3_info:
             return None
         name = 'hmpi'
