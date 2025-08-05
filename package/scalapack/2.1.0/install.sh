@@ -9,8 +9,8 @@ cd scalapack-2.1.0
 cp SLmake.inc.example SLmake.inc
 
 LAPACK_PATH=${LAPACK_PATH}
-sed -i "58s%-lblas%${LAPACK_PATH}/librefblas.a%g" ./SLmake.inc
-sed -i "59s%-llapack%${LAPACK_PATH}/liblapack.a%g" ./SLmake.inc
+sed -i "58s%-lblas%${LAPACK_PATH}librefblas.a%g" ./SLmake.inc
+sed -i "59s%-llapack%${LAPACK_PATH}liblapack.a%g" ./SLmake.inc
 make 
 mkdir $1/lib
 cp *.a $1/lib
