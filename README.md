@@ -171,7 +171,7 @@ A：
 Q2：软件安装目录在哪里？
 ```
 A：
-[软件安装目录](#option介绍)
+[软件安装目录](#option介绍)[贡献方法](README_CONTRIBUTING.md)
 ```
 # 欢迎贡献
 小的改进或修复总是值得赞赏的，可以提交一个issue或者在hpc.openeuler.org进行讨论。
