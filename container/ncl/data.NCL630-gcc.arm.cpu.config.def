@@ -5,7 +5,7 @@ From: openeuler/openeuler:22.03-lts-sp2
 
     source /etc/profile || true
     source /etc/profile.d/modules.sh
-    cd $JARVIS_ROOT
+    cd /hpcrunner
     source ./env.sh
 
 %post
@@ -20,7 +20,7 @@ From: openeuler/openeuler:22.03-lts-sp2
     git config --global user.name 'chenshaoheng'
     git config --global user.email 'chenshaoheng3@h-partners.com'
     git clone https://gitee.com/openeuler/hpcrunner.git
-    cd $JARVIS_ROOT
+    cd /hpcrunner
     
     #install mlnx
     wget https://content.mellanox.com/ofed/MLNX_OFED-5.8-1.1.2.1/MLNX_OFED_LINUX-5.8-1.1.2.1-openeuler22.03-aarch64.tgz
@@ -30,7 +30,7 @@ From: openeuler/openeuler:22.03-lts-sp2
     echo "y" | ./mlnxofedinstall --user-space-only
     cd -
     rm MLNX_OFED_LINUX-5.8-1.1.2.1-openeuler22.03-aarch64 MLNX_OFED_LINUX-5.8-1.1.2.1-openeuler22.03-aarch64.tgz /opt software/utils -rf
-    cd $JARVIS_ROOT
+    cd /hpcrunner
     mkdir tmpppp
     cd tmpppp
     git clone -b container https://gitee.com/chenshaoheng/hpcrunner.git
