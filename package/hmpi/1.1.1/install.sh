@@ -10,7 +10,7 @@ cd ${JARVIS_TMP}
 rm -rf hmpi-${hmpi_version}-huawei 
 git clone https://gitee.com/kp-hpc-mod/hmpi.git
 mv hmpi hmpi-${hmpi_version}-huawei
-cd ${hmpi_version}-huawei
+cd hmpi-${hmpi_version}-huawei
 git checkout v${hmpi_version}-huawei
 
 else
