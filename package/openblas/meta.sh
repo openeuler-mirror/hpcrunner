@@ -9,7 +9,6 @@ git clone https://gitee.com/kp-hpc-mod/OpenBLAS.git
 mv OpenBLAS OpenBLAS-${openblas_ver}
 cd OpenBLAS-${openblas_ver}
 git checkout v${openblas_ver}
-
 else
 . ${DOWNLOAD_TOOL} -u $JARVIS_PROXY/OpenMathLib/OpenBLAS/releases/download/v${openblas_ver}/OpenBLAS-v${openblas_ver}.tar.gz -f OpenBLAS-${openblas_ver}.tar.gz
 cd ${JARVIS_TMP}

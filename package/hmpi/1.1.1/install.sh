@@ -21,15 +21,17 @@ unzip ${JARVIS_DOWNLOAD}/xucg-${hmpi_version}-huawei.zip
 unzip ${JARVIS_DOWNLOAD}/hmpi-${hmpi_version}-huawei.zip
 \cp -rf xucg-${hmpi_version}-huawei/* hucx-${hmpi_version}-huawei/src/ucg/
 sleep 3
+
 cd hucx-${hmpi_version}-huawei
 ./autogen.sh
 ./contrib/configure-opt --prefix=$1/hucx CFLAGS="-DHAVE___CLEAR_CACHE=1" --disable-numa --without-java
 for file in `find . -name Makefile`;do sed -i "s/-Werror//g" $file;done
 for file in `find . -name Makefile`;do sed -i "s/-implicit-function-declaration//g" $file;done
-make -j64
+make -j
 make install
-cd ../hmpi-${hmpi_version}-huawei
+
+cd ../hmpi-${hmpi_version}
 ./autogen.pl
 ./configure --prefix=$1 --with-platform=contrib/platform/mellanox/optimized --enable-mpi1-compatibility --with-ucx=$1/hucx
-make -j64
+make -j
 make install
