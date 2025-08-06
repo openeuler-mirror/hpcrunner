@@ -15,7 +15,7 @@ fi
 cd ${JARVIS_TMP}
 . $CHECK_ROOT && yum install -y perl-Data-Dumper autoconf automake libtool binutils flex
 
-rm -rf hmpi-${hmpi_version}-huawei hucx-${hmpi_version}-huawei xucg-${hmpi_version}-huawei
+rm -rf hmpi-${hmpi_version} hucx-${hmpi_version}-huawei xucg-${hmpi_version}-huawei
 unzip ${JARVIS_DOWNLOAD}/hucx-${hmpi_version}-huawei.zip
 unzip ${JARVIS_DOWNLOAD}/xucg-${hmpi_version}-huawei.zip
 unzip ${JARVIS_DOWNLOAD}/hmpi-${hmpi_version}-huawei.zip
