@@ -12,21 +12,23 @@ git clone https://gitee.com/kp-hpc-mod/hmpi.git
 mv hmpi hmpi-${hmpi_version}-huawei
 cd hmpi-${hmpi_version}-huawei
 git checkout v${hmpi_version}-huawei
-cd ${JARVIS_DOWNLOAD}
+
+
 else
 . ${DOWNLOAD_TOOL} -u $JARVIS_PROXY/kunpengcompute/hucx/archive/refs/tags/v${hmpi_version}-huawei.zip -f hucx-${hmpi_version}-huawei.zip
 . ${DOWNLOAD_TOOL} -u $JARVIS_PROXY/kunpengcompute/xucg/archive/refs/tags/v${hmpi_version}-huawei.zip -f xucg-${hmpi_version}-huawei.zip
 . ${DOWNLOAD_TOOL} -u $JARVIS_PROXY/kunpengcompute/hmpi/archive/refs/tags/v${hmpi_version}-huawei.zip -f hmpi-${hmpi_version}-huawei.zip
 rm -rf hmpi-${hmpi_version}-huawei 
+cd ${JARVIS_TMP}
+unzip ${JARVIS_DOWNLOAD}/hmpi-${hmpi_version}-huawei.zip
 fi
 
 cd ${JARVIS_TMP}
 . $CHECK_ROOT && yum install -y perl-Data-Dumper autoconf automake libtool binutils flex
-
 rm -rf hucx-${hmpi_version}-huawei xucg-${hmpi_version}-huawei
 unzip ${JARVIS_DOWNLOAD}/hucx-${hmpi_version}-huawei.zip
 unzip ${JARVIS_DOWNLOAD}/xucg-${hmpi_version}-huawei.zip
-unzip ${JARVIS_DOWNLOAD}/hmpi-${hmpi_version}-huawei.zip
+
 \cp -rf xucg-${hmpi_version}-huawei/* hucx-${hmpi_version}-huawei/src/ucg/
 sleep 3
 
