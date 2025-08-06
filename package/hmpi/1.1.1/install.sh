@@ -12,7 +12,7 @@ git clone https://gitee.com/kp-hpc-mod/hmpi.git
 mv hmpi hmpi-${hmpi_version}-huawei
 cd hmpi-${hmpi_version}-huawei
 git checkout v${hmpi_version}-huawei
-
+cd ${JARVIS_DOWNLOAD}
 else
 . ${DOWNLOAD_TOOL} -u $JARVIS_PROXY/kunpengcompute/hucx/archive/refs/tags/v${hmpi_version}-huawei.zip -f hucx-${hmpi_version}-huawei.zip
 . ${DOWNLOAD_TOOL} -u $JARVIS_PROXY/kunpengcompute/xucg/archive/refs/tags/v${hmpi_version}-huawei.zip -f xucg-${hmpi_version}-huawei.zip
