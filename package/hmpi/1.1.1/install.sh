@@ -15,7 +15,7 @@ fi
 cd ${JARVIS_TMP}
 . $CHECK_ROOT && yum install -y perl-Data-Dumper autoconf automake libtool binutils flex
 
-rm -rf hmpi-${hmpi_version} hucx-${hmpi_version}-huawei xucg-${hmpi_version}-huawei
+rm -rf hmpi-v${hmpi_version} hucx-${hmpi_version}-huawei xucg-${hmpi_version}-huawei
 unzip ${JARVIS_DOWNLOAD}/hucx-${hmpi_version}-huawei.zip
 unzip ${JARVIS_DOWNLOAD}/xucg-${hmpi_version}-huawei.zip
 unzip ${JARVIS_DOWNLOAD}/hmpi-${hmpi_version}-huawei.zip
@@ -30,7 +30,7 @@ for file in `find . -name Makefile`;do sed -i "s/-implicit-function-declaration/
 make -j
 make install
 
-cd ../hmpi-${hmpi_version}
+cd ../hmpi-v${hmpi_version}
 ./autogen.pl
 ./configure --prefix=$1 --with-platform=contrib/platform/mellanox/optimized --enable-mpi1-compatibility --with-ucx=$1/hucx
 make -j
