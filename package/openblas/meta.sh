@@ -6,7 +6,8 @@ if [[ $UseGitee -eq 1 ]]; then
 #. ${DOWNLOAD_TOOL} -u https://gitee.com/kp-hpc-mod/OpenBLAS/archive/refs/tags/v${openblas_ver}.tar.gz -f OpenBLAS-${openblas_ver}.tar.gz
 cd ${JARVIS_TMP}
 git clone https://gitee.com/kp-hpc-mod/OpenBLAS.git
-cd OpenBLAS
+mv OpenBLAS OpenBLAS-${openblas_ver}
+cd OpenBLAS-${openblas_ver}
 git checkout v${openblas_ver}
 
 else
