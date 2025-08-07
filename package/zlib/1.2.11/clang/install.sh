@@ -7,6 +7,6 @@ cd ${JARVIS_TMP}
 rm -rf zlib-${zlib_ver}
 tar -xvf ${JARVIS_DOWNLOAD}/zlib-${zlib_ver}.tar.gz
 cd zlib-${zlib_ver}
-./configure --prefix=$1 FCFLAGS="-O3 -fPIC"
+./configure --prefix=$1
 make -j
 make install

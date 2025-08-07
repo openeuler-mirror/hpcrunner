@@ -33,7 +33,7 @@ yum makecache
         self.exe.exec_raw(repo_cmd)
 
     def gen_wget_url(self, out_dir='./downloads', url='', filename=''):
-        head = "wget --no-check-certificate"
+        head = "source ./init.sh && wget --no-check-certificate"
         file_path = os.path.join(out_dir, filename)
         download_url = f'{head} {url} -O {file_path}'
         return download_url
@@ -64,9 +64,9 @@ yum makecache
                 continue
             download_url = self.gen_wget_url(self.download_path, url, filename)
             self.tool.prt_content("DOWNLOAD " + filename)
-            with os.popen(download_url) as p:
-                data = p.read()
-
+            ret = os.system(download_url)
+            if ret:
+                os.remove(file_path)
 
         if not download_flag:
             print("The download list is empty!")
