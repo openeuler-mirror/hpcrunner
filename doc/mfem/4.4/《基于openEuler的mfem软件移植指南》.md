@@ -318,6 +318,6 @@ singularity build --sandbox mfem-sandbox mfem-4.4-arm.sif
 #进入沙盒
 singularity shell -w mfem-sandbox
 #在沙盒中运行内置的测试案例
-cd /hpcrunner
+cd $JARVIS_ROOT
 ./jarvis -r
 ```

@@ -7,6 +7,8 @@ import fnmatch
 from enum import Enum
 from glob import glob
 
+import subprocess
+
 from dataService import DataService
 from toolService import ToolService
 from executeService import ExecuteService
@@ -37,14 +39,30 @@ class InstallService:
         self.UTILS_PATH = os.path.join(self.SOFTWARE_PATH, 'utils')
         self.json = JSONService(self.INSTALL_INFO_PATH)
 
-    def get_version_info(self, info, reg = r'(\d+)\.(\d+)\.(\d+)'):
+    def command_exists(self, command):
+        try:
+            subprocess.run([command, '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            return True
+        except FileNotFoundError:
+            return False
+ 
+
+    def get_version_info(self, info, reg = r'\d+(?:\.\d+)*'):
+               
         matched_group = re.search(reg ,info)
+        group_len = 0
         if not matched_group:
             return None
-        mversion = matched_group.group(1)
-        mid_ver = matched_group.group(2)
-        last_ver = matched_group.group(3)
-        return ( mversion, f'{mversion}.{mid_ver}.{last_ver}')
+        # 统计非None的组（排除未匹配的嵌套组）
+        digit_groups = [g for g in matched_group.groups()[::2] if g is not None]
+        group_len = len(digit_groups)
+        version_str = matched_group.group(0)
+        for i in range(1, group_len):
+            print(matched_group[i])
+            version_str += '.' + matched_group[i]
+        print (version_str)
+        return (version_str,version_str)
+    
 
     def gen_compiler_dict(self, cname, version):
         return {"cname": cname, "cmversion": version[0], self.FULL_VERSION: version[1]}
@@ -95,26 +113,24 @@ class InstallService:
     def get_hmpi_version(self, hmpi_v3_info):
         if hmpi_v3_info != "":
             ucg_path = self.get_cmd_output('which ucg_info')[0] 
+            ucg_path = os.path.dirname(ucg_path)
+            libr_path = os.path.join(ucg_path, "../../../../../")
         else: 
             ucg_path = self.get_cmd_output('which ucx_info')[0]
-        ver_dict = {('2','2.0.0'): ('1','1.3.0')}
-        ucg_path = os.path.dirname(ucg_path)
-        ucg_path = os.path.dirname(ucg_path)
-        libucg_path = os.path.join(ucg_path, "lib")
-        libucg_so_flag = "libucg.so."
+            ucg_path = os.path.dirname(ucg_path)
+            libr_path = os.path.join(ucg_path, "../../../")
+
+        print(libr_path)
         version = None
-        for file_name in os.listdir(libucg_path):
-            if libucg_so_flag in file_name:
-                version = self.get_version_info(file_name)
-                if version in ver_dict:
-                    return ver_dict[version]
-                elif version:
-                    break
-        return version    
+        for version in os.listdir(libr_path):
+            print(version)
+            return self.get_version_info(version)
+        return self.get_version_info(version)
 
     def get_hmpi_info(self):
+        hmpi_v3_info = (self.get_cmd_output('ucg_info -c | grep -i PLANC')[0]).upper() 
         hmpi_v2_info = (self.get_cmd_output('ucx_info -c | grep -i BUILT')[0]).upper()
-        hmpi_v3_info = (self.get_cmd_output('ucg_info -c | grep -i PLANC')[0]).upper()
+        
         if "BUILT" not in hmpi_v2_info and "PLANC" not in hmpi_v3_info:
             return None
         name = 'hmpi'
@@ -241,7 +257,7 @@ class InstallService:
             return False
         mpi_str = mpi_info["name"]+mpi_info[self.FULL_VERSION]
         print("Use MPI: "+mpi_str)
-        install_path = os.path.join(install_path, mpi_str)
+        #install_path = os.path.join(install_path, mpi_str)
         return install_path
 
     def get_install_path(self, software_info, env_info):

@@ -569,6 +569,6 @@ singularity build --sandbox image-sandbox name-of-image.sif
 #进入沙盒
 singularity shell -w image-sandbox
 #在沙盒中运行内置的测试案例
-cd /hpcrunner
+cd $JARVIS_ROOT
 ./jarvis -r
 ```
