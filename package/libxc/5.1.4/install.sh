@@ -2,7 +2,7 @@
 set -x
 set -e
 cd ${JARVIS_TMP}
-. ${DOWNLOAD_TOOL} -u http://www.tddft.org/programs/libxc/down.php?file=5.1.4/libxc-5.1.4.tar.gz -f libxc-5.1.4.tar.gz
+. ${DOWNLOAD_TOOL} -u https://www.cp2k.org/static/downloads/libxc-5.1.4.tar.gz -f libxc-5.1.4.tar.gz
 rm -rf libxc-5.1.4
 tar -xvf ${JARVIS_DOWNLOAD}/libxc-5.1.4.tar.gz
 cd libxc-5.1.4

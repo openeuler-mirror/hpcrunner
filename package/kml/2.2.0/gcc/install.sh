@@ -9,6 +9,9 @@ kml_version=2.2.0
 cd ${JARVIS_TMP}
 rm -rf boostkit-kml-${kml_version}-1.aarch64.rpm
 unzip -o ${JARVIS_DOWNLOAD}/BoostKit-kml_${kml_version}.zip
+rpm2cpio boostkit-kml-2.2.0-1.aarch64.rpm | cpio -idmv
+rm -rf /usr/local/kml
+cp -r ./usr/local/kml /usr/local/
 rpm --force --nodeps -ivh --relocate /usr/local/kml=$1 --badreloc=$1  boostkit-kml-${kml_version}-1.aarch64.rpm
 
 # generate full lapack
