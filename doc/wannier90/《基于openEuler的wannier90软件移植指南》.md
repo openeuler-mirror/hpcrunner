@@ -140,7 +140,7 @@ ar rv libblas.a ./*.o
 cp libblas.a /usr/local/lib
 
 # 下载并编译Python3
-yum -y install zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel gcc make libffi-devel
+yum -y install bzip2-devel openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel libffi-devel
 wget https://repo.huaweicloud.com/python/3.7.10/Python-3.7.10.tgz -O $DEP_DOWNLOAD_DIR/Python-3.7.10.tgz
 tar -zxvf $DEP_DOWNLOAD_DIR/Python-3.7.10.tgz -C $DEP_BUILD_DIR
 cd $DEP_BUILD_DIR/Python-3.7.10

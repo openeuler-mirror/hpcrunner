@@ -120,11 +120,12 @@ class InstallService:
             ucg_path = os.path.dirname(ucg_path)
             libr_path = os.path.join(ucg_path, "../../../")
 
-        print(libr_path)
         version = None
         for version in os.listdir(libr_path):
             print(version)
-            return self.get_version_info(version)
+            if version != latest
+              return self.get_version_info(version)
+              
         return self.get_version_info(version)
 
     def get_hmpi_info(self):
