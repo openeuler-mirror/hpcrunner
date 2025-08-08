@@ -114,10 +114,10 @@ class DataService(object,metaclass=Singleton):
         return start_row, data
 
     def set_app_info(self, data):
-        DataService.app_name = data['app_name']
-        DataService.build_dir = data['build_dir']
-        DataService.binary_dir = data['binary_dir']
-        DataService.case_dir = data['case_dir']
+        DataService.app_name = data.get('app_name', '')
+        DataService.build_dir = data.get('build_dir', '')
+        DataService.binary_dir = data.get('binary_dir', '')
+        DataService.case_dir = data.get('case_dir', '')
     
     def set_perf_info(self, data):
         DataService.kperf_para = data['kperf'] if 'kperf' in data else ''
@@ -147,9 +147,9 @@ class DataService(object,metaclass=Singleton):
         DataService.loop_cmd = config_data.get('[LOOP]','')
         DataService.job_cmd = config_data.get('[JOB]','')
         DataService.job2_cmd = config_data.get('[JOB2]','')
-        data = config_data.get('[APP]','')
+        app_data = config_data.get('[APP]','')
         perf_data = config_data.get('[PERF]','')
-        self.set_app_info(data)
+        self.set_app_info(app_data)
         self.set_perf_info(perf_data)
         DataService.binary_file, DataService.binary_para = self.split_two_part(DataService.run_cmd['binary'])
 
