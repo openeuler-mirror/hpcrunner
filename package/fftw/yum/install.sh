@@ -3,7 +3,7 @@ set -x
 set -e
 
 # 检查fftw是否已安装
-if yum list installed | grep -q "fftw3-devel"; then
+if rpm -q fftw-devel ; then
     echo "fftw3-devel 已经安装。"
 else
     echo "fftw3-devel 未安装，正在进行安装..."
