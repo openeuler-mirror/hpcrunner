@@ -48,7 +48,6 @@ class InstallService:
  
 
     def get_version_info(self, info, reg = r'\d+(?:\.\d+)*'):
-               
         matched_group = re.search(reg ,info)
         group_len = 0
         if not matched_group:
@@ -123,7 +122,7 @@ class InstallService:
         version = None
         for version in os.listdir(libr_path):
             print(version)
-            if version != latest
+            if version != "latest":
               return self.get_version_info(version)
               
         return self.get_version_info(version)

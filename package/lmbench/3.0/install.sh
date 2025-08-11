@@ -2,7 +2,7 @@
 
 set -x
 set -e
-. $CHECK_ROOT && yum install libtirpc-devel
+. $CHECK_ROOT
 cd ${JARVIS_TMP}
 if [ ! -d lmbench ]; then
     git clone --depth=1 $JARVIS_PROXY/intel/lmbench.git
