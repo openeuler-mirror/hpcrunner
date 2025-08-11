@@ -123,7 +123,7 @@ class InstallService:
         version = None
         for version in os.listdir(libr_path):
             print(version)
-            if version != latest
+            if version != "latest":
               return self.get_version_info(version)
               
         return self.get_version_info(version)
