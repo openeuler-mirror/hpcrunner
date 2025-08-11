@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x
 set -e
-. $CHECK_ROOT && yum -y install zlib zlib-devel
+. $CHECK_ROOT
 hdf5_big_version='1.12'
 hdf5_version="${hdf5_big_version}.1"
 . ${DOWNLOAD_TOOL} -u https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${hdf5_big_version}/hdf5-${hdf5_version}/src/hdf5-${hdf5_version}.tar.gz

@@ -19,7 +19,7 @@ HPC被喻为是IT行业“金字塔上的明珠”，其部署、编译、运行
 ## 下载贾维斯
 执行如下命令安装相关依赖并下载贾维斯
 ```
-yum -y install git environment-modules python python3 python3-devel python3-libs python3-pip cmake make numactl-libs rpmbuild rpmdevtools wget unzip flex tar patch
+yum -y install git time zlib zlib-devel gcc gcc-c++ environment-modules python python3 python3-devel python3-libs python3-pip cmake make numactl-libs rpmbuild rpmdevtools wget unzip flex tar patch
 git clone https://gitee.com/openeuler/hpcrunner.git
 ```
 
