@@ -5,7 +5,7 @@ cd ${JARVIS_TMP}
 rm -rf hdf-4.2.15
 tar -xvf ${JARVIS_DOWNLOAD}/hdf-4.2.15.tar.gz
 cd hdf-4.2.15/
-yum install -y libtirpc-devel
+
 sed -i '974c #if defined(__linux__) && defined __x86_64__ && !( defined SUN) || defined(__aarch64__)' hdf/src/hdfi.h
 sed -i '23660a LIBS="$LIBS -ltirpc"' configure
 sed -i '23662c CPPFLAGS="$SYSCPPFLAGS -I/usr/include/tirpc"' configure

@@ -48,7 +48,6 @@ class InstallService:
  
 
     def get_version_info(self, info, reg = r'\d+(?:\.\d+)*'):
-               
         matched_group = re.search(reg ,info)
         group_len = 0
         if not matched_group:
