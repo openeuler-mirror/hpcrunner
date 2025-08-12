@@ -109,33 +109,19 @@ class InstallService:
     def get_icc_info(self):
         return self.gen_compiler_dict("icc", ('2018', "2018.4"))
     
-    def get_hmpi_version(self, hmpi_v3_info):
-        if hmpi_v3_info != "":
-            ucg_path = self.get_cmd_output('which ucg_info')[0] 
-            ucg_path = os.path.dirname(ucg_path)
-            libr_path = os.path.join(ucg_path, "../../../../../")
-        else: 
+    def get_hmpi_info(self):
+        name = 'hmpi'
+
+        ucg_info = self.get_cmd_output("ucg_info -v")[0]
+        if "UCG" in ucg_info:
+            version = ucg_info.split()[3]
+        else:
             ucg_path = self.get_cmd_output('which ucx_info')[0]
             ucg_path = os.path.dirname(ucg_path)
             libr_path = os.path.join(ucg_path, "../../../")
+            version = os.listdir(libr_path)[0]
 
-        version = None
-        for version in os.listdir(libr_path):
-            print(version)
-            if version != "latest":
-              return self.get_version_info(version)
-              
-        return self.get_version_info(version)
-
-    def get_hmpi_info(self):
-        hmpi_v3_info = (self.get_cmd_output('ucg_info -c | grep -i PLANC')[0]).upper() 
-        hmpi_v2_info = (self.get_cmd_output('ucx_info -c | grep -i BUILT')[0]).upper()
-        
-        if "BUILT" not in hmpi_v2_info and "PLANC" not in hmpi_v3_info:
-            return None
-        name = 'hmpi'
-        version = self.get_hmpi_version(hmpi_v3_info)
-        return self.gen_mpi_dict(name, version)
+        return self.gen_mpi_dict(name, (version,version))
  
     def get_openmpi_info(self):
         mpi_info_list = self.get_cmd_output('mpirun -version')
