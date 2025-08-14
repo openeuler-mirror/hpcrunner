@@ -10,9 +10,16 @@ if [ ! -d HPCKit_${hpckit_ver}_Linux-aarch64 ];then
 fi
 cd HPCKit_${hpckit_ver}_Linux-aarch64
 sh install.sh -y --prefix=$1
+
+software_path="$1/../../.."
+if [ ! -d ${software_path}/modulefiles/hpckit${hpckit_ver} ];then
+    ln -s $1/HPCKit/latest/modulefiles ${software_path}/modulefiles/hpckit${hpckit_ver}
+    
+    hmpi_file_list=`grep -R "\"Huawei Hyper MPI\"" $1/HPCKit/latest/modulefiles |awk -F':' '{print $1}'`
+    for hmpi_file in ${hmpi_file_list}
+    do
+            echo -e "\nsetenv CC mpicc \nsetenv CXX mpicxx \nsetenv FC mpifort \nsetenv F77 mpifort \nsetenv F90 mpifort " >> ${hmpi_file}
+    done
+fi
+
 echo -e "HPCKit has installed in your environment."
-#useage:
-#1.source software/utils/hpckit/2024.3.30/HPCKit/latest/setvars.sh --use-bisheng
-#2.module purge
-#module use software/utils/hpckit/2024.3.30/HPCKit/24.3.30/modulefiles
-#module load bisheng/compiler/bishengmodule bisheng/kml/omp
