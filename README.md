@@ -143,7 +143,7 @@ source init.sh
 | 一键生成Singularity容器定义文件 | ./jarvis -container docker-hub-address                       | 需要事先指定应用配置./jarvis -use data.config <br>参数"docker-hub-address"指定基础镜像<br>示例：./jarvis -container openeuler/openeuler |
 | 更新依赖库的路径                | ./jarvis -u                                                  | 如果移动了贾维斯的路径，将自动更新software/modulefiles的路径 |
 
-## <a id="option介绍"></a>option介绍
+## <a id="option"></a>option介绍
 option支持列表如下所示
 
 | **选项值**  | **解释**                        | **安装目录**              |
@@ -170,7 +170,7 @@ A：
 
 Q2：软件安装目录在哪里？
 
-A：参考[option介绍](#option介绍)小节中的安装目录
+A：参考[option介绍](#option)小节中的安装目录
 
 # 欢迎贡献
 小的改进或修复总是值得赞赏的，可以提交一个issue或者在hpc.openeuler.org进行讨论。
