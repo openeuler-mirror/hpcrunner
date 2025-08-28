@@ -1,0 +1,25 @@
+1、下载jarvis
+git clone https://gitee.com/openeuler/hpcrunner.git
+cd hpcrunner
+
+2、获取jarvis应用模板
+将获取到的模板放置到templates/Manufacturing/apps
+
+3、下载安装包
+参考模板中[DOWNLOAD]下面内容获取对应的软件安装包，并放置在规定目录下
+注：要求包名严格一致
+
+4、定制化修改模板
+修改模板中[ENV]如下内容
+（1）case_path
+（2）case_name
+（3）hostfile中的节点名
+
+5、生效模板
+./jarvis -use templates/Manufacturing/apps/xx.config
+
+6、安装软件
+./jarvis -b
+
+7、运行软件
+./jarvis -rb
