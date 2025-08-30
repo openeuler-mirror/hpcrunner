@@ -25,6 +25,21 @@ export DOWNLOAD_TOOL=${CUR_PATH}/package/common/download.sh
 export CHECK_DEPS=${CUR_PATH}/package/common/check_deps.sh
 export CHECK_ROOT=${CUR_PATH}/package/common/check_root.sh
 
+export kp=neon
+ifsme=`lscpu|grep sme`
+ifsve=`lscpu|grep sve`
+ifneon=`lscpu|grep neon`
+variable="some value"
+if [ -n "$ifsme" ]; then
+    kp=sme
+elif [ -n "$ifsve" ]; then
+    kp=sve
+elif [ -n "$ifneon" ]; then
+    kp=neon
+else
+    echo "not in kunpeng architecture"
+fi
+
 #Install modules
 if ! type module >/dev/null 2>&1;then
     echo "Install environment-modules"
