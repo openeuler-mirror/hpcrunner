@@ -6,6 +6,6 @@ szip_ver='2.1.1'
 cd ${JARVIS_TMP}
 tar xvf ${JARVIS_DOWNLOAD}/szip-${szip_ver}.tar.gz
 cd szip-${szip_ver}
-./configure --prefix=$1 --enable-netcdf-4  --disable-shared
+./configure --prefix=$1 --enable-netcdf-4  --enable-shared
 make -j
 make install
