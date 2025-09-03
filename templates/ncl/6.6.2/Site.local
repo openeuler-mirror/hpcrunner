@@ -19,7 +19,7 @@
 
 
 #define BuildGDAL 1
-#define BuildTRIANGLE 0
+#define BuildTRIANGLE 1
 #define BuildV5D 1
 
 #define NoMakeDepend
