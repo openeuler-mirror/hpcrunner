@@ -1,6 +1,7 @@
 #!/bin/bash
 set -x
 set -e
+yum install tcl-devel -y
 . ${DOWNLOAD_TOOL} -u https://sourceforge.net/projects/vis5d/files/vis5d/vis5d%2B-1.3.0-beta/vis5d%2B-1.3.0-beta.tar.gz
 cd ${JARVIS_TMP}
 rm -rf vis5d+-1.3.0-beta
