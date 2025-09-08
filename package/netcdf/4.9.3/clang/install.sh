@@ -32,5 +32,6 @@ export NETCDF=${1}
 cd ../netcdf-fortran-${netcdf_f_version}
 ./configure --prefix=$1 ${build_type} --enable-shared --with-pic --disable-doxygen --enable-largefile CPPFLAGS="-O3 -I${HDF5_DIR}/include -I${1}/include" LDFLAGS="-L${HDF5_DIR}/lib -L${1}/lib -Wl,-rpath=${HDF5_DIR}/lib -Wl,-rpath=${1}/lib" CFLAGS="-O3 -L${HDF5_DIR}/lib -L${1}/lib -I${HDF5_DIR}/include -I${1}/include" CXXFLAGS="-O3 -L${HDF5_DIR}/lib -L${1}/lib -I${HDF5_DIR}/include -I${1}/include" FCFLAGS="-O3 -L${HDF5_DIR}/lib -L${1}/lib -I${HDF5_DIR}/include -I${1}/include -L${$HPCKIT_PATH}/HPCKit/25.0.0/hmpi/bisheng/hmpi/lib"
 
+sed -i 's/wl=""/wl="-Wl,"/g' libtool
 make -j16
 make install

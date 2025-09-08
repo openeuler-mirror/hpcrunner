@@ -22,7 +22,7 @@ if [ -z "${NETCDF_PATH}" ]; then
     echo "NETCDF_PATH environment variable does not exist "
     exit 0
 fi
-. ${DOWNLOAD_TOOL} -u https://github.com/esmf-org/esmf/archive/refs/tags/v8.7.0.tar.gz -f esmf-8.7.0.tar.gz 
+. ${DOWNLOAD_TOOL} -u $JARVIS_PROXY/esmf-org/esmf/archive/refs/tags/v8.7.0.tar.gz -f esmf-8.7.0.tar.gz 
 cd ${JARVIS_TMP}
 tar xf ${JARVIS_DOWNLOAD}/esmf-8.7.0.tar.gz
 cd esmf-8.7.0
