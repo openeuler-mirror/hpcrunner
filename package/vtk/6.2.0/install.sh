@@ -4,7 +4,7 @@ set -e
 . ${DOWNLOAD_TOOL} -u https://vtk.org/files/release/6.2/VTK-6.2.0.tar.gz
 cd ${JARVIS_TMP}
 rm -rf VTK-6.2.0
-tar -xvf ${JARVIS_DOWNLOAD}/VTK-6.2.0.tar.gz
+tar -xvzf ${JARVIS_DOWNLOAD}/VTK-6.2.0.tar.gz
 cd VTK-6.2.0
 mkdir build && cd build
 cmake -DCMAKE_INSTALL_PREFIX=$1 .. \
