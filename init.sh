@@ -28,8 +28,8 @@ export CHECK_ROOT=${CUR_PATH}/package/common/check_root.sh
 export kp=neon
 ifsme=`lscpu|grep sme`
 ifsve=`lscpu|grep sve`
-ifneon=`lscpu|grep neon`
-variable="some value"
+ifneon=`lscpu|grep asimd`
+
 if [ -n "$ifsme" ]; then
     kp=sme
 elif [ -n "$ifsve" ]; then
