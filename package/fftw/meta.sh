@@ -2,7 +2,7 @@
 set -x
 set -e
 
-
+export UseGitee=0
 if [[ $UseGitee -eq 1 ]]; then
 #. ${DOWNLOAD_TOOL} -u https://gitee.com/kp-hpc-mod/fftw3/archive/refs/tags/fftw-${fftw_ver}.tar.gz -f fftw-${fftw_ver}.tar.gz
 cd ${JARVIS_TMP}
