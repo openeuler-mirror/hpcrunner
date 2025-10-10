@@ -53,7 +53,7 @@ source init.sh
 ```
 
 
-步骤1：生效应用模板
+步骤2：生效应用模板
 进入hpcrunner根目录执行如下命令：
 ```
 ./jarvis -use /path/xapp.config
@@ -91,13 +91,13 @@ source init.sh
 ./jarvis -dp
 ```
 
-步骤8：编译应用
+步骤5：编译应用
 
 ```
 ./jarvis -b
 ```
 
-步骤9：运行应用
+步骤6：运行应用
 
 ```
 ./jarvis -r
