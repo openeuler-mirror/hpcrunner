@@ -18,5 +18,5 @@ cd OpenBLAS-${openblas_ver}
 fi
 
 
-make -j
+make -j CFLAGS="-Wno-implicit-function-declaration"
 make PREFIX=$1 install
