@@ -6,6 +6,7 @@ export UseGitee=0
 if [[ $UseGitee -eq 1 ]]; then
 #. ${DOWNLOAD_TOOL} -u https://gitee.com/kp-hpc-mod/fftw3/archive/refs/tags/fftw-${fftw_ver}.tar.gz -f fftw-${fftw_ver}.tar.gz
 cd ${JARVIS_TMP}
+rm -rf fftw fftw-${fftw_ver}
 git clone https://gitee.com/kp-hpc-mod/fftw3.git
 mv fftw3 fftw-${fftw_ver}
 cd fftw-${fftw_ver}
