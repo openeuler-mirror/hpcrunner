@@ -22,6 +22,11 @@ if [ "$use_gcc" -eq "1" ]; then
                 FCFLAGS="-fallow-argument-mismatch"
         fi
 fi
-./configure --prefix=$1 --build=aarch64-linux --enable-shared --enable-fortran --enable-large-file-test FFLAGS="$FFLAGS" FCFLAGS="$FCFLAGS"
+if [ x"$(arch)" = xaarch64 ];then
+    build_type='--build=aarch64-linux'
+else
+    build_type=''
+fi
+./configure --prefix=$1 ${build_type} --enable-shared --enable-fortran --enable-large-file-test FFLAGS="$FFLAGS" FCFLAGS="$FCFLAGS"
 make -j16
 make install
