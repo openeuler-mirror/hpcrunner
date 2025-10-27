@@ -112,7 +112,7 @@ class InstallService:
     def get_hmpi_info(self):
         name = 'hmpi'
 
-        ucg_info = self.get_cmd_output("ucg_info -v")[0]
+        ucg_info = self.get_cmd_output("ucg_info -v |grep version")[0]
         if "UCG" in ucg_info:
             version = ucg_info.split()[3]
         else:

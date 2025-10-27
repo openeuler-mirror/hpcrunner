@@ -7,5 +7,7 @@ rm -rf mfem-4.4
 tar -xvf ${JARVIS_DOWNLOAD}/v4.4.tar.gz
 sed -i 's/>= MINSIGSTKSZ.*/;/' mfem-4.4/tests/unit/catch.hpp
 cd mfem-4.4
-make parallel
+#make parallel
+make config
+make all -j
 make install PREFIX=$1
