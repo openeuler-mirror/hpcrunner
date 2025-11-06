@@ -110,7 +110,8 @@ source init.sh
 使用默认的应用配置部署运行应用QE-6.4
 
 ```
-./jarvis -use templates/qe/6.4/data.qe.arm.cpu.config
+source init.sh
+./jarvis -use data.config
 ./jarvis -d
 ./jarvis -dp
 ./jarvis -b
