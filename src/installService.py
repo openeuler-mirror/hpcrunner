@@ -425,7 +425,7 @@ chmod +x {install_script}
             print(f"install to {install_path} successful")
         else:
             print("install failed")
-            sys.exit()
+            sys.exit(1)
 
     def add_install_info(self, software_info, install_path):
         software_dict = {}
