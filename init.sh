@@ -40,6 +40,19 @@ else
     echo "not in kunpeng architecture"
 fi
 
+#判断hpckit使用版本
+if [ ${UseLatest} -eq 0 ];then
+    HPCKIT_VERSION=25.1.0
+elif [ ${UseLatest} -eq 1 ];then
+    HPCKIT_VERSION=latest
+else
+    echo "[ERROR] UseLatest=${UseLatest}, unsupported value."
+    exit 1
+fi
+
+BISHENG_VERSION=`ls software/utils/hpckit/${HPCKit_Version}/HPCKit/${HPCKit_Version}/modulefiles/bisheng|grep compiler|awk -F "compiler" '{print $2}'`
+HMPI_VERSION=`ls software/utils/hpckit/${HPCKit_Version}/HPCKit/${HPCKit_Version}/modulefiles/bisheng|grep hmpi|awk -F "hmpi" '{print $2}'`
+
 #Install modules
 if ! type module >/dev/null 2>&1;then
     echo "Install environment-modules"
