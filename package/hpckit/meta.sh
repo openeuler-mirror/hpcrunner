@@ -23,7 +23,7 @@ if [ ! -d ${software_path}/modulefiles/hpckit${hpckit_ver} ];then
 fi
 
 export HPCKit_Version=${hpckit_ver}
-file_path="software/utils/hpckit/${HPCKit_Version}/HPCKit/${HPCKit_Version}/modulefiles/bisheng"
+file_path="${JARVIS_ROOT}/software/utils/hpckit/${HPCKit_Version}/HPCKit/${HPCKit_Version}/modulefiles/bisheng"
 export BISHENG_VERSION=`ls $file_path|grep compiler|awk -F "compiler" '{print $2}'`
 export HMPI_VERSION=`ls $file_path|grep hmpi|awk -F "hmpi" '{print $2}'`
 
