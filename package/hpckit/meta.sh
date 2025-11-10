@@ -24,8 +24,8 @@ fi
 
 export HPCKit_Version=${hpckit_ver}
 file_path="software/utils/hpckit/${HPCKit_Version}/HPCKit/${HPCKit_Version}/modulefiles/bisheng"
-export BISHENG_VERSION=`ls $$file_path|grep compiler|awk -F "compiler" '{print $2}'`
-export HMPI_VERSION=`ls $$file_path|grep hmpi|awk -F "hmpi" '{print $2}'`
+export BISHENG_VERSION=`ls $file_path|grep compiler|awk -F "compiler" '{print $2}'`
+export HMPI_VERSION=`ls $file_path|grep hmpi|awk -F "hmpi" '{print $2}'`
 
 echo -e "HPCKit has installed in your environment."
 echo -e "你正在使用 $HPCKIT_VERSION 版本的 HPCKKit"
