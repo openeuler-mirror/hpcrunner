@@ -121,10 +121,10 @@ git push --force origin master
 ## 1、使用安装HPCKIT的方式替代单独安装HMPI、BISHENG以及数学库
 建议使用如下方式安装并使能hpckit
 ```
-./jarvis -install package/hpckit/24.0.0/ any
+./jarvis -install hpckit/${HPCKIT_VERSION} any
 module use software/utils/hpckit/224.0.0/HPCKit/24.0.0/modulefiles
 module purge
-module load bisheng/compiler4.1.0/bishengmodule bisheng/hmpi2.4.3/hmpi
+module load bisheng/compiler${BISHENG_VERSION}/bishengmodule bisheng/hmpi${HMPI_VERSION}/hmpi
 ```
 不建议使用如下方式
 ```
