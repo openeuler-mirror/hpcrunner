@@ -3,7 +3,8 @@
 set -x
 set -e
 pnetcdf_ver='1.11.2'
-. ${DOWNLOAD_TOOL} -u http://cucis.ece.northwestern.edu/projects/PnetCDF/Release/pnetcdf-${pnetcdf_ver}.tar.gz
+#. ${DOWNLOAD_TOOL} -u http://cucis.ece.northwestern.edu/projects/PnetCDF/Release/pnetcdf-${pnetcdf_ver}.tar.gz
+. ${DOWNLOAD_TOOL} -u https://gitee.com/kp-hpc-mod/hpc-src/raw/master/pnetcdf/pnetcdf-1.11.2.tar.gz
 cd ${JARVIS_TMP}
 rm -rf pnetcdf-${pnetcdf_ver}
 tar zxvf ${JARVIS_DOWNLOAD}/pnetcdf-${pnetcdf_ver}.tar.gz

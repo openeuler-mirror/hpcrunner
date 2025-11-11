@@ -2,7 +2,8 @@
 set -x
 set -e
 pnetcdf_version='1.14.0'
-. ${DOWNLOAD_TOOL} -u https://parallel-netcdf.github.io/Release/pnetcdf-${pnetcdf_version}.tar.gz
+#. ${DOWNLOAD_TOOL} -u https://parallel-netcdf.github.io/Release/pnetcdf-${pnetcdf_version}.tar.gz
+. ${DOWNLOAD_TOOL} -u https://gitee.com/kp-hpc-mod/hpc-src/raw/master/pnetcdf/pnetcdf-1.14.0.tar.gz
 cd ${JARVIS_TMP}
 tar zxvf ${JARVIS_DOWNLOAD}/pnetcdf-${pnetcdf_version}.tar.gz
 cd pnetcdf-${pnetcdf_version}
