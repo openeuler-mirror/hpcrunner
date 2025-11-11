@@ -53,7 +53,7 @@ else
 fi
 
 #判断hpckit是否安装，更新配套版本
-file_path="software/utils/hpckit/${HPCKit_Version}/HPCKit/${HPCKit_Version}/modulefiles/bisheng"
+file_path="software/utils/hpckit/${HPCKIT_VERSION}/HPCKit/${HPCKIT_VERSION}/modulefiles/bisheng"
 if [ -e "$file_path" ]; then
     echo -e "你正在使用 $HPCKIT_VERSION 版本的 HPCKKit"
     BISHENG_VERSION=`ls $$file_path|grep compiler|awk -F "compiler" '{print $2}'`

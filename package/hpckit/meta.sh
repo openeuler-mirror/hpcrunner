@@ -22,10 +22,10 @@ if [ ! -d ${software_path}/modulefiles/hpckit${hpckit_ver} ];then
     done
 fi
 
-export HPCKit_Version=${hpckit_ver}
-file_path="${JARVIS_ROOT}/software/utils/hpckit/${HPCKit_Version}/HPCKit/${HPCKit_Version}/modulefiles/bisheng"
+export HPCKIT_VERSION=${hpckit_ver}
+file_path="${JARVIS_ROOT}/software/utils/hpckit/${HPCKIT_VERSION}/HPCKit/${HPCKIT_VERSION}/modulefiles/bisheng"
 export BISHENG_VERSION=`ls $file_path|grep compiler|awk -F "compiler" '{print $2}'`
 export HMPI_VERSION=`ls $file_path|grep hmpi|awk -F "hmpi" '{print $2}'`
 
 echo -e "HPCKit has installed in your environment."
-echo -e "你正在使用 $HPCKit_Version 版本的 HPCKKit"
+echo -e "你正在使用 $HPCKIT_VERSION 版本的 HPCKKit"
