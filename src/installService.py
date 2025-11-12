@@ -243,7 +243,7 @@ class InstallService:
             return False
         mpi_str = mpi_info["name"]+mpi_info[self.FULL_VERSION]
         print("Use MPI: "+mpi_str)
-        #install_path = os.path.join(install_path, mpi_str)
+        install_path = "{}-{}".format(install_path, mpi_str)
         return install_path
 
     def get_install_path(self, software_info, env_info):
