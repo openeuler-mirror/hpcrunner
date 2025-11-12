@@ -56,8 +56,8 @@ fi
 file_path="software/utils/hpckit/${HPCKIT_VERSION}/HPCKit/${HPCKIT_VERSION}/modulefiles/bisheng"
 if [ -e "$file_path" ]; then
     echo -e "你正在使用 $HPCKIT_VERSION 版本的 HPCKKit"
-    BISHENG_VERSION=`ls $$file_path|grep compiler|awk -F "compiler" '{print $2}'`
-    HMPI_VERSION=`ls $$file_path|grep hmpi|awk -F "hmpi" '{print $2}'`
+    BISHENG_VERSION=`ls $file_path|grep compiler|awk -F "compiler" '{print $2}'`
+    HMPI_VERSION=`ls $file_path|grep hmpi|awk -F "hmpi" '{print $2}'`
 else
     echo -e "INFO: 检测到 $HPCKIT_VERSION 版本的 HPCKKit 未进行安装，请继续执行\n"
 fi
