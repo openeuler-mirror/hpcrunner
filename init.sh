@@ -43,7 +43,7 @@ fi
 #判断hpckit使用版本
 if [ ${UseLatest} -eq 0 ];then
     HPCKIT_VERSION=25.1.0
-    BISHENG_VERSION=4.1.0
+    BISHENG_VERSION=4.2.0.2
     HMPI_VERSION=25.1.0
 elif [ ${UseLatest} -eq 1 ];then
     HPCKIT_VERSION=latest
