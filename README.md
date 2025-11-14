@@ -53,7 +53,7 @@ source init.sh
 ```
 
 
-步骤1：生效应用模板
+步骤2：生效应用模板
 进入hpcrunner根目录执行如下命令：
 ```
 ./jarvis -use /path/xapp.config
@@ -91,13 +91,13 @@ source init.sh
 ./jarvis -dp
 ```
 
-步骤8：编译应用
+步骤5：编译应用
 
 ```
 ./jarvis -b
 ```
 
-步骤9：运行应用
+步骤6：运行应用
 
 ```
 ./jarvis -r
@@ -110,7 +110,8 @@ source init.sh
 使用默认的应用配置部署运行应用QE-6.4
 
 ```
-./jarvis -use templates/qe/6.4/data.qe.arm.cpu.config
+source init.sh
+./jarvis -use data.config
 ./jarvis -d
 ./jarvis -dp
 ./jarvis -b

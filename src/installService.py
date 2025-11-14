@@ -112,7 +112,7 @@ class InstallService:
     def get_hmpi_info(self):
         name = 'hmpi'
 
-        ucg_info = self.get_cmd_output("ucg_info -v")[0]
+        ucg_info = self.get_cmd_output("ucg_info -v |grep version")[0]
         if "UCG" in ucg_info:
             version = ucg_info.split()[3]
         else:
@@ -243,7 +243,7 @@ class InstallService:
             return False
         mpi_str = mpi_info["name"]+mpi_info[self.FULL_VERSION]
         print("Use MPI: "+mpi_str)
-        #install_path = os.path.join(install_path, mpi_str)
+        install_path = "{}-{}".format(install_path, mpi_str)
         return install_path
 
     def get_install_path(self, software_info, env_info):
@@ -425,7 +425,7 @@ chmod +x {install_script}
             print(f"install to {install_path} successful")
         else:
             print("install failed")
-            sys.exit()
+            sys.exit(1)
 
     def add_install_info(self, software_info, install_path):
         software_dict = {}

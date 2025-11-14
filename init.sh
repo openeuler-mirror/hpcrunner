@@ -28,8 +28,8 @@ export CHECK_ROOT=${CUR_PATH}/package/common/check_root.sh
 export kp=neon
 ifsme=`lscpu|grep sme`
 ifsve=`lscpu|grep sve`
-ifneon=`lscpu|grep neon`
-variable="some value"
+ifneon=`lscpu|grep asimd`
+
 if [ -n "$ifsme" ]; then
     kp=sme
 elif [ -n "$ifsve" ]; then
@@ -39,6 +39,29 @@ elif [ -n "$ifneon" ]; then
 else
     echo "not in kunpeng architecture"
 fi
+
+#判断hpckit使用版本
+if [ ${UseLatest} -eq 0 ];then
+    HPCKIT_VERSION=25.1.0
+    BISHENG_VERSION=4.2.0.2
+    HMPI_VERSION=25.1.0
+elif [ ${UseLatest} -eq 1 ];then
+    HPCKIT_VERSION=latest
+else
+    echo "[ERROR] UseLatest=${UseLatest}, unsupported value."
+    exit 1
+fi
+
+#判断hpckit是否安装，更新配套版本
+file_path="software/utils/hpckit/${HPCKIT_VERSION}/HPCKit/${HPCKIT_VERSION}/modulefiles/bisheng"
+if [ -e "$file_path" ]; then
+    echo -e "你正在使用 $HPCKIT_VERSION 版本的 HPCKKit"
+    BISHENG_VERSION=`ls $file_path|grep compiler|awk -F "compiler" '{print $2}'`
+    HMPI_VERSION=`ls $file_path|grep hmpi|awk -F "hmpi" '{print $2}'`
+else
+    echo -e "INFO: 检测到 $HPCKIT_VERSION 版本的 HPCKKit 未进行安装，请继续执行\n"
+fi
+
 
 #Install modules
 if ! type module >/dev/null 2>&1;then
