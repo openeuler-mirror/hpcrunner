@@ -86,6 +86,8 @@ class DataService(object,metaclass=Singleton):
 
     def read_rows(self, rows, start_row, needs_strip=True):
         data = ''
+        if start_row >= len(rows):
+            return start_row, data
         row = rows[start_row]
         if needs_strip:
             row = row.strip()
@@ -102,6 +104,8 @@ class DataService(object,metaclass=Singleton):
 
     def read_rows_kv(self, rows, start_row):
         data = {}
+        if start_row >= len(rows):
+            return start_row, data       
         row = rows[start_row].strip()
         while not row.startswith('['):
             if '=' in row:

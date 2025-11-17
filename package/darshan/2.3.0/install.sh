@@ -10,7 +10,7 @@ version='2.3.0'
 cd ${JARVIS_TMP}
 tar xvf ${JARVIS_DOWNLOAD}/darshan-${version}.tar.gz
 cd darshan-${version}
-./prepare.sh
+#./prepare.sh
 # install darshan runtime to collect IO info.
 cd darshan-runtime
 mkdir -p $1/runtime
