@@ -158,6 +158,11 @@ option支持列表如下所示
 
 
 
+# 贾维斯支持软件列表
+1. [应用列表](doc/support/templates.md)
+2. [依赖列表](doc/support/packages.md)
+
+
 # FAQ
 
 Q1：如何在没有网络的环境或者网速很慢的环境下，使用贾维斯完成软件安装部署？
