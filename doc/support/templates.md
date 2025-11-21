@@ -1,224 +1,224 @@
-| 应用名                      | 应用信息                                                             | 领域   | 使能平台                |
-|--------------------------|------------------------------------------------------------------|------|---------------------|
-| ARPS                     | 主要针对风暴尺度的非静力高分辨率区域预报系统                                           | 气象海洋 | Kunpeng             |
-| BLAS-Tester              | BLAS测试库                                                          | 性能评估 | Kunpeng             |
-| CESM                     | 全球气候模型                                                           | 气象海洋 | Kunpeng             |
-| CMAQ                     | 使用化学传输模型的空气质量建模工具                                                | 气象海洋 | Kunpeng             |
-| CNVnator                 | 用于发现拷贝数变异（CNV）和对个人基因组测序的读取深度（RD）进行分析的工具                          | 生命科学 | Kunpeng             |
-| CP2K                     | 高精度物理和化学模拟                                                       | 教育科研 | Kunpeng/x86         |
-| Code_Saturne             | 用于求解2D、2D轴对称和3D流动的Navier-Stokes方程，稳态或非稳态，层流或者湍流，可不压缩或者弱可膨胀，等温或非恒 | 教育科研 | Kunpeng             |
-| ExaGear                  | 华为动态二进制翻译工具                                                      | 开发工具 | Kunpeng             |
-| FPChecker                | 检测HPC应用程序中的浮点错误                                                  | 开发工具 | Kunpeng             |
-| FastTree                 | 从核苷酸或蛋白质序列的比对推断出近似最大似然的系统发育树                                     | 生命科学 | Kunpeng             |
-| IPM                      | 描述HPC应用程序的性能测量的套件                                                | 性能优化 | Kunpeng             |
-| ImageMagick              | 图像处理命令行工具                                                        | 图像处理 | Kunpeng             |
-| MITGCM                   | 用于研究大气、海洋和气候，其灵活的非流体静力学公式使其能够有效地模拟各种尺度的流体现象                      | 气象海洋 | Kunpeng             |
-| MOM                      | 一个三维海洋环流模型，主要用于研究海洋气候系统                                          | 气象海洋 | Kunpeng             |
-| NOVOPlasty               | 用于短环状基因组的从头组装器和异质性/变异调用器                                         | 生命科学 | Kunpeng             |
-| OPTIMIZED-ROUTINES       | 针对ARM体系处理器各种库函数的优化实现，毕昇编译器已将其以动态链接库的方式集成到工具链中                    | 性能优化 | Kunpeng             |
-| OSU                      | 基准测试套件，用于衡量系统性能                                                  | 性能评估 | Kunpeng             |
-| Oceananigans             | 用于非静力平衡和静力平衡Boussinesq方程的有限体积模拟                                  | 气象海洋 | Kunpeng             |
-| OpenCoarrays             | 并行编程库                                                            | 开发工具 | Kunpeng/x86         |
-| OpenMolcas               | 量子化学软件包                                                          | 教育科研 | Kunpeng             |
-| PWDFT                    | 用于百亿次材料发现的自主平面波DFT引擎                                             | 教育科研 | Kunpeng             |
-| ParaFEM                  | 开源并行有限元分析库                                                       | 教育科研 | Kunpeng             |
-| PyRosetta                | Rosetta的Python接口，用于蛋白质结构预测和蛋白质设计                                 | 生命科学 | Kunpeng             |
-| R                        | 开源统计计算和绘图软件                                                      | 开发工具 | Kunpeng             |
-| RSEM                     | 从RNA-Seq数据中估计基因和异构体的表达水平                                         | 生命科学 | Kunpeng             |
-| SPECFEM3D_GLOBE          | 全球弹性波地震模拟                                                        | 地球物理 | Kunpeng             |
-| SU2                      | 开源大规模CFD程序                                                       | 科学计算 | Kunpeng             |
-| Seurat                   | 用于单细胞基因组学的R工具包                                                   | 生命科学 | Kunpeng             |
-| WGCNA                    | 包括网络构建、模块检测、基因选择、拓扑特性计算、数据模拟、可视化以及与外部软件接口的功能                     | 生命科学 | Kunpeng             |
-| abinit                   | 第一个完全自主实现密度泛函理论的程序                                               | 科学计算 | Kunpeng+            |
-| abyss                    | 从头开始的、并行的、成对末端的序列汇编器，专门用于短读                                      | 生命科学 | Kunpeng             |
-| acesiii                  | 并行计算化学应用                                                         | 科学计算 | Kunpeng             |
-| agcm                     | 气象局自主研发的全球大气环流谱模式                                                | 气象海洋 | Kunpeng/x86         |
-| alphafold2               | 利用神经网络来预测氨基酸对之间的距离，以及连接它们的化学键之间的角度                               | 生命科学 | Kunpeng             |
-| amber                    | 分子动力学模拟软件                                                        | 教育科研 | Kunpeng+GPU         |
-| amg                      | 处理线性系统的并行代数多重网格求解器非结构化网格上的问题                                     | 制造仿真 | Kunpeng             |
-| augustus                 | 预测真核基因组序列基因的程序                                                   | 生命科学 | Kunpeng             |
-| automake                 | GNU Autotools工具集的一部分，用于生成Makefile                                | 开发工具 | Kunpeng             |
-| bcc-esm                  | 全球气候系统模型                                                         | 气象海洋 | Kunpeng             |
-| bcftools                 | 专门操作VCF文件的工具                                                     | 生命科学 | Kunpeng             |
-| bedtools                 | 用于基因组特征分析的软件                                                     | 生命科学 | Kunpeng             |
-| berkeleygw               | 激发态的多体微扰理论代码                                                     | 教育科研 | Kunpeng             |
-| bishengjdk               | 华为毕昇JDK工具                                                        | 开发工具 | Kunpeng             |
-| blas                     | 基本线性代数子程序                                                        | 开发工具 | Kunpeng             |
-| blast                    | 在蛋白质数据库或DNA数据库中进行相似性比较的分析工具                                      | 生命科学 | Kunpeng             |
-| blastz                   | 核苷酸局部比对程序                                                        | 生命科学 | Kunpeng             |
-| blat                     | 序列对比工具（已废弃）                                                      | 生命科学 | Kunpeng             |
-| boost                    | 为C++标准库提供扩展的一些C++程序库的总称                                          | 开发工具 | Kunpeng             |
-| bowtie2                  | 将测序reads与长参考序列比对工具                                               | 生命科学 | Kunpeng/x86         |
-| brpc                     | 工业级RPC框架                                                         | 开发工具 | Kunpeng             |
-| bwa                      | 将低分叉序列比对到大的参考基因组比如人基因组的软件包                                       | 生命科学 | Kunpeng             |
-| cactus                   | 无参考的全基因组多重比对程序                                                   | 生命科学 | Kunpeng             |
-| calculix                 | 可以构建、计算和后处理有限元模型                                                 | 教育科研 | Kunpeng             |
-| canu                     | 第三代数据组装工具，用于高噪声单分子测序                                             | 生命科学 | Kunpeng             |
-| cdo                      | 气象类数据处理软件                                                        | 气象海洋 | Kunpeng             |
-| chaste                   | 组织和细胞水平的电生理学，离散组织建模和软组织建模                                        | 生命科学 | Kunpeng             |
-| circos                   | 基因组序列相关数据、影视作品中的人物关系分析等多个领域的可视化分析                                | 生命科学 | Kunpeng             |
-| coawst                   | 海洋-大气-波浪-泥沙耦合模型                                                  | 生命科学 | Kunpeng             |
-| code_aster               | 用于结构分析的有限元数值仿真软件                                                 | 制造仿真 | Kunpeng             |
-| copasi                   | 模拟和分析生化网络及其动力学                                                   | 生命科学 | Kunpeng             |
-| copt                     | 国产针对大规模优化问题的高效数学规划求解器套件                                          | 求解器  | Kunpeng             |
-| cpmd                     | 密度泛函理论的并行平面波/伪势实现                                                | 教育科研 | Kunpeng             |
-| croco                    | 海岸与区域海洋社区模型                                                      | 气象海洋 | Kunpeng             |
-| ctffind                  | 寻找电子显微镜CTF                                                       | 生命科学 | Kunpeng             |
-| cufflinks                | 基因表达量的计算和差异表达基因的寻找                                               | 生命科学 | Kunpeng             |
-| curl                     | 传输数据的命令行工具                                                       | 开发工具 | Kunpeng             |
-| dealii                   | 使用自适应有限元解决方案偏微分方程的计算问题                                           | 制造仿真 | Kunpeng             |
-| deepmd-kit               | 旨在最大限度地减少构建基于深度学习的原子间势能和力场模型以及执行分子动力学 (MD) 所需的工作量                | 教育科研 | Kunpeng             |
-| deeptools                | 处理映射读取数据以进行多项质量检查，识别基因组的富集和功能注                                   | 生命科学 | Kunpeng             |
-| diamond                  | 蛋白质和翻译后的DNA搜索序列比对器                                               | 生命科学 | Kunpeng             |
-| dlPoly                   | 通用经典分子动力学（MD）模拟软件                                                | 教育科研 | Kunpeng             |
-| duns                     | 流体动力学代码                                                          | 教育科研 | Kunpeng/x86         |
-| ecFlow                   | 工作流管理器                                                           | 气象海洋 | Kunpeng             |
-| eccodes                  | 编解码数据                                                            | 气象海洋 | Kunpeng             |
-| eigen                    | 用于线性代数运算的C++模板库                                                  | 数学库  | Kunpeng             |
-| elmer                    | 用于偏微分方程数值解的有限元软件                                                 | 制造仿真 | Kunpeng/x86         |
-| eman2                    | 灰度科学图像处理套件                                                       | 生命科学 | Kunpeng             |
-| espresso                 | 电子结构计算和材料建模的abinitio量子化学方法                                       | 教育科研 | Kunpeng             |
-| fasta                    | 搜索蛋白质和DNA序列数据库一整套相似性搜索和比对                                        | 生命科学 | Kunpeng             |
-| fastp                    | 为FastQ文件提供快速的多合一预处理                                              | 生命科学 | Kunpeng             |
-| fds                      | 针对低速流动的大涡模拟软件                                                    | 制造仿真 | Kunpeng             |
-| featurecounts            | 计算基因组特征的读数                                                       | 生命科学 | Kunpeng             |
-| fftw                     | 纯C语言编写的高效FFT算法库                                                  | 数学库  | Kunpeng             |
-| flatbuffer               | 支持多种语言的高效跨平台序列化库                                                 | 开发工具 | Kunpeng             |
-| flit                     | 提供了一种将Python包和模块放在PyPI上的简单方法                                     | 开发工具 | Kunpeng             |
-| foldseek                 | 能够快速且灵敏地比较大型蛋白质结构集                                               | 生命科学 | Kunpeng             |
-| fvcom                    | 沿海海洋环流模型                                                         | 气象海洋 | Kunpeng             |
-| gadget2                  | 全球适用的区域分解通用生态系统工具箱                                               | 气象海洋 | Kunpeng             |
-| gatk                     | 用于分析基因组的工具箱                                                      | 生命科学 | Kunpeng             |
-| gaussian                 | 半经验计算和从头计算的量子化学软件                                                | 教育科研 | Kunpeng             |
-| gemma                    | 将线性混合模型和相关模型快速应用到全基因组关联研究和其他大规模数据集                               |      | Kunpeng             |
-| gfs                      | 气候软件                                                             | 气象海洋 | Kunpeng             |
-| git                      | 免费开源的分布式版本控制软件                                                   | 开发工具 | Kunpeng             |
-| gperftools               | 高性能多线程malloc实现，同时包含性能分析工具                                        | 性能优化 | Kunpeng             |
-| gptl                     | 插桩式性能分析工具                                                        | 性能优化 | Kunpeng             |
-| grads                    | 可视化分析气象数据                                                        | 气象海洋 | Kunpeng             |
-| grapes                   | 气象软件                                                             | 气象海洋 | Kunpeng/x86         |
-| grib_api                 | GRIB1和GRIB2格式文件的编码/解码软件                                          | 气象海洋 | Kunpeng             |
-| gromacs                  | 分子动力学模拟和能量最小化的计算引擎                                               | 教育科研 | Kunpeng+GPU         |
-| gsea                     | 用于确定先验的定义的一组基因以统计学方式显示两种生物状态之间显著的、一致的差异                          | 生命科学 | Kunpeng             |
-| gsl                      | 用于数值计算的C语言库                                                      | 开发工具 | Kunpeng             |
-| hdf5                     | 分层数据格式库                                                          | 依赖库  | Kunpeng             |
-| hefei-namd               | 从头到尾非绝热分子动力学程序                                                   | 教育科研 | Kunpeng             |
-| hisat                    | 高效的RNA-seq实验比对工具                                                 | 生命科学 | Kunpeng             |
-| homer                    | 专为基因组学应用中的调控元件分析而设计（仅DNA，无蛋白质）                                   | 生命科学 | Kunpeng             |
-| honpas                   | 从头式电子结构计算软件包                                                     | 教育科研 | Kunpeng             |
-| hpcg                     | 并行HPC线性求解器性能基准                                                   | 性能评估 | Kunpeng             |
-| hpl                      | HPL CheckRecd性能基准                                                | 性能评估 | Kunpeng             |
-| htslib                   | 访问高通量测序的文件                                                       | 依赖库  | Kunpeng             |
-| hycom                    | 为全球耦合海洋-大气预测模型提供海洋边界条件                                           | 气象海洋 | Kunpeng             |
-| imb                      | Intel MPI Benchmarks                                             | 性能评估 | Kunpeng/x86         |
-| interproscan             | 提供蛋白序列的功能分析并归纳为一个蛋白家族，同时还预测了presence of domains和important sites  | 生命科学 | Kunpeng             |
-| ioapi                    | 提供C和Fortran语言访问数据的接口                                             | 依赖库  | Kunpeng             |
-| ir2tb                    | 连接第一性原理计算与紧束缚模型构建，可识别不可约表示、生成满足空间群对称性的紧束缚哈密顿量基函数                 | 教育科研 | Kunpeng             |
-| irvsp                    | 获取VASP中电子态的不可约表示                                                 | 教育科研 | Kunpeng             |
-| jasper                   | 图像编码和处理                                                          | 依赖库  | Kunpeng             |
-| jax                      | 专为高性能数值计算和大规模机器学习设计的面向加速器阵列计算和程序转换的Python库                       | 开发工具 | Kunpeng             |
-| jellyfish                | 快速、高效地计算DNA中k-mer的工具                                             | 生命科学 | Kunpeng             |
-| kallisto-bustools_python | 包含kallisto和bustools的python包，用于处理单细胞RNA-seq工作流程。                  | 生命科学 | Kunpeng             |
-| kraken2                  | 基于k-mer算法的高精度宏基因组序列分类软件                                          | 生命科学 | Kunpeng             |
-| lammps                   | 大尺度原子分子大规模并行模拟                                                   | 教育科研 | Kunpeng+GPU         |
-| lapack                   | 用于解决数值线性代数中最常见问题的Fortran子程序库                                     | 数学库  | Kunpeng             |
-| libjpeg                  | 对JPEG图像进行编码、解码和转码                                                | 依赖库  | Kunpeng             |
-| libpng                   | PNG图像文件处理                                                        | 依赖库  | Kunpeng             |
-| libxc                    | 密度泛函理论的交换关联泛函库                                                   | 依赖库  | Kunpeng             |
-| likwid                   | 易于安装和使用的命令行应用程序工具包，也是面向性能的程序员的库                                  | 开发工具 | Kunpeng             |
-| lmod                     | 在Unix下管理用户环境的程序                                                  | 运维工具 | Kunpeng             |
-| meep                     | 开源的时域有限差分法模拟软件包                                                  | 教育科研 | Kunpeng             |
-| megahit                  | 针对多基因组优化、也适用单基因组和单细胞组装的超快速和内存高效的NGS汇编程序                          | 生命科学 | Kunpeng             |
-| memkind                  | 用户可扩展的堆管理器，构建在jemalloc之上                                         | 开发工具 | Kunpeng             |
-| meso_grapes              | 国产快速循环同化的中国气象局中尺度天气数值预报系统                                        | 气象海洋 | Kunpeng             |
-| mfem                     | 用于有限元方法的免费、轻量级、可扩展的C++库                                          | 制造仿真 | Kunpeng/x86         |
-| mg-cfd                   | 无粘流动的三维非结构化多重网格有限体积CFD小型应用，此处提供它的OP2接口，包含MPI、OpenMP等组合功能         | 制造仿真 | Kunpeng             |
-| miniFE                   | 非结构化隐式有限元代码的代理应用程序                                               | 教育科研 | Kunpeng             |
-| minighost                | HPC领域的微型基准测试程序                                                   | 性能评估 | Kunpeng             |
-| minimap2                 | 快速的序列比对程序，可将DNA或MRNA序列与大型参考数据库对齐                                 | 生命科学 | Kunpeng             |
-| modeller                 | 蛋白质三维结构的同源建模或比较建模                                                | 生命科学 | Kunpeng             |
-| monocle3                 | 单细胞RNA-Seq实验                                                     | 生命科学 | Kunpeng             |
-| moose                    | 面向对象的有限元多物理场环境模拟软件                                               | 教育科研 | Kunpeng             |
-| mopac                    | 基于Dewar和Thiel的NDDO近似的半经验量子化学程序                                   | 教育科研 | Kunpeng             |
-| mpb                      | 计算能带结构或色散关系以及周期性介电结构的电磁模式                                        | 教育科研 | Kunpeng             |
-| mrbayes                  | 在广泛的系统发育和进化模型中进行贝叶斯推理和模型选择                                       | 生命科学 | Kunpeng             |
-| mumps                    | 通用的稀疏直接求解器                                                       | 求解器  | Kunpeng/x86         |
-| must                     | 检测MPI的使用错误                                                       | 开发工具 | Kunpeng             |
-| namd                     | 分子动力学模拟                                                          | 教育科研 | Kunpeng+GPU         |
-| ncl                      | 专门为科学数据处理以及数据可视化设计的工具，很适合用在气象数据的处理和可视化上                          | 气象海洋 | Kunpeng/x86         |
-| nco                      | 处理和分析以netCDF格式存储的数据                                              | 气象海洋 | Kunpeng/x86         |
-| ncview                   | netCDF格式文件可视化工具                                                  | 气象海洋 | Kunpeng/x86         |
-| nemo                     | 海洋学研究，业务海洋学季节预报和气候研究                                             | 气象海洋 | Kunpeng             |
-| netcdf                   | 网络通用数据格式                                                         | 依赖库  | Kunpeng             |
-| nwchem                   | 使用标准量子力学描述电子波函或密度，计算分子和周期性系统的特性，还可以进行经典分子动力学和自由能模拟               | 教育科研 | Kunpeng             |
-| octave                   | 解决线性和非线性方程、数值线性代数、统计分析等数值实验问题，也可以用作面向批处理的自动数据处理语言                | 开发工具 | Kunpeng             |
-| octopus                  | 含时电磁场下的一、二及三维有限系统的电子-离子动力学模拟                                     | 教育科研 | Kunpeng             |
-| op2                      | 高级嵌入式领域专用语言，用于编写在多核和众核架构上具有自动并行化的非结构化网格算法                        | 开发工具 | Kunpeng             |
-| openbabel                | 使用多种语言表达化学数据                                                     | 教育科研 | Kunpeng             |
-| opencv                   | 跨平台计算机视觉库                                                        | 开发工具 | Kunpeng             |
-| openfoam                 | 开源的场运算和处理软件                                                      | 制造仿真 | Kunpeng             |
-| openjpeg                 | JPEG 2000编解码器                                                    | 依赖库  | Kunpeng             |
-| openlb                   | Lattice-Boltzmann方法（LBM）面向对象的实现                                  | 制造仿真 | Kunpeng/x86         |
-| palabos                  | 通用计算流体动力学（CFD）的框架，其内核基于格子Boltzmann（LB）方法                         | 制造仿真 | Kunpeng             |
-| petsc                    | 以偏微分方程为模型的科学应用的可扩展（并行）解决方案                                       | 依赖库  | Kunpeng/x86         |
-| picard                   | 使用HTSJDK实现访问的Java数据库，通常用于支持Java调用的高数据和SAM的文件格式                   | 生命科学 | Kunpeng             |
-| plink                    | 全基因组关联分析工具集                                                      | 生命科学 | Kunpeng             |
-| pnetcdf                  | 用于并行访问netCDF格式文件的I/O库                                            | 依赖库  | Kunpeng             |
-| prodigal                 | 细菌和古细菌基因组的蛋白质编码基因预测软件工具                                          | 生命科学 | Kunpeng             |
-| proteinmpnn              | 基于深度学习的蛋白质序列设计方法                                                 | 生命科学 | Kunpeng             |
-| protobuf                 | 数据序列化、结构化                                                        | 依赖库  | Kunpeng             |
-| prottest                 | 为当前数据选择最适合的氨基酸替代模型                                               | 生命科学 | Kunpeng             |
-| psi4                     | 开源的量子化学软件，围绕密度泛函理论和Hartree-Fock以计算组态相互作用和耦合团簇                    | 教育科研 | Kunpeng             |
-| python3                  | 编程语言                                                             | 开发工具 | Kunpeng             |
-| pytorch                  | 基于Torch的开源的Python机器学习库                                           | 教育科研 | Kunpeng+GPU         |
-| qdk                      | 为QNAP Turbo NAS构建QPKG文件/应用程序                                     | 教育科研 | Kunpeng             |
-| qe                       | 电子结构计算和材料建模                                                      | 教育科研 | Kunpeng+GPU/x86+GPU |
-| qgis                     | 用户界面友好、跨平台的开源版桌面地理信息系统                                           | 地理信息 | Kunpeng             |
-| qmcpack                  | 用于计算原子、分子和固体的电子结                                                 | 教育科研 | Kunpeng/x86         |
-| qp2                      | 开源行列式驱动程序                                                        | 教育科研 | Kunpeng             |
-| randfold                 | 预测RNA二级结构                                                        | 生命科学 | Kunpeng             |
-| relion                   | 专门为低温电子显微镜（cryo-EM）设计的图像处理软件                                     | 生命科学 | Kunpeng             |
-| rempi                    | 用于MPI+OpenMP应用程序的记录和重放工具                                         | 开发工具 | Kunpeng             |
-| rmaps-now                | 睿图-临近数值预报子系统                                                     | 气象海洋 | Kunpeng/x86         |
-| roms                     | 三维区域海洋模型                                                         | 气象海洋 | Kunpeng             |
-| sambamba                 | 处理SAM和BAM文件的高性能、高度并行、和快速的工具（和库）                                  | 生命科学 | Kunpeng             |
-| samtools                 | 处理SAM、BAM、CRAM格式的工具                                              | 生命科学 | Kunpeng             |
-| scalapack                | 高性能线性代数例程库                                                       | 数学库  | Kunpeng             |
-| scanpy                   | 可扩展的单细胞基因表达数据分析工具                                                | 生命科学 | Kunpeng             |
-| scorep                   | 用于HPC应用程序的分析、事件跟踪和在线分析                                           | 性能优化 | Kunpeng             |
-| scotch                   | 高性能图划分与稀疏矩阵重排序软件库，主要用于并行计算中的负载均衡、通信优化和内存访问局部性提升                  | 制造仿真 | Kunpeng/x86         |
-| siesta                   | 实现电子结构计算和第一性原理分子动力学模拟的程序                                         | 教育科研 | Kunpeng             |
-| singularity              | 开源容器平台                                                           | 开发工具 | Kunpeng             |
-| slepc                    | 可扩展特征值问题计算库                                                      | 数学库  | Kunpeng/x86         |
-| smoke                    | 排放处理系统                                                           | 气象海洋 | Kunpeng             |
-| snappy                   | Google开源的压缩/解压缩库                                                 | 依赖库  | Kunpeng             |
-| specfem3d_globe          | 模拟全局和区域（大陆规模）地震波传播                                               | 地球物理 | Kunpeng             |
-| sqlite                   | 小巧、快速、独立、高可靠、功能齐全的SQL数据库引擎                                       | 数据库  | Kunpeng             |
-| star                     | 高性能的通用RNA-seq对准器                                                 | 生命科学 | Kunpeng             |
-| stream                   | 用于衡量计算机系统内存带宽的性能，为数据读写的不同操作提供独立的评估                               | 性能评估 | Kunpeng/x86         |
-| sundials                 | 提供可轻松集成到现有仿真代码中的强大的时间积分器和非线性求解器                                  | 求解器  | Kunpeng             |
-| swan                     | 第三代波浪模拟器                                                         | 气象海洋 | Kunpeng             |
-| swmm                     | 动态水文-水力学水质模型                                                     | 气象海洋 | Kunpeng             |
-| szip                     | 开源压缩库                                                            | 依赖库  | Kunpeng             |
-| tensorflow               | 深度学习框架                                                           | 教育科研 | Kunpeng             |
-| tophat                   | 快速的将RNA-Seq数据进行快速剪接映射的程序                                         | 生命科学 | Kunpeng             |
-| tophat2                  | 快速的将RNA-Seq数据进行快速剪接映射的程序                                         | 生命科学 | Kunpeng             |
-| towhee                   | Monte Carlo分子模拟代码                                                | 教育科研 | Kunpeng             |
-| trinity                  | 从RNA-seq数据高效、可靠地从头重建转录组                                          | 生命科学 | Kunpeng/x86         |
-| tvm                      | 开源的深度学习编译器堆栈，旨在优化和高效部署机器学习模型到各种硬件平台                              | 开发工具 | Kunpeng             |
-| udunits                  | 为物理量单位提供支持                                                       | 教育科研 | Kunpeng             |
-| vasp                     | 电子结构计算和量子力学-分子动力学模拟                                              | 教育科研 | Kunpeng/x86+GPU     |
-| vaspkit                  | 从VASP原始计算数据中各种材料特性进行高通量分析                                        | 教育科研 | Kunpeng             |
-| velvet                   | 专为短读测序程序设计的从头基因组组装器                                              | 生命科学 | Kunpeng             |
-| wannier90                | 计算能带结构、费米表面、介电特性、稀疏的哈密顿量等                                        | 教育科研 | Kunpeng/x86         |
-| wannier_tools            | 一种用于新型拓扑材料的开源软件包                                                 | 教育科研 | Kunpeng             |
-| want                     | 模拟纳米结构的量子运输性质（电导），通过实空间的Wannier function来描述体系的哈密顿量               | 教育科研 | Kunpeng             |
-| wps                      | WRF的预处理系统                                                        | 气象海洋 | Kunpeng             |
-| wrf                      | 天气研究与预报模型，可以用来进行精细尺度的天气模拟与预报                                     | 气象海洋 | Kunpeng             |
-| wrfda                    | 灵活、先进的大气数据同化系统                                                   | 气象海洋 | Kunpeng             |
-| wtdbg2                   | 从头序列组装器，用于由PacBio或 Oxford Nanopore Technologies (ONT) 产生的长噪音读数   | 生命科学 | Kunpeng             |
-| ww3                      | 社区波浪建模框架，包括风浪建模和动力学领域的最新科学进展                                     | 气象海洋 | Kunpeng             |
-| wxWidgets                | 免费且开源的跨平台C++框架，用于使用原生控件编写高级图形用户界面应用                              | 开发工具 | Kunpeng             |
-| yum                      | 常见操作系统yum源（国内源）                                                  | 运维工具 | Kunpeng/x86         |
-| zlib                     | 无损数据压缩库                                                          | 依赖库  | Kunpeng             |
+| 序号 | 应用名                   | 应用信息                                                     | 领域     | 使能平台            |
+| ---- | ------------------------ | ------------------------------------------------------------ | -------- | ------------------- |
+| 1    | ARPS                     | 主要针对风暴尺度的非静力高分辨率区域预报系统                 | 气象海洋 | Kunpeng             |
+| 2    | BLAS-Tester              | BLAS测试库                                                   | 性能评估 | Kunpeng             |
+| 3    | CESM                     | 全球气候模型                                                 | 气象海洋 | Kunpeng             |
+| 4    | CMAQ                     | 使用化学传输模型的空气质量建模工具                           | 气象海洋 | Kunpeng             |
+| 5    | CNVnator                 | 用于发现拷贝数变异（CNV）和对个人基因组测序的读取深度（RD）进行分析的工具 | 生命科学 | Kunpeng             |
+| 6    | CP2K                     | 高精度物理和化学模拟                                         | 教育科研 | Kunpeng/x86         |
+| 7    | Code_Saturne             | 用于求解2D、2D轴对称和3D流动的Navier-Stokes方程，稳态或非稳态，层流或者湍流，可不压缩或者弱可膨胀，等温或非恒 | 教育科研 | Kunpeng             |
+| 8    | ExaGear                  | 华为动态二进制翻译工具                                       | 开发工具 | Kunpeng             |
+| 9    | FPChecker                | 检测HPC应用程序中的浮点错误                                  | 开发工具 | Kunpeng             |
+| 10   | FastTree                 | 从核苷酸或蛋白质序列的比对推断出近似最大似然的系统发育树     | 生命科学 | Kunpeng             |
+| 11   | IPM                      | 描述HPC应用程序的性能测量的套件                              | 性能优化 | Kunpeng             |
+| 12   | ImageMagick              | 图像处理命令行工具                                           | 图像处理 | Kunpeng             |
+| 13   | MITGCM                   | 用于研究大气、海洋和气候，其灵活的非流体静力学公式使其能够有效地模拟各种尺度的流体现象 | 气象海洋 | Kunpeng             |
+| 14   | MOM                      | 一个三维海洋环流模型，主要用于研究海洋气候系统               | 气象海洋 | Kunpeng             |
+| 15   | NOVOPlasty               | 用于短环状基因组的从头组装器和异质性/变异调用器              | 生命科学 | Kunpeng             |
+| 16   | OPTIMIZED-ROUTINES       | 针对ARM体系处理器各种库函数的优化实现，毕昇编译器已将其以动态链接库的方式集成到工具链中 | 性能优化 | Kunpeng             |
+| 17   | OSU                      | 基准测试套件，用于衡量系统性能                               | 性能评估 | Kunpeng             |
+| 18   | Oceananigans             | 用于非静力平衡和静力平衡Boussinesq方程的有限体积模拟         | 气象海洋 | Kunpeng             |
+| 19   | OpenCoarrays             | 并行编程库                                                   | 开发工具 | Kunpeng/x86         |
+| 20   | OpenMolcas               | 量子化学软件包                                               | 教育科研 | Kunpeng             |
+| 21   | PWDFT                    | 用于百亿次材料发现的自主平面波DFT引擎                        | 教育科研 | Kunpeng             |
+| 22   | ParaFEM                  | 开源并行有限元分析库                                         | 教育科研 | Kunpeng             |
+| 23   | PyRosetta                | Rosetta的Python接口，用于蛋白质结构预测和蛋白质设计          | 生命科学 | Kunpeng             |
+| 24   | R                        | 开源统计计算和绘图软件                                       | 开发工具 | Kunpeng             |
+| 25   | RSEM                     | 从RNA-Seq数据中估计基因和异构体的表达水平                    | 生命科学 | Kunpeng             |
+| 26   | SPECFEM3D_GLOBE          | 全球弹性波地震模拟                                           | 地球物理 | Kunpeng             |
+| 27   | SU2                      | 开源大规模CFD程序                                            | 科学计算 | Kunpeng             |
+| 28   | Seurat                   | 用于单细胞基因组学的R工具包                                  | 生命科学 | Kunpeng             |
+| 29   | WGCNA                    | 包括网络构建、模块检测、基因选择、拓扑特性计算、数据模拟、可视化以及与外部软件接口的功能 | 生命科学 | Kunpeng             |
+| 30   | abinit                   | 第一个完全自主实现密度泛函理论的程序                         | 科学计算 | Kunpeng+            |
+| 31   | abyss                    | 从头开始的、并行的、成对末端的序列汇编器，专门用于短读       | 生命科学 | Kunpeng             |
+| 32   | acesiii                  | 并行计算化学应用                                             | 科学计算 | Kunpeng             |
+| 33   | agcm                     | 气象局自主研发的全球大气环流谱模式                           | 气象海洋 | Kunpeng/x86         |
+| 34   | alphafold2               | 利用神经网络来预测氨基酸对之间的距离，以及连接它们的化学键之间的角度 | 生命科学 | Kunpeng             |
+| 35   | amber                    | 分子动力学模拟软件                                           | 教育科研 | Kunpeng+GPU         |
+| 36   | amg                      | 处理线性系统的并行代数多重网格求解器非结构化网格上的问题     | 制造仿真 | Kunpeng             |
+| 37   | augustus                 | 预测真核基因组序列基因的程序                                 | 生命科学 | Kunpeng             |
+| 38   | automake                 | GNU Autotools工具集的一部分，用于生成Makefile                | 开发工具 | Kunpeng             |
+| 39   | bcc-esm                  | 全球气候系统模型                                             | 气象海洋 | Kunpeng             |
+| 40   | bcftools                 | 专门操作VCF文件的工具                                        | 生命科学 | Kunpeng             |
+| 41   | bedtools                 | 用于基因组特征分析的软件                                     | 生命科学 | Kunpeng             |
+| 42   | berkeleygw               | 激发态的多体微扰理论代码                                     | 教育科研 | Kunpeng             |
+| 43   | bishengjdk               | 华为毕昇JDK工具                                              | 开发工具 | Kunpeng             |
+| 44   | blas                     | 基本线性代数子程序                                           | 开发工具 | Kunpeng             |
+| 45   | blast                    | 在蛋白质数据库或DNA数据库中进行相似性比较的分析工具          | 生命科学 | Kunpeng             |
+| 46   | blastz                   | 核苷酸局部比对程序                                           | 生命科学 | Kunpeng             |
+| 47   | blat                     | 序列对比工具（已废弃）                                       | 生命科学 | Kunpeng             |
+| 48   | boost                    | 为C++标准库提供扩展的一些C++程序库的总称                     | 开发工具 | Kunpeng             |
+| 49   | bowtie2                  | 将测序reads与长参考序列比对工具                              | 生命科学 | Kunpeng/x86         |
+| 50   | brpc                     | 工业级RPC框架                                                | 开发工具 | Kunpeng             |
+| 51   | bwa                      | 将低分叉序列比对到大的参考基因组比如人基因组的软件包         | 生命科学 | Kunpeng             |
+| 52   | cactus                   | 无参考的全基因组多重比对程序                                 | 生命科学 | Kunpeng             |
+| 53   | calculix                 | 可以构建、计算和后处理有限元模型                             | 教育科研 | Kunpeng             |
+| 54   | canu                     | 第三代数据组装工具，用于高噪声单分子测序                     | 生命科学 | Kunpeng             |
+| 55   | cdo                      | 气象类数据处理软件                                           | 气象海洋 | Kunpeng             |
+| 56   | chaste                   | 组织和细胞水平的电生理学，离散组织建模和软组织建模           | 生命科学 | Kunpeng             |
+| 57   | circos                   | 基因组序列相关数据、影视作品中的人物关系分析等多个领域的可视化分析 | 生命科学 | Kunpeng             |
+| 58   | coawst                   | 海洋-大气-波浪-泥沙耦合模型                                  | 生命科学 | Kunpeng             |
+| 59   | code_aster               | 用于结构分析的有限元数值仿真软件                             | 制造仿真 | Kunpeng             |
+| 60   | copasi                   | 模拟和分析生化网络及其动力学                                 | 生命科学 | Kunpeng             |
+| 61   | copt                     | 国产针对大规模优化问题的高效数学规划求解器套件               | 求解器   | Kunpeng             |
+| 62   | cpmd                     | 密度泛函理论的并行平面波/伪势实现                            | 教育科研 | Kunpeng             |
+| 63   | croco                    | 海岸与区域海洋社区模型                                       | 气象海洋 | Kunpeng             |
+| 64   | ctffind                  | 寻找电子显微镜CTF                                            | 生命科学 | Kunpeng             |
+| 65   | cufflinks                | 基因表达量的计算和差异表达基因的寻找                         | 生命科学 | Kunpeng             |
+| 66   | curl                     | 传输数据的命令行工具                                         | 开发工具 | Kunpeng             |
+| 67   | dealii                   | 使用自适应有限元解决方案偏微分方程的计算问题                 | 制造仿真 | Kunpeng             |
+| 68   | deepmd-kit               | 旨在最大限度地减少构建基于深度学习的原子间势能和力场模型以及执行分子动力学 (MD) 所需的工作量 | 教育科研 | Kunpeng             |
+| 69   | deeptools                | 处理映射读取数据以进行多项质量检查，识别基因组的富集和功能注 | 生命科学 | Kunpeng             |
+| 70   | diamond                  | 蛋白质和翻译后的DNA搜索序列比对器                            | 生命科学 | Kunpeng             |
+| 71   | dlPoly                   | 通用经典分子动力学（MD）模拟软件                             | 教育科研 | Kunpeng             |
+| 72   | duns                     | 流体动力学代码                                               | 教育科研 | Kunpeng/x86         |
+| 73   | ecFlow                   | 工作流管理器                                                 | 气象海洋 | Kunpeng             |
+| 74   | eccodes                  | 编解码数据                                                   | 气象海洋 | Kunpeng             |
+| 75   | eigen                    | 用于线性代数运算的C++模板库                                  | 数学库   | Kunpeng             |
+| 76   | elmer                    | 用于偏微分方程数值解的有限元软件                             | 制造仿真 | Kunpeng/x86         |
+| 77   | eman2                    | 灰度科学图像处理套件                                         | 生命科学 | Kunpeng             |
+| 78   | espresso                 | 电子结构计算和材料建模的abinitio量子化学方法                 | 教育科研 | Kunpeng             |
+| 79   | fasta                    | 搜索蛋白质和DNA序列数据库一整套相似性搜索和比对              | 生命科学 | Kunpeng             |
+| 80   | fastp                    | 为FastQ文件提供快速的多合一预处理                            | 生命科学 | Kunpeng             |
+| 81   | fds                      | 针对低速流动的大涡模拟软件                                   | 制造仿真 | Kunpeng             |
+| 82   | featurecounts            | 计算基因组特征的读数                                         | 生命科学 | Kunpeng             |
+| 83   | fftw                     | 纯C语言编写的高效FFT算法库                                   | 数学库   | Kunpeng             |
+| 84   | flatbuffer               | 支持多种语言的高效跨平台序列化库                             | 开发工具 | Kunpeng             |
+| 85   | flit                     | 提供了一种将Python包和模块放在PyPI上的简单方法               | 开发工具 | Kunpeng             |
+| 86   | foldseek                 | 能够快速且灵敏地比较大型蛋白质结构集                         | 生命科学 | Kunpeng             |
+| 87   | fvcom                    | 沿海海洋环流模型                                             | 气象海洋 | Kunpeng             |
+| 88   | gadget2                  | 全球适用的区域分解通用生态系统工具箱                         | 气象海洋 | Kunpeng             |
+| 89   | gatk                     | 用于分析基因组的工具箱                                       | 生命科学 | Kunpeng             |
+| 90   | gaussian                 | 半经验计算和从头计算的量子化学软件                           | 教育科研 | Kunpeng             |
+| 91   | gemma                    | 将线性混合模型和相关模型快速应用到全基因组关联研究和其他大规模数据集 | 生命科学 | Kunpeng             |
+| 92   | gfs                      | 气候软件                                                     | 气象海洋 | Kunpeng             |
+| 93   | git                      | 免费开源的分布式版本控制软件                                 | 开发工具 | Kunpeng             |
+| 94   | gperftools               | 高性能多线程malloc实现，同时包含性能分析工具                 | 性能优化 | Kunpeng             |
+| 95   | gptl                     | 插桩式性能分析工具                                           | 性能优化 | Kunpeng             |
+| 96   | grads                    | 可视化分析气象数据                                           | 气象海洋 | Kunpeng             |
+| 97   | grapes                   | 气象软件                                                     | 气象海洋 | Kunpeng/x86         |
+| 98   | grib_api                 | GRIB1和GRIB2格式文件的编码/解码软件                          | 气象海洋 | Kunpeng             |
+| 99   | gromacs                  | 分子动力学模拟和能量最小化的计算引擎                         | 教育科研 | Kunpeng+GPU         |
+| 100  | gsea                     | 用于确定先验的定义的一组基因以统计学方式显示两种生物状态之间显著的、一致的差异 | 生命科学 | Kunpeng             |
+| 101  | gsl                      | 用于数值计算的C语言库                                        | 开发工具 | Kunpeng             |
+| 102  | hdf5                     | 分层数据格式库                                               | 依赖库   | Kunpeng             |
+| 103  | hefei-namd               | 从头到尾非绝热分子动力学程序                                 | 教育科研 | Kunpeng             |
+| 104  | hisat                    | 高效的RNA-seq实验比对工具                                    | 生命科学 | Kunpeng             |
+| 105  | homer                    | 专为基因组学应用中的调控元件分析而设计（仅DNA，无蛋白质）    | 生命科学 | Kunpeng             |
+| 106  | honpas                   | 从头式电子结构计算软件包                                     | 教育科研 | Kunpeng             |
+| 107  | hpcg                     | 并行HPC线性求解器性能基准                                    | 性能评估 | Kunpeng             |
+| 108  | hpl                      | HPL CheckRecd性能基准                                        | 性能评估 | Kunpeng             |
+| 109  | htslib                   | 访问高通量测序的文件                                         | 依赖库   | Kunpeng             |
+| 110  | hycom                    | 为全球耦合海洋-大气预测模型提供海洋边界条件                  | 气象海洋 | Kunpeng             |
+| 111  | imb                      | Intel MPI Benchmarks                                         | 性能评估 | Kunpeng/x86         |
+| 112  | interproscan             | 提供蛋白序列的功能分析并归纳为一个蛋白家族，同时还预测了presence of domains和important sites | 生命科学 | Kunpeng             |
+| 113  | ioapi                    | 提供C和Fortran语言访问数据的接口                             | 依赖库   | Kunpeng             |
+| 114  | ir2tb                    | 连接第一性原理计算与紧束缚模型构建，可识别不可约表示、生成满足空间群对称性的紧束缚哈密顿量基函数 | 教育科研 | Kunpeng             |
+| 115  | irvsp                    | 获取VASP中电子态的不可约表示                                 | 教育科研 | Kunpeng             |
+| 116  | jasper                   | 图像编码和处理                                               | 依赖库   | Kunpeng             |
+| 117  | jax                      | 专为高性能数值计算和大规模机器学习设计的面向加速器阵列计算和程序转换的Python库 | 开发工具 | Kunpeng             |
+| 118  | jellyfish                | 快速、高效地计算DNA中k-mer的工具                             | 生命科学 | Kunpeng             |
+| 119  | kallisto-bustools_python | 包含kallisto和bustools的python包，用于处理单细胞RNA-seq工作流程。 | 生命科学 | Kunpeng             |
+| 120  | kraken2                  | 基于k-mer算法的高精度宏基因组序列分类软件                    | 生命科学 | Kunpeng             |
+| 121  | lammps                   | 大尺度原子分子大规模并行模拟                                 | 教育科研 | Kunpeng+GPU         |
+| 122  | lapack                   | 用于解决数值线性代数中最常见问题的Fortran子程序库            | 数学库   | Kunpeng             |
+| 123  | libjpeg                  | 对JPEG图像进行编码、解码和转码                               | 依赖库   | Kunpeng             |
+| 124  | libpng                   | PNG图像文件处理                                              | 依赖库   | Kunpeng             |
+| 125  | libxc                    | 密度泛函理论的交换关联泛函库                                 | 依赖库   | Kunpeng             |
+| 126  | likwid                   | 易于安装和使用的命令行应用程序工具包，也是面向性能的程序员的库 | 开发工具 | Kunpeng             |
+| 127  | lmod                     | 在Unix下管理用户环境的程序                                   | 运维工具 | Kunpeng             |
+| 128  | meep                     | 开源的时域有限差分法模拟软件包                               | 教育科研 | Kunpeng             |
+| 129  | megahit                  | 针对多基因组优化、也适用单基因组和单细胞组装的超快速和内存高效的NGS汇编程序 | 生命科学 | Kunpeng             |
+| 130  | memkind                  | 用户可扩展的堆管理器，构建在jemalloc之上                     | 开发工具 | Kunpeng             |
+| 131  | meso_grapes              | 国产快速循环同化的中国气象局中尺度天气数值预报系统           | 气象海洋 | Kunpeng             |
+| 132  | mfem                     | 用于有限元方法的免费、轻量级、可扩展的C++库                  | 制造仿真 | Kunpeng/x86         |
+| 133  | mg-cfd                   | 无粘流动的三维非结构化多重网格有限体积CFD小型应用，此处提供它的OP2接口，包含MPI、OpenMP等组合功能 | 制造仿真 | Kunpeng             |
+| 134  | miniFE                   | 非结构化隐式有限元代码的代理应用程序                         | 教育科研 | Kunpeng             |
+| 135  | minighost                | HPC领域的微型基准测试程序                                    | 性能评估 | Kunpeng             |
+| 136  | minimap2                 | 快速的序列比对程序，可将DNA或MRNA序列与大型参考数据库对齐    | 生命科学 | Kunpeng             |
+| 137  | modeller                 | 蛋白质三维结构的同源建模或比较建模                           | 生命科学 | Kunpeng             |
+| 138  | monocle3                 | 单细胞RNA-Seq实验                                            | 生命科学 | Kunpeng             |
+| 139  | moose                    | 面向对象的有限元多物理场环境模拟软件                         | 教育科研 | Kunpeng             |
+| 140  | mopac                    | 基于Dewar和Thiel的NDDO近似的半经验量子化学程序               | 教育科研 | Kunpeng             |
+| 141  | mpb                      | 计算能带结构或色散关系以及周期性介电结构的电磁模式           | 教育科研 | Kunpeng             |
+| 142  | mrbayes                  | 在广泛的系统发育和进化模型中进行贝叶斯推理和模型选择         | 生命科学 | Kunpeng             |
+| 143  | mumps                    | 通用的稀疏直接求解器                                         | 求解器   | Kunpeng/x86         |
+| 144  | must                     | 检测MPI的使用错误                                            | 开发工具 | Kunpeng             |
+| 145  | namd                     | 分子动力学模拟                                               | 教育科研 | Kunpeng+GPU         |
+| 146  | ncl                      | 专门为科学数据处理以及数据可视化设计的工具，很适合用在气象数据的处理和可视化上 | 气象海洋 | Kunpeng/x86         |
+| 147  | nco                      | 处理和分析以netCDF格式存储的数据                             | 气象海洋 | Kunpeng/x86         |
+| 148  | ncview                   | netCDF格式文件可视化工具                                     | 气象海洋 | Kunpeng/x86         |
+| 149  | nemo                     | 海洋学研究，业务海洋学季节预报和气候研究                     | 气象海洋 | Kunpeng             |
+| 150  | netcdf                   | 网络通用数据格式                                             | 依赖库   | Kunpeng             |
+| 151  | nwchem                   | 使用标准量子力学描述电子波函或密度，计算分子和周期性系统的特性，还可以进行经典分子动力学和自由能模拟 | 教育科研 | Kunpeng             |
+| 152  | octave                   | 解决线性和非线性方程、数值线性代数、统计分析等数值实验问题，也可以用作面向批处理的自动数据处理语言 | 开发工具 | Kunpeng             |
+| 153  | octopus                  | 含时电磁场下的一、二及三维有限系统的电子-离子动力学模拟      | 教育科研 | Kunpeng             |
+| 154  | op2                      | 高级嵌入式领域专用语言，用于编写在多核和众核架构上具有自动并行化的非结构化网格算法 | 开发工具 | Kunpeng             |
+| 155  | openbabel                | 使用多种语言表达化学数据                                     | 教育科研 | Kunpeng             |
+| 156  | opencv                   | 跨平台计算机视觉库                                           | 开发工具 | Kunpeng             |
+| 157  | openfoam                 | 开源的场运算和处理软件                                       | 制造仿真 | Kunpeng             |
+| 158  | openjpeg                 | JPEG 2000编解码器                                            | 依赖库   | Kunpeng             |
+| 159  | openlb                   | Lattice-Boltzmann方法（LBM）面向对象的实现                   | 制造仿真 | Kunpeng/x86         |
+| 160  | palabos                  | 通用计算流体动力学（CFD）的框架，其内核基于格子Boltzmann（LB）方法 | 制造仿真 | Kunpeng             |
+| 161  | petsc                    | 以偏微分方程为模型的科学应用的可扩展（并行）解决方案         | 依赖库   | Kunpeng/x86         |
+| 162  | picard                   | 使用HTSJDK实现访问的Java数据库，通常用于支持Java调用的高数据和SAM的文件格式 | 生命科学 | Kunpeng             |
+| 163  | plink                    | 全基因组关联分析工具集                                       | 生命科学 | Kunpeng             |
+| 164  | pnetcdf                  | 用于并行访问netCDF格式文件的I/O库                            | 依赖库   | Kunpeng             |
+| 165  | prodigal                 | 细菌和古细菌基因组的蛋白质编码基因预测软件工具               | 生命科学 | Kunpeng             |
+| 166  | proteinmpnn              | 基于深度学习的蛋白质序列设计方法                             | 生命科学 | Kunpeng             |
+| 167  | protobuf                 | 数据序列化、结构化                                           | 依赖库   | Kunpeng             |
+| 168  | prottest                 | 为当前数据选择最适合的氨基酸替代模型                         | 生命科学 | Kunpeng             |
+| 169  | psi4                     | 开源的量子化学软件，围绕密度泛函理论和Hartree-Fock以计算组态相互作用和耦合团簇 | 教育科研 | Kunpeng             |
+| 170  | python3                  | 编程语言                                                     | 开发工具 | Kunpeng             |
+| 171  | pytorch                  | 基于Torch的开源的Python机器学习库                            | 教育科研 | Kunpeng+GPU         |
+| 172  | qdk                      | 为QNAP Turbo NAS构建QPKG文件/应用程序                        | 教育科研 | Kunpeng             |
+| 173  | qe                       | 电子结构计算和材料建模                                       | 教育科研 | Kunpeng+GPU/x86+GPU |
+| 174  | qgis                     | 用户界面友好、跨平台的开源版桌面地理信息系统                 | 地理信息 | Kunpeng             |
+| 175  | qmcpack                  | 用于计算原子、分子和固体的电子结                             | 教育科研 | Kunpeng/x86         |
+| 176  | qp2                      | 开源行列式驱动程序                                           | 教育科研 | Kunpeng             |
+| 177  | randfold                 | 预测RNA二级结构                                              | 生命科学 | Kunpeng             |
+| 178  | relion                   | 专门为低温电子显微镜（cryo-EM）设计的图像处理软件            | 生命科学 | Kunpeng             |
+| 179  | rempi                    | 用于MPI+OpenMP应用程序的记录和重放工具                       | 开发工具 | Kunpeng             |
+| 180  | rmaps-now                | 睿图-临近数值预报子系统                                      | 气象海洋 | Kunpeng/x86         |
+| 181  | roms                     | 三维区域海洋模型                                             | 气象海洋 | Kunpeng             |
+| 182  | sambamba                 | 处理SAM和BAM文件的高性能、高度并行、和快速的工具（和库）     | 生命科学 | Kunpeng             |
+| 183  | samtools                 | 处理SAM、BAM、CRAM格式的工具                                 | 生命科学 | Kunpeng             |
+| 184  | scalapack                | 高性能线性代数例程库                                         | 数学库   | Kunpeng             |
+| 185  | scanpy                   | 可扩展的单细胞基因表达数据分析工具                           | 生命科学 | Kunpeng             |
+| 186  | scorep                   | 用于HPC应用程序的分析、事件跟踪和在线分析                    | 性能优化 | Kunpeng             |
+| 187  | scotch                   | 高性能图划分与稀疏矩阵重排序软件库，主要用于并行计算中的负载均衡、通信优化和内存访问局部性提升 | 制造仿真 | Kunpeng/x86         |
+| 188  | siesta                   | 实现电子结构计算和第一性原理分子动力学模拟的程序             | 教育科研 | Kunpeng             |
+| 189  | singularity              | 开源容器平台                                                 | 开发工具 | Kunpeng             |
+| 190  | slepc                    | 可扩展特征值问题计算库                                       | 数学库   | Kunpeng/x86         |
+| 191  | smoke                    | 排放处理系统                                                 | 气象海洋 | Kunpeng             |
+| 192  | snappy                   | Google开源的压缩/解压缩库                                    | 依赖库   | Kunpeng             |
+| 193  | specfem3d_globe          | 模拟全局和区域（大陆规模）地震波传播                         | 地球物理 | Kunpeng             |
+| 194  | sqlite                   | 小巧、快速、独立、高可靠、功能齐全的SQL数据库引擎            | 数据库   | Kunpeng             |
+| 195  | star                     | 高性能的通用RNA-seq对准器                                    | 生命科学 | Kunpeng             |
+| 196  | stream                   | 用于衡量计算机系统内存带宽的性能，为数据读写的不同操作提供独立的评估 | 性能评估 | Kunpeng/x86         |
+| 197  | sundials                 | 提供可轻松集成到现有仿真代码中的强大的时间积分器和非线性求解器 | 求解器   | Kunpeng             |
+| 198  | swan                     | 第三代波浪模拟器                                             | 气象海洋 | Kunpeng             |
+| 199  | swmm                     | 动态水文-水力学水质模型                                      | 气象海洋 | Kunpeng             |
+| 200  | szip                     | 开源压缩库                                                   | 依赖库   | Kunpeng             |
+| 201  | tensorflow               | 深度学习框架                                                 | 教育科研 | Kunpeng             |
+| 202  | tophat                   | 快速的将RNA-Seq数据进行快速剪接映射的程序                    | 生命科学 | Kunpeng             |
+| 203  | tophat2                  | 快速的将RNA-Seq数据进行快速剪接映射的程序                    | 生命科学 | Kunpeng             |
+| 204  | towhee                   | Monte Carlo分子模拟代码                                      | 教育科研 | Kunpeng             |
+| 205  | trinity                  | 从RNA-seq数据高效、可靠地从头重建转录组                      | 生命科学 | Kunpeng/x86         |
+| 206  | tvm                      | 开源的深度学习编译器堆栈，旨在优化和高效部署机器学习模型到各种硬件平台 | 开发工具 | Kunpeng             |
+| 207  | udunits                  | 为物理量单位提供支持                                         | 教育科研 | Kunpeng             |
+| 208  | vasp                     | 电子结构计算和量子力学-分子动力学模拟                        | 教育科研 | Kunpeng/x86+GPU     |
+| 209  | vaspkit                  | 从VASP原始计算数据中各种材料特性进行高通量分析               | 教育科研 | Kunpeng             |
+| 210  | velvet                   | 专为短读测序程序设计的从头基因组组装器                       | 生命科学 | Kunpeng             |
+| 211  | wannier90                | 计算能带结构、费米表面、介电特性、稀疏的哈密顿量等           | 教育科研 | Kunpeng/x86         |
+| 212  | wannier_tools            | 一种用于新型拓扑材料的开源软件包                             | 教育科研 | Kunpeng             |
+| 213  | want                     | 模拟纳米结构的量子运输性质（电导），通过实空间的Wannier function来描述体系的哈密顿量 | 教育科研 | Kunpeng             |
+| 214  | wps                      | WRF的预处理系统                                              | 气象海洋 | Kunpeng             |
+| 215  | wrf                      | 天气研究与预报模型，可以用来进行精细尺度的天气模拟与预报     | 气象海洋 | Kunpeng             |
+| 216  | wrfda                    | 灵活、先进的大气数据同化系统                                 | 气象海洋 | Kunpeng             |
+| 217  | wtdbg2                   | 从头序列组装器，用于由PacBio或 Oxford Nanopore Technologies (ONT) 产生的长噪音读数 | 生命科学 | Kunpeng             |
+| 218  | ww3                      | 社区波浪建模框架，包括风浪建模和动力学领域的最新科学进展     | 气象海洋 | Kunpeng             |
+| 219  | wxWidgets                | 免费且开源的跨平台C++框架，用于使用原生控件编写高级图形用户界面应用 | 开发工具 | Kunpeng             |
+| 220  | yum                      | 常见操作系统yum源（国内源）                                  | 运维工具 | Kunpeng/x86         |
+| 221  | zlib                     | 无损数据压缩库                                               | 依赖库   | Kunpeng             |
 
