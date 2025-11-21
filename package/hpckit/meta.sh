@@ -2,9 +2,13 @@
 set -x
 set -e
 #hpckit_ver="24.0.RC1"
+PATH_INSTALL="$1"
+BASENAME=$(basename "$1")
+mkdir -p ${JARVIS_DEV_VROOT}/HPCKit/${hpckit_ver}/${BASENAME}
 . ${DOWNLOAD_TOOL} -u https://mirrors.huaweicloud.com/kunpeng/archive/HPC/HPCKit/HPCKit_${hpckit_ver}_Linux-aarch64.tar.gz
 
-cd $JARVIS_TMP
+cd ${JARVIS_DEV_VROOT}/HPCKit/${hpckit_ver}/${BASENAME}
+rm -rf HPCKit_${hpckit_ver}_Linux-aarch64
 if [ ! -d HPCKit_${hpckit_ver}_Linux-aarch64 ];then
    tar xvf $JARVIS_DOWNLOAD/HPCKit_${hpckit_ver}_Linux-aarch64.tar.gz
 fi

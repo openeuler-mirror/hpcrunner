@@ -1,0 +1,24 @@
+#!/bin/bash
+set -e
+set -x
+hpcrunner_ver=1.1.0
+cat > ${1}/module_tail.modulefile << EOF
+
+setenv KREG_DEV "${JARVIS_DEV}"
+setenv KREG_DEV_VROOT "${JARVIS_DEV_VROOT}"
+setenv KREG_DOWNLOAD "${JARVIS_DOWNLOAD}"
+
+setenv KREG_APP "${JARVIS_APP}"
+setenv KREG_LIBS "${JARVIS_LIBS}"
+setenv KREG_MISC "${JARVIS_MISC}"
+setenv KREG_UTILS	"${JARVIS_UTILS}"
+setenv KREG_SOFT_ROOT	"${JARVIS_SOFT_ROOT}"
+setenv KREG_SYSTEM_ROOT	"${JARVIS_SYSTEM_ROOT}"
+setenv KREG_MODULES "${JARVIS_MODULES}"
+setenv KREG_MODULES_MODS "${JARVIS_MODULES_MODS}"
+setenv KREG_JOBSCRIPT "${JARVIS_JOBSCRIPT}"
+setenv KREG_ROOT		"${JARVIS_ROOT}"
+setenv KREG_YUM_SYSTEM   "${JARVIS_YUM_SYSTEM}"
+
+EOF
+

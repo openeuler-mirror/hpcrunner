@@ -25,6 +25,18 @@ class GCCDetector(DetectorService):
         name = 'gcc'
         if 'kunpeng' in gcc_info.lower():
             name =  'kgcc'
+
+        for item in gcc_info_list:
+            if item.startswith("COLLECT_LTO_WRAPPER=") :
+                right=item.split("=",1)
+                if len(right) > 1:
+                    partition=right[1].partition("/compiler/gcc")
+                    if (len(partition[1]) > 0) and (len(partition[0]) > 0):
+                        if not os.path.exists(partition[0]+"/setvars.sh"):
+                            continue
+                        hpckit_ver=os.path.basename(partition[0])
+                        name = "hpckit{}-gcc".format(hpckit_ver)
+                        print(f'Got HPCKIT gcc:{right[1]}')
         profile = VersionParser.gen_compiler_profile(name, version)
         return profile
 
@@ -39,6 +51,18 @@ class ClangDetector(DetectorService):
         name = 'clang'
         if 'bisheng' in clang_info.lower():
             name =  'bisheng'
+
+        for item in clang_info_list:
+            if item.startswith("InstalledDir:") :
+                right=item.split(":",1)
+                if len(right) > 1:
+                    partition=right[1].strip().partition("/compiler/bisheng")
+                    if (len(partition[1]) > 0) and (len(partition[0]) > 0):
+                        if not os.path.exists(partition[0]+"/setvars.sh"):
+                            continue
+                        hpckit_ver=os.path.basename(partition[0])
+                        name = "hpckit{}-bisheng".format(hpckit_ver)
+                        print(f'Got HPCKIT bisheng:{right[1]}')            
         profile = VersionParser.gen_compiler_profile(name, version)
         return profile
 
@@ -78,13 +102,11 @@ class HMPIDetector(DetectorService):
         libucg_path = os.path.join(ucg_path, "lib")
         libucg_so_flag = "libucg.so."
         version = None
-        for file_name in os.listdir(libucg_path):
-            if libucg_so_flag in file_name:
-                version = VersionParser.parse(file_name)
-                if version in ver_dict:
-                    return ver_dict[version]
-                elif version:
-                    break
+        ucg_files = [f for f in os.listdir(libucg_path) if f.startswith(libucg_so_flag)]
+        ucg_files.sort(key=lambda x: len(x), reverse=True)
+        version = VersionParser.parse(ucg_files[0])
+        if version in ver_dict:
+            return ver_dict[version]
         return version
 
     def detect(self) -> Dict:

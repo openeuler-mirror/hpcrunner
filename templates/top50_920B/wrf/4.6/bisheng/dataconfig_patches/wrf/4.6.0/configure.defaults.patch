@@ -1,0 +1,49 @@
+--- A/arch/configure.defaults	2024-05-09 08:55:35.000000000 +0800
++++ B/arch/configure.defaults	2025-09-13 11:28:59.390342460 +0800
+@@ -2339,6 +2339,46 @@
+ CC_TOOLS        =      /usr/bin/gcc -Wall
+ NETCDFPAR_BUILD	=      CONFIGURE_NETCDFPAR_BUILD
+ 
++###########################################################
++#ARCH   Linux   aarch64,clang HYPERMPI#serial smpar dmpar dm+sm
++DESCRIPTION     =       CLANG ($SFC/$SCC)
++DMPARALLEL      =       1
++OMPCPP          =       -D_OPENMP
++OMP             =       -fopenmp
++OMPCC           =       -fopenmp
++SFC             =       flang
++SCC             =       clang
++CCOMP           =       clang
++DM_FC           =       mpif90 -f90=$(SFC)
++DM_CC           =       mpicc -cc=$(SCC) -DMPI2_SUPPORT
++FC              =       CONFIGURE_FC
++CC              =       CONFIGURE_CC
++LD              =       $(FC)
++RWORDSIZE       =       CONFIGURE_RWORDSIZE
++PROMOTION       =       #-fdefault-real-8
++ARCH_LOCAL      =       -DNONSTANDARD_SYSTEM_SUBR  -DWRF_USE_CLM
++CFLAGS_LOCAL    =       -w -O3 -c -Mcache_align -march=armv8.5-a+sve -fvectorize -funroll-loops -L${HPCKIT_COM_BS}/lib -I${HPCKIT_COM_BS}/include -Wno-implicit-function-declaration -Wno-implicit-int -Wno-implicit-int
++LDFLAGS_LOCAL   =	-fopenmp -L${HPCKIT_PATH}/HPCKit/25.0.0/kml/bisheng/lib -lkml_rt
++FCOPTIM         =       -O3 -Mcache_align -march=armv8.5-a+sve -fvectorize -funroll-loops -ffast-math -fhonor-nans -mllvm -unroll-indirect-loads=true -fopenmp -fstack-arrays -L${HPCKIT_COM_BS}/lib -ljemalloc -L${HPCKIT_PATH}/HPCKit/25.0.0/kml/bisheng/lib -lkml_rt -L${HPCKIT_PATH}/HPCKit/25.0.0/kml/bisheng/lib/noarch -lkm -lm
++FCREDUCEDOPT    =       $(FCOPTIM)
++FCNOOPT         =       -O1 -Wno-implicit-function-declaration -Wno-implicit-int
++FCDEBUG         =       -g -Wno-implicit-function-declaration -Wno-implicit-int # -fbacktrace -ggdb-fcheck=bounds,do,mem,pointer -ffpe-trap=invalid,zero,overflow
++FORMAT_FIXED    =       -ffixed-form
++FORMAT_FREE     =       -ffree-form -ffree-line-length-0
++FCSUFFIX        =
++BYTESWAPIO      =       -fconvert=big-endian
++FCBASEOPTS_NO_G =       -w $(FORMAT_FREE) $(BYTESWAPIO)
++FCBASEOPTS      =       -march=armv8.5-a+sve $(FCBASEOPTS_NO_G) $(OMP) 
++MODULE_SRCH_FLAG=      -I$(WRF_SRC_ROOT_DIR)/main
++TRADFLAG        =      -traditional
++CPP             =      /lib/cpp -P
++AR              =      ar
++ARFLAGS         =      ru
++M4              =      m4 -G
++RANLIB          =      ranlib
++RLFLAGS         =
++CC_TOOLS        =      $(SCC)
++
+ #insert new stanza before the Fujitsu block, keep Fujitsu at the end of the list
+ ###########################################################
+ #ARCH  NULL

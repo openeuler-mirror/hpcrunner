@@ -21,22 +21,22 @@ class ModulefileEngine:
     def __init__(self, strategy: IGenerationStrategy = None):
         self.strategy = strategy or BaseStrategy()
         
-    def generate(self, config: ModuleConfig) -> str:
+    def generate(self, config: ModuleConfig, search_dir= {}) -> str:
         self.strategy = self.STRATEGY_MAP.get(config.software_name, BaseStrategy())
         sections = [
             self.strategy.generate_header(config),
             self.strategy.generate_body(config),
             self._generate_dependencies(config),
-            self._generate_paths(config),
+            self._generate_paths(config, search_dir),
             self.strategy.generate_footer(config)
         ]
         return "\n".join(filter(None, sections))
 
-    def _generate_paths(self, config: ModuleConfig) -> str:
+    def _generate_paths(self, config: ModuleConfig,search_dir = {}) -> str:
         if config.software_name == "hpckit" or "anaconda" in config.software_name:
             return ""
         
-        path_config = PathOrganizer.auto_discover(config.install_root)
+        path_config = PathOrganizer.auto_discover(config.install_root,search_dir)
         path_commands = []
         
         # 环境变量与路径配置的映射关系

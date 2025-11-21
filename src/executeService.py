@@ -60,6 +60,7 @@ class ExecuteService:
             print(f"successfully executed at {self.end_time}, congratulations!!!".upper())
             return True
 
+    ### exec_raw -> bool
     def exec_raw(self, rows):
         return self.exec_list(self.tool.gen_list(rows))
     
@@ -73,7 +74,7 @@ class ExecuteService:
         return info_list
 
     def exec_inject(self, cmd_str):
-        cmd = f'{cmd_str} && env -0'
+        cmd = f'{cmd_str} > /dev/null 2>&1 && env -0'
         result = subprocess.run(
             cmd,
             shell=True,

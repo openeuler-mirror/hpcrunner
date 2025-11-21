@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*- 
+import sys
 import argparse
 from initService import InitService
 from dataService import DataService
@@ -28,7 +29,8 @@ class Jarvis:
         # dependency install
         parser.add_argument("-dp","--depend", help=f"{self.app_name} dependency install", action="store_true")
         parser.add_argument("-e","--env", help=f"set environment {self.app_name}", action="store_true")
-        parser.add_argument("-b","--build", help=f"compile {self.app_name}", action="store_true")
+        parser.add_argument("-b","--build", help=f"compile {self.app_name}",  action="store_true")
+        parser.add_argument("-b2","--build2", help=f"compile {self.app_name}",  choices=['force', 'prompt', 'secure'])
         parser.add_argument("-cls","--clean", help=f"clean {self.app_name}", action="store_true")
         parser.add_argument("-r","--run", help=f"run {self.app_name}", action="store_true")
         parser.add_argument("-j","--job", help=f"run job {self.app_name}", action="store_true")
@@ -78,7 +80,10 @@ class Jarvis:
             self.analysis.download()
         
         if self.args.depend:
-            self.analysis.install_deps()
+            res=self.analysis.install_deps()
+            if not res:
+                sys.exit(1)
+            sys.exit(0)
 
         if self.args.install:
             self.analysis.install(self.args.install)
@@ -96,7 +101,18 @@ class Jarvis:
             self.analysis.clean()
 
         if self.args.build:
-            self.analysis.build()
+            res=self.analysis.build()
+            if not res:
+                sys.exit(1)
+            sys.exit(0)
+
+        if self.args.build2:
+            print(f'self.args.build[{self.args.build2}]')
+            res=self.analysis.build(self.args.build2)
+            if not res:
+                sys.exit(1)
+            sys.exit(0)
+
 
         if self.args.job:
             self.analysis.job_run()

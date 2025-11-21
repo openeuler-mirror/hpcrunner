@@ -9,7 +9,7 @@ while getopts ":u:f:t:" opt;
 do
         case $opt in
                 #下载的链接
-                u) url=$OPTARG;;
+                u) url="$OPTARG";;
                 #使用的下载类型，默认wget
                 t) type_=$OPTARG;;
                 #下载后重命名,可不添加
@@ -20,6 +20,7 @@ do
 
 done
 
+echo "url:${url}"
 if [ ! "$url" ];then
         echo "Error: No available download link found"
         exit 0

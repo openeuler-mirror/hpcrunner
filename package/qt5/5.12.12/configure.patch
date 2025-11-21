@@ -1,0 +1,4 @@
+855a856,858
+>                 ],
+>                 "qmake":[
+>                     "QMAKE_CXXFLAGS += -fpermissive"

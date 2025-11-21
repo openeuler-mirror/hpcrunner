@@ -1,0 +1,53 @@
+# generic gfortran compiler options for linux
+#
+# NCDF_HOME   root directory containing lib and include subdirectories for netcdf4
+# HDF5_HOME   root directory containing lib and include subdirectories for HDF5
+# XIOS_HOME   root directory containing lib for XIOS
+# OASIS_HOME  root directory containing lib for OASIS
+#
+# NCDF_INC    netcdf4 include file
+# NCDF_LIB    netcdf4 library
+# XIOS_INC    xios include file    (taken into accound only if key_xios is activated)
+# XIOS_LIB    xios library         (taken into accound only if key_xios is activated)
+# OASIS_INC   oasis include file   (taken into accound only if key_oasis3 is activated)
+# OASIS_LIB   oasis library        (taken into accound only if key_oasis3 is activated)
+#
+# FC          Fortran compiler command
+# FCFLAGS     Fortran compiler flags
+# FFLAGS      Fortran 77 compiler flags
+# LD          linker
+# LDFLAGS     linker flags, e.g. -L<lib dir> if you have libraries
+# FPPFLAGS    pre-processing flags
+# AR          assembler
+# ARFLAGS     assembler flags
+# MK          make
+# USER_INC    complete list of include files
+# USER_LIB    complete list of libraries to pass to the linker
+# CC          C compiler used to compile conv for AGRIF
+# CFLAGS      compiler flags used with CC
+#
+# Note that:
+#  - unix variables "$..." are accpeted and will be evaluated before calling fcm.
+#  - fcm variables are starting with a % (and not a $)
+#
+%HDF5_HOME            $HDF_DIR
+%NCDF_HOME            $NETCDF_DIR
+%NCDF_INC            -I%NCDF_HOME/include -I%HDF5_HOME/include
+%NCDF_LIB            -L%HDF5_HOME/lib -L%NCDF_HOME/lib -lnetcdff  -lnetcdf
+%USER_OBJ             $PROJ_DIR/src/MY/BLD/*.o 
+
+%CPP	             cpp -Dkey_nosignedzero 
+%FC	             mpif90 -c -cpp
+%FCFLAGS             -O3 -fdefault-real-8 -fdefault-double-8 -fopenmp -ffast-math -mcpu=hip11 -mllvm -force-customized-pipeline -msve-vector-bits=512 -mllvm -replace-sqrt-compare-by-square=true -mllvm -aarch64-enable-loop-data-prefetch=false -Wno-incompatible-function-pointer-types -Wno-deprecated-declarations
+%FFLAGS              %FCFLAGS
+%LD                  mpif90
+%LDFLAGS             -lstdc++ -fopenmp -O3
+%FPPFLAGS            -P -traditional
+%AR                  ar
+%ARFLAGS             rs
+%MK                  make
+%USER_INC            %NCDF_INC
+%USER_LIB            %NCDF_LIB %USER_OBJ
+
+%CC                  cc
+%CFLAGS              -O0

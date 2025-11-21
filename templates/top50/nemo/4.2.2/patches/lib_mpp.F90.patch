@@ -1,0 +1,19 @@
+--- ./lib_mpp.F90	2025-02-25 16:16:22.661447777 +0800
++++ ./lib_mpp.F90	2025-03-04 11:42:41.031375047 +0800
+@@ -238,7 +238,7 @@
+       !!----------------------------------------------------------------------
+       INTEGER         , OPTIONAL   , INTENT(in   ) ::   localComm    !
+       !
+-      INTEGER ::   ierr
++      INTEGER ::   ierr,provided
+       LOGICAL ::   llmpi_init
+       !!----------------------------------------------------------------------
+ #if ! defined key_mpi_off
+@@ -253,6 +253,7 @@
+             CALL ctl_stop( 'STOP', ctmp1, ctmp2 )
+          ENDIF
+          CALL mpi_init( ierr )
++         !CALL MPI_Init_thread(MPI_THREAD_SERIALIZED ,provided,ierr )
+          IF( ierr /= MPI_SUCCESS ) CALL ctl_stop( 'STOP', ' lib_mpp: Error in routine mpi_init' )
+       ENDIF
+ 

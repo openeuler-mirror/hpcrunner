@@ -1,0 +1,934 @@
+--- ./interfaceCpp.cpp	1970-01-01 08:00:00.000000000 +0800
++++ ./interfaceCpp.cpp	2025-03-03 16:06:22.557401578 +0800
+@@ -0,0 +1,931 @@
++#include <iostream>
++#include <iomanip>
++#include <arm_sve.h>
++#include <math.h>
++#include <algorithm>
++using namespace std;
++extern "C"
++{
++    void fct_inter1(int jpi,int istart,int iend,int jstart,int jend,double **zwx,double **zwy,double **zwz,double **zwz_k,double **r1_e1e2t,double **pta,double **ptb,double **e3t_m,double* tmask,double **zwi,double p2dt);
++    void fct_inter2(int jpi,int istart,int iend,int jstart,int jend,double* zbupp,double* zbupp_k1,double* zbupp_k2,double* zbdoo,double* zbdoo_k1,double* zbdoo_k2,double* paa_ji,double* pbb_jj,double* pcc_jk,double* pcc_jk1,double* e1e2tt,double* e3tt,double p2dtt,double zbigg,double* zbetupp,double* zbetdoo,double zrtrnn,double* paft);
++    void fct_inter3(int jpi,int istart,int iend,int jstart,int jend,double **zwx,double **zwy,double **zwz,double **zwz_k,double **r1_e1e2t,double **pta,double **e3t_m);
++    // void fct_inter4(int istart,int iend,double* zup,double* zdo,double* paa_ji,double* pbb_jj,double* pbb_jj1,double* pcc_jk,double* pcc_jk1,double* e1e2tt,double* e3tt,double p2dtt,double zbigg,double* zbetupp,double* zbetdoo,double zrtrnn,double* paft);
++    void fct_inter5(int jpi,int istart,int iend,int jstart,int jend,double* zbupp,double* zbupp_k1,double* zbupp_k2,double* paa_ji,double* pbb_jj,double* pcc_jk,double* pcc_jk1,double* e1e2tt,double* e3tt,double p2dtt,double zbigg,double* zbetupp,double zrtrnn,double* paft);
++    void fct_inter6(int jpi,int istart,int iend,int jstart,int jend,double* zbdoo,double* zbdoo_k1,double* zbdoo_k2,double* paa_ji,double* pbb_jj,double* pcc_jk,double* pcc_jk1,double* e1e2tt,double* e3tt,double p2dtt,double zbigg,double* zbetdoo,double zrtrnn,double* paft);
++    //void fct_inter7(int jpi,int istart,int iend,int jstart,int jend,double* PU,double* PV,double* zwx,double* zwy,double* pta);
++
++}
++inline double stencil_max(double x1,double x2,double x3,double x4,double x5,double x6,double x7)
++{
++    double a1 = max(x1,x2);
++    double a2 = max(x3,x4);
++    double a3 = max(x5,x6);
++    double a4 = max(a1,x7);
++    double a5 = max(a2,a3);
++    return max(a4,a5);
++
++}
++inline double stencil_min(double x1,double x2,double x3,double x4,double x5,double x6,double x7)
++{
++    double a1 = min(x1,x2);
++    double a2 = min(x3,x4);
++    double a3 = min(x5,x6);
++    double a4 = min(a1,x7);
++    double a5 = min(a2,a3);
++    return min(a4,a5);
++
++}
++void fct_inter2(int jpi,int istart,int iend,int jstart,int jend,double* zbupp,double* zbupp_k1,double* zbupp_k2,double* zbdoo,double* zbdoo_k1,double* zbdoo_k2,double* paa_ji,double* pbb_jj,double* pcc_jk,double* pcc_jk1,double* e1e2tt,double* e3tt,double p2dtt,double zbigg,double* zbetupp,double* zbetdoo,double zrtrnn,double* paft)
++{
++    // svfloat64_t v_zup;
++    // svfloat64_t v_zbup_i1;
++    // svfloat64_t v_zbup_i2;
++    // svfloat64_t v_zbup_i3;
++    // svfloat64_t v_zbup_j1;
++    // svfloat64_t v_zbup_j2;
++    // svfloat64_t v_zbup_k1;
++    // svfloat64_t v_zbup_k2;
++
++    // svfloat64_t v_zdo;
++    // svfloat64_t v_zbdo_i1;
++    // svfloat64_t v_zbdo_i2;
++    // svfloat64_t v_zbdo_i3;
++    // svfloat64_t v_zbdo_j1;
++    // svfloat64_t v_zbdo_j2;
++    // svfloat64_t v_zbdo_k1;
++    // svfloat64_t v_zbdo_k2;
++
++    // svfloat64_t v_zpos;
++    // svfloat64_t v_zneg;
++    // svfloat64_t v_paa_i1;
++    // svfloat64_t v_paa_i2;
++    // svfloat64_t v_pbb_j1;
++    // svfloat64_t v_pbb_j2;
++    // svfloat64_t v_pcc_k1;
++    // svfloat64_t v_pcc_k2;
++
++    // svfloat64_t v_zbt;
++    // svfloat64_t v_e1e2t;
++    // svfloat64_t v_e3t;
++
++    // svfloat64_t v_zbetup;
++    // svfloat64_t v_zbetdo;
++    // svfloat64_t v_paft;
++    // double compare[2] = {0.0,0.0};
++    // double zrtrn[2] = {zrtrnn,zrtrnn};
++    // double p2dt[2] = {p2dtt,p2dtt};
++    // svfloat64_t v_compare = vld1q_f64(&compare[0]);
++    // svfloat64_t v_p2dt = vld1q_f64(&p2dt[0]);
++    // svfloat64_t v_zrtrn = vld1q_f64(&zrtrn[0]);
++    
++    // // double zup[128];
++    // // double zdo[128];
++
++
++    // for(int ji = 1;ji <= iend - istart + 1; ++ji)
++    // {
++    //     double zup = stencil_max(  zbupp[ji],zbupp[ji-1], zbupp[ji+1], zbupp_j1[ji], zbupp_j2[ji],zbupp_k1[ji], zbupp_k2[ji]  );
++    //     double zdo = stencil_min(  zbdoo[ji],zbdoo[ji-1], zbdoo[ji+1],zbdoo_j1[ji], zbdoo_j2[ji], zbdoo_k1[ji], zbdoo_k2[ji]  );
++
++    //     double zpos = max( 0.0, paa_ji[ji-1] ) - min( 0.0, paa_ji[ji] )+ max( 0.0, pbb_jj[ji] ) - min( 0.0, pbb_jj1[ji] ) + max( 0.0, pcc_jk[ji] ) - min( 0.0, pcc_jk1[ji] );
++
++    //     double zneg = max( 0.0, paa_ji[ji] ) - min( 0.0, paa_ji[ji-1] )+ max( 0.0, pbb_jj[ji] ) - min( 0.0, pbb_jj[ji] ) + max( 0.0, pcc_jk[ji] ) - min( 0.0, pcc_jk1[ji] );
++        
++    //     double zbt = e1e2tt[ji] * e3tt[ji] / p2dtt;
++    //     zbetupp[ji] = ( zup - paft[ji] ) / (zpos + zrtrnn) * zbt;
++    //     zbetdoo[ji] = ( paft[ji] - zdo ) / (zneg + zrtrnn) * zbt;
++    // }
++    svbool_t Pg = svptrue_b64();
++    svbool_t Pg1 = svptrue_b64();
++    svbool_t pg_z0 = svwhilelt_b64(1,4);
++    svbool_t pg_z1 = svwhilelt_b64(2,3);
++    Pg1 = svand_z(Pg,pg_z0,pg_z1);
++    int count = svcntd();
++    svfloat64_t v_compare = svdup_n_f64_z(Pg,(double)0.0);
++    svfloat64_t v_p2dt = svdup_n_f64_z(Pg,p2dtt);
++    svfloat64_t v_zrtrn = svdup_n_f64_z(Pg,zrtrnn);
++    int ilen = iend - istart + 3;
++    size_t j;
++    for(j = 1;j < jend - jstart + 1;j += 2)
++    {   
++        size_t ji;
++        int jilen = j * ilen;
++        int jilen1 = (j + 1) * ilen;
++        int jjpi = j * jpi;
++        int jjpi1 = (j + 1)* jpi;
++
++        for(ji = 1;ji < iend - istart + 2; ji += count)
++        {   
++
++        
++            svfloat64_t v_zbup_i1 = svld1(Pg,&zbupp[jilen + ji-1]);
++            svfloat64_t v_zbup_i2 = svld1(Pg,&zbupp[jilen + ji+1]);
++            svfloat64_t v_zbup_i3 = svsplice_f64(Pg1,v_zbup_i1,v_zbup_i2);
++
++            v_zbup_i1 = svmax_f64_z(Pg,v_zbup_i1,v_zbup_i2);
++
++
++            svfloat64_t v_zbup_i1_j = svld1(Pg,&zbupp[jilen1 + ji-1]);
++            svfloat64_t v_zbup_i2_j = svld1(Pg,&zbupp[jilen1 + ji+1]);
++            svfloat64_t v_zbup_i3_j = svsplice_f64(Pg1,v_zbup_i1_j,v_zbup_i2_j);
++
++            v_zbup_i1_j = svmax_f64_z(Pg,v_zbup_i1_j,v_zbup_i2_j);
++
++
++            //svfloat64_t v_zbup_j1 = v_zbup_i3_j;
++            v_zbup_i3 = svmax_f64_z(Pg,v_zbup_i3,v_zbup_i3_j);
++
++            
++            svfloat64_t v_zbup_j2 = svld1(Pg,&zbupp[jilen - ilen + ji]);
++            svfloat64_t v_zbup_k1 = svld1(Pg,&zbupp_k1[jilen + ji]);
++            v_zbup_j2 = svmax_f64_z(Pg,v_zbup_j2,v_zbup_k1);
++            v_zbup_i3 = svmax_f64_z(Pg,v_zbup_i3,v_zbup_j2);
++
++            svfloat64_t v_zbup_k2 = svld1(Pg,&zbupp_k2[jilen + ji]);
++
++            v_zbup_i1 = svmax_f64_z(Pg,v_zbup_i1,v_zbup_k2);
++
++            svfloat64_t v_paft = svld1(Pg,&paft[jilen + ji]);
++
++            v_zbup_i1 = svmax_f64_z(Pg,v_zbup_i1,v_zbup_i3);
++
++            svfloat64_t v_zbetup = svsub_z(Pg,v_zbup_i1,v_paft);
++
++
++            
++            svfloat64_t v_zbup_j1_j = svld1(Pg,&zbupp[jilen1 + ilen + ji]);
++            //svfloat64_t v_zbup_j2_j = svld1(Pg,&zbupp[jilen  + ji]);
++            v_zbup_i3_j = svmax_f64_z(Pg,v_zbup_i3_j,v_zbup_j1_j);
++
++            svfloat64_t v_zbup_k1_j = svld1(Pg,&zbupp_k1[jilen1 + ji]);
++
++            v_zbup_k1_j = svmax_f64_z(Pg,v_zbup_i3,v_zbup_k1_j);
++            v_zbup_i3_j = svmax_f64_z(Pg,v_zbup_i3_j,v_zbup_k1_j);
++
++            svfloat64_t v_zbup_k2_j = svld1(Pg,&zbupp_k2[jilen1 + ji]);
++
++            v_zbup_i1_j = svmax_f64_z(Pg,v_zbup_i1_j,v_zbup_k2_j);
++
++            svfloat64_t v_paft_j = svld1(Pg,&paft[jilen1 + ji]);
++            
++            v_zbup_i1_j = svmax_f64_z(Pg,v_zbup_i1_j,v_zbup_i3_j);
++
++            svfloat64_t v_zbetup_j = svsub_z(Pg,v_zbup_i1_j,v_paft_j);
++
++
++
++            svfloat64_t v_zbdo_i1 = svld1(Pg,&zbdoo[jilen + ji-1]);
++            svfloat64_t v_zbdo_i2 = svld1(Pg,&zbdoo[jilen + ji+1]);
++            svfloat64_t v_zbdo_i3 = svsplice_f64(Pg1,v_zbdo_i1,v_zbdo_i2);
++
++            v_zbdo_i1 = svmin_f64_z(Pg,v_zbdo_i1,v_zbdo_i2);
++
++
++            svfloat64_t v_zbdo_i1_j = svld1(Pg,&zbdoo[jilen1 + ji-1]);
++            svfloat64_t v_zbdo_i2_j = svld1(Pg,&zbdoo[jilen1 + ji+1]);
++            svfloat64_t v_zbdo_i3_j = svsplice_f64(Pg1,v_zbdo_i1_j,v_zbdo_i2_j);
++
++            v_zbdo_i1_j = svmin_f64_z(Pg,v_zbdo_i1_j,v_zbdo_i2_j);
++
++
++            v_zbdo_i3 = svmin_f64_z(Pg,v_zbdo_i3,v_zbdo_i3_j);
++
++            //svfloat64_t v_zbdo_j1 = svld1(Pg,&zbdoo[jilen + ilen + ji]);
++            svfloat64_t v_zbdo_j2 = svld1(Pg,&zbdoo[jilen - ilen + ji]);
++            svfloat64_t v_zbdo_k1 = svld1(Pg,&zbdoo_k1[jilen + ji]);
++            v_zbdo_j2 = svmin_f64_z(Pg,v_zbdo_j2,v_zbdo_k1);
++            v_zbdo_i3 = svmin_f64_z(Pg,v_zbdo_i3,v_zbdo_j2);
++
++            svfloat64_t v_zbdo_k2 = svld1(Pg,&zbdoo_k2[jilen + ji]);
++
++            v_zbdo_i1 = svmin_f64_z(Pg,v_zbdo_i1,v_zbdo_k2);
++
++            v_zbdo_i1 = svmin_f64_z(Pg,v_zbdo_i1,v_zbdo_i3);
++
++            svfloat64_t v_zbetdo = svsub_z(Pg,v_paft,v_zbdo_i1);
++
++            
++            svfloat64_t v_zbdo_j1_j = svld1(Pg,&zbdoo[jilen1 + ilen + ji]);
++            v_zbdo_i3_j = svmin_f64_z(Pg,v_zbdo_i3_j,v_zbdo_j1_j);
++
++            //svfloat64_t v_zbdo_j2_j = svld1(Pg,&zbdoo[jilen + ji]);
++            svfloat64_t v_zbdo_k1_j = svld1(Pg,&zbdoo_k1[jilen1 + ji]);
++
++            v_zbdo_k1_j = svmin_f64_z(Pg,v_zbdo_i3,v_zbdo_k1_j);
++            v_zbdo_i3_j = svmin_f64_z(Pg,v_zbdo_i3_j,v_zbdo_k1_j);
++
++            svfloat64_t v_zbdo_k2_j = svld1(Pg,&zbdoo_k2[jilen1 + ji]);
++
++            v_zbdo_i1_j = svmin_f64_z(Pg,v_zbdo_i1_j,v_zbdo_k2_j);
++
++            v_zbdo_i1_j = svmin_f64_z(Pg,v_zbdo_i1_j,v_zbdo_i3_j);
++
++            svfloat64_t v_zbetdo_j = svsub_z(Pg,v_paft_j,v_zbdo_i1_j);
++
++
++            svfloat64_t v_paa_i1 = svld1(Pg,&paa_ji[jilen + ji-1]);
++            svfloat64_t v_paa_i2 = svld1(Pg,&paa_ji[jilen + ji]);
++            svfloat64_t v_zpos = svsub_z(Pg,svmax_f64_z(Pg,v_compare,v_paa_i1),svmin_f64_z(Pg,v_compare,v_paa_i2));
++            svfloat64_t v_zneg = svsub_z(Pg,svmax_f64_z(Pg,v_compare,v_paa_i2),svmin_f64_z(Pg,v_compare,v_paa_i1));
++
++            svfloat64_t v_pbb_j1 = svld1(Pg,&pbb_jj[jilen - ilen + ji]);
++            svfloat64_t v_pbb_j2 = svld1(Pg,&pbb_jj[jilen + ji]);
++            v_zpos = svadd_z(Pg,v_zpos,svsub_z(Pg,svmax_f64_z(Pg,v_compare,v_pbb_j1),svmin_f64_z(Pg,v_compare,v_pbb_j2)));
++            v_zneg = svadd_z(Pg,v_zneg,svsub_z(Pg,svmax_f64_z(Pg,v_compare,v_pbb_j2),svmin_f64_z(Pg,v_compare,v_pbb_j1)));
++
++            svfloat64_t v_pcc_k1 = svld1(Pg,&pcc_jk[jilen + ji]);
++            svfloat64_t v_pcc_k2 = svld1(Pg,&pcc_jk1[jilen +ji]);
++
++
++            v_zpos = svadd_z(Pg,v_zpos,svsub_z(Pg,svmax_f64_z(Pg,v_compare,v_pcc_k1),svmin_f64_z(Pg,v_compare,v_pcc_k2)));
++            v_zneg = svadd_z(Pg,v_zneg,svsub_z(Pg,svmax_f64_z(Pg,v_compare,v_pcc_k2),svmin_f64_z(Pg,v_compare,v_pcc_k1)));
++
++            svfloat64_t v_e1e2t = svld1(Pg,&e1e2tt[jjpi + ji]);
++            v_zpos = v_zpos + v_zrtrn;
++
++            svfloat64_t v_e3t = svld1(Pg,&e3tt[jjpi + ji]);
++            v_zneg = v_zneg + v_zrtrn; 
++
++            svfloat64_t v_zbt = svdiv_z(Pg,svmul_z(Pg,v_e1e2t,v_e3t),v_p2dt);
++
++            v_zbetup = svmul_z(Pg,svdiv_z(Pg,v_zbetup,v_zpos),v_zbt);
++            svst1(Pg,&zbetupp[jilen + ji],v_zbetup);
++            v_zbetdo = svmul_z(Pg,svdiv_z(Pg,v_zbetdo,v_zneg),v_zbt);
++            svst1(Pg,&zbetdoo[jilen + ji],v_zbetdo);
++
++            svfloat64_t v_paa_i1_j = svld1(Pg,&paa_ji[jilen1 + ji-1]);
++            svfloat64_t v_paa_i2_j = svld1(Pg,&paa_ji[jilen1 + ji]);
++            svfloat64_t v_zpos_j = svsub_z(Pg,svmax_f64_z(Pg,v_compare,v_paa_i1_j),svmin_f64_z(Pg,v_compare,v_paa_i2_j));
++            svfloat64_t v_zneg_j = svsub_z(Pg,svmax_f64_z(Pg,v_compare,v_paa_i2_j),svmin_f64_z(Pg,v_compare,v_paa_i1_j));
++
++            //svfloat64_t v_pbb_j1_j = svld1(Pg,&pbb_jj[jilen  + ji]);
++            svfloat64_t v_pbb_j2_j = svld1(Pg,&pbb_jj[jilen1 + ji]);
++            v_zpos_j = svadd_z(Pg,v_zpos_j,svsub_z(Pg,svmax_f64_z(Pg,v_compare,v_pbb_j2),svmin_f64_z(Pg,v_compare,v_pbb_j2_j)));
++            v_zneg_j = svadd_z(Pg,v_zneg_j,svsub_z(Pg,svmax_f64_z(Pg,v_compare,v_pbb_j2_j),svmin_f64_z(Pg,v_compare,v_pbb_j2)));
++
++            svfloat64_t v_pcc_k1_j = svld1(Pg,&pcc_jk[jilen1 + ji]);
++            svfloat64_t v_pcc_k2_j = svld1(Pg,&pcc_jk1[jilen1 +ji]);
++
++            
++            v_zpos_j = svadd_z(Pg,v_zpos_j,svsub_z(Pg,svmax_f64_z(Pg,v_compare,v_pcc_k1_j),svmin_f64_z(Pg,v_compare,v_pcc_k2_j)));
++            v_zneg_j = svadd_z(Pg,v_zneg_j,svsub_z(Pg,svmax_f64_z(Pg,v_compare,v_pcc_k2_j),svmin_f64_z(Pg,v_compare,v_pcc_k1_j)));
++            
++            svfloat64_t v_e1e2t_j = svld1(Pg,&e1e2tt[jjpi1 + ji]);
++            v_zpos_j = v_zpos_j + v_zrtrn;
++
++            svfloat64_t v_e3t_j = svld1(Pg,&e3tt[jjpi1 + ji]);
++            v_zneg_j = v_zneg_j + v_zrtrn; 
++
++            svfloat64_t v_zbt_j = svdiv_z(Pg,svmul_z(Pg,v_e1e2t_j,v_e3t_j),v_p2dt);
++
++            v_zbetup_j = svmul_z(Pg,svdiv_z(Pg,v_zbetup_j,v_zpos_j),v_zbt_j);
++            svst1(Pg,&zbetupp[jilen1 + ji],v_zbetup_j);
++            v_zbetdo_j = svmul_z(Pg,svdiv_z(Pg,v_zbetdo_j,v_zneg_j),v_zbt_j);
++            svst1(Pg,&zbetdoo[jilen1 + ji],v_zbetdo_j);
++            
++
++
++
++            
++        }
++    
++    }
++    for(size_t jj = j;jj < jend - jstart + 2;++jj)
++    {   
++        //size_t ji = 1;
++        int jilen = jj * ilen;
++        int jjpi = jj * jpi;
++        
++        for(int i = 1;i < iend - istart + 2;++i)
++        {
++            double zup = max(  {zbupp[jilen + i-1],zbupp[jilen + i], zbupp[jilen + i+1], zbupp[jilen - ilen + i], zbupp[jilen + ilen +i],zbupp_k1[jilen + i], zbupp_k2[jilen + i] } );
++            double zdo = min(  {zbdoo[jilen + i-1],zbdoo[jilen + i], zbdoo[jilen + i+1], zbdoo[jilen - ilen + i], zbdoo[jilen + ilen +i],zbdoo_k1[jilen + i], zbdoo_k2[jilen + i]  });
++
++            double zpos = max( double(0.0), paa_ji[jilen + i-1] ) - min( double(0.0), paa_ji[jilen + i] )+ max( double(0.0), pbb_jj[jilen -ilen + i] ) - min( double(0.0), pbb_jj[jilen + i] ) + max(double(0.0), pcc_jk[jilen +i] ) - min( double(0.0), pcc_jk1[jilen +i] );
++
++            double zneg = max( double(0.0), paa_ji[jilen + i] ) - min( double(0.0), paa_ji[jilen + i-1] )+ max( double(0.0), pbb_jj[jilen + i] ) - min( double(0.0), pbb_jj[jilen - ilen + i] ) + max( double(0.0), pcc_jk1[jilen + i] ) - min( double(0.0), pcc_jk[jilen + i] );
++            
++            double zbt = e1e2tt[jjpi + i] * e3tt[jjpi +i] / p2dtt;
++            zbetupp[jilen + i] = ( zup - paft[jilen + i] ) / (zpos + zrtrnn) * zbt;
++            zbetdoo[jilen + i] = ( paft[jilen + i] - zdo ) / (zneg + zrtrnn) * zbt;
++        }
++    
++    }
++
++
++
++
++}
++// void fct_inter1(int jpi,int istart,int iend,int jstart,int jend,double **zwx,double **zwy,double **zwz,double **zwz_k,double **r1_e1e2t,double **pta,double **ptb,double **e3t_m,double* tmask,double **zwi,double p2dt)
++// {   
++    
++//     //int ilen = iend - istart + 3;
++//     // for(int j = 1;j < jend - jstart + 2; ++j)
++//     // {
++//     //     for(int i = 1;i < iend - istart + 2; ++i)
++//     //     {
++//     //         double ztra = - ( zwx[jilen + i] - zwx[jilen + i - 1]  
++//     //                     + zwy[jilen + i] - zwy[(j - 1) * ilen + i]   
++//     //                     + zwz[jilen + i] - zwz_k[jilen + i] ) * r1_e1e2t[jjpi + i];
++//     //         pta[jjpi + i] += ztra / e3t_m[jjpi + i] * tmask[jjpi + i];
++//     //         //zwi[i] = (ptb[i] + ( p2dt * ztra ) / e3t_k[i] ) * tmask[i];
++//     //         zwi[jilen + i] = (e3t_m[jjpi + i] * ptb[jjpi + i] + p2dt * ztra) / e3t_m[jjpi + i] * tmask[jjpi + i];
++//     //     }
++//     // }
++
++//     int ilen = iend - istart + 3;
++//     for(int j = 1;j < jend - jstart + 2; ++j)
++//     {   
++//         int i;
++//         int jilen = j * ilen;
++//         int jjpi = j * jpi;
++//         for(i = 1;i < iend - istart - 5; i += 8)
++//         {
++//             svfloat64_t vx1 = vld1q_f64(&zwx[jilen + i - 1]);
++//             svfloat64_t vx = vld1q_f64(&zwx[jilen + i]);
++//             svfloat64_t vxsub = vx1 - vx;
++
++//             svfloat64_t vx1_1 = vld1q_f64(&zwx[jilen + i + 3]);
++//             svfloat64_t vx_1 = vld1q_f64(&zwx[jilen + i + 4]);
++//             svfloat64_t vxsub_1 = vx1_1 - vx_1;
++
++//             svfloat64_t vy = vld1q_f64(&zwy[jilen + i]);
++//             svfloat64_t vy1 = vld1q_f64(&zwy[jilen - ilen + i]);
++//             svfloat64_t vysub = vy1 - vy;
++            
++//             svfloat64_t vy_1 = vld1q_f64(&zwy[jilen + i + 4]);
++//             svfloat64_t vy1_1 = vld1q_f64(&zwy[jilen - ilen + i + 4]);
++//             svfloat64_t vysub_1 = vy1_1 - vy_1;
++
++//             svfloat64_t vz = vld1q_f64(&zwz[jilen + i]);
++//             svfloat64_t vz1 = vld1q_f64(&zwz_k[jilen + i]);
++//             svfloat64_t vzsub = vz1 - vz;
++
++//             svfloat64_t vz_1 = vld1q_f64(&zwz[jilen + i + 4]);
++//             svfloat64_t vz1_1 = vld1q_f64(&zwz_k[jilen + i + 4]);
++//             svfloat64_t vzsub_1 = vz1_1 - vz_1;
++
++//             svfloat64_t r1_e = vld1q_f64(&r1_e1e2t[jjpi + i]);
++//             svfloat64_t v_ztra = (vzsub + vysub + vxsub) * r1_e;
++
++//             svfloat64_t r1_e_1 = vld1q_f64(&r1_e1e2t[jjpi + i + 4]);
++//             svfloat64_t v_ztra_1 = (vzsub_1 + vysub_1 + vxsub_1) * r1_e_1;
++
++//             svfloat64_t v_pta = vld1q_f64(&pta[jjpi + i]);
++//             svfloat64_t v_e3t = vld1q_f64(&e3t_m[jjpi + i]);
++//             svfloat64_t v_tmask = vld1q_f64(&tmask[jjpi + i]);
++//             v_pta = v_pta + v_ztra / v_e3t * v_tmask;
++//             vst1q_f64(&pta[jjpi + i] , v_pta);
++
++//             svfloat64_t v_pta_1 = vld1q_f64(&pta[jjpi + i + 4]);
++//             svfloat64_t v_e3t_1 = vld1q_f64(&e3t_m[jjpi + i + 4] );
++//             svfloat64_t v_tmask_1 = vld1q_f64(&tmask[jjpi + i + 4]);
++//             v_pta_1 = v_pta_1 + v_ztra_1 / v_e3t_1 * v_tmask_1;
++//             vst1q_f64(&pta[jjpi + i + 4] , v_pta_1);
++
++//             svfloat64_t v_ptb = vld1q_f64(&ptb[jjpi + i]);
++//             svfloat64_t v_zwi = (v_e3t * v_ptb + p2dt * v_ztra) / v_e3t * v_tmask;
++//             vst1q_f64(&zwi[jilen + i] , v_zwi);
++
++//             svfloat64_t v_ptb_1 = vld1q_f64(&ptb[jjpi + i + 4]);
++//             svfloat64_t v_zwi_1 = (v_e3t_1 * v_ptb_1 + p2dt * v_ztra_1) / v_e3t_1 * v_tmask_1;
++//             vst1q_f64(&zwi[jilen + i + 4] , v_zwi_1);
++//         }
++//         for(int k = i;k < iend - istart + 2; ++k)
++//         {
++//             double ztra = - ( zwx[jilen + k] - zwx[jilen + k - 1]  
++//                         + zwy[jilen + k] - zwy[(j - 1) * ilen + k]   
++//                         + zwz[jilen + k] - zwz_k[jilen + k] ) * r1_e1e2t[jjpi + k];
++//             pta[jjpi + k] += ztra / e3t_m[jjpi + k] * tmask[jjpi + k];
++//             //zwi[i] = (ptb[i] + ( p2dt * ztra ) / e3t_k[i] ) * tmask[i];
++//             zwi[jilen + k] = (e3t_m[jjpi + k] * ptb[jjpi + k] + p2dt * ztra) / e3t_m[jjpi + k] * tmask[jjpi + k];
++//         }
++//     }
++    
++    
++    
++// }
++// void fct_inter3(int jpi,int istart,int iend,int jstart,int jend,double **zwx,double **zwy,double **zwz,double **zwz_k,double **r1_e1e2t,double **pta,double **e3t_m)
++// {   
++    
++//     int ilen = iend - istart + 3;
++//     for(int j = 1;j < jend - jstart + 2;++j)
++//     {   
++//         int i;
++//         int jilen = j * ilen;
++//         int jjpi = j * jpi;
++//         for(i = 1;i < iend - istart - 5; i += 8)
++//         {   
++        
++//             svfloat64_t vx1 = vld1q_f64(&zwx[jilen + i - 1]);
++//             svfloat64_t vx = vld1q_f64(&zwx[jilen + i]);
++//             svfloat64_t vxsub = vx1 - vx;
++
++//             svfloat64_t vx1_1 = vld1q_f64(&zwx[jilen + i + 3]);
++//             svfloat64_t vx_1 = vld1q_f64(&zwx[jilen + i + 4]);
++//             svfloat64_t vxsub_1 = vx1_1 - vx_1;
++
++//             svfloat64_t vy = vld1q_f64(&zwy[jilen + i]);
++//             svfloat64_t vy1 = vld1q_f64(&zwy[jilen - ilen + i]);
++//             svfloat64_t vysub = vy1 - vy;
++            
++//             svfloat64_t vy_1 = vld1q_f64(&zwy[jilen + i + 4]);
++//             svfloat64_t vy1_1 = vld1q_f64(&zwy[jilen -ilen + i + 4]);
++//             svfloat64_t vysub_1 = vy1_1 - vy_1;
++
++//             svfloat64_t vz = vld1q_f64(&zwz[jilen + i]);
++//             svfloat64_t vz1 = vld1q_f64(&zwz_k[jilen + i]);
++//             svfloat64_t vzsub = vz1 - vz;
++
++//             svfloat64_t vz_1 = vld1q_f64(&zwz[jilen + i + 4]);
++//             svfloat64_t vz1_1 = vld1q_f64(&zwz_k[jilen + i + 4]);
++//             svfloat64_t vzsub_1 = vz1_1 - vz_1;
++
++//             svfloat64_t r1_e = vld1q_f64(&r1_e1e2t[jjpi + i]);
++//             svfloat64_t v_ztra = (vzsub + vysub + vxsub) * r1_e;
++
++//             svfloat64_t r1_e_1 = vld1q_f64(&r1_e1e2t[jjpi + i + 4]);
++//             svfloat64_t v_ztra_1 = (vzsub_1 + vysub_1 + vxsub_1) * r1_e_1;
++
++//             svfloat64_t v_pta = vld1q_f64(&pta[jjpi + i]);
++//             svfloat64_t v_e3t = vld1q_f64(&e3t_m[jjpi + i]);
++//             v_pta = v_pta + v_ztra / v_e3t;
++//             vst1q_f64(&pta[jjpi + i] , v_pta);
++
++//             svfloat64_t v_pta_1 = vld1q_f64(&pta[jjpi + i + 4]);
++//             svfloat64_t v_e3t_1 = vld1q_f64(&e3t_m[jjpi + i + 4]);
++//             v_pta_1 = v_pta_1 + v_ztra_1 / v_e3t_1;
++//             vst1q_f64(&pta[jjpi + i + 4] , v_pta_1);
++
++
++
++        
++//         // double ztra = - ( zwx[i] - zwx[i -1]  
++//         //              + zwy[i] - zwy_j[i]   
++//         //              + zwz[i] - zwz_k[i] ) * r1_e1e2t[i];
++//         // pta[i] += ztra / e3t_m[i] * tmask[i];
++//         // zwi[i] = (e3t_b[i] * ptb[i] + p2dt * ztra) / e3t_k[i] * tmask[i];
++//         }
++//         for(int ji = i;ji < iend - istart + 2;++ji)
++//         {
++//             double ztra = - ( zwx[jilen + ji] - zwx[jilen + ji -1]  
++//                         + zwy[jilen + ji] - zwy[jilen + ji]   
++//                         + zwz[jilen + ji] - zwz_k[jilen + ji] ) * r1_e1e2t[jjpi + ji];
++//             pta[jjpi + ji] += ztra / e3t_m[jjpi + ji];
++//         }
++//     }
++    
++    
++// }
++
++
++
++
++// void fct_inter4(int istart,int iend,double* zup,double* zdo,double* paa_ji,double* pbb_jj,double* pbb_jj1,double* pcc_jk,double* pcc_jk1,double* e1e2tt,double* e3tt,double p2dtt,double zbigg,double* zbetupp,double* zbetdoo,double zrtrnn,double* paft)
++// {
++//     svfloat64_t v_zup;
++
++
++//     svfloat64_t v_zdo;
++
++
++//     svfloat64_t v_zpos;
++//     svfloat64_t v_zneg;
++//     svfloat64_t v_paa_i1;
++//     svfloat64_t v_paa_i2;
++//     svfloat64_t v_pbb_j1;
++//     svfloat64_t v_pbb_j2;
++//     svfloat64_t v_pcc_k1;
++//     svfloat64_t v_pcc_k2;
++
++//     svfloat64_t v_zbt;
++//     svfloat64_t v_e1e2t;
++//     svfloat64_t v_e3t;
++
++//     svfloat64_t v_zbetup;
++//     svfloat64_t v_zbetdo;
++//     svfloat64_t v_paft;
++//     double compare[2] = {0.0,0.0};
++//     double zrtrn[2] = {zrtrnn,zrtrnn};
++//     double p2dt[2] = {p2dtt,p2dtt};
++//     svfloat64_t v_compare = vld1q_f64(&compare[0]);
++//     svfloat64_t v_p2dt = vld1q_f64(&p2dt[0]);
++//     svfloat64_t v_zrtrn = vld1q_f64(&zrtrn[0]);
++//     // // double zup[128];
++//     // // double zdo[128];
++
++
++//     // for(int ji = 1;ji <= iend - istart + 1; ++ji)
++//     // {
++//     //     double zup = stencil_max(  zbupp[ji],zbupp[ji-1], zbupp[ji+1], zbupp_j1[ji], zbupp_j2[ji],zbupp_k1[ji], zbupp_k2[ji]  );
++//     //     double zdo = stencil_min(  zbdoo[ji],zbdoo[ji-1], zbdoo[ji+1],zbdoo_j1[ji], zbdoo_j2[ji], zbdoo_k1[ji], zbdoo_k2[ji]  );
++
++//     //     double zpos = max( 0.0, paa_ji[ji-1] ) - min( 0.0, paa_ji[ji] )+ max( 0.0, pbb_jj[ji] ) - min( 0.0, pbb_jj1[ji] ) + max( 0.0, pcc_jk[ji] ) - min( 0.0, pcc_jk1[ji] );
++
++//     //     double zneg = max( 0.0, paa_ji[ji] ) - min( 0.0, paa_ji[ji-1] )+ max( 0.0, pbb_jj[ji] ) - min( 0.0, pbb_jj[ji] ) + max( 0.0, pcc_jk[ji] ) - min( 0.0, pcc_jk1[ji] );
++        
++//     //     double zbt = e1e2tt[ji] * e3tt[ji] / p2dtt;
++//     //     zbetupp[ji] = ( zup - paft[ji] ) / (zpos + zrtrnn) * zbt;
++//     //     zbetdoo[ji] = ( paft[ji] - zdo ) / (zneg + zrtrnn) * zbt;
++//     // }
++    
++//     for(int ji = 1;ji < iend - istart + 2; ji += 2)
++//     {   
++//         //v_zpos = vld1q_f64(&zrtrn[0]);
++//         //v_zneg = vld1q_f64(&zrtrn[0]);
++//         v_zup = vld1q_f64(&zup[ji]);
++//         v_paft = vld1q_f64(&paft[ji]);
++//         v_zbetup = svsub_z(v_zup,v_paft);
++
++//         v_zdo = vld1q_f64(&zdo[ji]);
++//         v_zbetdo = svsub_z(v_paft,v_zdo);
++
++//         v_paa_i1 = vld1q_f64(&paa_ji[ji-1]);
++//         v_paa_i2 = vld1q_f64(&paa_ji[ji]);
++
++        
++//         //v_zpos += svsub_z(svmax_f64_z(0.0,v_paa_i1),svmin_f64_z(0.0,v_paa_i2));
++//         v_zpos = svsub_z(svmax_f64_z(v_compare,v_paa_i1),svmin_f64_z(v_compare,v_paa_i2));
++//         v_zneg = svsub_z(svmax_f64_z(v_compare,v_paa_i2),svmin_f64_z(v_compare,v_paa_i1));
++//         v_pbb_j1 = vld1q_f64(&pbb_jj[ji]);
++//         v_pbb_j2 = vld1q_f64(&pbb_jj1[ji]);
++//         v_zpos = svadd_z(v_zpos,svsub_z(svmax_f64_z(v_compare,v_pbb_j1),svmin_f64_z(v_compare,v_pbb_j2)));
++//         v_zneg = svadd_z(v_zneg,svsub_z(svmax_f64_z(v_compare,v_pbb_j2),svmin_f64_z(v_compare,v_pbb_j1)));
++//         v_pcc_k1 = vld1q_f64(&pcc_jk[ji]);
++//         v_pcc_k2 = vld1q_f64(&pcc_jk1[ji]);
++//         v_zpos = svadd_z(v_zpos,svsub_z(svmax_f64_z(v_compare,v_pcc_k1),svmin_f64_z(v_compare,v_pcc_k2)));
++//         v_zneg = svadd_z(v_zneg,svsub_z(svmax_f64_z(v_compare,v_pcc_k2),svmin_f64_z(v_compare,v_pcc_k1)));
++//         //v_zneg = v_paa_i2 - v_paa_i1 + v_pbb_j1 - v_pbb_j2 + v_pcc_k1 - v_pcc_k2 + v_zpos;
++        
++//         v_zpos = v_zpos + v_zrtrn;
++//         v_zneg = v_zneg + v_zrtrn; 
++
++//         v_e1e2t = vld1q_f64(&e1e2tt[ji]);
++//         v_e3t = vld1q_f64(&e3tt[ji]);
++//         v_zbt = svdiv_z(svmul_z(v_e1e2t,v_e3t),v_p2dt);
++//         v_zbetup = svmul_z(svdiv_z(v_zbetup,v_zpos),v_zbt);
++//         vst1q_f64(&zbetupp[ji],v_zbetup);
++//         v_zbetdo = svmul_z(svdiv_z(v_zbetdo,v_zneg),v_zbt);
++//         vst1q_f64(&zbetdoo[ji],v_zbetdo);
++
++
++
++        
++//     }
++    
++
++
++
++
++// }
++void fct_inter5(int jpi,int istart,int iend,int jstart,int jend,double* zbupp,double* zbupp_k1,double* zbupp_k2,double* paa_ji,double* pbb_jj,double* pcc_jk,double* pcc_jk1,double* e1e2tt,double* e3tt,double p2dtt,double zbigg,double* zbetupp,double zrtrnn,double* paft)
++{
++    // for(int ji = 1;ji < iend - istart + 2; ++ji)
++    // {
++    //     double zup = stencil_max(  zbupp[ji],zbupp[ji-1], zbupp[ji+1], zbupp_j1[ji], zbupp_j2[ji],zbupp_k1[ji], zbupp_k2[ji]  );
++    //     //double zdo = stencil_min(  zbdoo[ji],zbdoo[ji-1], zbdoo[ji+1],zbdoo_j1[ji], zbdoo_j2[ji], zbdoo_k1[ji], zbdoo_k2[ji]  );
++
++    //     double zpos = max( 0.0, paa_ji[ji-1] ) - min( 0.0, paa_ji[ji] )+ max( 0.0, pbb_jj[ji] ) - min( 0.0, pbb_jj1[ji] ) + max( 0.0, pcc_jk[ji] ) - min( 0.0, pcc_jk1[ji] );
++
++    //     //double zneg = max( 0.0, paa_ji[ji] ) - min( 0.0, paa_ji[ji-1] )+ max( 0.0, pbb_jj[ji] ) - min( 0.0, pbb_jj[ji] ) + max( 0.0, pcc_jk[ji] ) - min( 0.0, pcc_jk1[ji] );
++        
++    //     double zbt = e1e2tt[ji] * e3tt[ji] / p2dtt;
++    //     zbetupp[ji] = ( zup - paft[ji] ) / (zpos + zrtrnn) * zbt;
++    //     //zbetdoo[ji] = ( paft[ji] - zdo ) / (zneg + zrtrnn) * zbt;
++    // }
++    // svfloat64_t v_compare = vdupq_n_f64((double)0.0);
++    // svfloat64_t v_p2dt = vdupq_n_f64(p2dtt);
++    // svfloat64_t v_zrtrn = vdupq_n_f64(zrtrnn);
++    
++    int ilen = iend - istart + 3;
++    for(int j = 1;j < jend - jstart + 2;++j)
++    {
++        int ji = 1;
++        int jilen = j * ilen;
++        int jjpi = j * jpi;
++        // for(ji = 1;ji < iend - istart - 1; ji += 4)
++        // {   
++            
++        //     // svfloat64_t v_zbup_i1 = vld1q_f64(&zbupp[ji-1]);
++        //     // svfloat64_t v_zbup_i2 = vld1q_f64(&zbupp[ji]);
++        //     // svfloat64_t v_zbup_i3 = vld1q_f64(&zbupp[ji+1]);
++        //     // svfloat64_t v_zbup_j1 = vld1q_f64(&zbupp_j1[ji]);
++        //     // svfloat64_t v_zbup_j2 = vld1q_f64(&zbupp_j2[ji]);
++        //     // svfloat64_t v_zbup_k1 = vld1q_f64(&zbupp_k1[ji]);
++        //     // svfloat64_t v_zbup_k2 = vld1q_f64(&zbupp_k2[ji]);
++        //     svfloat64_t v_zbup_i1 = vld1q_f64(&zbupp[jilen + ji-1]);
++        //     svfloat64_t v_zbup_i2 = vld1q_f64(&zbupp[jilen + ji]);
++        //     v_zbup_i1 = svmax_f64_z(v_zbup_i1,v_zbup_i2);
++        //     svfloat64_t v_zbup_i3 = vld1q_f64(&zbupp[jilen + ji+1]);
++        //     svfloat64_t v_zbup_j1 = vld1q_f64(&zbupp[jilen - ilen + ji]);
++        //     v_zbup_i3 = svmax_f64_z(v_zbup_i3,v_zbup_j1);
++        //     svfloat64_t v_zbup_j2 = vld1q_f64(&zbupp[jilen + ilen + ji]);
++        //     svfloat64_t v_zbup_k1 = vld1q_f64(&zbupp_k1[jilen + ji]);
++        //     v_zbup_j2 = svmax_f64_z(v_zbup_j2,v_zbup_k1);
++        //     svfloat64_t v_zbup_k2 = vld1q_f64(&zbupp_k2[jilen + ji]);
++        //     v_zbup_i1 = svmax_f64_z(v_zbup_i1,v_zbup_k2);
++        //     v_zbup_i3 = svmax_f64_z(v_zbup_i3,v_zbup_j2);
++        //     v_zbup_i1 = svmax_f64_z(v_zbup_i1,v_zbup_i3);
++        //     svfloat64_t v_zbup_i1_1 = vld1q_f64(&zbupp[jilen + ji+1]);
++        //     svfloat64_t v_zbup_i2_1 = vld1q_f64(&zbupp[jilen + ji+2]);
++        //     v_zbup_i1_1 = svmax_f64_z(v_zbup_i1_1,v_zbup_i2_1);
++        //     svfloat64_t v_zbup_i3_1 = vld1q_f64(&zbupp[jilen + ji+3]);
++        //     svfloat64_t v_zbup_j1_1 = vld1q_f64(&zbupp[jilen - ilen + ji + 2]);
++        //     v_zbup_i3_1 = svmax_f64_z(v_zbup_i3_1,v_zbup_j1_1);
++        //     svfloat64_t v_zbup_j2_1 = vld1q_f64(&zbupp[jilen + ilen + ji + 2]);
++        //     svfloat64_t v_zbup_k1_1 = vld1q_f64(&zbupp_k1[jilen + ji + 2]);
++        //     v_zbup_j2_1 = svmax_f64_z(v_zbup_j2_1,v_zbup_k1_1);
++        //     svfloat64_t v_zbup_k2_1 = vld1q_f64(&zbupp_k2[jilen + ji + 2]);
++        //     v_zbup_i1_1 = svmax_f64_z(v_zbup_i1_1,v_zbup_k2_1);
++        //     v_zbup_i3_1 = svmax_f64_z(v_zbup_i3_1,v_zbup_j2_1);
++        //     v_zbup_i1_1 = svmax_f64_z(v_zbup_i1_1,v_zbup_i3_1);
++        //     //改到这里了
++        //     svfloat64_t v_paft = vld1q_f64(&paft[jilen + ji]);
++        //     svfloat64_t v_zbetup = svsub_z(v_zbup_i1,v_paft);
++        //     svfloat64_t v_paft_1 = vld1q_f64(&paft[jilen + ji + 2]);
++        //     svfloat64_t v_zbetup_1 = svsub_z(v_zbup_i1_1,v_paft_1);
++
++        //     svfloat64_t v_paa_i1 = vld1q_f64(&paa_ji[jilen + ji - 1]);
++        //     svfloat64_t v_paa_i2 = vld1q_f64(&paa_ji[jilen + ji]);
++
++            
++        //     //v_zpos += svsub_z(svmax_f64_z(0.0,v_paa_i1),svmin_f64_z(0.0,v_paa_i2));
++        //     svfloat64_t v_zpos = svsub_z(svmax_f64_z(v_compare,v_paa_i1),svmin_f64_z(v_compare,v_paa_i2));
++        //     svfloat64_t v_paa_i1_1 = vld1q_f64(&paa_ji[jilen + ji+1]);
++        //     svfloat64_t v_paa_i2_1 = vld1q_f64(&paa_ji[jilen + ji+2]);
++
++        //     svfloat64_t v_zpos_1 = svsub_z(svmax_f64_z(v_compare,v_paa_i1_1),svmin_f64_z(v_compare,v_paa_i2_1));
++        //     svfloat64_t v_pbb_j1 = vld1q_f64(&pbb_jj[jilen - ilen + ji]);
++        //     svfloat64_t v_pbb_j2 = vld1q_f64(&pbb_jj[jilen + ji]);
++        //     v_zpos = svadd_z(v_zpos,svsub_z(svmax_f64_z(v_compare,v_pbb_j1),svmin_f64_z(v_compare,v_pbb_j2)));
++        //     svfloat64_t v_pbb_j1_1 = vld1q_f64(&pbb_jj[jilen -ilen + ji + 2]);
++        //     svfloat64_t v_pbb_j2_1 = vld1q_f64(&pbb_jj[jilen + ji + 2]);
++        //     v_zpos_1 = svadd_z(v_zpos_1,svsub_z(svmax_f64_z(v_compare,v_pbb_j1_1),svmin_f64_z(v_compare,v_pbb_j2_1)));
++        //     svfloat64_t v_pcc_k1 = vld1q_f64(&pcc_jk[jilen + ji]);
++        //     svfloat64_t v_pcc_k2 = vld1q_f64(&pcc_jk1[jilen + ji]);
++        //     v_zpos = svadd_z(v_zpos,svsub_z(svmax_f64_z(v_compare,v_pcc_k1),svmin_f64_z(v_compare,v_pcc_k2)));
++        //     svfloat64_t v_pcc_k1_1 = vld1q_f64(&pcc_jk[jilen + ji + 2]);
++        //     svfloat64_t v_pcc_k2_1 = vld1q_f64(&pcc_jk1[jilen + ji + 2]);
++        //     v_zpos_1 = svadd_z(v_zpos_1,svsub_z(svmax_f64_z(v_compare,v_pcc_k1_1),svmin_f64_z(v_compare,v_pcc_k2_1)));
++        //     //v_zneg = v_paa_i2 - v_paa_i1 + v_pbb_j1 - v_pbb_j2 + v_pcc_k1 - v_pcc_k2 + v_zpos;
++            
++
++
++        //     svfloat64_t v_e1e2t = vld1q_f64(&e1e2tt[jjpi + ji]);
++        //     v_zpos = v_zpos + v_zrtrn;
++        //     v_zpos_1 = v_zpos_1 + v_zrtrn;
++        //     svfloat64_t v_e3t = vld1q_f64(&e3tt[jjpi + ji]);
++        //     svfloat64_t v_zbt = svdiv_z(svmul_z(v_e1e2t,v_e3t),v_p2dt);
++        //     v_zbetup = svmul_z(svdiv_z(v_zbetup,v_zpos),v_zbt);
++        //     vst1q_f64(&zbetupp[jilen + ji],v_zbetup);
++        //     svfloat64_t v_e1e2t_1 = vld1q_f64(&e1e2tt[jjpi + ji + 2]);
++        //     svfloat64_t v_e3t_1 = vld1q_f64(&e3tt[jjpi + ji + 2]);
++        //     svfloat64_t v_zbt_1 = svdiv_z(svmul_z(v_e1e2t_1,v_e3t_1),v_p2dt);
++        //     v_zbetup_1 = svmul_z(svdiv_z(v_zbetup_1,v_zpos_1),v_zbt_1);
++        //     vst1q_f64(&zbetupp[jilen + ji + 2],v_zbetup_1);
++        
++
++            
++        
++
++
++
++            
++        // }
++        for(int i = ji;i < iend - istart + 2;++i)
++        {
++            double zup = max(  {zbupp[jilen + i],zbupp[jilen + i-1], zbupp[jilen + i+1], zbupp[jilen - ilen + i], zbupp[jilen + ilen +i],zbupp_k1[jilen + i], zbupp_k2[jilen + i] } );
++            //double zdo = stencil_min(  zbdoo[ji],zbdoo[ji-1], zbdoo[ji+1],zbdoo_j1[ji], zbdoo_j2[ji], zbdoo_k1[ji], zbdoo_k2[ji]  );
++
++            double zpos = max( double(0.0), paa_ji[jilen + i-1] ) - min( double(0.0), paa_ji[jilen + i] )+ max( double(0.0), pbb_jj[jilen -ilen + i] ) - min( double(0.0), pbb_jj[jilen + i] ) + max(double(0.0), pcc_jk[jilen +i] ) - min( double(0.0), pcc_jk1[jilen +i] );
++
++            //double zneg = max( 0.0, paa_ji[ji] ) - min( 0.0, paa_ji[ji-1] )+ max( 0.0, pbb_jj[ji] ) - min( 0.0, pbb_jj[ji] ) + max( 0.0, pcc_jk[ji] ) - min( 0.0, pcc_jk1[ji] );
++            
++            double zbt = e1e2tt[jjpi + i] * e3tt[jjpi +i] / p2dtt;
++            zbetupp[jilen + i] = ( zup - paft[jilen + i] ) / (zpos + zrtrnn) * zbt;
++            //zbetdoo[ji] = ( paft[ji] - zdo ) / (zneg + zrtrnn) * zbt;
++        }
++    }
++    
++}
++void fct_inter6(int jpi,int istart,int iend,int jstart,int jend,double* zbdoo,double* zbdoo_k1,double* zbdoo_k2,double* paa_ji,double* pbb_jj,double* pcc_jk,double* pcc_jk1,double* e1e2tt,double* e3tt,double p2dtt,double zbigg,double* zbetdoo,double zrtrnn,double* paft)
++{
++    // for(int ji = 1;ji < iend - istart + 2; ++ji)
++    // {
++    //     //double zup = stencil_max(  zbupp[ji],zbupp[ji-1], zbupp[ji+1], zbupp_j1[ji], zbupp_j2[ji],zbupp_k1[ji], zbupp_k2[ji]  );
++    //     double zdo = stencil_min(  zbdoo[ji],zbdoo[ji-1], zbdoo[ji+1],zbdoo_j1[ji], zbdoo_j2[ji], zbdoo_k1[ji], zbdoo_k2[ji]  );
++
++    //     //double zpos = max( 0.0, paa_ji[ji-1] ) - min( 0.0, paa_ji[ji] )+ max( 0.0, pbb_jj[ji] ) - min( 0.0, pbb_jj1[ji] ) + max( 0.0, pcc_jk[ji] ) - min( 0.0, pcc_jk1[ji] );
++
++    //     double zneg = max( 0.0, paa_ji[ji] ) - min( 0.0, paa_ji[ji-1] )+ max( 0.0, pbb_jj[ji] ) - min( 0.0, pbb_jj[ji] ) + max( 0.0, pcc_jk[ji] ) - min( 0.0, pcc_jk1[ji] );
++        
++    //     double zbt = e1e2tt[ji] * e3tt[ji] / p2dtt;
++    //     //zbetupp[ji] = ( zup - paft[ji] ) / (zpos + zrtrnn) * zbt;
++    //     zbetdoo[ji] = ( paft[ji] - zdo ) / (zneg + zrtrnn) * zbt;
++    // }
++    // svfloat64_t v_compare = vdupq_n_f64((double)0.0);
++    // svfloat64_t v_p2dt = vdupq_n_f64(p2dtt);
++    // svfloat64_t v_zrtrn = vdupq_n_f64(zrtrnn);
++    
++    int ilen = iend - istart + 3;
++    for(int j = 1;j < jend - jstart + 2;++j)
++    {   
++        int ji = 1;
++        int jilen = j * ilen;
++        int jjpi = j * jpi;
++        // for(ji = 1;ji < iend - istart - 1; ji += 4)
++        // {   
++            
++                
++        //     svfloat64_t v_zbdo_i1 = vld1q_f64(&zbdoo[jilen + ji-1]);
++        //     svfloat64_t v_zbdo_i2 = vld1q_f64(&zbdoo[jilen + ji]);
++        //     v_zbdo_i1 = svmin_f64_z(v_zbdo_i1,v_zbdo_i2);
++        //     svfloat64_t v_zbdo_i3 = vld1q_f64(&zbdoo[jilen + ji+1]);
++        //     svfloat64_t v_zbdo_j1 = vld1q_f64(&zbdoo[jilen - ilen + ji]);
++        //     v_zbdo_i3 = svmin_f64_z(v_zbdo_i3,v_zbdo_j1);
++
++        //     svfloat64_t v_zbdo_j2 = vld1q_f64(&zbdoo[jilen + ilen + ji]);
++        //     svfloat64_t v_zbdo_k1 = vld1q_f64(&zbdoo_k1[jilen + ji]);
++        //     v_zbdo_j2 = svmin_f64_z(v_zbdo_j2,v_zbdo_k1);
++        //     svfloat64_t v_zbdo_k2 = vld1q_f64(&zbdoo_k2[jilen + ji]);
++        //     v_zbdo_i1 = svmin_f64_z(v_zbdo_i1,v_zbdo_k2);
++        //     v_zbdo_i3 = svmin_f64_z(v_zbdo_i3,v_zbdo_j2);
++        //     v_zbdo_i1 = svmin_f64_z(v_zbdo_i1,v_zbdo_i3);
++            
++        //     svfloat64_t v_zbdo_i1_1 = vld1q_f64(&zbdoo[jilen + ji+1]);
++        //     svfloat64_t v_zbdo_i2_1 = vld1q_f64(&zbdoo[jilen + ji+2]);
++        //     v_zbdo_i1_1 = svmin_f64_z(v_zbdo_i1_1,v_zbdo_i2_1);
++        //     svfloat64_t v_zbdo_i3_1 = vld1q_f64(&zbdoo[jilen + ji+3]);
++        //     svfloat64_t v_zbdo_j1_1 = vld1q_f64(&zbdoo[jilen - ilen + ji + 2]);
++        //     v_zbdo_i3_1 = svmin_f64_z(v_zbdo_i3_1,v_zbdo_j1_1);
++
++        //     svfloat64_t v_zbdo_j2_1 = vld1q_f64(&zbdoo[jilen + ilen + ji + 2]);
++        //     svfloat64_t v_zbdo_k1_1 = vld1q_f64(&zbdoo_k1[jilen + ji + 2]);
++        //     v_zbdo_j2_1 = svmin_f64_z(v_zbdo_j2_1,v_zbdo_k1_1);
++        //     svfloat64_t v_zbdo_k2_1 = vld1q_f64(&zbdoo_k2[jilen + ji + 2]);
++        //     v_zbdo_i1_1 = svmin_f64_z(v_zbdo_i1_1,v_zbdo_k2_1);
++        //     v_zbdo_i3_1 = svmin_f64_z(v_zbdo_i3_1,v_zbdo_j2_1);
++        //     v_zbdo_i1_1 = svmin_f64_z(v_zbdo_i1_1,v_zbdo_i3_1);
++
++        //     svfloat64_t v_paft = vld1q_f64(&paft[jilen + ji]);
++        //     svfloat64_t v_zbetdo = svsub_z(v_paft,v_zbdo_i1);
++        //     svfloat64_t v_paft_1 = vld1q_f64(&paft[jilen + ji + 2]);
++        //     svfloat64_t v_zbetdo_1 = svsub_z(v_paft_1,v_zbdo_i1_1);
++        //     svfloat64_t v_paa_i1 = vld1q_f64(&paa_ji[jilen + ji - 1]);
++        //     svfloat64_t v_paa_i2 = vld1q_f64(&paa_ji[jilen + ji]);
++        //     svfloat64_t v_zneg = svsub_z(svmax_f64_z(v_compare,v_paa_i2),svmin_f64_z(v_compare,v_paa_i1));
++        //     svfloat64_t v_paa_i1_1 = vld1q_f64(&paa_ji[jilen + ji+1]);
++        //     svfloat64_t v_paa_i2_1 = vld1q_f64(&paa_ji[jilen + ji+2]);
++        //     svfloat64_t v_zneg_1 = svsub_z(svmax_f64_z(v_compare,v_paa_i2_1),svmin_f64_z(v_compare,v_paa_i1_1));
++            
++        //     svfloat64_t v_pbb_j1 = vld1q_f64(&pbb_jj[jilen - ilen + ji]);
++        //     svfloat64_t v_pbb_j2 = vld1q_f64(&pbb_jj[jilen + ji]);
++            
++        //     v_zneg = svadd_z(v_zneg,svsub_z(svmax_f64_z(v_compare,v_pbb_j2),svmin_f64_z(v_compare,v_pbb_j1)));
++        //     svfloat64_t v_pbb_j1_1 = vld1q_f64(&pbb_jj[jilen - ilen + ji + 2]);
++        //     svfloat64_t v_pbb_j2_1 = vld1q_f64(&pbb_jj[jilen + ji + 2]);
++            
++        //     v_zneg_1 = svadd_z(v_zneg_1,svsub_z(svmax_f64_z(v_compare,v_pbb_j2_1),svmin_f64_z(v_compare,v_pbb_j1_1)));
++            
++        //     svfloat64_t v_pcc_k1 = vld1q_f64(&pcc_jk[jilen + ji]);
++        //     svfloat64_t v_pcc_k2 = vld1q_f64(&pcc_jk1[jilen + ji]);
++        
++        //     v_zneg = svadd_z(v_zneg,svsub_z(svmax_f64_z(v_compare,v_pcc_k2),svmin_f64_z(v_compare,v_pcc_k1)));
++        //     //v_zneg = v_paa_i2 - v_paa_i1 + v_pbb_j1 - v_pbb_j2 + v_pcc_k1 - v_pcc_k2 + v_zpos;
++        //     svfloat64_t v_pcc_k1_1 = vld1q_f64(&pcc_jk[jilen + ji + 2]);
++        //     svfloat64_t v_pcc_k2_1 = vld1q_f64(&pcc_jk1[jilen + ji + 2]);
++        
++        //     v_zneg_1 = svadd_z(v_zneg_1,svsub_z(svmax_f64_z(v_compare,v_pcc_k2_1),svmin_f64_z(v_compare,v_pcc_k1_1)));
++        
++
++        //     svfloat64_t v_e1e2t = vld1q_f64(&e1e2tt[jjpi + ji]);
++        //     v_zneg = v_zneg + v_zrtrn; 
++            
++        //     svfloat64_t v_e1e2t_1 = vld1q_f64(&e1e2tt[jjpi + ji + 2]);
++        //     v_zneg_1 = v_zneg_1 + v_zrtrn;
++        //     svfloat64_t v_e3t = vld1q_f64(&e3tt[jjpi + ji]);
++        //     svfloat64_t v_zbt = svdiv_z(svmul_z(v_e1e2t,v_e3t),v_p2dt);
++
++        //     svfloat64_t v_e3t_1 = vld1q_f64(&e3tt[jjpi + ji + 2]);
++        //     svfloat64_t v_zbt_1 = svdiv_z(svmul_z(v_e1e2t_1,v_e3t_1),v_p2dt);
++        
++        //     v_zbetdo = svmul_z(svdiv_z(v_zbetdo,v_zneg),v_zbt);
++        //     vst1q_f64(&zbetdoo[jilen + ji],v_zbetdo);
++    
++            
++        //     v_zbetdo_1 = svmul_z(svdiv_z(v_zbetdo_1,v_zneg_1),v_zbt_1);
++        //     vst1q_f64(&zbetdoo[jilen + ji + 2],v_zbetdo_1);
++            
++
++            
++            
++
++            
++        
++
++            
++        
++            
++          
++        
++        
++
++
++
++        
++        // }
++        for(int i = ji;i < iend - istart + 2; ++i)
++        {
++            double zdo = min(  {zbdoo[jilen + i],zbdoo[jilen + i-1], zbdoo[jilen + i+1], zbdoo[jilen - ilen + i], zbdoo[jilen + ilen +i],zbdoo_k1[jilen + i], zbdoo_k2[jilen + i] } );
++
++
++            double zneg = max( double(0.0), paa_ji[jilen + i] ) - min( double(0.0), paa_ji[jilen + i-1] )+ max( double(0.0), pbb_jj[jilen + i] ) - min( double(0.0), pbb_jj[jilen -ilen + i] ) + max( double(0.0), pcc_jk1[jilen +i] ) - min( double(0.0), pcc_jk[jilen +i] );
++            
++            double zbt = e1e2tt[jjpi + i] * e3tt[jjpi +i] / p2dtt;
++
++
++            zbetdoo[jilen + i] = ( paft[jilen + i] - zdo ) / (zneg + zrtrnn) * zbt;
++
++
++        
++        }
++    }
++    
++
++        
++     
++}
++// void fct_inter7(int jpi,int istart,int iend,int jstart,int jend,double* PU,double* PV,double* zwx,double* zwy,double* pta)
++// {   
++    
++        
++//     int ilen = iend - istart + 2;
++//     for(int j = 0;j < jend - jstart + 1; ++j)
++//     {
++//         int ji;
++//         int jilen = j * ilen;
++//         int jjpi = j * jpi;
++//         for(ji = 0;ji < iend - istart - 6; ji += 8)
++//         {   
++            
++//             svfloat64_t v_PU = vld1q_f64(&PU[jjpi + ji]);
++//             svfloat64_t v_absPU = vabsq_f32(v_PU);
++//             svfloat64_t v_zfp_ui = v_PU + v_absPU;
++//             svfloat64_t v_zfm_ui = v_PU - v_absPU;
++
++//             svfloat64_t v_PU_1 = vld1q_f64(&PU[jjpi + ji + 4]);
++//             svfloat64_t v_absPU_1 = vabsq_f32(v_PU_1);
++//             svfloat64_t v_zfp_ui_1 = v_PU_1 + v_absPU_1;
++//             svfloat64_t v_zfm_ui_1 = v_PU_1 - v_absPU_1;
++
++//             svfloat64_t v_PV = vld1q_f64(&PV[jjpi + ji]);
++//             svfloat64_t v_absPV = vabsq_f32(v_PV);
++//             svfloat64_t v_zfp_vj = v_PV + v_absPV;
++//             svfloat64_t v_zfm_vj = v_PV - v_absPV;
++
++//             svfloat64_t v_PV_1 = vld1q_f64(&PV[jjpi + ji + 4]);
++//             svfloat64_t v_absPV_1 = vabsq_f32(v_PV_1);
++//             svfloat64_t v_zfp_vj_1 = v_PV_1 + v_absPV_1;
++//             svfloat64_t v_zfm_vj_1 = v_PV_1 - v_absPV_1;
++
++//             //svfloat64_t v_zwx = vld1q_f64(&zwx[ji]);
++//             svfloat64_t v_pta = vld1q_f64(&pta[jjpi + ji]);
++//             svfloat64_t v_pta1 = vld1q_f64(&pta[jjpi + ji + 1]);
++//             svfloat64_t v_zwx = 0.5 * (v_zfp_ui * v_pta + v_zfm_ui * v_pta1);
++//             vst1q_f64(&zwx[jilen + ji],v_zwx);
++//             //svfloat64_t v_zwy = vld1q_f64(&zwy[ji]);
++//             svfloat64_t v_ptb = vld1q_f64(&pta[jjpi + jpi + ji]);
++            
++//             svfloat64_t v_zwy = 0.5 * (v_zfp_vj * v_pta + v_zfm_vj * v_ptb);
++//             vst1q_f64(&zwy[jilen + ji],v_zwy);
++
++//             svfloat64_t v_pta_1 = vld1q_f64(&pta[jjpi + ji + 4]);
++//             svfloat64_t v_pta1_1 = vld1q_f64(&pta[jjpi + ji + 5]);
++//             svfloat64_t v_zwx_1 = 0.5 * (v_zfp_ui_1 * v_pta_1 + v_zfm_ui_1 * v_pta1_1);
++//             vst1q_f64(&zwx[jilen + ji + 4],v_zwx_1);
++//             //svfloat64_t v_zwy = vld1q_f64(&zwy[ji]);
++//             svfloat64_t v_ptb_1 = vld1q_f64(&pta[jjpi + jpi + ji + 4]);
++            
++//             svfloat64_t v_zwy_1 = 0.5 * (v_zfp_vj_1 * v_pta_1 + v_zfm_vj_1 * v_ptb_1);
++//             vst1q_f64(&zwy[jilen + ji + 4],v_zwy_1);
++
++//         }
++//         for(int i = ji;i < iend - istart + 1; ++i)
++//         {   
++//             // double pu = PU[jjpi + i];
++//             // double pu_abs = abs(pu);
++//             double zfp_ui = PU[jjpi + i]; + abs(PU[jjpi + i]);
++//             double zfm_ui = PU[jjpi + i]; - abs(PU[jjpi + i]);
++//             zwx[jilen + i] = 0.5 * ( zfp_ui * pta[jjpi + i] + zfm_ui * pta[jjpi + i + 1] );
++
++//             // double pv = PV[jjpi + i];
++//             // double pv_abs = abs(pv);
++//             double zfp_vj = PV[jjpi + i] + abs(PV[jjpi + i]);
++//             double zfm_vj = PV[jjpi + i] - abs(PV[jjpi + i]);
++//             zwy[jilen + i] = 0.5 * ( zfp_vj * pta[jjpi + i] + zfm_vj * pta[jjpi + jpi + i] );
++//         }
++    
++//     }
++    
++    
++// }

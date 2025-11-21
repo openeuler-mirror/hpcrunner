@@ -8,3 +8,6 @@ echo -e "\e[1;36m  \______/  /__/     \__\ | _| \`._____|    \__/     |__| |____
 echo -e "\e[0m"
 #prevent whitespace problems
 python3 ./src/jarvis.py "$@"
+res=$?
+echo "jarvis result:$res"
+exit $res

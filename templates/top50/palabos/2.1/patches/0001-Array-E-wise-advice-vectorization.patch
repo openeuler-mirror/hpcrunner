@@ -1,0 +1,120 @@
+From 8fc634d4a79d82bb7d80d1ecfda6e0406e2b4e8f Mon Sep 17 00:00:00 2001
+From: l00586294 <liyinghao5@huawei.com>
+Date: Thu, 31 Jul 2025 10:26:24 +0800
+Subject: [PATCH] Array-E-wise advice vectorization
+
+---
+ src/latticeBoltzmann/dynamicsTemplates3D.h | 90 ++++++++++++++--------
+ 1 file changed, 58 insertions(+), 32 deletions(-)
+
+diff --git a/src/latticeBoltzmann/dynamicsTemplates3D.h b/src/latticeBoltzmann/dynamicsTemplates3D.h
+index 000ac1e..87faee7 100644
+--- a/src/latticeBoltzmann/dynamicsTemplates3D.h
++++ b/src/latticeBoltzmann/dynamicsTemplates3D.h
+@@ -38,6 +38,10 @@
+ #ifndef DYNAMICS_TEMPLATES_3D_H
+ #define DYNAMICS_TEMPLATES_3D_H
+ 
++extern "C"{
++    #include <arm_sve.h>
++}
++
+ #include "core/globalDefs.h"
+ #include "latticeBoltzmann/nearestNeighborLattices3D.h"
+ #include "latticeBoltzmann/geometricOperationTemplates.h"
+@@ -2167,38 +2171,60 @@ static T bgk_ma2_collision_base(Array<T,D::q>& f, T rhoBar, Array<T,3> const& j,
+     T C2, C3; // i=0
+     C3 = -kxSqr_ - kySqr_ - kzSqr_;
+     f[0] *= one_m_omega; f[0] += t0_omega * (C1+C3); // i=1 and i=10
+-    C2 = -kx;
+-    C3 = -kySqr_ - kzSqr_;
+-    f[1]  *= one_m_omega; f[1]  += t1_omega * (C1+C2+C3);
+-    f[10] *= one_m_omega; f[10] += t1_omega * (C1-C2+C3); // i=2 and i=11
+-    C2 = -ky;
+-    C3 = -kxSqr_ - kzSqr_;
+-    f[2]  *= one_m_omega; f[2]  += t1_omega * (C1+C2+C3);
+-    f[11] *= one_m_omega; f[11] += t1_omega * (C1-C2+C3); // i=3 and i=12
+-    C2 = -kz;
+-    C3 = -kxSqr_ - kySqr_;
+-    f[3]  *= one_m_omega; f[3]  += t1_omega * (C1+C2+C3);
+-    f[12] *= one_m_omega; f[12] += t1_omega * (C1-C2+C3); // i=4 and i=13
+-    C2 = -kx - ky;
+-    C3 = kxky_ - kzSqr_;
+-    f[4]  *= one_m_omega; f[4]  += t4_omega * (C1+C2+C3);
+-    f[13] *= one_m_omega; f[13] += t4_omega * (C1-C2+C3); // i=5 and i=14
+-    C2 = -kx + ky;
+-    C3 = -kxky_ - kzSqr_;
+-    f[5]  *= one_m_omega; f[5]  += t4_omega * (C1+C2+C3);
+-    f[14] *= one_m_omega; f[14] += t4_omega * (C1-C2+C3); // i=6 and i=15
+-    C2 = -kx - kz;
+-    C3 = kxkz_ - kySqr_;
+-    f[6]  *= one_m_omega; f[6]  += t4_omega * (C1+C2+C3);
+-    f[15] *= one_m_omega; f[15] += t4_omega * (C1-C2+C3); // i=7 and i=16
+-    C2 = -kx + kz;
+-    C3 = -kxkz_ - kySqr_;
+-    f[7]  *= one_m_omega; f[7]  += t4_omega * (C1+C2+C3);
+-    f[16] *= one_m_omega; f[16] += t4_omega * (C1-C2+C3); // i=8 and i=17
+-    C2 = -ky - kz;
+-    C3 = kykz_ - kxSqr_;
+-    f[8]  *= one_m_omega; f[8]  += t4_omega * (C1+C2+C3);
+-    f[17] *= one_m_omega; f[17] += t4_omega * (C1-C2+C3); // i=9 and i=18
++    // C2 = -kx;
++    // C3 = -kySqr_ - kzSqr_;
++    // f[1]  *= one_m_omega; f[1]  += t1_omega * (C1+C2+C3);
++    // f[10] *= one_m_omega; f[10] += t1_omega * (C1-C2+C3); // i=2 and i=11
++    // C2 = -ky;
++    // C3 = -kxSqr_ - kzSqr_;
++    // f[2]  *= one_m_omega; f[2]  += t1_omega * (C1+C2+C3);
++    // f[11] *= one_m_omega; f[11] += t1_omega * (C1-C2+C3); // i=3 and i=12
++    // C2 = -kz;
++    // C3 = -kxSqr_ - kySqr_;
++    // f[3]  *= one_m_omega; f[3]  += t1_omega * (C1+C2+C3);
++    // f[12] *= one_m_omega; f[12] += t1_omega * (C1-C2+C3); // i=4 and i=13
++    // C2 = -kx - ky;
++    // C3 = kxky_ - kzSqr_;
++    // f[4]  *= one_m_omega; f[4]  += t4_omega * (C1+C2+C3);
++    // f[13] *= one_m_omega; f[13] += t4_omega * (C1-C2+C3); // i=5 and i=14
++    // C2 = -kx + ky;
++    // C3 = -kxky_ - kzSqr_;
++    // f[5]  *= one_m_omega; f[5]  += t4_omega * (C1+C2+C3);
++    // f[14] *= one_m_omega; f[14] += t4_omega * (C1-C2+C3); // i=6 and i=15
++    // C2 = -kx - kz;
++    // C3 = kxkz_ - kySqr_;
++    // f[6]  *= one_m_omega; f[6]  += t4_omega * (C1+C2+C3);
++    // f[15] *= one_m_omega; f[15] += t4_omega * (C1-C2+C3); // i=7 and i=16
++    // C2 = -kx + kz;
++    // C3 = -kxkz_ - kySqr_;
++    // f[7]  *= one_m_omega; f[7]  += t4_omega * (C1+C2+C3);
++    // f[16] *= one_m_omega; f[16] += t4_omega * (C1-C2+C3); // i=8 and i=17
++    // C2 = -ky - kz;
++    // C3 = kykz_ - kxSqr_;
++    // f[8]  *= one_m_omega; f[8]  += t4_omega * (C1+C2+C3);
++    // f[17] *= one_m_omega; f[17] += t4_omega * (C1-C2+C3); // i=9 and i=18
++    T C2Arr[8] = {-kx, -ky, -kz, -kx - ky, -kx + ky, -kx - kz, -kx + kz, -ky - kz};
++    T C3Arr[8] = {-kySqr_ - kzSqr_, -kxSqr_ - kzSqr_, -kxSqr_ - kySqr_, kxky_ - kzSqr_, -kxky_ - kzSqr_, kxkz_ - kySqr_, -kxkz_ - kySqr_, kykz_ - kxSqr_};
++
++    const svbool_t pAll = svptrue_b64();
++    svfloat64_t vC2 = svld1_f64(pAll, C2Arr);
++    svfloat64_t vC3 = svld1_f64(pAll, C3Arr);
++    svfloat64_t f1_8 = svld1_f64(pAll, &f[1]);
++    svfloat64_t f10_17 = svld1_f64(pAll, &f[10]);
++    svfloat64_t C2AddC3 = svadd_f64_m(pAll,vC2,vC3);
++    svfloat64_t tmp1 = svadd_n_f64_m(pAll,C2AddC3,C1);
++    svfloat64_t tmp2 = svsubr_n_f64_m(pAll,C2AddC3,C1);
++
++
++    f1_8 = svmul_n_f64_m(pAll, f1_8, one_m_omega);
++    f10_17 = svmul_n_f64_m(pAll, f10_17, one_m_omega);
++
++    f1_8 = svmla_n_f64_m(pAll, f1_8, tmp1, t4_omega);
++    f10_17 = svmla_n_f64_m(pAll, f10_17, tmp2, t4_omega);
++    
++    svst1_f64(pAll, &f[1], f1_8);
++    svst1_f64(pAll, &f[10], f10_17);
++
+     C2 = -ky + kz;
+     C3 = -kykz_ - kxSqr_;
+     f[9]  *= one_m_omega; f[9]  += t4_omega * (C1+C2+C3);
+-- 
+2.28.0.windows.1
+

@@ -1,0 +1,10 @@
+--- crypto/sha/asm/sha1-armv8.pl	2019-05-28 17:26:49.000000000 +0800
++++ crypto/sha/asm/sha1-armv8-mod.pl	2025-08-13 16:50:55.588245000 +0800
+@@ -158,6 +158,7 @@
+ 
+ .text
+ 
++.hidden        OPENSSL_armcap_P
+ .globl	sha1_block_data_order
+ .type	sha1_block_data_order,%function
+ .align	6

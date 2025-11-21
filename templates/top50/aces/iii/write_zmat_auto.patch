@@ -1,0 +1,43 @@
+--- write_zmat_auto.F	2025-08-19 09:00:28.738099000 +0800
++++ write_zmat_auto.mov.F	2025-08-18 10:26:18.371897000 +0800
+@@ -199,7 +199,7 @@
+       sip_written = .false.
+   300 continue
+       line = ' '
+-      read (23,9000, end = 400) line
++      read (23,9000, iostat=ios, end = 400) line
+       if (line(1:4) .eq. '*SIP') then
+          write (22,9000) line   ! copy the '*SIP'
+          sip_written = .true.
+@@ -221,6 +221,9 @@
+       if (sip_written) then
+   500    continue
+          line = ' '
++         if (ios .ne. 0) then
++             goto 600
++         endif
+          read (23,9000,end=600) line
+          if (line(1:1) .eq. '*') go to 600   ! new namelist.
+          if (line .eq. ' ') go to 600        ! skip blank line
+@@ -297,7 +300,10 @@
+ 
+   700 continue
+       line = ' '
+-      read (23,9000, end = 800) line
++      if (ios .ne. 0) then
++          goto 800
++      endif
++      read (23,9000, iostat=ios, end = 800) line
+       if (line(1:9) .eq. '*FRAGLIST') then
+          frag_calc = .true. 
+          write (22,9000) line   ! copy the '*SIP'
+@@ -348,6 +354,9 @@
+ c---------------------------------------------------------------------------
+ 
+       line = ' '
++      if (ios .ne. 0) then
++          goto 9900
++      endif
+       read (23,9000,end=9900) line
+       write (22,9000) line
+ 

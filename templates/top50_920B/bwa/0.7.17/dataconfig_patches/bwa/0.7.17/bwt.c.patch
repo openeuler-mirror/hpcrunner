@@ -1,0 +1,40 @@
+--- bwt.c	2017-10-24 01:13:09.000000000 +0800
++++ bwt.c_opt	2024-08-15 20:31:18.944059420 +0800
+@@ -39,6 +39,8 @@
+ #  include "malloc_wrap.h"
+ #endif
+ 
++bwtint_t *__sa = 0;
++
+ void bwt_gen_cnt_table(bwt_t *bwt)
+ {
+ 	int i, j;
+@@ -71,15 +73,21 @@
+ 	if (bwt->sa) free(bwt->sa);
+ 	bwt->sa_intv = intv;
+ 	bwt->n_sa = (bwt->seq_len + intv) / intv;
+-	bwt->sa = (bwtint_t*)calloc(bwt->n_sa, sizeof(bwtint_t));
+-	// calculate SA value
+-	isa = 0; sa = bwt->seq_len;
+-	for (i = 0; i < bwt->seq_len; ++i) {
++	if (__sa == 0) {
++	    bwt->sa = (bwtint_t*)calloc(bwt->n_sa, sizeof(bwtint_t));
++	    // calculate SA value
++	    isa = 0; sa = bwt->seq_len;
++	    for (i = 0; i < bwt->seq_len; ++i) {
+ 		if (isa % intv == 0) bwt->sa[isa/intv] = sa;
+ 		--sa;
+ 		isa = bwt_invPsi(bwt, isa);
++	    }
++	    if (isa % intv == 0) bwt->sa[isa/intv] = sa;
++	}
++	else {
++	    bwt->sa = __sa;
++	    __sa = 0;
+ 	}
+-	if (isa % intv == 0) bwt->sa[isa/intv] = sa;
+ 	bwt->sa[0] = (bwtint_t)-1; // before this line, bwt->sa[0] = bwt->seq_len
+ }
+ 
+
+

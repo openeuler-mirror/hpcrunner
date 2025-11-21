@@ -6,5 +6,6 @@ cd ${JARVIS_TMP}
 rm -rf OpenBLAS-0.3.18
 tar -xzvf ${JARVIS_DOWNLOAD}/OpenBLAS-0.3.18.tar.gz
 cd OpenBLAS-0.3.18
+export CC="gcc -Wno-implicit-function-declaration"  CXX=c++ FC=gfortran
 make -j 
 make PREFIX=$1 install

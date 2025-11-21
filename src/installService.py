@@ -23,6 +23,8 @@ from pathBuilder import PathFactory
 from deploymentConfig import DeploymentConfig
 from moduleConfig import ModuleConfig
 from moduleController import ModulefileEngine
+import json
+import subprocess
 
 class Singleton(type):
 
@@ -40,6 +42,8 @@ class InstallService(object,metaclass=Singleton):
     FULL_VERSION='full_version'
     INSTALL_JSON = "install.json"
     LINK_FILE_NAME = 'linkpathtomodules.sh'
+    DEPEND_JSON = 'dependencies.json'
+	
     def __init__(self):
         self.ds = DataService()
         self.exe = ExecuteService()
@@ -62,6 +66,7 @@ class InstallService(object,metaclass=Singleton):
         self._create_install_json(self.INSTALL_INFO_PATH)
         self._validate_installation()
         self._prepare_infrastructure()
+        self.DEPEND_INFO_PATH = os.path.join(self.PACKAGE_PATH, self.DEPEND_JSON)
 
     def _create_install_json(self, filename):
         if self._is_first_install:
@@ -251,18 +256,105 @@ chmod +x {install_script}
             print(f"install to {install_path} successful")
         else:
             print("install failed")
-            sys.exit()
+            sys.exit(1)
+
+    def add_install_project_info(self, install_path, software_dict):
+        install_registry = os.path.join(install_path, 'install_registry.json')
+        if os.path.exists(install_registry):
+            try:
+                with open(install_registry, "r") as f:
+                    data = json.load(f)
+                    if 'projectURL' in data:
+                        software_dict['projectURL']= data['projectURL']
+
+                    if 'projectDate' in data:
+                        software_dict['projectDate']= data['projectDate']
+                    
+                    if 'packaging' in data:
+                        software_dict['packaging']= data['packaging']
+
+                    if 'package' in data:
+                        software_dict['package']= data['package']
+
+                    if 'hashType' in data:
+                        software_dict['hashType']= data['hashType']
+
+                    if 'hashValue' in data:
+                        software_dict['hashValue']= data['hashValue']
+
+                    if 'dependencies' in data:
+                        dependencies = []
+                        for item in data["dependencies"]:
+                            dependency = {}
+                            if 'artifactId' in item:
+                                dependency["artifactId"] = item["artifactId"]
+
+                            if 'number' in item:
+                                dependency["number"] = item["number"]
+
+                            if 'version' in item:
+                                dependency["version"] = item["version"]
+
+                            # ref: compile, provided, runtime, test, system
+                            # system: os libraries
+                            # runtime: compiler libraries
+                            # compile: user self compile libraries
+                            # provided: local copy libraries
+                            if 'scope' in item:
+                                dependency["scope"] = item["scope"]
+
+                            if 'url' in item:
+                                dependency["url"] = item["url"]
+
+                            # packaging: none, tgz
+                            if 'packaging' in item:
+                                dependency["packaging"] = item["packaging"]
+
+                            if 'package' in item:
+                                dependency["package"] = item["package"]
+
+                            if 'hash_type' in item:
+                                dependency["hash_type"] = item["hash_type"]
+
+                            if 'hash_value' in item:
+                                dependency["hash_value"] = item["hash_value"]
+
+                            if dependency is not None:
+                                dependencies.append(dependency)
+
+                        software_dict['dependencies']= dependencies
+
+            except json.JSONDecodeError as e:
+                print(f"parse file  {e} failed")
+            except FileNotFoundError:
+                print(f"open file {install_registry} failed")
+            finally:
+                print(f"final done")
 
     def add_install_info(self, software_info, install_path):
         software_dict = {}
         software_dict['name'] = software_info.name
         software_dict['version'] = software_info.full_version
         software_dict['module_path'] = ''
+        
+        self.add_install_project_info(install_path, software_dict)
         self.json.set(install_path, software_dict, True)
     
     def _write_modulefile(self, install_path, module_path, content):
         base_path = os.path.dirname(module_path)
         self.tool.mkdirs(base_path)
+        module_tail = os.path.join(install_path, 'module_tail.modulefile')
+        if os.path.exists(module_tail):
+            print(f"Found module_tail:{module_tail}")
+            try:
+                with open(module_tail, "r", encoding="utf-8") as f:
+                    content_tail = f.read()
+                    content="\n".join([content, content_tail]) 
+            except FileNotFoundError:
+                print(f"open file {module_tail} failed")
+            finally:
+                print(f"final done")
+  
         self.tool.write_file(module_path, content)
         print(f"module file {module_path} successfully generated")
         row = self.json.get(install_path)
@@ -287,7 +379,7 @@ chmod +x {install_script}
     def is_dir_empty(self, directory):
         return not os.listdir(directory)
 
-    def gen_module_file(self, install_path, software_info, env_info):
+    def gen_module_file(self, install_path, software_info, env_info, tag="", depend_tag="", search_dir={}):
         if self.is_dir_empty(install_path):
             print(f"install path {install_path} is empty, module file not generated")
             return
@@ -307,15 +399,70 @@ chmod +x {install_script}
 
         # 生成模块文件
         engine = ModulefileEngine()
-        module_file_content = engine.generate(config)
+        module_file_content = engine.generate(config,search_dir)
         module_path = self.path_factory.get_module_builder(stype).build_path(software_info, env_info)
         module_path = str(module_path)
+        if tag:
+            module_path="{}-{}".format(module_path,tag)
+        if depend_tag:
+            module_path="{}{}".format(module_path,depend_tag)			
         self._write_modulefile(install_path, module_path, module_file_content)
+		
+    def get_depend_info(self, software_name, depend_json={}):
+        depend_info=""
+        for dep,tag in depend_json[software_name]['dependencies'].items():
+            cmd = "module list |xargs -n1 |grep -iw {}".format(dep)
+            result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, text=True)
+            if result.returncode != 0:
+                if tag == 'required':
+                    print(f"[ERROR] {dep} is {tag}, execute {cmd} failed: {result.stderr}")
+                    sys.exit(1)
+                elif tag == 'optional':
+                    print(f"{dep} is {tag}")
+                    continue
+                else:
+                    print(f"[ERROR] {tag} is a invalid value")
+                    sys.exit(1)
+            modules = result.stdout.strip('\n')
+
+            modulefile = ""
+            match_num = 0
+            pattern = rf'\b{dep}(?:-\S+)?/\b'
+            for line in modules.splitlines():
+                matches = re.findall(pattern, line)
+                if matches:
+                    modulefile = line
+                    match_num += 1
+                if match_num > 1:
+                    print(f"[ERROR] loaded {dep} many times")
+                    sys.exit(1)
+
+            if not modulefile:
+                print(f"[ERROR] loaded {dep} failed")
+                sys.exit(1)
+            cmd = "cat `module show {} |awk 'NR==2' |cut -d: -f1` |grep 'set version' |cut -d' ' -f3".format(modulefile)
+            result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, text=True)
+            if result.returncode != 0:
+                print(f"[ERROR] execute {cmd} failed: {result.stderr}")
+                sys.exit(1)
+            dep_version = result.stdout.strip('\n')
+            depend_info = depend_info + "-{}{}".format(dep,dep_version)
+        return depend_info
 
     def install(self, install_args, isapp = False):
         software_path = install_args[0]
         compiler_mpi_info = install_args[1]
-        other_args = install_args[2:]
+        other_args = []
+        suffix_item=""
+        depend_item=""
+		
+        for item in install_args[2:]:
+            if item.find("\\--suffix=") == 0:
+                print("Got suffix:{}".format(item[len("\\--suffix="):]))
+                suffix_item=item[len("\\--suffix="):]
+            else:
+                other_args.append(item)
+
         self.tool.prt_content("INSTALL " + software_path)
 
         software_info = self.software_factory.create_profile(software_path, compiler_mpi_info, isapp)
@@ -324,6 +471,20 @@ chmod +x {install_script}
         # get install path
         install_path = self.path_factory.get_builder(stype).build_path(software_info, env_info)
         install_path = str(install_path)
+
+        if install_path and suffix_item:
+            install_path="{}-{}".format(install_path,suffix_item)
+
+        software_name=self.software_factory._parse_name_and_version(software_path)[0]
+        if os.path.exists(self.DEPEND_INFO_PATH):
+            with open(self.DEPEND_INFO_PATH, "r", encoding="utf-8") as file:
+                data = json.load(file)
+        if software_name in data:
+            depend_item = self.get_depend_info(software_name, data)
+        if depend_item:   
+            install_path="{}{}".format(install_path,depend_item)			
+        print(f'Request:{install_path}')
+        
         if not install_path: 
             return
         self.tool.mkdirs(install_path)
@@ -337,8 +498,9 @@ chmod +x {install_script}
         self.install_package(software_info.install_script_path, install_path, other_args)
         # add install info
         self.add_install_info(software_info, install_path)
-        self.gen_module_file(install_path, software_info, env_info)
-
+        self.gen_module_file(install_path, software_info, env_info, tag=suffix_item, depend_tag=depend_item)
+    
+    ### install_depend -> bool
     def install_depend(self):
         depend_file = self.ds.get_depend_file()
         print(f"start installing dependendcy of {self.ds.app_config.name}")
@@ -348,7 +510,8 @@ chmod +x {install_script}
 chmod +x {depend_file}
 sh {depend_file}
 '''
-        self.exe.exec_raw(run_cmd)
+        res=self.exe.exec_raw(run_cmd)
+        return res
     
     def remove(self, software_info):
         self.tool.prt_content("UNINSTALL " + software_info)

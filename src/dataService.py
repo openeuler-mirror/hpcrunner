@@ -17,7 +17,7 @@ class Singleton(type):
 
 class AppConfig:
     """应用配置数据类 (Immutable)"""
-    __slots__ = ['name', 'version', 'compiler', 'build_dir', 'binary_dir', 'case_dir']
+    __slots__ = ['name', 'version', 'compiler', 'build_dir', 'binary_dir', 'case_dir', 'fake', 'mod_exc_dir']
 
     def __init__(self,
                  name: str = "",
@@ -25,13 +25,16 @@ class AppConfig:
                  compiler: str = "",
                  build_dir: str = "",
                  binary_dir: str = "",
-                 case_dir: str = ""):
+                 case_dir: str = "",
+                 fake: str = "",mod_exc_dir:str =""):
         self.name = name
         self.version = version
         self.compiler = compiler
         self.build_dir = os.path.expandvars(build_dir)
         self.binary_dir = os.path.expandvars(binary_dir)
         self.case_dir = os.path.expandvars(case_dir)
+        self.fake = fake
+        self.mod_exc_dir = mod_exc_dir
 
 class PerfConfig:
     """性能工具参数配置"""
@@ -74,6 +77,7 @@ class DataService(metaclass=Singleton):
         self.build_dir: str = ""
         self.binary_dir: str = ""
         self.case_dir: str = ""
+        self.mod_exc_dir: str =""
         # 命令配置
         self.build_cmd: str = ""
         self.clean_cmd: str = ""
@@ -130,17 +134,28 @@ class DataService(metaclass=Singleton):
         buffer = []
         
         for line in lines:
-            line = line.strip()
-            if line in self.CONFIG_SECTIONS:
+            #line = line.strip()
+            if line.strip() in self.CONFIG_SECTIONS:
                 if current_section:
-                    config[current_section] = '\n'.join(buffer).strip()
-                current_section = line
+                    ####  space,tab characters in build section as code  shoud be reserved
+                    if current_section == "[BUILD]":
+                        config[current_section] = '\n'.join(buffer).rstrip()
+                    else:
+                        config[current_section] = '\n'.join(buffer).strip()
+                current_section = line.strip()
                 buffer = []
             elif current_section:
-                buffer.append(line)
+                ####  space,tab characters in build section as code  shoud be reserved
+                if current_section == "[BUILD]":
+                    buffer.append(line.rstrip())
+                else:
+                    buffer.append(line.strip())
                 
         if current_section and buffer:
-            config[current_section] = '\n'.join(buffer).strip()
+            if current_section == "[BUILD]":
+                config[current_section] = '\n'.join(buffer).rstrip()
+            else:
+                config[current_section] = '\n'.join(buffer).strip()
             
         return config
 
@@ -165,7 +180,8 @@ class DataService(metaclass=Singleton):
 
     def _parse_command_sections(self, config_data: Dict[str, str]):
         """解析所有命令类型段落"""
-        self.build_cmd = self._parse_section_content(config_data.get('[BUILD]', ''))
+        ####  space,tab characters in build section as code  shoud be reserved
+        self.build_cmd = self._parse_section_code(config_data.get('[BUILD]', ''))
         self.clean_cmd = self._parse_section_content(config_data.get('[CLEAN]', ''))
         self.run_cmd = self._parse_kv_section(config_data.get('[RUN]', ''))
         self.batch_cmd = self._parse_section_content(config_data.get('[BATCH]', ''))
@@ -182,7 +198,9 @@ class DataService(metaclass=Singleton):
             compiler=app_data.get('compiler', ''),
             build_dir=app_data.get('build_dir', ''),
             binary_dir=app_data.get('binary_dir', ''),
-            case_dir=app_data.get('case_dir', '')
+            case_dir=app_data.get('case_dir', ''),
+            fake=app_data.get('fake', ''),
+            mod_exc_dir=app_data.get('mod_exc_dir', '')
         )
 
     def _parse_perf_section(self, perf_content: str):
@@ -211,6 +229,10 @@ class DataService(metaclass=Singleton):
         return kv_dict
 
     @staticmethod
+    def _parse_section_code(content: str) -> str:
+        return '\n'.join(line.rstrip() for line in content.split('\n') if line.rstrip())
+
+    @staticmethod
     def _parse_section_content(content: str) -> str:
         """解析多行文本段落"""
         return '\n'.join(line.strip() for line in content.split('\n') if line.strip())
@@ -229,6 +251,9 @@ class DataService(metaclass=Singleton):
     def get_app_compiler(self):
         return self.app_config.compiler
     
+    def get_app_fake(self):
+        return self.app_config.fake
+
     def get_download_info(self):
         return self.download_info
 
@@ -249,17 +274,13 @@ class DataService(metaclass=Singleton):
 
     def get_clean_cmd(self):
         return self.clean_cmd
-    
+   
+    def get_mod_exc_dir(self):
+        return self.app_config.mod_exc_dir
+
     def get_env_file(self):
         if self.app_config.build_dir:
             env_root_path = self.app_config.build_dir
-        else:
-            env_root_path = self.root_path
-        return os.path.join(env_root_path, self.ENV_FILE)
-    
-    def get_job_env_file(self):
-        if self.app_config.case_dir:
-            env_root_path = self.app_config.case_dir
         else:
             env_root_path = self.root_path
         return os.path.join(env_root_path, self.ENV_FILE)

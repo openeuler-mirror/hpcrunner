@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x
 set -e
-. ${DOWNLOAD_TOOL} -u https://github.com/LLNL/sundials/archive/refs/tags/v7.2.1.tar.gz
+. ${DOWNLOAD_TOOL} -u https://github.com/LLNL/sundials/archive/refs/tags/v7.2.1.tar.gz -f sundials-7.2.1.tar.gz
 cd ${JARVIS_TMP}
 rm -rf sundials-7.2.1
 tar -xvf ${JARVIS_DOWNLOAD}/sundials-7.2.1.tar.gz

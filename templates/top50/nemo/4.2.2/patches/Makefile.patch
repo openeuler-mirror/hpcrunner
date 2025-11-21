@@ -1,0 +1,29 @@
+--- ../nemo-4.2.2/nemo-4.2.2-test/Makefile	2025-02-25 16:16:13.000000000 +0800
++++ Makefile	2025-09-02 14:43:01.186400032 +0800
+@@ -2,15 +2,24 @@
+ ARCH=bisheng
+ MCFG=MY_GYRE
+ 
++OPT_DIR=src/MY
++BLD_DIR=$(OPT_DIR)/BLD
+ 
++CPP=clang++
+ 
+ .PHONY : all mkdir
+ 
+-all :
+-	./makenemo -m $(ARCH) -r $(CFG) -n '$(MCFG)' -j32
++all :	mkdir $(BLD_DIR)/interfaceCpp.o
++	./makenemo -m $(ARCH) -r $(CFG) -n '$(MCFG)' del_key 'key_xios' -j32
+ 
++mkdir :
++	@if [ ! -d $(BLD_DIR) ]; then mkdir -p $(BLD_DIR); fi
+ 
++$(BLD_DIR)/interfaceCpp.o : $(OPT_DIR)/interfaceCpp.cpp
++	$(CPP) -c -Ofast -ffast-math  -mcpu=linxicore6100 -mllvm -force-customized-pipeline -msve-vector-bits=512 -mllvm -replace-sqrt-compare-by-square=true -mllvm -aarch64-enable-loop-data-prefetch=false -Wno-incompatible-function-pointer-types -Wno-deprecated-declarations    $^ -o $@
++	@rm -f cfgs/MY_GYRE/BLD/obj/nemo.o
+ 
+ clean :
+ 	./makenemo -m $(ARCH) -r $(CFG) -n '$(MCFG)' -j 4 clean
+ 
++

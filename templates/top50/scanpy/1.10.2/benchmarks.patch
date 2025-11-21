@@ -1,0 +1,60 @@
+diff --git a/benchmarks/asv.conf.json b/benchmarks/asv.conf.json
+index b4fc26a9..a8075f3e 100644
+--- a/benchmarks/asv.conf.json
++++ b/benchmarks/asv.conf.json
+@@ -30,7 +30,7 @@
+ 
+     // List of branches to benchmark. If not provided, defaults to "master"
+     // (for git) or "default" (for mercurial).
+-    "branches": ["main"], // for git
++    "branches": ["1.10.2"], // for git
+ 
+     // The DVCS being used.  If not set, it will be automatically
+     // determined from "repo" by looking at the protocol in the URL
+diff --git a/benchmarks/benchmarks/_utils.py b/benchmarks/benchmarks/_utils.py
+index 23404ce9..39837131 100644
+--- a/benchmarks/benchmarks/_utils.py
++++ b/benchmarks/benchmarks/_utils.py
+@@ -51,19 +51,28 @@ def _pbmc3k() -> AnnData:
+ def pbmc3k() -> AnnData:
+     return _pbmc3k().copy()
+ 
++import os
++DOWNLOAD_URL=os.environ["JARVIS_DOWNLOAD"]
++
++def mydownloader(url,output_file,pooch):
++    print("mydownloader="+url)
++    print("mydownloader="+output_file)
++    os.system("cp -a " + url + " " + output_file)
+ 
+ @cache
+ def _bmmc(n_obs: int = 4000) -> AnnData:
+     registry = pooch.create(
+         path=pooch.os_cache("pooch"),
+-        base_url="doi:10.6084/m9.figshare.22716739.v1/",
++        base_url=DOWNLOAD_URL,
++        registry={"s1d1_filtered_feature_bc_matrix.h5":"322c30a7a4905f7f113472442d4aa2c81a1ad736c86651f6c0b81e5b2ff94ac8",
++                  "s1d3_filtered_feature_bc_matrix.h5":"ca40b287fac57ac2048f11f56f1b630c7c188718908fc217c6baf2e49bdb1982"},
+     )
+-    registry.load_registry_from_doi()
++    #registry.load_registry_from_doi()
+     samples = {smp: f"{smp}_filtered_feature_bc_matrix.h5" for smp in ("s1d1", "s1d3")}
+     adatas = {}
+ 
+     for sample_id, filename in samples.items():
+-        path = registry.fetch(filename)
++        path = registry.fetch(filename,downloader=mydownloader)
+         with warnings.catch_warnings():
+             warnings.filterwarnings("ignore", r"Variable names are not unique")
+             sample_adata = sc.read_10x_h5(path)
+@@ -92,8 +101,9 @@ def bmmc(n_obs: int = 400) -> AnnData:
+ @cache
+ def _lung93k() -> AnnData:
+     path = pooch.retrieve(
+-        url="https://figshare.com/ndownloader/files/45788454",
++        url=DOWNLOAD_URL+"/adata.raw_compressed.h5ad",
+         known_hash="md5:4f28af5ff226052443e7e0b39f3f9212",
++        downloader=mydownloader,
+     )
+     return sc.read_h5ad(path)
+ 

@@ -1,0 +1,76 @@
+--- bwt_gen.c   2017-10-24 01:13:09.000000000 +0800
++++ bwt_gen.c_opt       2024-08-15 20:03:20.072059420 +0800
+@@ -29,6 +29,9 @@
+ #include <stdint.h>
+ #include <errno.h>
+ #include "QSufSort.h"
++#include "divsufsort64.h"
++#include "bwt.h"
++#include <omp.h>
+
+ #ifdef USE_MALLOC_WRAPPERS
+ #  include "malloc_wrap.h"
+@@ -197,7 +200,8 @@
+                exit(1);
+        }
+
+-       bwtInc->buildSize = bwtInc->buildSize / CHAR_PER_WORD * CHAR_PER_WORD;
++       // we don't need to align
++       // bwtInc->buildSize = bwtInc->buildSize / CHAR_PER_WORD * CHAR_PER_WORD;
+
+        bwtInc->packedText = bwtInc->workingMemory + 2 * (bwtInc->buildSize + 1) * (sizeof(bgint_t) / 4);
+        bwtInc->textBuffer = (unsigned char*)(bwtInc->workingMemory + (bwtInc->buildSize + 1) * (sizeof(bgint_t) / 4));
+@@ -351,7 +355,7 @@
+        return bwt;
+ }
+
+-BWTInc *BWTIncCreate(const bgint_t textLength, unsigned int initialMaxBuildSize, unsigned int incMaxBuildSize)
++BWTInc *BWTIncCreate(const bgint_t textLength, bgint_t initialMaxBuildSize, bgint_t incMaxBuildSize)
+ {
+        BWTInc *bwtInc;
+        unsigned int i, n_iter;
+@@ -376,6 +380,15 @@
+        bwtInc->availableWord = BWTResidentSizeInWord(textLength) + BWTOccValueMinorSizeInWord(textLength) // minimal memory requirement
+                + OCC_INTERVAL / BIT_PER_CHAR * n_iter * 2 * (sizeof(bgint_t) / 4) // buffer at the end of occ array
+                + incMaxBuildSize/5 * 3 * (sizeof(bgint_t) / 4); // space for the 3 temporary arrays in each iteration
++       // make sure maxBuildSize >= textLength so that all text can be read in 1 time
++       bgint_t maxBuildSize = (bwtInc->availableWord - (2 + OCC_INTERVAL / CHAR_PER_WORD) * (sizeof(bgint_t) / 4))
++                                                       / (2 * CHAR_PER_WORD + 1) * CHAR_PER_WORD / (sizeof(bgint_t) / 4);
++       }
++       assert(maxBuildSize >= textLength);
+        if (bwtInc->availableWord < MIN_AVAILABLE_WORD) bwtInc->availableWord = MIN_AVAILABLE_WORD; // lh3: otherwise segfaul when availableWord is too small
+        fprintf(stderr, "[%s] textLength=%ld, availableWord=%ld\n", __func__, (long)textLength, (long)bwtInc->availableWord);
+        bwtInc->workingMemory = (unsigned*)calloc(bwtInc->availableWord, BYTES_IN_WORD);
+@@ -1329,7 +1342,21 @@
+                relativeRank[numChar] = 0;
+
+                // Sort suffix
+-               QSufSortSuffixSort((qsint_t*)relativeRank, (qsint_t*)seq, (qsint_t)numChar, (qsint_t)ALPHABET_SIZE - 1, 0, FALSE);
++               // QSufSortSuffixSort((qsint_t*)relativeRank, (qsint_t*)seq, (qsint_t)numChar, (qsint_t)ALPHABET_SIZE - 1, 0, FALSE);
++               unsigned char* text = calloc(numChar, sizeof(unsigned char));
++#pragma omp parallel for
++               for (qsint_t i = 0; i < numChar; i++) {
++                       text[i] = relativeRank[i] + '0';
++               }
++               divsufsort64(text, seq, numChar);
++               __sa = (bwtint_t*)calloc((numChar+32)/32, sizeof(bwtint_t));
++#pragma omp parallel for
++               for (qsint_t i = 0; i < numChar; i++) {
++                   relativeRank[seq[i]] = i+1;
++                   if ((i+1) % 32 == 0)
++                       __sa[(i+1)/32] = seq[i];
++               }
++
+                newInverseSa0 = relativeRank[0];
+
+                // Clear BWT area
+@@ -1474,7 +1501,7 @@
+        }
+        totalTextLength = TextLengthFromBytePacked(packedFileLen, BIT_PER_CHAR, lastByteLength);
+
+-       bwtInc = BWTIncCreate(totalTextLength, initialMaxBuildSize, incMaxBuildSize);
++       bwtInc = BWTIncCreate(totalTextLength, totalTextLength, totalTextLength);
+
+        BWTIncSetBuildSizeAndTextAddr(bwtInc);
+
+

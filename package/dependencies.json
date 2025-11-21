@@ -1,0 +1,4 @@
+{
+    "scalapack": {"dependencies": {"lapack": "optional", "openblas": "optional"}},
+    "netcdf": {"dependencies": {"hdf5": "required", "pnetcdf": "optional"}}
+}

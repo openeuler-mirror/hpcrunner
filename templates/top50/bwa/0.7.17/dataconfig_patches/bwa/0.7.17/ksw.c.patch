@@ -1,0 +1,11 @@
+--- ksw.c	2017-10-24 01:13:09.000000000 +0800
++++ ksw.c_opt	2024-08-30 09:30:50.297250880 +0800
+@@ -26,7 +26,7 @@
+ #include <stdlib.h>
+ #include <stdint.h>
+ #include <assert.h>
+-#include <emmintrin.h>
++#include "SSE2NEON.h"
+ #include "ksw.h"
+ 
+ #ifdef USE_MALLOC_WRAPPERS

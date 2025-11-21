@@ -1,0 +1,42 @@
+SYSTEM = ZrNCl
+ISTART = 0                      #0表示新作业 (默认设置&存在WAVECAR时为1)
+ISMEAR = 0
+SIGMA  = 0.4
+ENCUT=400#28#400
+PREC=Normal
+#NELM = 1
+#NELMIN = 5
+#NELMDL = 0
+ISYM = 1
+#ISPIN = 2
+#ADDGRID = TRUE
+
+#NBANDS =
+#LMAXMIX = 4
+#NGX = 70
+#NGY = 70
+#NGZ = 270
+#NGX，NGY，NGZ，必须是1，2，3，4，5，6，7中的组合连乘
+
+EDIFF = 1E-7
+#总能计算中的允许误差：默认10^-4
+
+LREAL = Auto
+
+KPAR = 1 
+NCORE = 4      # 4 8 16   32?
+#NPAR  =       # 4 6 8 16
+#NSIM = 33
+LPLANE = .TRUE.
+
+LWAVE = .F.
+LCHARG = .F.
+#NWRITE = 1
+
+###libbeef
+#GGA = BF
+#LUSE_VDW = .TRUE.
+#Zab_VDW = -1.8867
+#LBEEFENS = .TRUE.
+
+

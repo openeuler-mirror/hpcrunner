@@ -1,0 +1,925 @@
+--- ./traadv_fct.F90	2025-05-19 10:10:49.487020426 +0800
++++ ./traadv_fct.F90	2025-05-16 16:57:29.645322005 +0800
+@@ -27,7 +27,6 @@
+    USE lib_mpp        ! MPP library
+    USE lbclnk         ! ocean lateral boundary condition (or mpp link)
+    USE lib_fortran    ! Fortran utilities (allows no signed zero when 'key_nosignedzero' defined)
+-
+    IMPLICIT NONE
+    PRIVATE
+ 
+@@ -86,11 +85,67 @@
+       REAL(wp) ::   ztra                                     ! local scalar
+       REAL(wp) ::   zfp_ui, zfp_vj, zfp_wk, zC2t_u, zC4t_u   !   -      -
+       REAL(wp) ::   zfm_ui, zfm_vj, zfm_wk, zC2t_v, zC4t_v   !   -      -
+-      REAL(wp), DIMENSION(A2D(nn_hls),jpk)         :: zwi, zwz, ztu, ztv, zltu, zltv, ztw
+-      REAL(dp), DIMENSION(A2D(nn_hls),jpk)         :: zwx, zwy
++      REAL(wp), DIMENSION(A2D(nn_hls),jpk)  , bind(C)       :: zwi, zwz, ztu, ztv, zltu, zltv, ztw
++      REAL(dp), DIMENSION(A2D(nn_hls),jpk)  , bind(C)      :: zwx, zwy
+       REAL(wp), DIMENSION(:,:,:), ALLOCATABLE ::   ztrdx, ztrdy, ztrdz, zptry
+       REAL(wp), DIMENSION(:,:,:), ALLOCATABLE ::   zwinf, zwdia, zwsup
++      REAL(wp) :: paa_single , paa1_single , pbb_single ,pbb1_single
++      REAL(wp) :: pcc_single , pcc1_single
++      REAL(wp) ,external:: compute_zwx,compute_ori_zwxy,compute_ori_zwz
++      INTEGER  ::   ikm1         ! local integer
++      REAL(wp) ::   zpos, zneg, zbt, zbig,zrtrn                 ! local scalars
++      REAL(wp) ::   zup, zdo                              !   -      -
++      REAL(wp), DIMENSION(A2D(nn_hls),jpk) , bind(C):: zbetup, zbetdo, zbup, zbdo
++      REAL(wp) , DIMENSION(jpi,jpj) :: e3t_f
++      REAL(wp) , DIMENSION(ntei + 2*nn_hls -ntsi + 1,ntej + 2*nn_hls -ntsj + 1):: paa_f,pbb_f,pbb_f1,pcc_f,pcc_f1,paft_f
++      integer :: ret
+       LOGICAL  ::   ll_zAimp                                 ! flag to apply adaptive implicit vertical advection
++      INTEGER , DIMENSION(jpi,jpj,jpk) :: tmask_int,wmask_int
++      interface
++         subroutine fct_inter2(jpi,istart,iend,jstart,jend,zbupp,zbupp_k1,zbupp_k2,zbdoo,zbdoo_k1,zbdoo_k2,&
++         & paa_ji,pbb_jj,pcc_jk,pcc_jk1,e1e2tt,e3tt,p2dtt,zbigg,zbetupp,zbetdoo,zrtrnn,paftt) bind(c,name='fct_inter2')
++         use iso_c_binding
++         integer(c_int) ,value :: istart,iend,jpi,jstart,jend
++         ! REAL(8) ,DIMENSION(ntsi-(nn_hls)) :: zwxx,zwyy,zwy_j,zwii
++         ! REAL(8) ,DIMENSION(ntsi-(nn_hls)) :: zwz_k,zwzz
++         ! REAL(8), DIMENSION(jpi) :: pta,ptb,r1_e1e2tt,e3t_a,e3t_b,tmask
++         REAL(c_double) , DIMENSION(:,:) :: zbupp,zbupp_k1,zbupp_k2
++         REAL(c_double) , DIMENSION(:,:) :: zbdoo,zbdoo_k1,zbdoo_k2
++         REAL(c_double) , DIMENSION(:,:) :: paa_ji,pbb_jj,pcc_jk,pcc_jk1
++         REAL(c_double) , DIMENSION(:,:) :: e1e2tt,e3tt,zbetupp,zbetdoo,paftt
++         REAL(c_double) ,value :: p2dtt,zbigg,zrtrnn
++         end subroutine
++      end interface
++      interface
++         subroutine fct_inter5(jpi,istart,iend,jstart,jend,zbupp,zbupp_k1,zbupp_k2,&
++         & paa_ji,pbb_jj,pcc_jk,pcc_jk1,e1e2tt,e3tt,p2dtt,zbigg,zbetupp,zrtrnn,paftt) bind(c,name='fct_inter5')
++         use iso_c_binding
++         integer(c_int) ,value :: istart,iend,jpi,jstart,jend
++         ! REAL(8) ,DIMENSION(ntsi-(nn_hls)) :: zwxx,zwyy,zwy_j,zwii
++         ! REAL(8) ,DIMENSION(ntsi-(nn_hls)) :: zwz_k,zwzz
++         ! REAL(8), DIMENSION(jpi) :: pta,ptb,r1_e1e2tt,e3t_a,e3t_b,tmask
++         REAL(c_double) , DIMENSION(:,:) ,intent(in) :: zbupp,zbupp_k1,zbupp_k2
++         REAL(c_double) , DIMENSION(:,:) ,intent(in) :: paa_ji,pbb_jj,pcc_jk,pcc_jk1,paftt
++         REAL(c_double) , DIMENSION(:,:) ,intent(in) :: e1e2tt,e3tt
++         REAL(c_double) , DIMENSION(:,:) ,intent(inout) :: zbetupp
++         REAL(c_double) ,value :: p2dtt,zbigg,zrtrnn
++         end subroutine
++      end interface
++      interface
++         subroutine fct_inter6(jpi,istart,iend,jstart,jend,zbdoo,zbdoo_k1,zbdoo_k2,&
++         & paa_ji,pbb_jj,pcc_jk,pcc_jk1,e1e2tt,e3tt,p2dtt,zbigg,zbetdoo,zrtrnn,paftt) bind(c,name='fct_inter6')
++         use iso_c_binding
++         integer(c_int) ,value :: istart,iend,jpi,jstart,jend
++         ! REAL(8) ,DIMENSION(ntsi-(nn_hls)) :: zwxx,zwyy,zwy_j,zwii
++         ! REAL(8) ,DIMENSION(ntsi-(nn_hls)) :: zwz_k,zwzz
++         ! REAL(8), DIMENSION(jpi) :: pta,ptb,r1_e1e2tt,e3t_a,e3t_b,tmask
++         REAL(c_double) , DIMENSION(:,:) ,intent(in) :: zbdoo,zbdoo_k1,zbdoo_k2
++         REAL(c_double) , DIMENSION(:,:) ,intent(in) :: paa_ji,pbb_jj,pcc_jk,pcc_jk1,paftt
++         REAL(c_double) , DIMENSION(:,:) ,intent(in) :: e1e2tt,e3tt
++         REAL(c_double) , DIMENSION(:,:) ,intent(inout) :: zbetdoo
++         REAL(c_double) ,value :: p2dtt,zbigg,zrtrnn
++         end subroutine
++      end interface
+       !!----------------------------------------------------------------------
+       !
+ #if defined key_loop_fusion
+@@ -116,273 +171,503 @@
+ 
+       !! -- init to 0
+       zwi(:,:,:) = 0._wp
+-      zwx(:,:,:) = 0._wp
+-      zwy(:,:,:) = 0._wp
+-      zwz(:,:,:) = 0._wp
+-      ztu(:,:,:) = 0._wp
+-      ztv(:,:,:) = 0._wp
+-      zltu(:,:,:) = 0._wp
+-      zltv(:,:,:) = 0._wp
+-      ztw(:,:,:) = 0._wp
+-      !
+-      IF( l_trd .OR. l_hst )  THEN
+-         ALLOCATE( ztrdx(A2D(nn_hls),jpk), ztrdy(A2D(nn_hls),jpk), ztrdz(A2D(nn_hls),jpk) )
+-         ztrdx(:,:,:) = 0._wp   ;    ztrdy(:,:,:) = 0._wp   ;   ztrdz(:,:,:) = 0._wp
+-      ENDIF
+-      !
+-      IF( l_ptr ) THEN
+-         ALLOCATE( zptry(A2D(nn_hls),jpk) )
+-         zptry(:,:,:) = 0._wp
+-      ENDIF
+-      !
+-      ! If adaptive vertical advection, check if it is needed on this PE at this time
+-      IF( ln_zad_Aimp ) THEN
+-         IF( MAXVAL( ABS( wi(A2D(1),:) ) ) > 0._wp ) ll_zAimp = .TRUE.
+-      END IF
+-      ! If active adaptive vertical advection, build tridiagonal matrix
+-      IF( ll_zAimp ) THEN
+-         ALLOCATE(zwdia(A2D(nn_hls),jpk), zwinf(A2D(nn_hls),jpk), zwsup(A2D(nn_hls),jpk))
+-         DO_3D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 1, jpkm1 )
+-            zwdia(ji,jj,jk) =  1._wp + p2dt * ( MAX( wi(ji,jj,jk) , 0._wp ) - MIN( wi(ji,jj,jk+1) , 0._wp ) )   &
+-            &                               / e3t(ji,jj,jk,Krhs)
+-            zwinf(ji,jj,jk) =  p2dt * MIN( wi(ji,jj,jk  ) , 0._wp ) / e3t(ji,jj,jk,Krhs)
+-            zwsup(ji,jj,jk) = -p2dt * MAX( wi(ji,jj,jk+1) , 0._wp ) / e3t(ji,jj,jk,Krhs)
+-         END_3D
+-      END IF
++      !zwx(:,:,:) = 0._wp
++      !zwy(:,:,:) = 0._wp
++      !zwz(:,:,:) = 0._wp
++      !ztu(:,:,:) = 0._wp
++      !ztv(:,:,:) = 0._wp
++      !zltu(:,:,:) = 0._wp
++      !zltv(:,:,:) = 0._wp
++      !ztw(:,:,:) = 0._wp
++      zwx(jpi,:,:) = 0._wp
++      zwx(:,jpj,:) = 0._wp
++      zwx(:,:,jpk) = 0._wp
++      !!! zwy init to 0
++      zwy(jpi,:,:) = 0._wp
++      zwy(:,jpj,:) = 0._wp         
++      zwy(:,:,jpk) = 0._wp
++      !!! zwz init to 0
++      zwz(1,:,:) = 0._wp
++      zwz(:,1,:) = 0._wp          
++      zwz(jpi,:,:) = 0._wp
++      zwz(:,jpj,:) = 0._wp
++      zwz(:,:,1) = 0._wp          
++      zwz(:,:,jpk) = 0._wp
++      zrtrn = 1.e-15_wp
++      zbig = 1.e+38_wp
++      ! wmask_int = INT(wmask)
++      ! tmask_int = INT(tmask)
++      !
++      ! IF( l_trd .OR. l_hst )  THEN
++      !    ALLOCATE( ztrdx(A2D(nn_hls),jpk), ztrdy(A2D(nn_hls),jpk), ztrdz(A2D(nn_hls),jpk) )
++      !    ztrdx(:,:,:) = 0._wp   ;    ztrdy(:,:,:) = 0._wp   ;   ztrdz(:,:,:) = 0._wp
++      ! ENDIF
++      ! !
++      ! IF( l_ptr ) THEN
++      !    ALLOCATE( zptry(A2D(nn_hls),jpk) )
++      !    zptry(:,:,:) = 0._wp
++      ! ENDIF
++      ! !
++      ! ! If adaptive vertical advection, check if it is needed on this PE at this time
++      ! IF( ln_zad_Aimp ) THEN
++      !    IF( MAXVAL( ABS( wi(A2D(1),:) ) ) > 0._wp ) ll_zAimp = .TRUE.
++      ! END IF
++      ! ! If active adaptive vertical advection, build tridiagonal matrix
++      ! IF( ll_zAimp ) THEN
++      !    ALLOCATE(zwdia(A2D(nn_hls),jpk), zwinf(A2D(nn_hls),jpk), zwsup(A2D(nn_hls),jpk))
++      !    DO_3D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 1, jpkm1 )
++      !       zwdia(ji,jj,jk) =  1._wp + p2dt * ( MAX( wi(ji,jj,jk) , 0._wp ) - MIN( wi(ji,jj,jk+1) , 0._wp ) )   &
++      !       &                               / e3t(ji,jj,jk,Krhs)
++      !       zwinf(ji,jj,jk) =  p2dt * MIN( wi(ji,jj,jk  ) , 0._wp ) / e3t(ji,jj,jk,Krhs)
++      !       zwsup(ji,jj,jk) = -p2dt * MAX( wi(ji,jj,jk+1) , 0._wp ) / e3t(ji,jj,jk,Krhs)
++      !    END_3D
++      ! END IF
+       !
+       DO jn = 1, kjpt            !==  loop over the tracers  ==!
+          !
+          !        !==  upstream advection with initial mass fluxes & intermediate update  ==!
+          !                    !* upstream tracer flux in the i and j direction
+-         DO_3D( nn_hls, nn_hls-1, nn_hls, nn_hls-1, 1, jpkm1 )
+-            ! upstream scheme
+-            zfp_ui = pU(ji,jj,jk) + ABS( pU(ji,jj,jk) )
+-            zfm_ui = pU(ji,jj,jk) - ABS( pU(ji,jj,jk) )
+-            zfp_vj = pV(ji,jj,jk) + ABS( pV(ji,jj,jk) )
+-            zfm_vj = pV(ji,jj,jk) - ABS( pV(ji,jj,jk) )
+-            zwx(ji,jj,jk) = 0.5 * ( zfp_ui * pt(ji,jj,jk,jn,Kbb) + zfm_ui * pt(ji+1,jj  ,jk,jn,Kbb) )
+-            zwy(ji,jj,jk) = 0.5 * ( zfp_vj * pt(ji,jj,jk,jn,Kbb) + zfm_vj * pt(ji  ,jj+1,jk,jn,Kbb) )
+-         END_3D
+-         !                               !* upstream tracer flux in the k direction *!
+-         DO_3D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 2, jpkm1 )      ! Interior value ( multiplied by wmask)
+-            zfp_wk = pW(ji,jj,jk) + ABS( pW(ji,jj,jk) )
+-            zfm_wk = pW(ji,jj,jk) - ABS( pW(ji,jj,jk) )
+-            zwz(ji,jj,jk) = 0.5 * ( zfp_wk * pt(ji,jj,jk,jn,Kbb) + zfm_wk * pt(ji,jj,jk-1,jn,Kbb) ) * wmask(ji,jj,jk)
+-         END_3D
+-         IF( ln_linssh ) THEN               ! top ocean value (only in linear free surface as zwz has been w-masked)
+-            IF( ln_isfcav ) THEN                        ! top of the ice-shelf cavities and at the ocean surface
+-               DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
+-                  zwz(ji,jj, mikt(ji,jj) ) = pW(ji,jj,mikt(ji,jj)) * pt(ji,jj,mikt(ji,jj),jn,Kbb)   ! linear free surface
+-               END_2D
+-            ELSE                                        ! no cavities: only at the ocean surface
+-               DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
+-                  zwz(ji,jj,1) = pW(ji,jj,1) * pt(ji,jj,1,jn,Kbb)
+-               END_2D
+-            ENDIF
+-         ENDIF
++         ! !$OMP PARALLEL DO NUM_THREADS(2) schedule(dynamic)
++         ! DO_3D( nn_hls, nn_hls-1, nn_hls, nn_hls-1, 1, jpkm1 )
++         !    ! upstream scheme
++         !    ! zfp_ui = pU(ji,jj,jk) + ABS( pU(ji,jj,jk) )
++         !    ! zfm_ui = pU(ji,jj,jk) - ABS( pU(ji,jj,jk) )
++         !    ! zfp_vj = pV(ji,jj,jk) + ABS( pV(ji,jj,jk) )
++         !    ! zfm_vj = pV(ji,jj,jk) - ABS( pV(ji,jj,jk) )
++         !    ! zwx(ji,jj,jk) = 0.5 * ( zfp_ui * pt(ji,jj,jk,jn,Kbb) + zfm_ui * pt(ji+1,jj  ,jk,jn,Kbb) )
++         !    ! zwy(ji,jj,jk) = 0.5 * ( zfp_vj * pt(ji,jj,jk,jn,Kbb) + zfm_vj * pt(ji  ,jj+1,jk,jn,Kbb) )
++         !    zwx(ji,jj,jk) = ( MAX( pU(ji,jj,jk) , 0._wp ) * pt(ji,jj,jk,jn,Kbb) + MIN( pU(ji,jj,jk) , 0._wp ) * pt(ji+1,jj  ,jk,jn,Kbb) )
++         !    zwy(ji,jj,jk) = ( MAX( pV(ji,jj,jk) , 0._wp ) * pt(ji,jj,jk,jn,Kbb) + MIN( pV(ji,jj,jk) , 0._wp ) * pt(ji  ,jj+1,jk,jn,Kbb) )
++         ! END_3D
++         ! !$OMP END PARALLEL DO
++         ! !                               !* upstream tracer flux in the k direction *!
++         ! !$OMP PARALLEL DO NUM_THREADS(2) schedule(dynamic)
++         ! DO_3D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 2, jpkm1 )      ! Interior value ( multiplied by wmask)
++         !    ! zfp_wk = pW(ji,jj,jk) + ABS( pW(ji,jj,jk) )
++         !    ! zfm_wk = pW(ji,jj,jk) - ABS( pW(ji,jj,jk) )
++         !    ! zwz(ji,jj,jk) = 0.5 * ( zfp_wk * pt(ji,jj,jk,jn,Kbb) + zfm_wk * pt(ji,jj,jk-1,jn,Kbb) ) * wmask(ji,jj,jk)
++         !    zwz(ji,jj,jk) = ( MAX( pW(ji,jj,jk) , 0._wp ) * pt(ji,jj,jk,jn,Kbb) + MIN( pW(ji,jj,jk) , 0._wp ) * pt(ji,jj,jk-1,jn,Kbb)   ) * wmask_int(ji,jj,jk)
++
++         ! END_3D
++         ! !$OMP END PARALLEL DO
++         !ret = gptlstop('adv_fct1')
++
++         ! IF( ln_linssh ) THEN               ! top ocean value (only in linear free surface as zwz has been w-masked)
++         !    IF( ln_isfcav ) THEN                        ! top of the ice-shelf cavities and at the ocean surface
++         !       DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
++         !          zwz(ji,jj, mikt(ji,jj) ) = pW(ji,jj,mikt(ji,jj)) * pt(ji,jj,mikt(ji,jj),jn,Kbb)   ! linear free surface
++         !       END_2D
++         !    ELSE                                        ! no cavities: only at the ocean surface
++         
++         !    ENDIF
++         ! ENDIF
+          !
+-         DO_3D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 1, jpkm1 )   !* trend and after field with monotonic scheme
++         DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1)   !* trend and after field with monotonic scheme
+             !                               ! total intermediate advective trends
+-            ztra = - (  zwx(ji,jj,jk) - zwx(ji-1,jj  ,jk  )   &
+-               &      + zwy(ji,jj,jk) - zwy(ji  ,jj-1,jk  )   &
+-               &      + zwz(ji,jj,jk) - zwz(ji  ,jj  ,jk+1) ) * r1_e1e2t(ji,jj)
++            ztra = - (  compute_ori_zwxy(pU(ji,jj,1),pt(ji,jj,1,jn,Kbb),pt(ji+1,jj,1,jn,Kbb)) & 
++               &      -  compute_ori_zwxy(pU(ji-1,jj,1),pt(ji-1,jj,1,jn,Kbb),pt(ji,jj,1,jn,Kbb))  &
++               &      + compute_ori_zwxy(pV(ji,jj,1),pt(ji,jj,1,jn,Kbb),pt(ji,jj+1,1,jn,Kbb)) &
++               &      - compute_ori_zwxy(pV(ji,jj - 1,1),pt(ji,jj - 1,1,jn,Kbb),pt(ji,jj,1,jn,Kbb))  &
++               &      + pW(ji,jj,1) * pt(ji,jj,1,jn,Kbb) - compute_ori_zwz(pW(ji,jj,2),pt(ji,jj,2,jn,Kbb),pt(ji,jj,1,jn,Kbb), &
++               &      wmask(ji,jj,2)) ) * r1_e1e2t(ji,jj)
++            !                               ! update and guess with monotonic sheme
++            pt(ji,jj,1,jn,Krhs) =                   pt(ji,jj,1,jn,Krhs) +       ztra   &
++               &                                  / e3t(ji,jj,1,Kmm ) * tmask(ji,jj,1)
++            zwi(ji,jj,1)    = ( e3t(ji,jj,1,Kbb) * pt(ji,jj,1,jn,Kbb) + p2dt * ztra ) &
++               &                                  / e3t(ji,jj,1,Krhs) * tmask(ji,jj,1)
++         END_2D
++         !!$OMP PARALLEL DO NUM_THREADS(2) schedule(dynamic)
++         DO_3D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 2, jpkm1 )   !* trend and after field with monotonic scheme
++            !                               ! total intermediate advective trends
++            ztra = - (  compute_ori_zwxy(pU(ji,jj,jk),pt(ji,jj,jk,jn,Kbb),pt(ji+1,jj,jk,jn,Kbb)) &
++               &      - compute_ori_zwxy(pU(ji-1,jj,jk),pt(ji-1,jj,jk,jn,Kbb),pt(ji,jj,jk,jn,Kbb))   &
++               &      + compute_ori_zwxy(pV(ji,jj,jk),pt(ji,jj,jk,jn,Kbb),pt(ji,jj+1,jk,jn,Kbb)) & 
++               &      - compute_ori_zwxy(pV(ji,jj - 1,jk),pt(ji,jj-1,jk,jn,Kbb),pt(ji,jj,jk,jn,Kbb))   &
++               &      + compute_ori_zwz(pW(ji,jj,jk),pt(ji,jj,jk,jn,Kbb),pt(ji,jj,jk-1,jn,Kbb), wmask(ji,jj,jk)) &
++               &      - compute_ori_zwz(pW(ji,jj,jk+1),pt(ji,jj,jk+1,jn,Kbb),pt(ji,jj,jk,jn,Kbb), wmask(ji,jj,jk+1))) * r1_e1e2t(ji,jj)
+             !                               ! update and guess with monotonic sheme
+             pt(ji,jj,jk,jn,Krhs) =                   pt(ji,jj,jk,jn,Krhs) +       ztra   &
+                &                                  / e3t(ji,jj,jk,Kmm ) * tmask(ji,jj,jk)
+             zwi(ji,jj,jk)    = ( e3t(ji,jj,jk,Kbb) * pt(ji,jj,jk,jn,Kbb) + p2dt * ztra ) &
+                &                                  / e3t(ji,jj,jk,Krhs) * tmask(ji,jj,jk)
+          END_3D
++         !!$OMP END PARALLEL DO
+ 
+-         IF ( ll_zAimp ) THEN
+-            CALL tridia_solver( zwdia, zwsup, zwinf, zwi, zwi , 0 )
+-            !
+-            ztw(:,:,1) = 0._wp ; ztw(:,:,jpk) = 0._wp ;
+-            DO_3D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 2, jpkm1 )       ! Interior value ( multiplied by wmask)
+-               zfp_wk = wi(ji,jj,jk) + ABS( wi(ji,jj,jk) )
+-               zfm_wk = wi(ji,jj,jk) - ABS( wi(ji,jj,jk) )
+-               ztw(ji,jj,jk) =  0.5 * e1e2t(ji,jj) * ( zfp_wk * zwi(ji,jj,jk) + zfm_wk * zwi(ji,jj,jk-1) ) * wmask(ji,jj,jk)
+-               zwz(ji,jj,jk) = zwz(ji,jj,jk) + ztw(ji,jj,jk) ! update vertical fluxes
+-            END_3D
+-            DO_3D( 0, 0, 0, 0, 1, jpkm1 )
+-               pt(ji,jj,jk,jn,Krhs) = pt(ji,jj,jk,jn,Krhs) - ( ztw(ji,jj,jk) - ztw(ji  ,jj  ,jk+1) ) &
+-                  &                                        * r1_e1e2t(ji,jj) / e3t(ji,jj,jk,Kmm)
+-            END_3D
+-            !
+-         END IF
+-         !
+-         IF( l_trd .OR. l_hst )  THEN             ! trend diagnostics (contribution of upstream fluxes)
+-            ztrdx(:,:,:) = zwx(:,:,:)   ;   ztrdy(:,:,:) = zwy(:,:,:)   ;   ztrdz(:,:,:) = zwz(:,:,:)
+-         END IF
+-         !                             ! "Poleward" heat and salt transports (contribution of upstream fluxes)
+-         IF( l_ptr )   zptry(:,:,:) = zwy(:,:,:)
++         ! IF ( ll_zAimp ) THEN
++         !    CALL tridia_solver( zwdia, zwsup, zwinf, zwi, zwi , 0 )
++         !    !
++         !    ztw(:,:,1) = 0._wp ; ztw(:,:,jpk) = 0._wp ;
++         !    DO_3D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 2, jpkm1 )       ! Interior value ( multiplied by wmask)
++         !       zfp_wk = wi(ji,jj,jk) + ABS( wi(ji,jj,jk) )
++         !       zfm_wk = wi(ji,jj,jk) - ABS( wi(ji,jj,jk) )
++         !       ztw(ji,jj,jk) =  0.5 * e1e2t(ji,jj) * ( zfp_wk * zwi(ji,jj,jk) + zfm_wk * zwi(ji,jj,jk-1) ) * wmask(ji,jj,jk)
++         !       zwz(ji,jj,jk) = zwz(ji,jj,jk) + ztw(ji,jj,jk) ! update vertical fluxes
++         !    END_3D
++         !    DO_3D( 0, 0, 0, 0, 1, jpkm1 )
++         !       pt(ji,jj,jk,jn,Krhs) = pt(ji,jj,jk,jn,Krhs) - ( ztw(ji,jj,jk) - ztw(ji  ,jj  ,jk+1) ) &
++         !          &                                        * r1_e1e2t(ji,jj) / e3t(ji,jj,jk,Kmm)
++         !    END_3D
++         !    !
++         ! END IF
++         ! !
++         ! IF( l_trd .OR. l_hst )  THEN             ! trend diagnostics (contribution of upstream fluxes)
++         !    ztrdx(:,:,:) = zwx(:,:,:)   ;   ztrdy(:,:,:) = zwy(:,:,:)   ;   ztrdz(:,:,:) = zwz(:,:,:)
++         ! END IF
++         ! !                             ! "Poleward" heat and salt transports (contribution of upstream fluxes)
++         ! IF( l_ptr )   zptry(:,:,:) = zwy(:,:,:)
+          !
+          !        !==  anti-diffusive flux : high order minus low order  ==!
+          !
+          SELECT CASE( kn_fct_h )    !* horizontal anti-diffusive fluxes
+          !
+          CASE(  2  )                   !- 2nd order centered
++            !!$OMP PARALLEL DO NUM_THREADS(2) schedule(dynamic)
+             DO_3D( nn_hls, nn_hls-1, nn_hls, nn_hls-1, 1, jpkm1 )
+-               zwx(ji,jj,jk) = 0.5_wp * pU(ji,jj,jk) * ( pt(ji,jj,jk,jn,Kmm) + pt(ji+1,jj,jk,jn,Kmm) ) - zwx(ji,jj,jk)
+-               zwy(ji,jj,jk) = 0.5_wp * pV(ji,jj,jk) * ( pt(ji,jj,jk,jn,Kmm) + pt(ji,jj+1,jk,jn,Kmm) ) - zwy(ji,jj,jk)
++               zwx(ji,jj,jk) = 0.5_wp * pU(ji,jj,jk) * ( pt(ji,jj,jk,jn,Kmm) + pt(ji+1,jj,jk,jn,Kmm) ) - compute_ori_zwxy(pU(ji,jj,jk),pt(ji,jj,jk,jn,Kbb),pt(ji+1,jj,jk,jn,Kbb))
++               zwy(ji,jj,jk) = 0.5_wp * pV(ji,jj,jk) * ( pt(ji,jj,jk,jn,Kmm) + pt(ji,jj+1,jk,jn,Kmm) ) - compute_ori_zwxy(pV(ji,jj,jk),pt(ji,jj,jk,jn,Kbb),pt(ji,jj+1,jk,jn,Kbb))
+             END_3D
++            !!$OMP END PARALLEL DO
+             !
+-         CASE(  4  )                   !- 4th order centered
+-            zltu(:,:,jpk) = 0._wp            ! Bottom value : flux set to zero
+-            zltv(:,:,jpk) = 0._wp
+-            DO jk = 1, jpkm1                 ! Laplacian
+-               DO_2D( 1, 0, 1, 0 )                 ! 1st derivative (gradient)
+-                  ztu(ji,jj,jk) = ( pt(ji+1,jj  ,jk,jn,Kmm) - pt(ji,jj,jk,jn,Kmm) ) * umask(ji,jj,jk)
+-                  ztv(ji,jj,jk) = ( pt(ji  ,jj+1,jk,jn,Kmm) - pt(ji,jj,jk,jn,Kmm) ) * vmask(ji,jj,jk)
+-               END_2D
+-               DO_2D( 0, 0, 0, 0 )                 ! 2nd derivative * 1/ 6
+-                  zltu(ji,jj,jk) = (  ztu(ji,jj,jk) + ztu(ji-1,jj,jk)  ) * r1_6
+-                  zltv(ji,jj,jk) = (  ztv(ji,jj,jk) + ztv(ji,jj-1,jk)  ) * r1_6
+-               END_2D
+-            END DO
+-            ! NOTE [ comm_cleanup ] : need to change sign to ensure halo 1 - halo 2 compatibility
+-            CALL lbc_lnk( 'traadv_fct', zltu, 'T', -1.0_wp , zltv, 'T', -1.0_wp, ld4only= .TRUE. )   ! Lateral boundary cond. (unchanged sgn)
+-            !
+-            DO_3D( nn_hls, nn_hls-1, nn_hls, nn_hls-1, 1, jpkm1 )
+-               zC2t_u = pt(ji,jj,jk,jn,Kmm) + pt(ji+1,jj  ,jk,jn,Kmm)   ! 2 x C2 interpolation of T at u- & v-points
+-               zC2t_v = pt(ji,jj,jk,jn,Kmm) + pt(ji  ,jj+1,jk,jn,Kmm)
+-               !                                                        ! C4 minus upstream advective fluxes
+-               ! round brackets added to fix the order of floating point operations
+-               ! needed to ensure halo 1 - halo 2 compatibility
+-               zwx(ji,jj,jk) =  0.5_wp * pU(ji,jj,jk) * ( zC2t_u + ( zltu(ji,jj,jk) - zltu(ji+1,jj,jk)   &
+-                             &                                     )                                     & ! bracket for halo 1 - halo 2 compatibility
+-                             &                          ) - zwx(ji,jj,jk)
+-               zwy(ji,jj,jk) =  0.5_wp * pV(ji,jj,jk) * ( zC2t_v + ( zltv(ji,jj,jk) - zltv(ji,jj+1,jk)   &
+-                             &                                     )                                     & ! bracket for halo 1 - halo 2 compatibility
+-                             &                          ) - zwy(ji,jj,jk)
+-            END_3D
+-            !
+-         CASE(  41 )                   !- 4th order centered       ==>>   !!gm coding attempt   need to be tested
+-            ztu(:,:,jpk) = 0._wp             ! Bottom value : flux set to zero
+-            ztv(:,:,jpk) = 0._wp
+-            DO_3D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 1, jpkm1 )    ! 1st derivative (gradient)
+-               ztu(ji,jj,jk) = ( pt(ji+1,jj  ,jk,jn,Kmm) - pt(ji,jj,jk,jn,Kmm) ) * umask(ji,jj,jk)
+-               ztv(ji,jj,jk) = ( pt(ji  ,jj+1,jk,jn,Kmm) - pt(ji,jj,jk,jn,Kmm) ) * vmask(ji,jj,jk)
+-            END_3D
+-            IF (nn_hls==1) CALL lbc_lnk( 'traadv_fct', ztu, 'U', -1.0_wp , ztv, 'V', -1.0_wp, ld4only= .TRUE. )   ! Lateral boundary cond. (unchanged sgn)
+-            !
+-            DO_3D( 0, 0, 0, 0, 1, jpkm1 )    ! Horizontal advective fluxes
+-               zC2t_u = pt(ji,jj,jk,jn,Kmm) + pt(ji+1,jj  ,jk,jn,Kmm)   ! 2 x C2 interpolation of T at u- & v-points (x2)
+-               zC2t_v = pt(ji,jj,jk,jn,Kmm) + pt(ji  ,jj+1,jk,jn,Kmm)
+-               !                                                  ! C4 interpolation of T at u- & v-points (x2)
+-               zC4t_u =  zC2t_u + r1_6 * ( ztu(ji-1,jj  ,jk) - ztu(ji+1,jj  ,jk) )
+-               zC4t_v =  zC2t_v + r1_6 * ( ztv(ji  ,jj-1,jk) - ztv(ji  ,jj+1,jk) )
+-               !                                                  ! C4 minus upstream advective fluxes
+-               zwx(ji,jj,jk) =  0.5_wp * pU(ji,jj,jk) * zC4t_u - zwx(ji,jj,jk)
+-               zwy(ji,jj,jk) =  0.5_wp * pV(ji,jj,jk) * zC4t_v - zwy(ji,jj,jk)
+-            END_3D
+-            IF (nn_hls==2) CALL lbc_lnk( 'traadv_fct', zwx, 'U', -1.0_dp , zwy, 'V', -1.0_dp )   ! Lateral boundary cond. (unchanged sgn)
+-            !
++
++         ! CASE(  4  )                   !- 4th order centered
++         !    zltu(:,:,jpk) = 0._wp            ! Bottom value : flux set to zero
++         !    zltv(:,:,jpk) = 0._wp
++         !    DO jk = 1, jpkm1                 ! Laplacian
++         !       DO_2D( 1, 0, 1, 0 )                 ! 1st derivative (gradient)
++         !          ztu(ji,jj,jk) = ( pt(ji+1,jj  ,jk,jn,Kmm) - pt(ji,jj,jk,jn,Kmm) ) * umask(ji,jj,jk)
++         !          ztv(ji,jj,jk) = ( pt(ji  ,jj+1,jk,jn,Kmm) - pt(ji,jj,jk,jn,Kmm) ) * vmask(ji,jj,jk)
++         !       END_2D
++         !       DO_2D( 0, 0, 0, 0 )                 ! 2nd derivative * 1/ 6
++         !          zltu(ji,jj,jk) = (  ztu(ji,jj,jk) + ztu(ji-1,jj,jk)  ) * r1_6
++         !          zltv(ji,jj,jk) = (  ztv(ji,jj,jk) + ztv(ji,jj-1,jk)  ) * r1_6
++         !       END_2D
++         !    END DO
++         !    ! NOTE [ comm_cleanup ] : need to change sign to ensure halo 1 - halo 2 compatibility
++         !    CALL lbc_lnk( 'traadv_fct', zltu, 'T', -1.0_wp , zltv, 'T', -1.0_wp, ld4only= .TRUE. )   ! Lateral boundary cond. (unchanged sgn)
++         !    !
++         !    DO_3D( nn_hls, nn_hls-1, nn_hls, nn_hls-1, 1, jpkm1 )
++         !       zC2t_u = pt(ji,jj,jk,jn,Kmm) + pt(ji+1,jj  ,jk,jn,Kmm)   ! 2 x C2 interpolation of T at u- & v-points
++         !       zC2t_v = pt(ji,jj,jk,jn,Kmm) + pt(ji  ,jj+1,jk,jn,Kmm)
++         !       !                                                        ! C4 minus upstream advective fluxes
++         !       ! round brackets added to fix the order of floating point operations
++         !       ! needed to ensure halo 1 - halo 2 compatibility
++         !       zwx(ji,jj,jk) =  0.5_wp * pU(ji,jj,jk) * ( zC2t_u + ( zltu(ji,jj,jk) - zltu(ji+1,jj,jk)   &
++         !                     &                                     )                                     & ! bracket for halo 1 - halo 2 compatibility
++         !                     &                          ) - zwx(ji,jj,jk)
++         !       zwy(ji,jj,jk) =  0.5_wp * pV(ji,jj,jk) * ( zC2t_v + ( zltv(ji,jj,jk) - zltv(ji,jj+1,jk)   &
++         !                     &                                     )                                     & ! bracket for halo 1 - halo 2 compatibility
++         !                     &                          ) - zwy(ji,jj,jk)
++         !    END_3D
++         !    !
++         ! CASE(  41 )                   !- 4th order centered       ==>>   !!gm coding attempt   need to be tested
++         !    ztu(:,:,jpk) = 0._wp             ! Bottom value : flux set to zero
++         !    ztv(:,:,jpk) = 0._wp
++         !    DO_3D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 1, jpkm1 )    ! 1st derivative (gradient)
++         !       ztu(ji,jj,jk) = ( pt(ji+1,jj  ,jk,jn,Kmm) - pt(ji,jj,jk,jn,Kmm) ) * umask(ji,jj,jk)
++         !       ztv(ji,jj,jk) = ( pt(ji  ,jj+1,jk,jn,Kmm) - pt(ji,jj,jk,jn,Kmm) ) * vmask(ji,jj,jk)
++         !    END_3D
++         !    IF (nn_hls==1) CALL lbc_lnk( 'traadv_fct', ztu, 'U', -1.0_wp , ztv, 'V', -1.0_wp, ld4only= .TRUE. )   ! Lateral boundary cond. (unchanged sgn)
++         !    !
++         !    DO_3D( 0, 0, 0, 0, 1, jpkm1 )    ! Horizontal advective fluxes
++         !       zC2t_u = pt(ji,jj,jk,jn,Kmm) + pt(ji+1,jj  ,jk,jn,Kmm)   ! 2 x C2 interpolation of T at u- & v-points (x2)
++         !       zC2t_v = pt(ji,jj,jk,jn,Kmm) + pt(ji  ,jj+1,jk,jn,Kmm)
++         !       !                                                  ! C4 interpolation of T at u- & v-points (x2)
++         !       zC4t_u =  zC2t_u + r1_6 * ( ztu(ji-1,jj  ,jk) - ztu(ji+1,jj  ,jk) )
++         !       zC4t_v =  zC2t_v + r1_6 * ( ztv(ji  ,jj-1,jk) - ztv(ji  ,jj+1,jk) )
++         !       !                                                  ! C4 minus upstream advective fluxes
++         !       zwx(ji,jj,jk) =  0.5_wp * pU(ji,jj,jk) * zC4t_u - zwx(ji,jj,jk)
++         !       zwy(ji,jj,jk) =  0.5_wp * pV(ji,jj,jk) * zC4t_v - zwy(ji,jj,jk)
++         !    END_3D
++         !    IF (nn_hls==2) CALL lbc_lnk( 'traadv_fct', zwx, 'U', -1.0_dp , zwy, 'V', -1.0_dp )   ! Lateral boundary cond. (unchanged sgn)
++         !    !
+          END SELECT
+          !
+          SELECT CASE( kn_fct_v )    !* vertical anti-diffusive fluxes (w-masked interior values)
+          !
+          CASE(  2  )                   !- 2nd order centered
++            !!$OMP PARALLEL DO NUM_THREADS(2) schedule(dynamic)
+             DO_3D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 2, jpkm1 )
+                zwz(ji,jj,jk) =  (  pW(ji,jj,jk) * 0.5_wp * ( pt(ji,jj,jk,jn,Kmm) + pt(ji,jj,jk-1,jn,Kmm) )   &
+-                  &              - zwz(ji,jj,jk)  ) * wmask(ji,jj,jk)
++                  &              - compute_ori_zwz(pW(ji,jj,jk),pt(ji,jj,jk,jn,Kbb),pt(ji,jj,jk-1,jn,Kbb),wmask(ji,jj,jk))  ) * wmask(ji,jj,jk)
+             END_3D
++            !!$OMP END PARALLEL DO
++
+             !
+-         CASE(  4  )                   !- 4th order COMPACT
+-            CALL interp_4th_cpt( pt(:,:,:,jn,Kmm) , ztw )   ! zwt = COMPACT interpolation of T at w-point
+-            DO_3D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 2, jpkm1 )
+-               zwz(ji,jj,jk) = ( pW(ji,jj,jk) * ztw(ji,jj,jk) - zwz(ji,jj,jk) ) * wmask(ji,jj,jk)
+-            END_3D
++         ! CASE(  4  )                   !- 4th order COMPACT
++         !    CALL interp_4th_cpt( pt(:,:,:,jn,Kmm) , ztw )   ! zwt = COMPACT interpolation of T at w-point
++         !    DO_3D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 2, jpkm1 )
++         !       zwz(ji,jj,jk) = ( pW(ji,jj,jk) * ztw(ji,jj,jk) - zwz(ji,jj,jk) ) * wmask(ji,jj,jk)
++         !    END_3D
+             !
+          END SELECT
+-         IF( ln_linssh ) THEN    ! top ocean value: high order = upstream  ==>>  zwz=0
+-            zwz(:,:,1) = 0._wp   ! only ocean surface as interior zwz values have been w-masked
+-         ENDIF
+-         !
+-         IF (nn_hls==1) THEN
+-            CALL lbc_lnk( 'traadv_fct', zwx, 'U', -1.0_dp , zwy, 'V', -1.0_dp)
+-            CALL lbc_lnk( 'traadv_fct', zwi, 'T', 1.0_wp , zwz, 'T', 1.0_wp )
+-         ELSE
+-            CALL lbc_lnk( 'traadv_fct', zwi, 'T', 1.0_wp)
+-         END IF
+-         !
+-         IF ( ll_zAimp ) THEN
+-            DO_3D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 1, jpkm1 )    !* trend and after field with monotonic scheme
+-               !                                                ! total intermediate advective trends
+-               ztra = - (  zwx(ji,jj,jk) - zwx(ji-1,jj  ,jk  )   &
+-                  &      + zwy(ji,jj,jk) - zwy(ji  ,jj-1,jk  )   &
+-                  &      + zwz(ji,jj,jk) - zwz(ji  ,jj  ,jk+1) ) * r1_e1e2t(ji,jj)
+-               ztw(ji,jj,jk) = zwi(ji,jj,jk) + p2dt * ztra / e3t(ji,jj,jk,Krhs) * tmask(ji,jj,jk)
+-            END_3D
+-            !
+-            CALL tridia_solver( zwdia, zwsup, zwinf, ztw, ztw , 0 )
+-            !
+-            DO_3D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 2, jpkm1 )       ! Interior value ( multiplied by wmask)
+-               zfp_wk = wi(ji,jj,jk) + ABS( wi(ji,jj,jk) )
+-               zfm_wk = wi(ji,jj,jk) - ABS( wi(ji,jj,jk) )
+-               zwz(ji,jj,jk) = zwz(ji,jj,jk) + 0.5 * e1e2t(ji,jj) * ( zfp_wk * ztw(ji,jj,jk) + zfm_wk * ztw(ji,jj,jk-1) ) * wmask(ji,jj,jk)
+-            END_3D
+-         END IF
++         !IF( ln_linssh ) THEN    ! top ocean value: high order = upstream  ==>>  zwz=0
++         ! only ocean surface as interior zwz values have been w-masked
++         !ENDIF
++         !
++         !IF (nn_hls==1) THEN
++         CALL lbc_lnk( 'traadv_fct', zwx, 'U', -1.0_dp , zwy, 'V', -1.0_dp)
++         CALL lbc_lnk( 'traadv_fct', zwi, 'T', 1.0_wp , zwz, 'T', 1.0_wp )
++         !ELSE
++         !   CALL lbc_lnk( 'traadv_fct', zwi, 'T', 1.0_wp)
++         !END IF
++
++         !
++         ! IF ( ll_zAimp ) THEN
++         !    DO_3D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 1, jpkm1 )    !* trend and after field with monotonic scheme
++         !       !                                                ! total intermediate advective trends
++         !       ztra = - (  zwx(ji,jj,jk) - zwx(ji-1,jj  ,jk  )   &
++         !          &      + zwy(ji,jj,jk) - zwy(ji  ,jj-1,jk  )   &
++         !          &      + zwz(ji,jj,jk) - zwz(ji  ,jj  ,jk+1) ) * r1_e1e2t(ji,jj)
++         !       ztw(ji,jj,jk) = zwi(ji,jj,jk) + p2dt * ztra / e3t(ji,jj,jk,Krhs) * tmask(ji,jj,jk)
++         !    END_3D
++         !    !
++         !    CALL tridia_solver( zwdia, zwsup, zwinf, ztw, ztw , 0 )
++         !    !
++         !    DO_3D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 2, jpkm1 )       ! Interior value ( multiplied by wmask)
++         !       zfp_wk = wi(ji,jj,jk) + ABS( wi(ji,jj,jk) )
++         !       zfm_wk = wi(ji,jj,jk) - ABS( wi(ji,jj,jk) )
++         !       zwz(ji,jj,jk) = zwz(ji,jj,jk) + 0.5 * e1e2t(ji,jj) * ( zfp_wk * ztw(ji,jj,jk) + zfm_wk * ztw(ji,jj,jk-1) ) * wmask(ji,jj,jk)
++         !    END_3D
++         ! END IF
+          !
+          !        !==  monotonicity algorithm  ==!
+          !
+-         CALL nonosc( Krhs, pt(:,:,:,jn,Kbb), zwx, zwy, zwz, zwi, p2dt )
+-         !
++         !CALL nonosc( Krhs, pt(:,:,:,jn,Kbb), zwx, zwy, zwz, zwi, p2dt )
++         zbetup(:,:,jpk) = zbig   ;   zbetdo(:,:,jpk) = zbig
++         ! zbup = MERGE( MAX( pt(:,:,:,jn,Kbb), zwi ), -zbig, tmask == 1._wp )
++         ! zbdo = MERGE( MIN( pt(:,:,:,jn,Kbb), zwi ),  zbig, tmask == 1._wp )
++         !!$OMP PARALLEL DO NUM_THREADS(2) schedule(dynamic)
++         DO_3D( nn_hls, nn_hls, nn_hls, nn_hls, 1, jpk )
++            ! zbup(ji,jj,jk) = MAX( pt(ji,jj,jk,jn,Kbb) * tmask_int(ji,jj,jk) - zbig * (1 - tmask_int(ji,jj,jk)), &
++            !                & zwi(ji,jj,jk) * tmask_int(ji,jj,jk) - zbig * (1 - tmask_int(ji,jj,jk)))
++            ! zbdo(ji,jj,jk) = MIN( pt(ji,jj,jk,jn,Kbb) * tmask_int(ji,jj,jk) + zbig * (1 - tmask_int(ji,jj,jk)), &
++            !                & zwi(ji,jj,jk) * tmask_int(ji,jj,jk) + zbig * (1 - tmask_int(ji,jj,jk)))
++            zbup(ji,jj,jk) = MERGE( MAX( pt(ji,jj,jk,jn,Kbb), zwi(ji,jj,jk) ), -zbig, tmask(ji,jj,jk) == 1._wp )
++            zbdo(ji,jj,jk) = MERGE( MIN( pt(ji,jj,jk,jn,Kbb), zwi(ji,jj,jk) ),  zbig, tmask(ji,jj,jk) == 1._wp )
++         END_3D
++         !!$OMP END PARALLEL DO
++         ! call fct_inter2(jpi,ntsi,ntei,ntsj,ntej,zbup(:,:,1),zbup(:,:,1),zbup(:,:,2),zbdo(:,:,1),&
++         !    &zbdo(:,:,1),zbdo(:,:,2),&
++         !    &zwx(:,:,1),zwy(:,:,1),zwz(:,:,2),zwz(:,:,1),e1e2t,e3t(:,:,1,Kmm),p2dt,zbig,zbetup(:,:,1),zbetdo(:,:,1),zrtrn,zwi(:,:,1))
++         DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
++
++         ! search maximum in neighbourhood
++         
++            zup = MAX(  zbup(ji  ,jj  ,1  ),   &
++               &        zbup(ji-1,jj  ,1  ), zbup(ji+1,jj  ,1  ),   &
++               &        zbup(ji  ,jj-1,1  ), zbup(ji  ,jj+1,1  ),   &
++               &        zbup(ji  ,jj  ,1), zbup(ji  ,jj  ,2)  )
++
++            ! search minimum in neighbourhood
++            zdo = MIN(  zbdo(ji  ,jj  ,1  ),   &
++               &        zbdo(ji-1,jj  ,1  ), zbdo(ji+1,jj  ,1  ),   &
++               &        zbdo(ji  ,jj-1,1  ), zbdo(ji  ,jj+1,1  ),   &
++               &        zbdo(ji  ,jj  ,1), zbdo(ji  ,jj  ,2)  )
++
++            ! positive part of the flux
++            zpos = MAX( 0._wp, zwx(ji-1,jj  ,1  ) ) - MIN( 0._wp, zwx(ji  ,jj  ,1  ) )   &
++               & + MAX( 0._wp, zwy(ji  ,jj-1,1  ) ) - MIN( 0._wp, zwy(ji  ,jj  ,1  ) )   &
++               & + MAX( 0._wp, zwz(ji  ,jj  ,2) ) - MIN( 0._wp, zwz(ji  ,jj  ,1  ) )
++
++            ! negative part of the flux
++            zneg = MAX( 0._wp, zwx(ji  ,jj  ,1  ) ) - MIN( 0._wp, zwx(ji-1,jj  ,1  ) )   &
++               & + MAX( 0._wp, zwy(ji  ,jj  ,1  ) ) - MIN( 0._wp, zwy(ji  ,jj-1,1  ) )   &
++               & + MAX( 0._wp, zwz(ji  ,jj  ,1  ) ) - MIN( 0._wp, zwz(ji  ,jj  ,2) )
++
++            ! up & down beta terms
++            zbt = e1e2t(ji,jj) * e3t(ji,jj,1,Kmm) / p2dt
++            
++            zbetup(ji,jj,1) = ( zup - zwi(ji,jj,1) ) / (zpos + zrtrn) * zbt
++            zbetdo(ji,jj,1) = ( zwi(ji,jj,1) - zdo ) / (zneg + zrtrn) * zbt
++         END_2D
++         !!$OMP PARALLEL DO NUM_THREADS(2) schedule(dynamic)
++         ! DO jk = 2, jpkm1
++         !    !DO jj = ntsj-(  nn_hls-1), ntej+(  nn_hls-1) 
++         !    ! paa_f = zwx(:,:,jk)
++         !    ! !pbb_f1 = pbb(:,jj,jk)
++         !    ! pbb_f = zwy(:,:,jk)
++         !    ! pcc_f = zwz(:,:,jk+1)
++         !    ! pcc_f1 = zwz(:,:,jk)
++         !    ! paft_f = zwi(:,:,jk)
++         !    ! e3t_f = e3t_0(:,:,jk)
++         !    ! call fct_inter5(ntsi,ntei,zbup(:,jj,jk),zbup(:,jj-1,jk),zbup(:,jj+1,jk),zbup(:,jj,jk-1),zbup(:,jj,jk+1),&
++         !    ! &paa(:,jj,jk),pbb(:,jj-1,jk),pbb(:,jj,jk),pcc(:,jj,jk+1),pcc(:,jj,jk),e1e2t(:,jj),e3t(:,jj,jk,Kmm),p2dt,zbig,zbetup(:,jj,jk),zrtrn,paft(:,jj,jk))
++         !    ! call fct_inter6(ntsi,ntei,zbdo(:,jj,jk),zbdo(:,jj-1,jk),zbdo(:,jj+1,jk),zbdo(:,jj,jk-1),zbdo(:,jj,jk+1),&
++         !    ! &paa(:,jj,jk),pbb(:,jj-1,jk),pbb(:,jj,jk),pcc(:,jj,jk+1),pcc(:,jj,jk),e1e2t(:,jj),e3t(:,jj,jk,Kmm),p2dt,zbig,zbetdo(:,jj,jk),zrtrn,paft(:,jj,jk))
++         !    ! call fct_inter5(jpi,ntsi,ntei,ntsj,ntej,zbup(:,:,jk),zbup(:,:,jk-1),zbup(:,:,jk+1),&
++         !    ! &zwx(:,:,jk),zwy(:,:,jk),zwz(:,:,jk+1),zwz(:,:,jk),e1e2t,e3t_0(:,:,jk),p2dt,zbig,zbetup(:,:,jk),zrtrn,zwi(:,:,jk))
++         !    ! call fct_inter6(jpi,ntsi,ntei,ntsj,ntej,zbdo(:,:,jk),zbdo(:,:,jk-1),zbdo(:,:,jk+1),&
++         !    ! &zwx(:,:,jk),zwy(:,:,jk),zwz(:,:,jk+1),zwz(:,:,jk),e1e2t,e3t_0(:,:,jk),p2dt,zbig,zbetdo(:,:,jk),zrtrn,zwi(:,:,jk))
++         !       ! call fct_inter2(ntsi,ntei,zbup(:,jj,jk),zbup(:,jj-1,jk),zbup(:,jj+1,jk),zbup(:,jj,jk-1),zbup(:,jj,jk+1),zbdo(:,jj,jk),&
++         !       ! &zbdo(:,jj-1,jk),zbdo(:,jj+1,jk),zbdo(:,jj,jk-1),zbdo(:,jj,jk+1),&
++         !       ! &zwx(:,jj,jk),zwy(:,jj-1,jk),zwy(:,jj,jk),zwz(:,jj,jk+1),zwz(:,jj,jk),e1e2t(:,jj),e3t(:,jj,jk,Kmm),p2dt,zbig,zbetup(:,jj,jk),zbetdo(:,jj,jk),zrtrn,zwi(:,jj,jk))
++         !    call fct_inter2(jpi,ntsi,ntei,ntsj,ntej,zbup(:,:,jk),zbup(:,:,jk-1),zbup(:,:,jk+1),zbdo(:,:,jk),&
++         !    &zbdo(:,:,jk-1),zbdo(:,:,jk+1),&
++         !    &zwx(:,:,jk),zwy(:,:,jk),zwz(:,:,jk+1),zwz(:,:,jk),e1e2t,e3t(:,:,jk,Kmm),p2dt,zbig,zbetup(:,:,jk),zbetdo(:,:,jk),zrtrn,zwi(:,:,jk))
++         !    !END DO
++         ! END DO
++         ! !$OMP PARALLEL DO NUM_THREADS(2) schedule(dynamic) 
++         DO jk = 2, jpkm1
++         
++            DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
++
++               ! search maximum in neighbourhood
++               zup = MAX(  zbup(ji  ,jj  ,jk  ),   &
++                  &        zbup(ji-1,jj  ,jk  ), zbup(ji+1,jj  ,jk  ),   &
++                  &        zbup(ji  ,jj-1,jk  ), zbup(ji  ,jj+1,jk  ),   &
++                  &        zbup(ji  ,jj  ,jk-1), zbup(ji  ,jj  ,jk+1)  )
++
++               ! search minimum in neighbourhood
++               zdo = MIN(  zbdo(ji  ,jj  ,jk  ),   &
++                  &        zbdo(ji-1,jj  ,jk  ), zbdo(ji+1,jj  ,jk  ),   &
++                  &        zbdo(ji  ,jj-1,jk  ), zbdo(ji  ,jj+1,jk  ),   &
++                  &        zbdo(ji  ,jj  ,jk-1), zbdo(ji  ,jj  ,jk+1)  )
++
++               ! ! positive part of the flux
++               ! zpos = MAX( 0._wp, paa(ji-1,jj  ,jk  ) ) - MIN( 0._wp, paa(ji  ,jj  ,jk  ) )   &
++               !    & + MAX( 0._wp, pbb(ji  ,jj-1,jk  ) ) - MIN( 0._wp, pbb(ji  ,jj  ,jk  ) )   &
++               !    & + MAX( 0._wp, pcc(ji  ,jj  ,jk+1) ) - MIN( 0._wp, pcc(ji  ,jj  ,jk  ) )
++
++               ! ! negative part of the flux
++               ! zneg = MAX( 0._wp, paa(ji  ,jj  ,jk  ) ) - MIN( 0._wp, paa(ji-1,jj  ,jk  ) )   &
++               !    & + MAX( 0._wp, pbb(ji  ,jj  ,jk  ) ) - MIN( 0._wp, pbb(ji  ,jj-1,jk  ) )   &
++               !    & + MAX( 0._wp, pcc(ji  ,jj  ,jk  ) ) - MIN( 0._wp, pcc(ji  ,jj  ,jk+1) )
++               ! paa1_single = zwx(ji-1,jj,jk)
++               ! paa_single = zwx(ji,jj,jk)
++               ! pbb1_single = zwy(ji,jj-1,jk)
++               ! pbb_single = zwy(ji,jj,jk)
++               ! pcc1_single = zwz(ji,jj,jk+1)
++               ! pcc_single = zwz(ji,jj,jk)
++               ! zpos = MAX( 0._wp, paa1_single ) - MIN( 0._wp, paa_single )   &
++               !    & + MAX( 0._wp, pbb1_single ) - MIN( 0._wp, pbb_single )   &
++               !    & + MAX( 0._wp, pcc1_single ) - MIN( 0._wp, pcc_single )
++
++               zpos = MAX( 0._wp, zwx(ji-1,jj,jk) ) - MIN( 0._wp, zwx(ji,jj,jk) )   &
++                  & + MAX( 0._wp, zwy(ji,jj-1,jk) ) - MIN( 0._wp, zwy(ji,jj,jk) )   &
++                  & + MAX( 0._wp, zwz(ji,jj,jk+1) ) - MIN( 0._wp, zwz(ji,jj,jk) )
++               ! zpos = MAX( 0._wp, paa1_single ) - MIN( 0._wp, paa_single)   &
++               !    & + MAX( 0._wp, pbb1_single ) - MIN( 0._wp, pbb_single )   &
++               !    & + MAX( 0._wp, pcc1_single ) - MIN( 0._wp, pcc_single )
++               
++               zneg = MAX( 0._wp, zwx(ji  ,jj  ,jk  ) ) - MIN( 0._wp, zwx(ji-1,jj  ,jk  ) )   &
++                  & + MAX( 0._wp, zwy(ji  ,jj  ,jk  ) ) - MIN( 0._wp, zwy(ji  ,jj-1,jk  ) )   &
++                  & + MAX( 0._wp, zwz(ji  ,jj  ,jk  ) ) - MIN( 0._wp, zwz(ji  ,jj  ,jk+1) )
++         
++               ! positive part of the flux
++               ! zpos = MAX( 0._wp, zwx(ji-1,jj  ,jk  ) ) - MIN( 0._wp, zwx(ji  ,jj  ,jk  ) )   &
++               !    & + MAX( 0._wp, zwy(ji  ,jj-1,jk  ) ) - MIN( 0._wp, zwy(ji  ,jj  ,jk  ) )   &
++               !    & + MAX( 0._wp, zwz(ji  ,jj  ,) ) - MIN( 0._wp, zwz(ji  ,jj  ,jk  ) )
++
++               ! zneg = zwx(ji,jj,jk) - zwx(ji-1,jj,jk)    &
++               !    & + zwy(ji,jj,jk) - zwy(ji,jj-1,jk)    &
++               !    & + zwz(ji,jj,jk) - zwz(ji,jj,jk+1)   + zpos
++               ! zneg = paa_single - paa1_single    &
++               !    & + pbb_single - pbb1_single    &
++               !    & + pcc_single - pcc1_single   + zpos
++               ! up & down beta terms
++               zbt = e1e2t(ji,jj) * e3t(ji,jj,jk,Kmm) / p2dt
++               ! IF( zup /= -zbig .AND. zpos /= 0._wp ) THEN   ;   zbetup(ji,jj,jk) = ( zup - paft(ji,jj,jk) ) / zpos * zbt
++               ! ELSE                                          ;   zbetup(ji,jj,jk) = zbig
++               ! ENDIF
++               ! IF( zdo /=  zbig .AND. zneg /= 0._wp ) THEN   ;   zbetdo(ji,jj,jk) = ( paft(ji,jj,jk) - zdo ) / zneg * zbt
++               ! ELSE                                          ;   zbetdo(ji,jj,jk) = zbig
++               ! ENDIF
++               zbetup(ji,jj,jk) = ( zup - zwi(ji,jj,jk) ) / (zpos + zrtrn) * zbt
++               zbetdo(ji,jj,jk) = ( zwi(ji,jj,jk) - zdo ) / (zneg + zrtrn) * zbt
++
++            END_2D
++         END DO
++         !!$OMP END PARALLEL DO 
++
++         ! DO_3D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 , 1, jpkm1 )
++         !    IF( zbetup(ji,jj,jk) <= -HUGE(1._8) ) THEN   ;   zbetup(ji,jj,jk) = HUGE(1._8)
++         !    ENDIF
++         !    IF( zbetdo(ji,jj,jk) <= -HUGE(1._8) ) THEN   ;   zbetdo(ji,jj,jk) = HUGE(1._8)
++         !    ENDIF
++         ! END_3D
+          !        !==  final trend with corrected fluxes  ==!
+-         !
+-         DO_3D( 0, 0, 0, 0, 1, jpkm1 )
+-            ztra = - (  zwx(ji,jj,jk) - zwx(ji-1,jj  ,jk  )   &
+-               &      + zwy(ji,jj,jk) - zwy(ji  ,jj-1,jk  )   &
+-               &      + zwz(ji,jj,jk) - zwz(ji  ,jj  ,jk+1) ) * r1_e1e2t(ji,jj)
++         !s
++         CALL lbc_lnk( 'traadv_fct', zbetup, 'T', 1.0_wp , zbetdo, 'T', 1.0_wp, ld4only= .TRUE. )   ! lateral boundary cond. (unchanged sign)
++         
++         DO_2D( 0, 0, 0, 0)
++            ztra = - (  compute_zwx(zwx(ji,jj,1),zbetup(ji+1,jj,1),zbetdo(ji,jj,1),zbetup(ji,jj,1),zbetdo(ji+1,jj,1)) &
++               &      - compute_zwx(zwx(ji-1,jj,1),zbetup(ji,jj,1),zbetdo(ji-1,jj,1),zbetup(ji-1,jj,1),zbetdo(ji,jj,1))   &
++               &      + compute_zwx(zwy(ji,jj,1),zbetup(ji,jj+1,1),zbetdo(ji,jj,1),zbetup(ji,jj,1),zbetdo(ji,jj+1,1)) &
++               &      - compute_zwx(zwy(ji,jj-1,1),zbetup(ji,jj,1),zbetdo(ji,jj-1,1),zbetup(ji,jj-1,1),zbetdo(ji,jj,1))   &
++               &      - compute_zwx(zwz(ji,jj,2),zbetup(ji,jj,1),zbetdo(ji,jj,2),zbetup(ji,jj,2),zbetdo(ji,jj,1))  ) * r1_e1e2t(ji,jj)
++            pt(ji,jj,1,jn,Krhs) = pt(ji,jj,1,jn,Krhs) + ztra / e3t(ji,jj,1,Kmm)
++            !zwi(ji,jj,jk) = zwi(ji,jj,jk) + p2dt * ztra / e3t(ji,jj,jk,Krhs) * tmask(ji,jj,jk)
++         END_2D
++
++         !!$OMP PARALLEL DO NUM_THREADS(2)  schedule(dynamic) 
++
++         DO_3D( 0, 0, 0, 0, 2, jpkm1 )
++            ztra = - (  compute_zwx(zwx(ji,jj,jk),zbetup(ji+1,jj,jk),zbetdo(ji,jj,jk),zbetup(ji,jj,jk),zbetdo(ji+1,jj,jk)) &
++               &      - compute_zwx(zwx(ji-1,jj,jk),zbetup(ji,jj,jk),zbetdo(ji-1,jj,jk),zbetup(ji-1,jj,jk),zbetdo(ji,jj,jk))   &
++               &      + compute_zwx(zwy(ji,jj,jk),zbetup(ji,jj+1,jk),zbetdo(ji,jj,jk),zbetup(ji,jj,jk),zbetdo(ji,jj+1,jk)) &
++               &      - compute_zwx(zwy(ji,jj-1,jk),zbetup(ji,jj,jk),zbetdo(ji,jj-1,jk),zbetup(ji,jj-1,jk),zbetdo(ji,jj,jk))   &
++               &      + compute_zwx(zwz(ji,jj,jk),zbetup(ji,jj,jk-1),zbetdo(ji,jj,jk),zbetup(ji,jj,jk),zbetdo(ji,jj,jk-1)) &
++               &      - compute_zwx(zwz(ji,jj,jk+1),zbetup(ji,jj,jk),zbetdo(ji,jj,jk+1),zbetup(ji,jj,jk+1),zbetdo(ji,jj,jk))  ) * r1_e1e2t(ji,jj)
+             pt(ji,jj,jk,jn,Krhs) = pt(ji,jj,jk,jn,Krhs) + ztra / e3t(ji,jj,jk,Kmm)
+-            zwi(ji,jj,jk) = zwi(ji,jj,jk) + p2dt * ztra / e3t(ji,jj,jk,Krhs) * tmask(ji,jj,jk)
++            !zwi(ji,jj,jk) = zwi(ji,jj,jk) + p2dt * ztra / e3t(ji,jj,jk,Krhs) * tmask(ji,jj,jk)
+          END_3D
+-         !
+-         IF ( ll_zAimp ) THEN
+-            !
+-            ztw(:,:,1) = 0._wp ; ztw(:,:,jpk) = 0._wp
+-            DO_3D( 0, 0, 0, 0, 2, jpkm1 )      ! Interior value ( multiplied by wmask)
+-               zfp_wk = wi(ji,jj,jk) + ABS( wi(ji,jj,jk) )
+-               zfm_wk = wi(ji,jj,jk) - ABS( wi(ji,jj,jk) )
+-               ztw(ji,jj,jk) = - 0.5 * e1e2t(ji,jj) * ( zfp_wk * zwi(ji,jj,jk) + zfm_wk * zwi(ji,jj,jk-1) ) * wmask(ji,jj,jk)
+-               zwz(ji,jj,jk) = zwz(ji,jj,jk) + ztw(ji,jj,jk) ! Update vertical fluxes for trend diagnostic
+-            END_3D
+-            DO_3D( 0, 0, 0, 0, 1, jpkm1 )
+-               pt(ji,jj,jk,jn,Krhs) = pt(ji,jj,jk,jn,Krhs) - ( ztw(ji,jj,jk) - ztw(ji  ,jj  ,jk+1) ) &
+-                  &                                        * r1_e1e2t(ji,jj) / e3t(ji,jj,jk,Kmm)
+-            END_3D
+-         END IF
+-         IF( l_trd .OR. l_hst ) THEN   ! trend diagnostics // heat/salt transport
+-            ztrdx(:,:,:) = ztrdx(:,:,:) + zwx(:,:,:)  ! <<< add anti-diffusive fluxes
+-            ztrdy(:,:,:) = ztrdy(:,:,:) + zwy(:,:,:)  !     to upstream fluxes
+-            ztrdz(:,:,:) = ztrdz(:,:,:) + zwz(:,:,:)  !
+-            !
+-            IF( l_trd ) THEN              ! trend diagnostics
+-               CALL trd_tra( kt, Kmm, Krhs, cdtype, jn, jptra_xad, ztrdx, pU, pt(:,:,:,jn,Kmm) )
+-               CALL trd_tra( kt, Kmm, Krhs, cdtype, jn, jptra_yad, ztrdy, pV, pt(:,:,:,jn,Kmm) )
+-               CALL trd_tra( kt, Kmm, Krhs, cdtype, jn, jptra_zad, ztrdz, pW, pt(:,:,:,jn,Kmm) )
+-            ENDIF
+-            !                             ! heat/salt transport
+-            IF( l_hst )   CALL dia_ar5_hst( jn, 'adv', ztrdx(:,:,:), ztrdy(:,:,:) )
+-            !
+-         ENDIF
+-         IF( l_ptr ) THEN              ! "Poleward" transports
+-            zptry(:,:,:) = zptry(:,:,:) + zwy(:,:,:)  ! <<< add anti-diffusive fluxes
+-            CALL dia_ptr_hst( jn, 'adv', zptry(:,:,:) )
+-         ENDIF
++         !!$OMP END PARALLEL DO 
++
++         ! DO_3D( 0, 0, 0, 0, 1, jpkm1 )
++         !    ztra = - (  zwx(ji,jj,jk) - zwx(ji-1,jj  ,jk  )   &
++         !       &      + zwy(ji,jj,jk) - zwy(ji  ,jj-1,jk  )   &
++         !       &      + zwz(ji,jj,jk) - zwz(ji  ,jj  ,jk+1) ) * r1_e1e2t(ji,jj)
++         !    pt(ji,jj,jk,jn,Krhs) = pt(ji,jj,jk,jn,Krhs) + ztra / e3t(ji,jj,jk,Kmm)
++         !    zwi(ji,jj,jk) = zwi(ji,jj,jk) + p2dt * ztra / e3t(ji,jj,jk,Krhs) * tmask(ji,jj,jk)
++         ! END_3D
++         !
++         ! IF ( ll_zAimp ) THEN
++         !    !
++         !    ztw(:,:,1) = 0._wp ; ztw(:,:,jpk) = 0._wp
++         !    DO_3D( 0, 0, 0, 0, 2, jpkm1 )      ! Interior value ( multiplied by wmask)
++         !       zfp_wk = wi(ji,jj,jk) + ABS( wi(ji,jj,jk) )
++         !       zfm_wk = wi(ji,jj,jk) - ABS( wi(ji,jj,jk) )
++         !       ztw(ji,jj,jk) = - 0.5 * e1e2t(ji,jj) * ( zfp_wk * zwi(ji,jj,jk) + zfm_wk * zwi(ji,jj,jk-1) ) * wmask(ji,jj,jk)
++         !       zwz(ji,jj,jk) = zwz(ji,jj,jk) + ztw(ji,jj,jk) ! Update vertical fluxes for trend diagnostic
++         !    END_3D
++         !    DO_3D( 0, 0, 0, 0, 1, jpkm1 )
++         !       pt(ji,jj,jk,jn,Krhs) = pt(ji,jj,jk,jn,Krhs) - ( ztw(ji,jj,jk) - ztw(ji  ,jj  ,jk+1) ) &
++         !          &                                        * r1_e1e2t(ji,jj) / e3t(ji,jj,jk,Kmm)
++         !    END_3D
++         ! END IF
++         ! IF( l_trd .OR. l_hst ) THEN   ! trend diagnostics // heat/salt transport
++         !    ztrdx(:,:,:) = ztrdx(:,:,:) + zwx(:,:,:)  ! <<< add anti-diffusive fluxes
++         !    ztrdy(:,:,:) = ztrdy(:,:,:) + zwy(:,:,:)  !     to upstream fluxes
++         !    ztrdz(:,:,:) = ztrdz(:,:,:) + zwz(:,:,:)  !
++         !    !
++         !    IF( l_trd ) THEN              ! trend diagnostics
++         !       CALL trd_tra( kt, Kmm, Krhs, cdtype, jn, jptra_xad, ztrdx, pU, pt(:,:,:,jn,Kmm) )
++         !       CALL trd_tra( kt, Kmm, Krhs, cdtype, jn, jptra_yad, ztrdy, pV, pt(:,:,:,jn,Kmm) )
++         !       CALL trd_tra( kt, Kmm, Krhs, cdtype, jn, jptra_zad, ztrdz, pW, pt(:,:,:,jn,Kmm) )
++         !    ENDIF
++         !    !                             ! heat/salt transport
++         !    IF( l_hst )   CALL dia_ar5_hst( jn, 'adv', ztrdx(:,:,:), ztrdy(:,:,:) )
++         !    !
++         ! ENDIF
++         ! IF( l_ptr ) THEN              ! "Poleward" transports
++         !    zptry(:,:,:) = zptry(:,:,:) + zwy(:,:,:)  ! <<< add anti-diffusive fluxes
++         !    CALL dia_ptr_hst( jn, 'adv', zptry(:,:,:) )
++         ! ENDIF
+          !
+       END DO                     ! end of tracer loop
+       !
+-      IF ( ll_zAimp ) THEN
+-         DEALLOCATE( zwdia, zwinf, zwsup )
+-      ENDIF
+-      IF( l_trd .OR. l_hst ) THEN
+-         DEALLOCATE( ztrdx, ztrdy, ztrdz )
+-      ENDIF
+-      IF( l_ptr ) THEN
+-         DEALLOCATE( zptry )
+-      ENDIF
++      ! IF ( ll_zAimp ) THEN
++      !    DEALLOCATE( zwdia, zwinf, zwsup )
++      ! ENDIFd:\NEMO\nemo-4.2.2\src\OCE\TRA\trazdf.F90
++      ! IF( l_trd .OR. l_hst ) THEN
++      !    DEALLOCATE( ztrdx, ztrdy, ztrdz )
++      ! ENDIF
++      ! IF( l_ptr ) THEN
++      !    DEALLOCATE( zptry )
++      ! ENDIF
+       !
+ #endif
++
+    END SUBROUTINE tra_adv_fct
+ 
+ 
+@@ -411,18 +696,24 @@
+       REAL(wp) ::   zpos, zneg, zbt, zbig                 ! local scalars
+       REAL(wp) ::   zup, zdo                              !   -      -
+       REAL(wp), DIMENSION(A2D(nn_hls),jpk) :: zbetup, zbetdo, zbup, zbdo
++      ! !增加中间变量 减少访存
++      ! REAL(dp) :: pbef_single,paft_single
+       !!----------------------------------------------------------------------
+       !
+       zbig = HUGE(1._wp)
+       zbetup(:,:,jpk) = zbig   ;   zbetdo(:,:,jpk) = zbig
+ 
++      
+       ! Search local extrema
+       ! --------------------
+       ! max/min of pbef & paft with large negative/positive value (-/+zbig) inside land
++      !编译器未自动向量化
+       DO_3D( nn_hls, nn_hls, nn_hls, nn_hls, 1, jpk )
++         
+          IF( tmask(ji,jj,jk) == 1._wp ) THEN
+             zbup(ji,jj,jk) = MAX( pbef(ji,jj,jk), paft(ji,jj,jk) )
+             zbdo(ji,jj,jk) = MIN( pbef(ji,jj,jk), paft(ji,jj,jk) )
++           
+          ELSE
+             zbup(ji,jj,jk) = -zbig
+             zbdo(ji,jj,jk) =  zbig
+@@ -431,9 +722,14 @@
+ 
+       DO jk = 1, jpkm1
+          ikm1 = MAX(jk-1,1)
++         
+          DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
+ 
+             ! search maximum in neighbourhood
++            ! zup = MAX(  zbup(ji  ,jj  ,jk  ),   &
++            !    &        zbup(ji-1,jj  ,jk  ), zbup(ji+1,jj  ,jk  ),   &
++            !    &        zbup(ji  ,jj-1,jk  ), zbup(ji  ,jj+1,jk  ),   &
++            !    &        zbup(ji  ,jj  ,ikm1), zbup(ji  ,jj  ,jk+1)  )
+             zup = MAX(  zbup(ji  ,jj  ,jk  ),   &
+                &        zbup(ji-1,jj  ,jk  ), zbup(ji+1,jj  ,jk  ),   &
+                &        zbup(ji  ,jj-1,jk  ), zbup(ji  ,jj+1,jk  ),   &
+@@ -498,7 +794,7 @@
+       INTEGER :: ji, jj, jk   ! dummy loop integers
+       REAL(wp),DIMENSION(jpi,jpj,jpk) :: zwd, zwi, zws, zwrm, zwt
+       !!----------------------------------------------------------------------
+-
++      !未自动向量化
+       DO_3D( 1, 1, 1, 1, 3, jpkm1 )       !==  build the three diagonal matrix  ==!
+          zwd (ji,jj,jk) = 4._wp
+          zwi (ji,jj,jk) = 1._wp
+@@ -583,6 +879,7 @@
+          zwd(:,:,2) = 1._wp  ;  zwi(:,:,2) = 0._wp  ;  zws(:,:,2) = 0._wp  ;  zwrm(:,:,2) = 0._wp
+       END IF
+       !
++      !未自动向量化
+       DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )              ! 2nd order centered at top & bottom
+          ikt = mikt(ji,jj) + 1            ! w-point below the 1st  wet point
+          ikb = MAX(mbkt(ji,jj), 2)        !     -   above the last wet point
+@@ -600,6 +897,7 @@
+       !
+       !                       !==  tridiagonal solver  ==!
+       !
++      !未自动向量化
+       DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )           !* 1st recurrence:   Tk = Dk - Ik Sk-1 / Tk-1
+          zwt(ji,jj,2) = zwd(ji,jj,2)
+       END_2D
+@@ -607,6 +905,7 @@
+          zwt(ji,jj,jk) = zwd(ji,jj,jk) - zwi(ji,jj,jk) * zws(ji,jj,jk-1) /zwt(ji,jj,jk-1)
+       END_3D
+       !
++      !未自动向量化
+       DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )           !* 2nd recurrence:    Zk = Yk - Ik / Tk-1  Zk-1
+          pt_out(ji,jj,2) = zwrm(ji,jj,2)
+       END_2D
+@@ -656,6 +955,7 @@
+       !
+       kstart =  1  + klev
+       !
++      !未自动向量化
+       DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )                         !* 1st recurrence:   Tk = Dk - Ik Sk-1 / Tk-1
+          zwt(ji,jj,kstart) = pD(ji,jj,kstart)
+       END_2D
+@@ -663,6 +963,7 @@
+          zwt(ji,jj,jk) = pD(ji,jj,jk) - pL(ji,jj,jk) * pU(ji,jj,jk-1) /zwt(ji,jj,jk-1)
+       END_3D
+       !
++      !未自动向量化
+       DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )                        !* 2nd recurrence:    Zk = Yk - Ik / Tk-1  Zk-1
+          pt_out(ji,jj,kstart) = pRHS(ji,jj,kstart)
+       END_2D
+@@ -1008,3 +1309,29 @@
+ #endif
+    !!======================================================================
+ END MODULE traadv_fct
++function compute_zwx(zwx,zbetup1,zbetdo1,zbetup2,zbetdo2) result(zwxx)
++      REAL(8) :: zwx,zbetup1,zbetdo1,zbetup2,zbetdo2
++      REAL(8) :: zwxx
++      REAL(8) :: zau,zbu,zcu
++      REAL(8) :: zcoef
++         ! IF( zwx > 0._4 ) THEN   ;   zwxx = zwx * MIN( 1._4, zbetdo1, zbetup1 )
++         ! ELSE                    ;   zwxx = zwx * MIN( 1._4, zbetup2, zbetdo2 )
++         ! ENDIF
++         zau = MIN( 1._8, zbetdo1, zbetup1 )
++         zbu = MIN( 1._8, zbetup2, zbetdo2 )
++         zcu =       ( 0.5_8  + SIGN( 0.5_8 , zwx ) )
++         zwxx = zwx * ( zcu * zau + ( 1._8 - zcu) * zbu ) 
++
++end function
++function compute_ori_zwxy(pUV,pta,ptb) result(res_zwxy)
++      REAL(8) :: pUV,pta,ptb
++      REAL(8) :: res_zwxy
++         res_zwxy = MAX( pUV , 0._8 ) * pta + MIN( pUV , 0._8 ) * ptb
++end function
++function compute_ori_zwz(pW,pta,ptb,wmask) result(res_zwz)
++      REAL(8) :: pW,pta,ptb
++      REAL(8) :: res_zwz
++      REAL(8) :: wmask
++         res_zwz = (MAX( pW , 0._8 ) * pta + MIN( pW , 0._8 ) * ptb ) * wmask
++end function
++

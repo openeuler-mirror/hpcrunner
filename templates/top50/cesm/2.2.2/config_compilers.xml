@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config_compilers version="2.0">
+
+<compiler COMPILER="gnu">
+  <CFLAGS>
+    <base> -std=gnu99 -O3 -mcpu=tsv110 </base>
+    <append compile_threaded="true"> -fopenmp </append>
+    <append DEBUG="TRUE">  -mllvm -alias-set-saturation-threshold=10000 </append>
+    <append DEBUG="FALSE">  -mllvm -alias-set-saturation-threshold=10000 </append>
+  </CFLAGS>
+  <CPPDEFS>
+    <!-- http://gcc.gnu.org/onlinedocs/gfortran/ -->
+    <append> -DFORTRANUNDERSCORE -DNO_R16 -DCPRGNU</append>
+  </CPPDEFS>
+  <CXX_LINKER>FORTRAN</CXX_LINKER>
+  <FC_AUTO_R8>
+    <base> -fdefault-real-8 </base>
+  </FC_AUTO_R8>
+  <FFLAGS>
+    <!-- -ffree-line-length-none and -ffixed-line-length-none need to be in FFLAGS rather than in FIXEDFLAGS/FREEFLAGS
+       so that these are passed to cmake builds (cmake builds don't use FIXEDFLAGS and FREEFLAGS). -->
+    <base> -mno-fcmla -fconvert=big-endian -O3 -mcpu=tsv110 -Hx,54,0x08  -Hx,54,0x800 -Mx,54,0x1000 -mllvm -alias-set-saturation-threshold=10000 -lstringlib -Wl,--wrap=memcpy -Wl,--wrap=memset -I$ENV{NETCDF_CLANG_PATH}/include -I$ENV{PNETCDF_PATH}/include -I$ENV{HDF5_CLANG_PATH}/include -I$ENV{KML_GCC_PATH}/include -I./ -I../ </base>
+    <append compile_threaded="true"> -fopenmp </append>
+    <!-- Ideally, we would also have 'invalid' in the ffpe-trap list. But at
+         least with some versions of gfortran (confirmed with 5.4.0, 6.3.0 and
+         7.1.0), gfortran's isnan (which is called in cime via the
+         CPRGNU-specific shr_infnan_isnan) causes a floating point exception
+         when called on a signaling NaN. -->
+    <append DEBUG="TRUE"> -g </append>
+    <append DEBUG="FALSE">  </append>
+  </FFLAGS>
+  <FFLAGS_NOOPT>
+    <base> -O0 </base>
+  </FFLAGS_NOOPT>
+  <FIXEDFLAGS>
+    <base>  -ffixed-form </base>
+  </FIXEDFLAGS>
+  <FREEFLAGS>
+    <base> -ffree-form </base>
+  </FREEFLAGS>
+  <HAS_F2008_CONTIGUOUS>FALSE</HAS_F2008_CONTIGUOUS>
+  <LDFLAGS>
+    <append compile_threaded="true"> -fopenmp  -L$ENV{NETCDF_CLANG_PATH}/lib -L$ENV{PNETCDF_PATH}/lib -L$ENV{HDF5_CLANG_PATH}/lib -L$ENV{KML_GCC_PATH}/lib -L$ENV{KML_GCC_PATH}/lib/kblas/omp -lkblas -lklapack_full -lnetcdff -lnetcdf -lpnetcdf -lhdf5_hl -lhdf5 -lm -lz </append>
+  </LDFLAGS>
+  <MPICC> mpicc  </MPICC>
+  <MPICXX> mpicxx </MPICXX>
+  <MPIFC> mpif90 </MPIFC>
+  <SCC> clang </SCC>
+  <SCXX> clang++ </SCXX>
+  <SFC> flang </SFC>
+  <SUPPORTS_CXX>TRUE</SUPPORTS_CXX>
+  <SLIBS>
+      <append> -L$ENV{NETCDF_CLANG_PATH}/lib -L$ENV{PNETCDF_PATH}/lib -L$ENV{HDF5_CLANG_PATH}/lib -L$ENV{KML_GCC_PATH}/lib -L$ENV{KML_GCC_PATH}/lib/kblas/omp -lkblas -lklapack_full -lnetcdff -lnetcdf -lpnetcdf -lhdf5_hl -lhdf5 -lm -lz </append>
+  </SLIBS>
+</compiler>
+
+</config_compilers>

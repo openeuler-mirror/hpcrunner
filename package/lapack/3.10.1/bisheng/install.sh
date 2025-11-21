@@ -17,10 +17,10 @@ sed -i '50s/^#//g' ./make.inc
 rm build -rf
 mkdir build
 cd build
-cmake ../ -DCMAKE_INSTALL_PREFIX=$1 -DBUILD_SHARED_LIBS=ON
+cmake ../ -DCMAKE_INSTALL_PREFIX=$1 -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_LIBDIR="${PATH_INSTALL}/lib64"
 make -j $(nproc)
 make install
-ln -s $1/lib64 $1/lib
+ln -sf $1/lib64 $1/lib
 
 cd ..
 sed -i "s|\$(TOPSRCDIR)|$1/lib64|g" make.inc
