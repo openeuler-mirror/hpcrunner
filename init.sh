@@ -31,22 +31,22 @@ ifsve=`lscpu|grep sve`
 ifneon=`lscpu|grep asimd`
 
 if [ -n "$ifsme" ]; then
-    kp=sme
+    export kp=sme
 elif [ -n "$ifsve" ]; then
-    kp=sve
+    export kp=sve
 elif [ -n "$ifneon" ]; then
-    kp=neon
+    export kp=neon
 else
     echo "not in kunpeng architecture"
 fi
 
 #判断hpckit使用版本
 if [ ${UseLatest} -eq 0 ];then
-    HPCKIT_VERSION=25.1.0
-    BISHENG_VERSION=4.1.0
-    HMPI_VERSION=25.1.0
+    export HPCKIT_VERSION=25.1.0
+    export BISHENG_VERSION=4.2.0.2
+    export HMPI_VERSION=25.1.0
 elif [ ${UseLatest} -eq 1 ];then
-    HPCKIT_VERSION=latest
+    export HPCKIT_VERSION=latest
 else
     echo "[ERROR] UseLatest=${UseLatest}, unsupported value."
     exit 1
@@ -55,11 +55,11 @@ fi
 #判断hpckit是否安装，更新配套版本
 file_path="software/utils/hpckit/${HPCKIT_VERSION}/HPCKit/${HPCKIT_VERSION}/modulefiles/bisheng"
 if [ -e "$file_path" ]; then
-    echo -e "你正在使用 $HPCKIT_VERSION 版本的 HPCKKit"
-    BISHENG_VERSION=`ls $file_path|grep compiler|awk -F "compiler" '{print $2}'`
-    HMPI_VERSION=`ls $file_path|grep hmpi|awk -F "hmpi" '{print $2}'`
+    echo -e "你正在使用 $HPCKIT_VERSION 版本的 HPCKit"
+    export BISHENG_VERSION=`ls $file_path|grep compiler|awk -F "compiler" '{print $2}'`
+    export HMPI_VERSION=`ls $file_path|grep hmpi|awk -F "hmpi" '{print $2}'`
 else
-    echo -e "INFO: 检测到 $HPCKIT_VERSION 版本的 HPCKKit 未进行安装，请继续执行\n"
+    echo -e "INFO: 检测到 $HPCKIT_VERSION 版本的 HPCKit 未进行安装，请继续执行\n"
 fi
 
 

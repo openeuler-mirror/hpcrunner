@@ -6,6 +6,6 @@ set -e
 cd ${JARVIS_TMP}
 tar -xvf ${JARVIS_DOWNLOAD}/R-4.4.3.tar.gz
 cd R-4.4.3
-./configure --prefix=$1 -enable-R-shlib --with-libpng --with-jpeglib
+./configure --prefix=$1 -enable-R-shlib --with-libpng --with-jpeglib --with-blas --with-lapack
 make all -j
 make install
