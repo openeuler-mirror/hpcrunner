@@ -256,7 +256,7 @@ local TOKEN=$1
 local TIME=$2
 local LOGDIR=$3
 echo "${TOKEN}"
-cp templates/${BCH}/multiwfn/3.0.8/data.config data.config -ar
+cp templates/${BCH}/multiwfn/3.8/data.config data.config -ar
 ./config_convert.sh data.config
 dotask ${TOKEN} ${TIME} ${LOGDIR} ${LINENO}
 return 0
