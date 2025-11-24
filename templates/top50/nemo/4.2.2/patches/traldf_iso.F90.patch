@@ -1,0 +1,485 @@
+--- ./traldf_iso.F90	2025-02-25 16:16:22.989444033 +0800
++++ ./traldf_iso.F90	2025-05-16 16:58:19.520725010 +0800
+@@ -30,7 +30,7 @@
+    USE iom            ! I/O library
+    USE phycst         ! physical constants
+    USE lbclnk         ! ocean lateral boundary conditions (or mpp link)
+-
++   USE mpi
+    IMPLICIT NONE
+    PRIVATE
+ 
+@@ -65,10 +65,11 @@
+       REAL(dp), DIMENSION(:,:,:,:), INTENT(in   ) ::   pt         ! tracer (kpass=1) or laplacian of tracer (kpass=2)
+       REAL(dp), DIMENSION(:,:,:,:), INTENT(in   ) ::   pt2        ! tracer (only used in kpass=2)
+       REAL(dp), DIMENSION(:,:,:,:), INTENT(inout) ::   pt_rhs     ! tracer trend
+-      !!
++      integer                                     :: ret
+       CALL tra_ldf_iso_t( kt, Kmm, kit000, cdtype, pahu, pahv, is_tile(pahu),                             &
+          &                                         pgu , pgv , is_tile(pgu) , pgui, pgvi, is_tile(pgui),  &
+          &                                         pt, is_tile(pt), pt2, is_tile(pt2), pt_rhs, is_tile(pt_rhs), kjpt, kpass )
++
+    END SUBROUTINE tra_ldf_iso
+ 
+ 
+@@ -104,6 +105,7 @@
+       !!         ta = ta + difft
+       !!
+       !!      3rd part: vertical trends of the lateral mixing operator
++      !!      3rd part: vertical trends of the lateral mixing operator
+       !!      ========  (excluding the vertical flux proportional to dk[t] )
+       !!      vertical fluxes associated with the rotated lateral mixing:
+       !!         zftw = - {  mi(mk(pahu)) * e2t*wslpi di[ mi(mk(tb)) ]
+@@ -128,15 +130,29 @@
+       REAL(dp), DIMENSION(A2D_T(ktt)    ,JPK,KJPT), INTENT(in   ) ::   pt         ! tracer (kpass=1) or laplacian of tracer (kpass=2)
+       REAL(dp), DIMENSION(A2D_T(ktt2)   ,JPK,KJPT), INTENT(in   ) ::   pt2        ! tracer (only used in kpass=2)
+       REAL(dp), DIMENSION(A2D_T(ktt_rhs),JPK,KJPT), INTENT(inout) ::   pt_rhs     ! tracer trend
+-      !
++
+       INTEGER  ::  ji, jj, jk, jn   ! dummy loop indices
+       INTEGER  ::  ikt
+       INTEGER  ::  ierr, iij        ! local integer
+-      REAL(wp) ::  zmsku, zahu_w, zabe1, zcof1, zcoef3   ! local scalars
+-      REAL(wp) ::  zmskv, zahv_w, zabe2, zcof2, zcoef4   !   -      -
++      !REAL(wp) ::  zmsku, zahu_w, zabe1, zcof1, zcoef3   ! local scalars
++      REAL(wp) ::  zahu_w, zabe1, zcof1   ! local scalars
++      !REAL(wp) ::  zmskv, zahv_w, zabe2, zcof2, zcoef4   !   -      -
++      REAL(wp) ::  zahv_w, zabe2, zcof2   !   -      -
+       REAL(wp) ::  zcoef0, ze3w_2, zsign                 !   -      -
+       REAL(wp), DIMENSION(A2D(nn_hls))     ::   zdkt, zdk1t, z2d
+-      REAL(wp), DIMENSION(A2D(nn_hls),jpk) ::   zdit, zdjt, zftu, zftv, ztfw
++      REAL(wp), DIMENSION(A2D(nn_hls),jpk) ::   zdit, zdjt,  ztfw
++      REAL(wp), DIMENSION(A2D(nn_hls)) ::   zftu, zftv
++      REAL(wp), DIMENSION(A2D(nn_hls),jpk) ::    zcoef3, zcoef4
++      REAL(wp), DIMENSION(:,:,:),allocatable, save ::    zmsku, zmskv    
++      REAL(wp), DIMENSION(A2D(nn_hls),jpk+1) ::   zdkt_3d,zdk1t_3d
++      REAL(wp) :: zdkt_add,mask_add,tmp
++      INTEGER :: thread_id,process_id
++      LOGICAL, save :: is_first_call = .true.
++      LOGICAL, save :: is_first_call_1 = .true.
++      REAL(wp) ,external:: compute_zdit,compute_zdjt,compute_zdkt
++      integer ::ret
++INCLUDE 'omp_lib.h'
++
+       !!----------------------------------------------------------------------
+       !
+       IF( kpass == 1 .AND. kt == kit000 )  THEN
+@@ -176,25 +192,36 @@
+       !
+       IF( kpass == 1 ) THEN                  !==  first pass only  ==!
+          !
++         IF(is_first_call) THEN
++         allocate(zmsku(A2D(nn_hls),jpk))
++         allocate(zmskv(A2D(nn_hls),jpk))
+          DO_3D_OVR( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 2, jpkm1 )
+             !
+-            zmsku = wmask(ji,jj,jk) / MAX(   umask(ji  ,jj,jk-1) + umask(ji-1,jj,jk)          &
++            zmsku(ji,jj,jk) = wmask(ji,jj,jk) / MAX(   umask(ji  ,jj,jk-1) + umask(ji-1,jj,jk)          &
+                &                           + umask(ji-1,jj,jk-1) + umask(ji  ,jj,jk) , 1._wp  )
+-            zmskv = wmask(ji,jj,jk) / MAX(   vmask(ji,jj  ,jk-1) + vmask(ji,jj-1,jk)          &
++            zmskv(ji,jj,jk) = wmask(ji,jj,jk) / MAX(   vmask(ji,jj  ,jk-1) + vmask(ji,jj-1,jk)          &
+                &                           + vmask(ji,jj-1,jk-1) + vmask(ji,jj  ,jk) , 1._wp  )
+                !
+             ! round brackets added to fix the order of floating point operations
+             ! needed to ensure halo 1 - halo 2 compatibility
++         is_first_call = .false.
++         END_3D
++         ENDIF
++         DO_3D_OVR( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 2, jpkm1 )
++            !
++               !
++            ! round brackets added to fix the order of floating point operations
++            ! needed to ensure halo 1 - halo 2 compatibility
+             zahu_w = ( (  pahu(ji  ,jj,jk-1) + pahu(ji-1,jj,jk)                    &
+                &       )                                                           & ! bracket for halo 1 - halo 2 compatibility
+                &       + ( pahu(ji-1,jj,jk-1) + pahu(ji  ,jj,jk)                   &
+                &         )                                                         & ! bracket for halo 1 - halo 2 compatibility
+-               &     ) * zmsku
++               &     ) * zmsku(ji,jj,jk)
+             zahv_w = ( (  pahv(ji,jj  ,jk-1) + pahv(ji,jj-1,jk)                    &
+                &       )                                                           & ! bracket for halo 1 - halo 2 compatibility
+                &       + ( pahv(ji,jj-1,jk-1) + pahv(ji,jj  ,jk)                   &
+                &         )                                                         & ! bracket for halo 1 - halo 2 compatibility
+-               &     ) * zmskv
++               &     ) * zmskv(ji,jj,jk)
+                !
+             ah_wslp2(ji,jj,jk) = zahu_w * wslpi(ji,jj,jk) * wslpi(ji,jj,jk)   &
+                &               + zahv_w * wslpj(ji,jj,jk) * wslpj(ji,jj,jk)
+@@ -231,12 +258,25 @@
+            ENDIF
+            !
+          ELSE                                    ! 33 flux set to zero with akz=ah_wslp2 ==>> computed in full implicit
+-            DO_3D_OVR( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 1, jpk )
+-               akz(ji,jj,jk) = ah_wslp2(ji,jj,jk)
+-            END_3D
++            
++           akz = ah_wslp2
+          ENDIF
+       ENDIF
+-      !
++      IF(is_first_call_1) THEN
++      DO jk = 1, jpkm1            
++            DO_2D( iij, iij-1, iij, iij-1 )           !==  Horizontal fluxes
++               zmsku(ji,jj,jk) = 1. / MAX(  wmask(ji+1,jj,jk  ) + wmask(ji,jj,jk+1)   &
++                  &             + wmask(ji+1,jj,jk+1) + wmask(ji,jj,jk  ), 1. )
++               !
++               zmskv(ji,jj,jk) = 1. / MAX(  wmask(ji,jj+1,jk  ) + wmask(ji,jj,jk+1)   &
++                  &             + wmask(ji,jj+1,jk+1) + wmask(ji,jj,jk  ), 1. )
++            END_2D
++      END DO
++      is_first_call_1 = .false.
++      ENDIF
++      !!$OMP PARALLEL  NUM_THREADS(2) PRIVATE(zabe1,zabe2,ret,&
++      !!$OMP zcof1,zcof2,zftu,zftv,ztfw,zahu_w,zahv_w,zcoef3,zcoef4)
++      !!$OMP DO 
+       !                                                          ! ===========
+       DO jn = 1, kjpt                                            ! tracer loop
+          !                                                       ! ===========
+@@ -244,82 +284,112 @@
+          !!----------------------------------------------------------------------
+          !!   I - masked horizontal derivative
+          !!----------------------------------------------------------------------
+-         zdit(:,:,:) = 0._wp
+-         zdjt(:,:,:) = 0._wp
++         ! if(process_id == 0) then
++         !    print *,"jn:",jn,"thread_id:",thread_id
++         ! endif
++         !zdit(:,:,:) = 0._wp
++         !zdjt(:,:,:) = 0._wp
+ 
+          ! Horizontal tracer gradient
+-         DO_3D( iij, iij-1, iij, iij-1, 1, jpkm1 )
+-            zdit(ji,jj,jk) = ( pt(ji+1,jj  ,jk,jn) - pt(ji,jj,jk,jn) ) * umask(ji,jj,jk)
+-            zdjt(ji,jj,jk) = ( pt(ji  ,jj+1,jk,jn) - pt(ji,jj,jk,jn) ) * vmask(ji,jj,jk)
+-         END_3D
+-         IF( ln_zps ) THEN      ! botton and surface ocean correction of the horizontal gradient
+-            DO_2D( iij, iij-1, iij, iij-1 )            ! bottom correction (partial bottom cell)
+-               zdit(ji,jj,mbku(ji,jj)) = pgu(ji,jj,jn)
+-               zdjt(ji,jj,mbkv(ji,jj)) = pgv(ji,jj,jn)
+-            END_2D
+-            IF( ln_isfcav ) THEN      ! first wet level beneath a cavity
+-               DO_2D( iij, iij-1, iij, iij-1 )
+-                  IF( miku(ji,jj) > 1 )   zdit(ji,jj,miku(ji,jj)) = pgui(ji,jj,jn)
+-                  IF( mikv(ji,jj) > 1 )   zdjt(ji,jj,mikv(ji,jj)) = pgvi(ji,jj,jn)
+-               END_2D
+-            ENDIF
+-         ENDIF
++         ! DO_3D( iij, iij-1, iij, iij-1, 1, jpkm1 )
++         !    zdit(ji,jj,jk) = ( pt(ji+1,jj  ,jk,jn) - pt(ji,jj,jk,jn) ) * umask(ji,jj,jk)
++         ! END_3D
++         ! DO_3D( iij, iij-1, iij, iij-1, 1, jpkm1 ) 
++         !    zdjt(ji,jj,jk) = ( pt(ji  ,jj+1,jk,jn) - pt(ji,jj,jk,jn) ) * vmask(ji,jj,jk)
++         ! END_3D
++         
+          !
+          !!----------------------------------------------------------------------
+          !!   II - horizontal trend  (full)
+          !!----------------------------------------------------------------------
+          !
+-         DO jk = 1, jpkm1                                 ! Horizontal slab
+-            !
+-            DO_2D( iij, iij, iij, iij )
+-               !                             !== Vertical tracer gradient
+-               zdk1t(ji,jj) = ( pt(ji,jj,jk,jn) - pt(ji,jj,jk+1,jn) ) * wmask(ji,jj,jk+1)     ! level jk+1
+-               !
+-               IF( jk == 1 ) THEN   ;   zdkt(ji,jj) = zdk1t(ji,jj)                            ! surface: zdkt(jk=1)=zdkt(jk=2)
+-               ELSE                 ;   zdkt(ji,jj) = ( pt(ji,jj,jk-1,jn) - pt(ji,jj,jk,jn) ) * wmask(ji,jj,jk)
+-               ENDIF
+-            END_2D
+-            !
++         ! DO_2D( iij, iij, iij, iij )
++         !    !                             !== Vertical tracer gradient
++         !       ! level jk+1
++         !    zdkt_3d(ji,jj,1) = ( pt(ji,jj,1,jn) - pt(ji,jj,2,jn) ) * wmask(ji,jj,2)
++         !    !zdkt_3d(ji,jj,jpkm1 + 1) = ( pt(ji,jj,jpkm1,jn) - pt(ji,jj,jpkm1+1,jn) ) * wmask(ji,jj,jpkm1+1)
++         ! END_2D
++         ! DO_3D( iij, iij, iij, iij, 2,jpkm1 + 1)
++         !    zdkt_3d(ji,jj,jk) = ( pt(ji,jj,jk-1,jn) - pt(ji,jj,jk,jn) ) * wmask(ji,jj,jk)
++         ! END_3D
++         
++         DO_2D( iij, iij-1, iij, iij-1 )           !==  Horizontal fluxes
++               zabe1 = pahu(ji,jj,1) * e2_e1u(ji,jj) * e3u(ji,jj,1,Kmm)
++               zabe2 = pahv(ji,jj,1) * e1_e2v(ji,jj) * e3v(ji,jj,1,Kmm)
++               
++               ! zmsku = 1. / MAX(  wmask(ji+1,jj,1  ) + wmask(ji,jj,2)   &
++               !    &             + wmask(ji+1,jj,2) + wmask(ji,jj,1  ), 1. )
++               ! zmskv = 1. / MAX(  wmask(ji,jj+1,1  ) + wmask(ji,jj,2)   &
++               ! &             + wmask(ji,jj+1,2) + wmask(ji,jj,1  ), 1. )
++
++               zcof1 = - pahu(ji,jj,1) * e2u(ji,jj) * uslp(ji,jj,1) * zmsku(ji,jj,jk)
++               zcof2 = - pahv(ji,jj,1) * e1v(ji,jj) * vslp(ji,jj,1) * zmskv(ji,jj,jk)
++               
++               zftu(ji,jj) = umask(ji,jj,1) *(  zabe1 * compute_zdit(umask(ji,jj,1),pt(ji +1,jj,1,jn),pt(ji,jj,1,jn))                       &
++                  &               + 2 * zcof1 * ( ( compute_zdkt(wmask(ji,jj,2),pt(ji,jj,1,jn),pt(ji,jj,2,jn)) &
++                  &                           + compute_zdkt(wmask(ji+1,jj,2),pt(ji+1,jj,1,jn),pt(ji+1,jj,2,jn))    &
++                  &                           )                                  & ! bracket for halo 1 - halo 2 compatibility
++                  &                         ) )
++               zftv(ji,jj) = vmask(ji,jj,1) * (  zabe2 * compute_zdjt(vmask(ji  ,jj  ,1),pt(ji  ,jj+1  ,1,jn),pt(ji  ,jj  ,1,jn))                       &
++               &              + 2 * zcof2 * ( ( compute_zdkt(wmask(ji,jj+1,2),pt(ji,jj+1,1,jn),pt(ji,jj+1,2,jn)) &
++                  &                           + compute_zdkt(wmask(ji,jj,2),pt(ji,jj,1,jn),pt(ji,jj,2,jn))    &
++                  &                           )                                  & ! bracket for halo 1 - halo 2 compatibility
++               &                         ) ) 
++              
++         END_2D
++         !
++         DO_2D( iij-1, iij-1, iij-1, iij-1 )           !== horizontal divergence and add to pta
++            ! round brackets added to fix the order of floating point operations
++            ! needed to ensure halo 1 - halo 2 compatibility
++            pt_rhs(ji,jj,1,jn) = pt_rhs(ji,jj,1,jn)                         &
++               &       + zsign * ( ( zftu(ji,jj) - zftu(ji-1,jj)       &
++               &                   )                                          & ! bracket for halo 1 - halo 2 compatibility
++               &                 + ( zftv(ji,jj) - zftv(ji,jj-1)       &
++               &                   )                                          & ! bracket for halo 1 - halo 2 compatibility
++               &                 ) * r1_e1e2t(ji,jj) / e3t(ji,jj,1,Kmm)
++         END_2D
++         DO jk = 2, jpkm1                                 ! Horizontal slab
++            
+             DO_2D( iij, iij-1, iij, iij-1 )           !==  Horizontal fluxes
+                zabe1 = pahu(ji,jj,jk) * e2_e1u(ji,jj) * e3u(ji,jj,jk,Kmm)
+                zabe2 = pahv(ji,jj,jk) * e1_e2v(ji,jj) * e3v(ji,jj,jk,Kmm)
+-               !
+-               zmsku = 1. / MAX(  wmask(ji+1,jj,jk  ) + wmask(ji,jj,jk+1)   &
+-                  &             + wmask(ji+1,jj,jk+1) + wmask(ji,jj,jk  ), 1. )
+-               !
+-               zmskv = 1. / MAX(  wmask(ji,jj+1,jk  ) + wmask(ji,jj,jk+1)   &
+-                  &             + wmask(ji,jj+1,jk+1) + wmask(ji,jj,jk  ), 1. )
+-               !
+-               zcof1 = - pahu(ji,jj,jk) * e2u(ji,jj) * uslp(ji,jj,jk) * zmsku
+-               zcof2 = - pahv(ji,jj,jk) * e1v(ji,jj) * vslp(ji,jj,jk) * zmskv
+-               !
+-               ! round brackets added to fix the order of floating point operations
+-               ! needed to ensure halo 1 - halo 2 compatibility
+-               zftu(ji,jj,jk ) = (  zabe1 * zdit(ji,jj,jk)                       &
+-                  &               + zcof1 * ( ( zdkt (ji+1,jj) + zdk1t(ji,jj)    &
+-                  &                           )                                  & ! bracket for halo 1 - halo 2 compatibility
+-                  &                         + ( zdk1t(ji+1,jj) + zdkt (ji,jj)    &
+-                  &                           )                                  & ! bracket for halo 1 - halo 2 compatibility
+-                  &                         ) ) * umask(ji,jj,jk)
+-               zftv(ji,jj,jk) = (  zabe2 * zdjt(ji,jj,jk)                        &
+-                  &              + zcof2 * ( ( zdkt (ji,jj+1) + zdk1t(ji,jj)     &
+-                  &                           )                                  & ! bracket for halo 1 - halo 2 compatibility
+-                  &                         + ( zdk1t(ji,jj+1) + zdkt (ji,jj)    &
+-                  &                           )                                  & ! bracket for halo 1 - halo 2 compatibility
+-                  &                         ) ) * vmask(ji,jj,jk)
++               
++               ! zmsku = 1. / MAX(  wmask(ji+1,jj,jk  ) + wmask(ji,jj,jk+1)   &
++               !    &             + wmask(ji+1,jj,jk+1) + wmask(ji,jj,jk  ), 1. )
++
++               ! zmskv = 1. / MAX(  wmask(ji,jj+1,jk  ) + wmask(ji,jj,jk+1)   &
++               !    &             + wmask(ji,jj+1,jk+1) + wmask(ji,jj,jk  ), 1. )
++                  
++               zcof1 = - pahu(ji,jj,jk) * e2u(ji,jj) * uslp(ji,jj,jk) * zmsku(ji,jj,jk)
++               zcof2 = - pahv(ji,jj,jk) * e1v(ji,jj) * vslp(ji,jj,jk) * zmskv(ji,jj,jk)
++               
++               zftu(ji,jj) = umask(ji,jj,jk) *(  zabe1 * compute_zdit(umask(ji,jj,jk),pt(ji +1,jj,jk,jn),pt(ji,jj,jk,jn))                       &
++                  &               + zcof1 * ( ( compute_zdkt(wmask(ji+1  ,jj  ,jk),pt(ji+1  ,jj  ,jk-1,jn),pt(ji+1  ,jj  ,jk,jn))+    &
++                  &                     compute_zdkt(wmask(ji  ,jj  ,jk),pt(ji  ,jj  ,jk-1,jn),pt(ji  ,jj  ,jk,jn)) )  & ! bracket for halo 1 - halo 2 compatibility
++                  &                   + ( compute_zdkt(wmask(ji  ,jj  ,jk+1),pt(ji  ,jj  ,jk,jn),pt(ji  ,jj  ,jk+1,jn))   &
++                  &                     + compute_zdkt(wmask(ji+1  ,jj  ,jk+1),pt(ji + 1  ,jj  ,jk,jn),pt(ji+1  ,jj  ,jk+1,jn))  )         & ! bracket for halo 1 - halo 2 compatibility
++                  &                   ) )
++               zftv(ji,jj) = vmask(ji,jj,jk) * (  zabe2 * compute_zdjt(vmask(ji  ,jj  ,jk),pt(ji  ,jj+1  ,jk,jn),pt(ji  ,jj  ,jk,jn))                       &
++                  &              + zcof2 * ( ( compute_zdkt(wmask(ji  ,jj+1  ,jk),pt(ji  ,jj+1  ,jk-1,jn),pt(ji  ,jj+1  ,jk,jn))+    &
++                  &                     compute_zdkt(wmask(ji  ,jj  ,jk),pt(ji  ,jj  ,jk-1,jn),pt(ji  ,jj  ,jk,jn)) )  & ! bracket for halo 1 - halo 2 compatibility
++                  &                   + ( compute_zdkt(wmask(ji  ,jj  ,jk+1),pt(ji  ,jj  ,jk,jn),pt(ji  ,jj  ,jk+1,jn))   &
++                  &                     + compute_zdkt(wmask(ji  ,jj+1  ,jk+1),pt(ji  ,jj+1  ,jk,jn),pt(ji  ,jj+1  ,jk+1,jn))  )         & ! bracket for halo 1 - halo 2 compatibility
++                  &                   ) ) 
+             END_2D
++            
+             !
+             DO_2D( iij-1, iij-1, iij-1, iij-1 )           !== horizontal divergence and add to pta
+                ! round brackets added to fix the order of floating point operations
+                ! needed to ensure halo 1 - halo 2 compatibility
+                pt_rhs(ji,jj,jk,jn) = pt_rhs(ji,jj,jk,jn)                         &
+-                  &       + zsign * ( ( zftu(ji,jj,jk) - zftu(ji-1,jj,jk)        &
++                  &       + zsign * ( ( zftu(ji,jj) - zftu(ji-1,jj)       &
+                   &                   )                                          & ! bracket for halo 1 - halo 2 compatibility
+-                  &                 + ( zftv(ji,jj,jk) - zftv(ji,jj-1,jk)        &
++                  &                 + ( zftv(ji,jj) - zftv(ji,jj-1)       &
+                   &                   )                                          & ! bracket for halo 1 - halo 2 compatibility
+                   &                 ) * r1_e1e2t(ji,jj) / e3t(ji,jj,jk,Kmm)
+             END_2D
+          END DO                                        !   End of slab
++         
+ 
+          !!----------------------------------------------------------------------
+          !!   III - vertical trend (full)
+@@ -329,80 +399,121 @@
+          ! ---------------
+          !                          ! Surface and bottom vertical fluxes set to zero
+          ztfw(:,:, 1 ) = 0._wp      ;      ztfw(:,:,jpk) = 0._wp
++         !ztfw = 0._wp
+ 
+-         DO_3D( iij-1, iij-1, iij-1, iij-1, 2, jpkm1 )    ! interior (2=<jk=<jpk-1)
+-            !
+-            zmsku = wmask(ji,jj,jk) / MAX(   umask(ji  ,jj,jk-1) + umask(ji-1,jj,jk)          &
++         IF(is_first_call) THEN
++         allocate(zmsku(A2D(nn_hls),jpk))
++         allocate(zmskv(A2D(nn_hls),jpk))
++         DO_3D( iij-1, iij-1, iij-1, iij-1, 2, jpkm1 )    ! interior (2=<jk=<jpk-1)  
++            zmsku(ji,jj,jk) = wmask(ji,jj,jk) / MAX(   umask(ji  ,jj,jk-1) + umask(ji-1,jj,jk)          &
+                &                           + umask(ji-1,jj,jk-1) + umask(ji  ,jj,jk) , 1._wp  )
+-            zmskv = wmask(ji,jj,jk) / MAX(   vmask(ji,jj  ,jk-1) + vmask(ji,jj-1,jk)          &
++            zmskv(ji,jj,jk) = wmask(ji,jj,jk) / MAX(   vmask(ji,jj  ,jk-1) + vmask(ji,jj-1,jk)          &
+                &                           + vmask(ji,jj-1,jk-1) + vmask(ji,jj  ,jk) , 1._wp  )
+                !
++         END_3D
++         is_first_call = .false.
++         ENDIF
++         IF(jn.EQ.1) THEN
++         DO_3D( iij-1, iij-1, iij-1, iij-1, 2, jpkm1 )    ! interior (2=<jk=<jpk-1)
+             zahu_w = (   pahu(ji  ,jj,jk-1) + pahu(ji-1,jj,jk)    &
+-               &       + pahu(ji-1,jj,jk-1) + pahu(ji  ,jj,jk)  ) * zmsku
++               &       + pahu(ji-1,jj,jk-1) + pahu(ji  ,jj,jk)  ) * zmsku(ji,jj,jk)
+             zahv_w = (   pahv(ji,jj  ,jk-1) + pahv(ji,jj-1,jk)    &
+-               &       + pahv(ji,jj-1,jk-1) + pahv(ji,jj  ,jk)  ) * zmskv
++               &       + pahv(ji,jj-1,jk-1) + pahv(ji,jj  ,jk)  ) * zmskv(ji,jj,jk)
+                !
+-            zcoef3 = - zahu_w * e2t(ji,jj) * zmsku * wslpi (ji,jj,jk)   !wslpi & j are already w-masked
+-            zcoef4 = - zahv_w * e1t(ji,jj) * zmskv * wslpj (ji,jj,jk)
++            zcoef3(ji,jj,jk) = - zahu_w * e2t(ji,jj) * zmsku(ji,jj,jk) * wslpi (ji,jj,jk)   !wslpi & j are already w-masked
++            zcoef4(ji,jj,jk) = - zahv_w * e1t(ji,jj) * zmskv(ji,jj,jk) * wslpj (ji,jj,jk)
+             !
+             ! round brackets added to fix the order of floating point operations
+             ! needed to ensure halo 1 - halo 2 compatibility
+-            ztfw(ji,jj,jk) = zcoef3 * ( ( zdit(ji  ,jj  ,jk-1) + zdit(ji-1,jj  ,jk)    &
+-                  &                     )                                              & ! bracket for halo 1 - halo 2 compatibility
+-                  &                   + ( zdit(ji-1,jj  ,jk-1) + zdit(ji  ,jj  ,jk)    &
+-                  &                     )                                              & ! bracket for halo 1 - halo 2 compatibility
+-                  &                   )                                                &
+-                  &        + zcoef4 * ( ( zdjt(ji  ,jj  ,jk-1) + zdjt(ji  ,jj-1,jk)    &
+-                  &                     )                                              & ! bracket for halo 1 - halo 2 compatibility
+-                  &                   + ( zdjt(ji  ,jj-1,jk-1) + zdjt(ji  ,jj  ,jk)    &
+-                  &                     )                                              & ! bracket for halo 1 - halo 2 compatibility
+-                  &                   )
+          END_3D
+-         !                                !==  add the vertical 33 flux  ==!
+-         IF( ln_traldf_lap ) THEN               ! laplacian case: eddy coef = ah_wslp2 - akz
+-            DO_3D( iij-1, iij-1, iij-1, iij-1, 2, jpkm1 )
+-               ztfw(ji,jj,jk) = ztfw(ji,jj,jk) + e1e2t(ji,jj) / e3w(ji,jj,jk,Kmm) * wmask(ji,jj,jk)   &
+-                  &                            * ( ah_wslp2(ji,jj,jk) - akz(ji,jj,jk) )               &
+-                  &                            * (  pt(ji,jj,jk-1,jn) -  pt(ji,jj,jk,jn) )
+-            END_3D
+-            !
+-         ELSE                                   ! bilaplacian
+-            SELECT CASE( kpass )
+-            CASE(  1  )                            ! 1st pass : eddy coef = ah_wslp2
+-               DO_3D( iij-1, iij-1, iij-1, iij-1, 2, jpkm1 )
+-                  ztfw(ji,jj,jk) =   &
+-                     &  ztfw(ji,jj,jk) + ah_wslp2(ji,jj,jk) * e1e2t(ji,jj)   &
+-                     &           * ( pt(ji,jj,jk-1,jn) - pt(ji,jj,jk,jn) ) / e3w(ji,jj,jk,Kmm) * wmask(ji,jj,jk)
+-               END_3D
+-            CASE(  2  )                         ! 2nd pass : eddy flux = ah_wslp2 and akz applied on pt  and pt2 gradients, resp.
+-               DO_3D( 0, 0, 0, 0, 2, jpkm1 )
+-                  ztfw(ji,jj,jk) = ztfw(ji,jj,jk) + e1e2t(ji,jj) / e3w(ji,jj,jk,Kmm) * wmask(ji,jj,jk)                  &
+-                     &                            * (  ah_wslp2(ji,jj,jk) * ( pt (ji,jj,jk-1,jn) - pt (ji,jj,jk,jn) )   &
+-                     &                            +         akz(ji,jj,jk) * ( pt2(ji,jj,jk-1,jn) - pt2(ji,jj,jk,jn) )   )
+-               END_3D
+-            END SELECT
+          ENDIF
+-         !
+-         DO_3D( iij-1, iij-1, iij-1, iij-1, 1, jpkm1 )    !==  Divergence of vertical fluxes added to pta  ==!
+-            pt_rhs(ji,jj,jk,jn) = pt_rhs(ji,jj,jk,jn) + zsign * (  ztfw (ji,jj,jk) - ztfw(ji,jj,jk+1)  ) * r1_e1e2t(ji,jj)   &
+-               &                                             / e3t(ji,jj,jk,Kmm)
++         DO_3D( iij-1, iij-1, iij-1, iij-1, 2, jpkm1 )    ! interior (2=<jk=<jpk-1)
++            ! IF(wmask(ji,jj,jk) == 0._wp) THEN
++            !    cycle
++            ! ENDIF
++            ! zmsku = wmask(ji,jj,jk) / MAX(   umask(ji-1  ,jj,jk-1) + umask(ji,jj,jk-1)          &
++            !    &                           + umask(ji-1,jj,jk) + umask(ji  ,jj,jk) , 1._wp  )
++
++            ! zmskv = wmask(ji,jj,jk) / MAX(   vmask(ji,jj  ,jk-1) + vmask(ji,jj-1,jk)          &
++            !     &                           + vmask(ji,jj-1,jk-1) + vmask(ji,jj  ,jk) , 1._wp  )
++            
++
++            ! zahu_w = (   pahu(ji-1  ,jj,jk-1) + pahu(ji,jj,jk-1)    &
++            !    &       + pahu(ji-1,jj,jk) + pahu(ji  ,jj,jk)  ) * zmsku
++           
++            ! zahv_w = (   pahv(ji,jj  ,jk-1) + pahv(ji,jj-1,jk)    &
++            !     &       + pahv(ji,jj-1,jk-1) + pahv(ji,jj  ,jk)  ) * zmskv
++
++            ! zcoef3 = - zahu_w * e2t(ji,jj) * zmsku * wslpi (ji,jj,jk)   !wslpi & j are already w-masked
++            ! zcoef4 = - zahv_w * e1t(ji,jj) * zmskv * wslpj (ji,jj,jk)
++                                 
++            ! ztfw(ji,jj,jk) = zcoef3 * ( ( zdit(ji-1  ,jj  ,jk-1) + zdit(ji,jj  ,jk-1)    &
++            !       &                     )                                              & ! bracket for halo 1 - halo 2 compatibility
++            !       &                   + ( zdit(ji-1,jj  ,jk) + zdit(ji  ,jj  ,jk)    &
++            !       &                     )                                              & ! bracket for halo 1 - halo 2 compatibility
++            !       &                   )    
++
++            !单个调用比整个stencil一起计算快                                            
++            ztfw(ji,jj,jk) = zcoef3(ji,jj,jk) * ( ( compute_zdit(umask(ji-1  ,jj  ,jk-1),pt(ji  ,jj  ,jk-1,jn),pt(ji-1  ,jj  ,jk-1,jn))+    &
++                  &                     compute_zdit(umask(ji  ,jj  ,jk-1),pt(ji+1  ,jj  ,jk-1,jn),pt(ji  ,jj  ,jk-1,jn)) )  & ! bracket for halo 1 - halo 2 compatibility
++                  &                   + ( compute_zdit(umask(ji-1  ,jj  ,jk),pt(ji  ,jj  ,jk,jn),pt(ji-1  ,jj  ,jk,jn))   &
++                  &                     + compute_zdit(umask(ji  ,jj  ,jk),pt(ji + 1  ,jj  ,jk,jn),pt(ji  ,jj  ,jk,jn))  )         & ! bracket for halo 1 - halo 2 compatibility
++                  &                   )  &
++                  &        + zcoef4(ji,jj,jk) * ( ( compute_zdjt(vmask(ji  ,jj  ,jk-1),pt(ji  ,jj+1  ,jk-1,jn),pt(ji  ,jj  ,jk-1,jn))+    &
++                  &                     compute_zdjt(vmask(ji  ,jj-1 ,jk),pt(ji  ,jj  ,jk,jn),pt(ji  ,jj-1  ,jk,jn)) )  & ! bracket for halo 1 - halo 2 compatibility
++                  &                   + ( compute_zdjt(vmask(ji  ,jj-1  ,jk-1),pt(ji  ,jj  ,jk-1,jn),pt(ji  ,jj-1  ,jk-1,jn))   &
++                  &                     + compute_zdjt(vmask(ji  ,jj  ,jk),pt(ji  ,jj+1  ,jk,jn),pt(ji  ,jj  ,jk,jn))  )         & ! bracket for halo 1 - halo 2 compatibility
++                  &                   )
++               !    &                   + e1e2t(ji,jj) / e3w(ji,jj,jk,Kmm) * wmask(ji,jj,jk)   &
++               ! &                            * ( ah_wslp2(ji,jj,jk) - akz(ji,jj,jk) )               &
++               ! &                            * (  pt(ji,jj,jk-1,jn) -  pt(ji,jj,jk,jn) )
++            ! ztfw(ji,jj,jk) = zcoef3 * ( compute_stencil_zdit(umask(ji-1,jj,jk-1),umask(ji,jj,jk-1),umask(ji-1,jj,jk),umask(ji,jj,jk), &
++            !                      & pt(ji,jj,jk-1,jn),pt(ji-1,jj,jk-1,jn),pt(ji+1,jj,jk-1,jn),pt(ji,jj,jk,jn),pt(ji-1,jj,jk,jn), &
++            !                      & pt(ji+1,jj,jk,jn)))                                                   
++            pt_rhs(ji,jj,jk-1,jn) = pt_rhs(ji,jj,jk-1,jn) + zsign * (  ztfw (ji,jj,jk-1) - ztfw(ji,jj,jk)  ) * r1_e1e2t(ji,jj)   &
++               &                                             / e3t(ji,jj,jk-1,Kmm)
+          END_3D
+-         !
+-         IF( ( kpass == 1 .AND. ln_traldf_lap ) .OR.  &     !==  first pass only (  laplacian)  ==!
+-             ( kpass == 2 .AND. ln_traldf_blp ) ) THEN      !==  2nd   pass      (bilaplacian)  ==!
+-            !
+-            !                             ! "Poleward" diffusive heat or salt transports (T-S case only)
+-               ! note sign is reversed to give down-gradient diffusive transports )
+-            IF( l_ptr )  CALL dia_ptr_hst( jn, 'ldf', -zftv(:,:,:)  )
+-            !                          ! Diffusive heat transports
+-            IF( l_hst )  CALL dia_ar5_hst( jn, 'ldf', -zftu(:,:,:), -zftv(:,:,:) )
++         
++         !                                !==  add the vertical 33 flux  ==!
++         ! IF( ln_traldf_lap ) THEN               ! laplacian case: eddy coef = ah_wslp2 - akz
+             !
+-         ENDIF                                                    !== end pass selection  ==!
+-         !
++        
++         DO_2D( iij-1, iij-1, iij-1, iij-1)    !==  Divergence of vertical fluxes added to pta  ==!
++            pt_rhs(ji,jj,jpkm1,jn) = pt_rhs(ji,jj,jpkm1,jn) + zsign * (  ztfw (ji,jj,jpkm1) - ztfw(ji,jj,jpkm1+1)  ) * r1_e1e2t(ji,jj)   &
++               &                                             / e3t(ji,jj,jpkm1,Kmm)
++         END_2D
++      
+          !                                                        ! ===============
+       END DO                                                      ! end tracer loop
+       !
+-   END SUBROUTINE tra_ldf_iso_t
+-
++      !!$OMP END DO 
++      !!$OMP END PARALLEL
++      END SUBROUTINE tra_ldf_iso_t
++      
+    !!==============================================================================
+ END MODULE traldf_iso
++function compute_zdit(umaskk,pta,ptb) result(zditt)
++      REAL(8) :: umaskk,pta,ptb
++      REAL(8) :: zditt
++         zditt = (pta - ptb) * umaskk  
++end function
++function compute_zdjt(vmaskk,pta,ptb) result(zdjtt)
++      REAL(8) :: vmaskk,pta,ptb
++      REAL(8) :: zdjtt
++         zdjtt = (pta - ptb) * vmaskk  
++end function
++function compute_zdkt(wmaskk,pta,ptb) result(zdktt)
++      REAL(8) :: wmaskk,pta,ptb
++      REAL(8) :: zdktt
++         zdktt = (pta - ptb) * wmaskk
++end function
++! function compute_zdkt0(wmask,pta,ptb) result(zdktt)
++!       REAL(8) :: wmask,pta,ptb
++!       REAL(8) :: zdktt
++!       integer :: jk
++!          IF(jk == 1 )
++!          zdjtt = (pta - ptb) * vmaskk  
++! end function
++
++
++

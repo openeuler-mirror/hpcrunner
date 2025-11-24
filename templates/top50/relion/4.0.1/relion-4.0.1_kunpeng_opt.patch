@@ -1,0 +1,3637 @@
+diff -wur relion-4.0.1/CMakeLists.txt relion-opt/CMakeLists.txt
+--- relion-4.0.1/CMakeLists.txt	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/CMakeLists.txt	2025-10-21 20:59:49.529863000 +0800
+@@ -209,6 +209,20 @@
+ 	endif(FORCE_OWN_TBB)
+ endif(ALTCPU)
+ 
++# This MUST be set before all cuda_add_executable/library calls.
++# Otherwise the -Xcompiler argument to NVCC does not contain -fopenmp
++# and #pragma omp critical is SILENTLY ignored, giving a wrong binary!!!
++# https://github.com/3dem/relion/issues/1016
++
++FIND_PACKAGE( OpenMP REQUIRED)
++set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
++set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
++set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
++set(ARMPL_INSTALL_PATH $ENV{ARMPL_INSTALL_PATH})
++include_directories("${ARMPL_INSTALL_PATH}/armpl_24.10_gcc/include/")
++link_directories("${ARMPL_INSTALL_PATH}/armpl_24.10_gcc/lib/")
++
++
+ # -------------------------------------------------------------------------------MPI--
+ find_package(MPI REQUIRED)
+ 
+@@ -220,6 +234,8 @@
+ 	include_directories("${MPI_CXX_INCLUDE_DIRS}")
+ endif()
+ 
++set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -lamath -O3 -ffast-math -fopenmp -mcpu=hip11 -mllvm -force-customized-pipeline -mllvm -replace-sqrt-compare-by-square=TRUE -mllvm -aarch64-enable-loop-data-prefetch=FALSE -Wno-incompatible-function-pointer-types -Wno-deprecated-declarations -std=c99")
++set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O3 -lamath -ffast-math -fopenmp -mcpu=hip11 -mllvm -force-customized-pipeline -mllvm -replace-sqrt-compare-by-square=TRUE -mllvm -aarch64-enable-loop-data-prefetch=FALSE -Wno-incompatible-function-pointer-types -Wno-deprecated-declarations -std=c++11")
+ message(STATUS "MPI_INCLUDE_PATH : ${MPI_INCLUDE_PATH}")
+ message(STATUS "MPI_LIBRARIES : ${MPI_LIBRARIES}")
+ message(STATUS "MPI_CXX_INCLUDE_PATH : ${MPI_CXX_INCLUDE_PATH}")
+Only in relion-opt/: external
+Only in relion-4.0.1/: .github
+Only in relion-4.0.1/: .gitignore
+Only in relion-opt/: install
+diff -wur relion-4.0.1/README.md relion-opt/README.md
+--- relion-4.0.1/README.md	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/README.md	2025-10-21 20:47:57.241121000 +0800
+@@ -1,4 +1,4 @@
+-RELION 4.0.0
++RELION 4.0.2
+ ============
+ 
+ RELION (for REgularised LIkelihood OptimisatioN) is a stand-alone computer
+diff -wur relion-4.0.1/src/acc/acc_ml_optimiser_impl.h relion-opt/src/acc/acc_ml_optimiser_impl.h
+--- relion-4.0.1/src/acc/acc_ml_optimiser_impl.h	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/src/acc/acc_ml_optimiser_impl.h	2025-10-21 20:48:07.874764000 +0800
+@@ -2896,7 +2896,7 @@
+ 				int iproj_offset = 0;
+ 				if (baseMLO->grad_pseudo_halfsets)
+ 					// Backproject every other particle into separate volumes
+-					iproj_offset = (op.part_id % 2) * baseMLO->mymodel.nr_classes
++					iproj_offset = (op.part_id % 2) * baseMLO->mymodel.nr_classes;
+ 
+ 				CTIC(accMLO->timer,"backproject");
+ 				runBackProjectKernel(
+diff -wur relion-4.0.1/src/acc/acc_projector.h relion-opt/src/acc/acc_projector.h
+--- relion-4.0.1/src/acc/acc_projector.h	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/src/acc/acc_projector.h	2025-10-21 20:48:07.759040000 +0800
+@@ -11,6 +11,9 @@
+ #include <complex>
+ #endif
+ 
++// struct FourPoint {
++// 	std::complex<XFLOAT> ep[4];
++// };
+ class AccProjector
+ {
+ 	friend class AccProjectorKernel;
+@@ -34,6 +37,7 @@
+ 	XFLOAT *mdlReal, *mdlImag;
+ #else
+ 	std::complex<XFLOAT> *mdlComplex;
++	// FourPoint *mdlComplex_new;
+ 	int externalFree;
+ #endif
+ #endif  // PROJECTOR_NO_TEXTURES
+@@ -75,6 +79,7 @@
+ 	void initMdl(Complex *data);
+ #ifndef _CUDA_ENABLED
+ void initMdl(std::complex<XFLOAT> *data);
++// void initMdl(FourPoint *data);
+ #endif
+ 
+ 	void clear();
+diff -wur relion-4.0.1/src/acc/acc_projector_impl.h relion-opt/src/acc/acc_projector_impl.h
+--- relion-4.0.1/src/acc/acc_projector_impl.h	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/src/acc/acc_projector_impl.h	2025-10-21 20:48:07.766065000 +0800
+@@ -177,6 +177,11 @@
+ 	mdlComplex = data;  // No copy needed - everyone shares the complex reference arrays
+ 	externalFree = 1;   // This is shared memory freed outside the projector
+ }
++// void AccProjector::initMdl(FourPoint *data)
++// {
++// 	mdlComplex_new = data;  // No copy needed - everyone shares the complex reference arrays
++// 	externalFree = 1;   // This is shared memory freed outside the projector
++// }
+ #endif
+ 
+ void AccProjector::initMdl(Complex *data)
+diff -wur relion-4.0.1/src/acc/acc_projectorkernel_impl.h relion-opt/src/acc/acc_projectorkernel_impl.h
+--- relion-4.0.1/src/acc/acc_projectorkernel_impl.h	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/src/acc/acc_projectorkernel_impl.h	2025-10-21 20:48:07.865584000 +0800
+@@ -24,6 +24,7 @@
+ 	PROJECTOR_PTR_TYPE mdlComplex;
+ #else
+ 	std::complex<XFLOAT> *mdlComplex;
++	// FourPoint *mdlComplex_new;
+ #endif
+ 
+ 	AccProjectorKernel(
+@@ -35,7 +36,8 @@
+ #ifdef _CUDA_ENABLED
+ 			PROJECTOR_PTR_TYPE mdlComplex
+ #else
+-			std::complex<XFLOAT> *mdlComplex
++			std::complex<XFLOAT> *mdlComplex//,
++			// FourPoint *mdlComplex_new
+ #endif
+ 			):
+ 			mdlX(mdlX), mdlXY(mdlX*mdlY), mdlZ(mdlZ),
+@@ -43,7 +45,7 @@
+ 			mdlInitY(mdlInitY), mdlInitZ(mdlInitZ),
+ 			padding_factor(padding_factor),
+ 			maxR(maxR), maxR2(maxR*maxR), maxR2_padded(maxR*maxR*padding_factor*padding_factor),
+-			mdlComplex(mdlComplex)
++			mdlComplex(mdlComplex)//, mdlComplex_new(mdlComplex_new)
+ 		{};
+ 
+ 	AccProjectorKernel(
+@@ -196,6 +198,9 @@
+ real = no_tex3D(mdlReal, xp, yp, zp, mdlX, mdlXY, mdlInitY, mdlInitZ);
+ 			imag = no_tex3D(mdlImag, xp, yp, zp, mdlX, mdlXY, mdlInitY, mdlInitZ);
+ 	#else
++			// std::cout << "mdlZ = " << mdlZ << ", mdlX = " << mdlX << std::endl;
++			// if (!mdlComplex_new) std::cout << "fuck!" << std::endl;
++			// CpuKernels::complex3D_new(mdlComplex_new, real, imag, xp, yp, zp, mdlX, mdlXY, mdlInitY, mdlInitZ);
+ 			CpuKernels::complex3D(mdlComplex, real, imag, xp, yp, zp, mdlX, mdlXY, mdlInitY, mdlInitZ);
+ 	#endif
+ 
+@@ -319,7 +324,8 @@
+ p.mdlReal,
+ 					p.mdlImag
+ #else
+-					p.mdlComplex
++					p.mdlComplex//,
++					// p.mdlComplex_new
+ #endif
+ #endif
+ 				);
+diff -wur relion-4.0.1/src/acc/cpu/cpu_kernels/BP.h relion-opt/src/acc/cpu/cpu_kernels/BP.h
+--- relion-4.0.1/src/acc/cpu/cpu_kernels/BP.h	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/src/acc/cpu/cpu_kernels/BP.h	2025-10-21 20:48:08.060271000 +0800
+@@ -2,6 +2,7 @@
+ #include <string.h>
+ #include <signal.h>
+ #include <cassert>
++#include <atomic>
+ 
+ #include "src/acc/acc_backprojector.h"
+ #include "src/acc/cpu/cpu_kernels/helper.h"
+@@ -495,6 +496,27 @@
+ 	} // for img
+ }
+ 
++#define ATOMIC_OPT
++#ifdef ATOMIC_OPT
++inline void atomicAdd(XFLOAT* addr, XFLOAT value) {
++    XFLOAT old_value = *addr;
++    XFLOAT new_value;
++    do {
++        new_value = old_value + value;
++    } while (!std::atomic_compare_exchange_weak(
++        reinterpret_cast<std::atomic<XFLOAT>*>(addr), 
++        &old_value, new_value));
++}
++#endif
++
++// #define AOS_OPT
++#ifdef AOS_OPT
++typedef struct RIW3D {
++	XFLOAT real;
++	XFLOAT imag;
++	XFLOAT Fweight;
++} RIW;
++#endif
+ // sincos lookup table optimization. Function translatePixel calls
+ // sincos(x*tx + y*ty). We precompute 2D lookup tables for x and y directions.
+ // The first dimension is x or y pixel index, and the second dimension is x or y
+@@ -555,8 +577,16 @@
+ 	XFLOAT weight_norm_inverse = (XFLOAT) 1.0 / weight_norm;
+ 
+ 	XFLOAT xp[img_x], yp[img_x], zp[img_x];
++#ifdef AOS_OPT
++	// try to merge them into one structure?
++	RIW riw3d[img_x];
++	// memset(riw3d,0,sizeof(RIW)*img_x);
++#else
+ 	XFLOAT real[img_x], imag[img_x], Fweight[img_x];
+-
++	// memset(Fweight,0,sizeof(XFLOAT)*img_x);
++	// memset(real,   0,sizeof(XFLOAT)*img_x);
++	// memset(imag,   0,sizeof(XFLOAT)*img_x);
++#endif
+ 		
+ 	for (unsigned long img=0; img<imageCount; img++) {
+ 
+@@ -574,9 +604,14 @@
+ 			int y2 = y * y;
+ 			int xmax = sqrt((XFLOAT)(img_y_half_2 - y2));  // minimize locking if possible
+ 
++			// faster if we set them to 0 in the last loop?
++		#ifdef AOS_OPT
++			memset(riw3d,0,sizeof(riw3d));
++		#else
+ 			memset(Fweight,0,sizeof(XFLOAT)*img_x);
+ 			memset(real,   0,sizeof(XFLOAT)*img_x);
+ 			memset(imag,   0,sizeof(XFLOAT)*img_x);
++		#endif
+ 
+ 			for (unsigned long itrans = 0; itrans < trans_num; itrans++)
+ 			{
+@@ -607,13 +642,21 @@
+ 					{
+ 						inv_minsigma_ctf = weight_norm_inverse * minvsigma2;
+ 						my_weight = weight * inv_minsigma_ctf;
++#ifdef AOS_OPT
++						riw3d[x].Fweight += my_weight  * ctf;
++#else
+ 						Fweight[x] += my_weight  * ctf;
++#endif
+ 					}
+ 					else
+ 					{
+ 						inv_minsigma_ctf = weight_norm_inverse * ctf * minvsigma2;
+ 						my_weight = weight * inv_minsigma_ctf;
++#ifdef AOS_OPT
++						riw3d[x].Fweight += my_weight  * ctf;
++#else
+ 						Fweight[x] += my_weight  * ctf;
++#endif
+ 					}
+ 
+ 					XFLOAT img_real   = g_img_real   [pixel + x];
+@@ -629,8 +672,13 @@
+ 					CpuKernels::translatePixel(x, y,  g_trans_x[itrans], g_trans_y[itrans],
+ 								   img_real, img_imag, shifted_real, shifted_imag);
+ 					*/
++#ifdef AOS_OPT
++					riw3d[x].real += shifted_real * my_weight;
++					riw3d[x].imag += shifted_imag * my_weight;
++#else
+ 					real[x] += shifted_real * my_weight;
+ 					imag[x] += shifted_imag * my_weight;
++#endif
+ 				}
+ 			}
+ 
+@@ -646,7 +694,11 @@
+ 				//     --JZ, Nov. 26th 2018
+ 				if (xp[x]*xp[x] + yp[x]*yp[x] + zp[x]*zp[x] > max_r2_vol)
+ 				{
++#ifdef AOS_OPT
++					riw3d[x].Fweight = (XFLOAT) 0.0;
++#else
+ 					Fweight[x] = (XFLOAT) 0.0;
++#endif
+ 				}
+ 
+ 				// Only asymmetric half is stored
+@@ -655,13 +707,33 @@
+ 					xp[x]   = -xp[x];
+ 					yp[x]   = -yp[x];
+ 					zp[x]   = -zp[x];
++#ifdef  AOS_OPT
++					riw3d[x].imag = -riw3d[x].imag;
++#else
+ 					imag[x] = -imag[x];
++#endif
+ 				}
+ 			}  // for x direction
+ 
++			// use simd to calculate mutiple value?
+ 			for(int x=0; x<xmax; x++){
++#ifdef AOS_OPT
++				if (riw3d[x].Fweight <= (XFLOAT) 0.0)
++#else
+ 				if (Fweight[x] <= (XFLOAT) 0.0)
++#endif
+ 					continue;
++// 				{
++// #ifdef AOS_OPT
++// 					riw3d[x].real = 0;
++// 					riw3d[x].imag = 0;
++// 					riw3d[x].Fweight = 0;
++// #else
++// 					real[x] = 0;
++// 					imag[x] = 0;
++// 					Fweight[x] = 0;
++// #endif
++// 				}
+ 
+ 				int x0 = floorf(xp[x]);
+ 				XFLOAT fx = xp[x] - x0;
+@@ -687,34 +759,112 @@
+ 				XFLOAT dd001 = mfz_mfy - dd000; // mfz *  mfy *  fx
+ 
+ 				{
++				#ifndef ATOMIC_OPT// 前两次数据比较近，可以跟后两次加锁写的过程拆成两个循环来进行
+ 					tbb::spin_mutex::scoped_lock lock(mutexes[z0 * mdl_y + y0]);
+ 
+ 					idx_tmp = z0_mdl_x_mdl_y + y0_mdl_x + (size_t)x0; // z0 * mdl_x * mdl_y + y0 * mdl_x + x0;
++				// #ifdef AOS_OPT
++					// g_model_real  [idx_tmp]+=dd000 * riw3d[x].real;
++					// g_model_imag  [idx_tmp]+=dd000 * riw3d[x].imag;
++					// g_model_weight[idx_tmp]+=dd000 * riw3d[x].Fweight;
++				// #else
+ 					g_model_real  [idx_tmp]+=dd000 * real[x];
+ 					g_model_imag  [idx_tmp]+=dd000 * imag[x];
+ 					g_model_weight[idx_tmp]+=dd000 * Fweight[x];
++				// #endif
++				#else // ATOMIC_OPT
++					idx_tmp = z0_mdl_x_mdl_y + y0_mdl_x + (size_t)x0; // z0 * mdl_x * mdl_y + y0 * mdl_x + x0;
++				// #ifdef AOS_OPT
++				// 	atomicAdd(&g_model_real[idx_tmp], dd000 * riw3d[x].real);
++				// 	atomicAdd(&g_model_imag[idx_tmp], dd000 * riw3d[x].imag);
++				// 	atomicAdd(&g_model_weight[idx_tmp], dd000 * riw3d[x].Fweight);
++				// #else
++					atomicAdd(&g_model_real[idx_tmp], dd000 * real[x]);
++					atomicAdd(&g_model_imag[idx_tmp], dd000 * imag[x]);
++					atomicAdd(&g_model_weight[idx_tmp], dd000 * Fweight[x]);
++				// #endif
++				#endif
++					// std::atomic_ref<XFLOAT> g_model_real_0{g_model_real  [idx_tmp]};
++					// g_model_real_0+=dd000 * real[x];
+ 
+ 					idx_tmp = idx_tmp + 1; // z0 * mdl_x * mdl_y + y0 * mdl_x + x1;
++				#ifndef ATOMIC_OPT
++				// #ifdef AOS_OPT
++					// g_model_real  [idx_tmp]+=dd001 * riw3d[x].real;
++					// g_model_imag  [idx_tmp]+=dd001 * riw3d[x].imag;
++					// g_model_weight[idx_tmp]+=dd001 * riw3d[x].Fweight;
++				// #else
+ 					g_model_real  [idx_tmp]+=dd001 * real[x];
+ 					g_model_imag  [idx_tmp]+=dd001 * imag[x];
+ 					g_model_weight[idx_tmp]+=dd001 * Fweight[x];
++				// #endif
++				#else // ATOMIC_OPT
++				// #ifdef AOS_OPT
++				// 	atomicAdd(&g_model_real[idx_tmp], dd001 * riw3d[x].real);
++				// 	atomicAdd(&g_model_imag[idx_tmp], dd001 * riw3d[x].imag);
++				// 	atomicAdd(&g_model_weight[idx_tmp], dd001 * riw3d[x].Fweight);
++				// #else
++					atomicAdd(&g_model_real[idx_tmp], dd001 * real[x]);
++					atomicAdd(&g_model_imag[idx_tmp], dd001 * imag[x]);
++					atomicAdd(&g_model_weight[idx_tmp], dd001 * Fweight[x]);
++				// #endif
++				#endif
+ 				}
+ 
+ 				XFLOAT dd010 = (mfz - mfz_mfy) * mfx; // mfz *  fy *  mfx
+ 				XFLOAT dd011 = (mfz - mfz_mfy) - dd010; // mfz *  fy *  fx
+ 
+ 				{
++				#ifndef ATOMIC_OPT
+ 					tbb::spin_mutex::scoped_lock lock(mutexes[z0 * mdl_y + y0 + 1]);
+ 
+ 					idx_tmp = z0_mdl_x_mdl_y + y0_mdl_x + (size_t)mdl_x + (size_t)x0; // z0 * mdl_x * mdl_y + y1 * mdl_x + x0;
++				// #ifdef AOS_OPT
++					// g_model_real  [idx_tmp]+=dd010 * riw3d[x].real;
++					// g_model_imag  [idx_tmp]+=dd010 * riw3d[x].imag;
++					// g_model_weight[idx_tmp]+=dd010 * riw3d[x].Fweight;
++				// #else
+ 					g_model_real  [idx_tmp]+=dd010 * real[x];
+ 					g_model_imag  [idx_tmp]+=dd010 * imag[x];
+ 					g_model_weight[idx_tmp]+=dd010 * Fweight[x];
++				// #endif
++				#else // ATOMIC_OPT
++					idx_tmp = z0_mdl_x_mdl_y + y0_mdl_x + (size_t)mdl_x + (size_t)x0; // z0 * mdl_x * mdl_y + y1 * mdl_x + x0;
++				// #ifdef AOS_OPT
++				// 	atomicAdd(&g_model_real[idx_tmp], dd010 * riw3d[x].real);
++				// 	atomicAdd(&g_model_imag[idx_tmp], dd010 * riw3d[x].imag);
++				// 	atomicAdd(&g_model_weight[idx_tmp], dd010 * riw3d[x].Fweight);
++				// #else
++					atomicAdd(&g_model_real[idx_tmp], dd010 * real[x]);
++					atomicAdd(&g_model_imag[idx_tmp], dd010 * imag[x]);
++					atomicAdd(&g_model_weight[idx_tmp], dd010 * Fweight[x]);
++				// #endif
++				#endif
++					// std::atomic_ref<XFLOAT> g_model_real_0{g_model_real  [idx_tmp]};
++					// g_model_real_0+=dd000 * real[x];
+ 
+ 					idx_tmp = idx_tmp + 1; // z0 * mdl_x * mdl_y + y1 * mdl_x + x1;
++				#ifndef ATOMIC_OPT
++				// #ifdef AOS_OPT
++					// g_model_real  [idx_tmp]+=dd011 * riw3d[x].real;
++					// g_model_imag  [idx_tmp]+=dd011 * riw3d[x].imag;
++					// g_model_weight[idx_tmp]+=dd011 * riw3d[x].Fweight;
++				// #else
+ 					g_model_real  [idx_tmp]+=dd011 * real[x];
+ 					g_model_imag  [idx_tmp]+=dd011 * imag[x];
+ 					g_model_weight[idx_tmp]+=dd011 * Fweight[x];
++				// #endif
++				#else // ATOMIC_OPT
++				// #ifdef AOS_OPT
++				// 	atomicAdd(&g_model_real[idx_tmp], dd011 * riw3d[x].real);
++				// 	atomicAdd(&g_model_imag[idx_tmp], dd011 * riw3d[x].imag);
++				// 	atomicAdd(&g_model_weight[idx_tmp], dd011 * riw3d[x].Fweight);
++				// #else
++					atomicAdd(&g_model_real[idx_tmp], dd011 * real[x]);
++					atomicAdd(&g_model_imag[idx_tmp], dd011 * imag[x]);
++					atomicAdd(&g_model_weight[idx_tmp], dd011 * Fweight[x]);
++				// #endif
++				#endif
+ 				}
+ 
+ 				XFLOAT dd100 = (mfy - mfz_mfy) * mfx; // fz *  mfy *  mfx
+@@ -722,35 +872,121 @@
+ 				int z1 = z0 + 1;
+ 
+ 				{
++				#ifndef ATOMIC_OPT
+ 					tbb::spin_mutex::scoped_lock lock(mutexes[z1 * mdl_y + y0]);
+ 
+ 					idx_tmp = z0_mdl_x_mdl_y + mdl_x_mdl_y + y0_mdl_x + (size_t)x0; // z1 * mdl_x * mdl_y + y0 * mdl_x + x0;
++				// #ifdef AOS_OPT
++					// g_model_real  [idx_tmp]+=dd100 * riw3d[x].real;
++					// g_model_imag  [idx_tmp]+=dd100 * riw3d[x].imag;
++					// g_model_weight[idx_tmp]+=dd100 * riw3d[x].Fweight;
++				// #else
+ 					g_model_real  [idx_tmp]+=dd100 * real[x];
+ 					g_model_imag  [idx_tmp]+=dd100 * imag[x];
+ 					g_model_weight[idx_tmp]+=dd100 * Fweight[x];
++				// #endif
++				#else // ATOMIC_OPT
++					idx_tmp = z0_mdl_x_mdl_y + mdl_x_mdl_y + y0_mdl_x + (size_t)x0; // z1 * mdl_x * mdl_y + y0 * mdl_x + x0;
++				// #ifdef AOS_OPT
++				// 	atomicAdd(&g_model_real[idx_tmp], dd100 * riw3d[x].real);
++				// 	atomicAdd(&g_model_imag[idx_tmp], dd100 * riw3d[x].imag);
++				// 	atomicAdd(&g_model_weight[idx_tmp], dd100 * riw3d[x].Fweight);
++				// #else
++					atomicAdd(&g_model_real[idx_tmp], dd100 * real[x]);
++					atomicAdd(&g_model_imag[idx_tmp], dd100 * imag[x]);
++					atomicAdd(&g_model_weight[idx_tmp], dd100 * Fweight[x]);
++				// #endif
++				#endif
++					// std::atomic_ref<XFLOAT> g_model_real_0{g_model_real  [idx_tmp]};
++					// g_model_real_0+=dd000 * real[x];
+ 
+ 					idx_tmp = idx_tmp + 1; // z1 * mdl_x * mdl_y + y0 * mdl_x + x1;
++				#ifndef ATOMIC_OPT
++				// #ifdef AOS_OPT
++					// g_model_real  [idx_tmp]+=dd101 * riw3d[x].real;
++					// g_model_imag  [idx_tmp]+=dd101 * riw3d[x].imag;
++					// g_model_weight[idx_tmp]+=dd101 * riw3d[x].Fweight;
++				// #else
+ 					g_model_real  [idx_tmp]+=dd101 * real[x];
+ 					g_model_imag  [idx_tmp]+=dd101 * imag[x];
+ 					g_model_weight[idx_tmp]+=dd101 * Fweight[x];
+-
++				// #endif
++				#else // ATOMIC_OPT
++				// #ifdef AOS_OPT
++				// 	atomicAdd(&g_model_real[idx_tmp], dd101 * riw3d[x].real);
++				// 	atomicAdd(&g_model_imag[idx_tmp], dd101 * riw3d[x].imag);
++				// 	atomicAdd(&g_model_weight[idx_tmp], dd101 * riw3d[x].Fweight);
++				// #else
++					atomicAdd(&g_model_real[idx_tmp], dd101 * real[x]);
++					atomicAdd(&g_model_imag[idx_tmp], dd101 * imag[x]);
++					atomicAdd(&g_model_weight[idx_tmp], dd101 * Fweight[x]);
++				// #endif
++				#endif
+ 				}
+ 
+ 				XFLOAT dd110 = (1 - mfz - mfy + mfz_mfy) * mfx; // fz *  fy *  mfx
+ 				XFLOAT dd111 = (1 - mfz - mfy + mfz_mfy) - dd110; // fz *  fy *  fx
+ 
+ 				{
++				#ifndef ATOMIC_OPT
+ 					tbb::spin_mutex::scoped_lock lock(mutexes[z1 * mdl_y + y0 + 1]);
+ 					idx_tmp = z0_mdl_x_mdl_y + mdl_x_mdl_y + y0_mdl_x + (size_t)mdl_x + (size_t)x0; // z1 * mdl_x * mdl_y + y1 * mdl_x + x0;
++				// #ifdef AOS_OPT
++					// g_model_real  [idx_tmp]+=dd110 * riw3d[x].real;
++					// g_model_imag  [idx_tmp]+=dd110 * riw3d[x].imag;
++					// g_model_weight[idx_tmp]+=dd110 * riw3d[x].Fweight;
++				// #else
+ 					g_model_real  [idx_tmp]+=dd110 * real[x];
+ 					g_model_imag  [idx_tmp]+=dd110 * imag[x];
+ 					g_model_weight[idx_tmp]+=dd110 * Fweight[x];
++				// #endif
++				#else // ATOMIC_OPT
++					idx_tmp = z0_mdl_x_mdl_y + mdl_x_mdl_y + y0_mdl_x + (size_t)mdl_x + (size_t)x0; // z1 * mdl_x * mdl_y + y1 * mdl_x + x0;
++				// #ifdef AOS_OPT
++				// 	atomicAdd(&g_model_real[idx_tmp], dd110 * riw3d[x].real);
++				// 	atomicAdd(&g_model_imag[idx_tmp], dd110 * riw3d[x].imag);
++				// 	atomicAdd(&g_model_weight[idx_tmp], dd110 * riw3d[x].Fweight);
++				// #else
++					atomicAdd(&g_model_real[idx_tmp], dd110 * real[x]);
++					atomicAdd(&g_model_imag[idx_tmp], dd110 * imag[x]);
++					atomicAdd(&g_model_weight[idx_tmp], dd110 * Fweight[x]);
++				// #endif
++				#endif
++					// std::atomic_ref<XFLOAT> g_model_real_0{g_model_real  [idx_tmp]};
++					// g_model_real_0+=dd000 * real[x];
+ 
+ 					idx_tmp = idx_tmp + 1; // z1 * mdl_x * mdl_y + y1 * mdl_x + x1;
++				#ifndef ATOMIC_OPT
++				// #ifdef AOS_OPT
++					// g_model_real  [idx_tmp]+=dd111 * riw3d[x].real;
++					// g_model_imag  [idx_tmp]+=dd111 * riw3d[x].imag;
++					// g_model_weight[idx_tmp]+=dd111 * riw3d[x].Fweight;
++				// #else
+ 					g_model_real  [idx_tmp]+=dd111 * real[x];
+ 					g_model_imag  [idx_tmp]+=dd111 * imag[x];
+ 					g_model_weight[idx_tmp]+=dd111 * Fweight[x];
++				// #endif
++				#else // ATOMIC_OPT
++				// #ifdef AOS_OPT
++				// 	atomicAdd(&g_model_real[idx_tmp], dd111 * riw3d[x].real);
++				// 	atomicAdd(&g_model_imag[idx_tmp], dd111 * riw3d[x].imag);
++				// 	atomicAdd(&g_model_weight[idx_tmp], dd111 * riw3d[x].Fweight);
++				// #else
++					atomicAdd(&g_model_real[idx_tmp], dd111 * real[x]);
++					atomicAdd(&g_model_imag[idx_tmp], dd111 * imag[x]);
++					atomicAdd(&g_model_weight[idx_tmp], dd111 * Fweight[x]);
++				// #endif
++				#endif
+ 				}
++// #ifdef AOS_OPT
++// 				riw3d[x].real = 0;
++// 				riw3d[x].imag = 0;
++// 				riw3d[x].Fweight = 0;
++// #else
++// 				real[x] = 0;
++// 				imag[x] = 0;
++// 				Fweight[x] = 0;
++// #endif
+ 			}  // for x direction
+ 
+ 			pixel += (size_t)img_x;
+diff -wur relion-4.0.1/src/acc/cpu/cpu_kernels/cpu_utils.h relion-opt/src/acc/cpu/cpu_kernels/cpu_utils.h
+--- relion-4.0.1/src/acc/cpu/cpu_kernels/cpu_utils.h	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/src/acc/cpu/cpu_kernels/cpu_utils.h	2025-10-21 20:48:08.038260000 +0800
+@@ -306,6 +306,69 @@
+ 	imag = dxy0[1] + (dxy1[1] - dxy0[1])*fz;	
+ }
+ 
++// #ifdef __INTEL_COMPILER
++// #pragma omp declare simd uniform(mdlX,mdlXY,mdlInitY,mdlInitZ)
++// #else
++// __attribute__((always_inline))
++// inline
++// #endif
++// static void complex3D_new(
++// 				FourPoint * mdlComplex, 
++// 				XFLOAT &real, XFLOAT &imag,
++// 				XFLOAT xp, XFLOAT yp, XFLOAT zp, int mdlX, int mdlXY, int mdlInitY, int mdlInitZ
++// 		)
++// {
++// 	int x0 = floorf(xp);
++// 	XFLOAT fx = xp - x0;
++
++// 	int y0 = floorf(yp);
++// 	XFLOAT fy = yp - y0;
++// 	y0 -= mdlInitY;
++
++// 	int z0 = floorf(zp);
++// 	XFLOAT fz = zp - z0;
++// 	z0 -= mdlInitZ;
++
++//     size_t offset1 = (size_t)((size_t)z0*(size_t)mdlXY+(size_t)y0*(size_t)mdlX+(size_t)x0);
++//     size_t offset2 = offset1 + (size_t)1;  
++        
++// 	XFLOAT d000[2], d001[2], d010[2], d011[2];
++// 	XFLOAT d100[2], d101[2], d110[2], d111[2]; 
++
++// 	d000[0] = mdlComplex[offset1].ep[0].real(); d000[1] = mdlComplex[offset1].ep[0].imag();
++// 	d001[0] = mdlComplex[offset2].ep[0].real(); d001[1] = mdlComplex[offset2].ep[0].imag();    
++// 	d010[0] = mdlComplex[offset1].ep[1].real(); d010[1] = mdlComplex[offset1].ep[1].imag();
++// 	d011[0] = mdlComplex[offset2].ep[1].real(); d011[1] = mdlComplex[offset2].ep[1].imag();
++// 	d100[0] = mdlComplex[offset1].ep[2].real(); d100[1] = mdlComplex[offset1].ep[2].imag();
++// 	d101[0] = mdlComplex[offset2].ep[2].real(); d101[1] = mdlComplex[offset2].ep[2].imag();
++// 	d110[0] = mdlComplex[offset1].ep[3].real(); d110[1] = mdlComplex[offset1].ep[3].imag();
++// 	d111[0] = mdlComplex[offset2].ep[3].real(); d111[1] = mdlComplex[offset2].ep[3].imag();                    
++                                
++// 	//-----------------------------
++// 	XFLOAT dx00[2], dx01[2], dx10[2], dx11[2];
++// 	dx00[0] = d000[0] + (d001[0] - d000[0])*fx;
++// 	dx01[0] = d100[0] + (d101[0] - d100[0])*fx;
++// 	dx10[0] = d010[0] + (d011[0] - d010[0])*fx;
++// 	dx11[0] = d110[0] + (d111[0] - d110[0])*fx;
++
++//     dx00[1] = d000[1] + (d001[1] - d000[1])*fx;
++//     dx01[1] = d100[1] + (d101[1] - d100[1])*fx;
++//     dx10[1] = d010[1] + (d011[1] - d010[1])*fx;
++//     dx11[1] = d110[1] + (d111[1] - d110[1])*fx;
++	
++// 	//-----------------------------
++// 	XFLOAT dxy0[2], dxy1[2];	
++// 	dxy0[0] = dx00[0] + (dx10[0] - dx00[0])*fy;
++// 	dxy1[0] = dx01[0] + (dx11[0] - dx01[0])*fy;
++	
++//     dxy0[1] = dx00[1] + (dx10[1] - dx00[1])*fy;
++//     dxy1[1] = dx01[1] + (dx11[1] - dx01[1])*fy;
++
++// 	//-----------------------------
++	
++// 	real = dxy0[0] + (dxy1[0] - dxy0[0])*fz;
++// 	imag = dxy0[1] + (dxy1[1] - dxy0[1])*fz;	
++// }
+ } // end of namespace CpuKernels
+ 
+ #endif //CPU_UTILITIES_H
+diff -wur relion-4.0.1/src/acc/cpu/cpu_kernels/diff2.h relion-opt/src/acc/cpu/cpu_kernels/diff2.h
+--- relion-4.0.1/src/acc/cpu/cpu_kernels/diff2.h	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/src/acc/cpu/cpu_kernels/diff2.h	2025-10-21 20:48:08.016718000 +0800
+@@ -326,6 +326,544 @@
+ }
+ */
+ 
++#define ARM_OPT_coarse
++
++#ifdef ARM_OPT_coarse
++template<bool REF3D, bool DATA3D, int block_sz, int eulers_per_block, int prefetch_fraction>
++#ifndef __INTEL_COMPILER
++__attribute__((always_inline))
++#endif
++inline void diff2_coarse(
++		unsigned long     grid_size,
++		XFLOAT *g_eulers,
++		XFLOAT *trans_x,
++		XFLOAT *trans_y,
++		XFLOAT *trans_z,
++#ifdef DEBUG_CUDA		
++		XFLOAT *_g_real,
++#else
++		XFLOAT *g_real,	
++#endif
++		XFLOAT *g_imag,
++		AccProjectorKernel &projector,
++		XFLOAT *g_corr,
++		XFLOAT *g_diff2s,
++		unsigned long translation_num,
++		unsigned long image_size
++		)
++{
++#ifdef DEBUG_CUDA
++	checkedArray<XFLOAT> g_real;
++	g_real.initCheckedArray(_g_real);
++#endif
++	const int xSize = projector.imgX;
++	const int ySize = projector.imgY;
++	const int zSize = projector.imgZ;
++	const int maxR = projector.maxR;
++	const unsigned pass_num(ceilfracf(image_size,block_sz));
++
++	int x[pass_num][block_sz], y[pass_num][block_sz], z[pass_num][block_sz];
++	XFLOAT s_real[pass_num][block_sz];
++	XFLOAT s_imag[pass_num][block_sz];
++	XFLOAT s_corr[pass_num][block_sz];
++	
++	// Pre-calculate x/y/z
++	for (unsigned pass = 0; pass < pass_num; pass++) { // finish an entire ref image each block
++   		unsigned long start = pass * block_sz;
++		unsigned long elements = block_sz;
++		if (start + block_sz >= image_size)
++			elements = image_size - start;
++
++		// Rotate the reference image per block_sz, saved in cache
++		#pragma omp simd
++		for (int tid=0; tid<elements; tid++){
++			unsigned long pixel = (unsigned long)start + (unsigned long)tid;
++
++			if(DATA3D)
++			{
++				z[pass][tid] = floorfracf(pixel, xSize*ySize);
++				int xy = pixel % (xSize*ySize);
++				x[pass][tid] =             xy  % xSize;
++				y[pass][tid] = floorfracf( xy,   xSize);
++				if (z[pass][tid] > maxR)
++					z[pass][tid] -= zSize;
++			}
++			else
++			{
++				x[pass][tid] =            pixel % xSize;
++				y[pass][tid] = floorfracf(pixel, xSize);
++				z[pass][tid] = (XFLOAT)0.0;
++			}
++			if (y[pass][tid] > maxR)
++				y[pass][tid] -= ySize;
++
++			s_real[pass][tid] = g_real[pixel];
++			s_imag[pass][tid] = g_imag[pixel];
++			s_corr[pass][tid] = g_corr[pixel] * (XFLOAT)0.5;
++		}
++
++		// Make sure un-used elements are zeroed - just in case
++		if (elements != block_sz)
++			for (int tid=elements; tid < block_sz; tid++)
++			{
++				x[pass][tid] = (XFLOAT)0.0;
++				y[pass][tid] = (XFLOAT)0.0;
++			}
++	}
++
++	XFLOAT diff2s[translation_num][eulers_per_block];
++	XFLOAT diffi[eulers_per_block];
++
++	for (unsigned long block = 0; block < grid_size; block++) {
++		//Prefetch euler matrices with cacheline friendly index
++		XFLOAT s_eulers[eulers_per_block * 16];
++		for (int e = 0; e < eulers_per_block; e++)
++			for (int i = 0; i < 9; i++)
++				s_eulers[e*16+i] = g_eulers[(size_t)block * (size_t)eulers_per_block * (size_t)9 + e*9+i];
++
++		//Setup variables
++		XFLOAT s_ref_real[eulers_per_block][block_sz];
++		XFLOAT s_ref_imag[eulers_per_block][block_sz];
++
++		memset(&diff2s[0][0], 0, sizeof(XFLOAT) * translation_num * eulers_per_block);
++
++		//Step through data
++		for (unsigned pass = 0; pass < pass_num; pass++) { // finish an entire ref image each block
++			unsigned long start = pass * block_sz;
++			unsigned long elements = block_sz;
++			if (start + block_sz >= image_size)
++				elements = image_size - start;
++
++			for (int i = 0; i < eulers_per_block; i ++) {
++				#pragma omp simd
++				for (int tid=0; tid<elements; tid++){
++
++					if(DATA3D) // if DATA3D, then REF3D as well.
++						projector.project3Dmodel(
++								x[pass][tid], y[pass][tid], z[pass][tid],
++								s_eulers[i*16  ],
++								s_eulers[i*16+1],
++								s_eulers[i*16+2],
++								s_eulers[i*16+3],
++								s_eulers[i*16+4],
++								s_eulers[i*16+5],
++								s_eulers[i*16+6],
++								s_eulers[i*16+7],
++								s_eulers[i*16+8],
++								s_ref_real[i][tid],
++								s_ref_imag[i][tid]);
++					else if(REF3D)
++						projector.project3Dmodel(
++								x[pass][tid], y[pass][tid], 
++								s_eulers[i*16  ],
++								s_eulers[i*16+1],
++								s_eulers[i*16+3],
++								s_eulers[i*16+4],
++								s_eulers[i*16+6],
++								s_eulers[i*16+7],
++								s_ref_real[i][tid],
++								s_ref_imag[i][tid]);                    
++					else
++						projector.project2Dmodel(
++								x[pass][tid], y[pass][tid], 
++								s_eulers[i*16  ],
++								s_eulers[i*16+1],
++								s_eulers[i*16+3],
++								s_eulers[i*16+4],
++								s_ref_real[i][tid],
++								s_ref_imag[i][tid]);
++				}
++			}
++
++			for(unsigned long i=0; i<translation_num; i++) {
++				XFLOAT tx = trans_x[i];
++				XFLOAT ty = trans_y[i];
++				XFLOAT tz = trans_z[i];                          
++
++				svfloat32_t tx_vec = svdup_n_f32(tx);
++				svfloat32_t ty_vec = svdup_n_f32(ty);
++				svfloat32_t tz_vec = svdup_n_f32(tz);
++				svuint32_t image_size_vec = svdup_n_u32(image_size);
++
++				for (int j = 0; j < eulers_per_block; j ++)
++					diffi[j] = 0.0;
++
++				// if double svcntd
++				for (int tid=0; tid<block_sz; tid+=svcntw()) {
++					// Skip if pixel is out of bounds
++					if (start + tid >= image_size) break;
++					svbool_t pg = svwhilelt_b32(tid, block_sz);
++					svuint32_t pixel = svindex_u32(start + tid, 1);
++
++					svbool_t valid = svcmplt_u32(pg, pixel, image_size_vec);
++
++					svfloat32_t real_vec, imag_vec;
++					if(DATA3D) {
++						float s[svcntw()], c[svcntw()];
++
++						svint32_t x_vec_int = svld1_s32(valid, &x[pass][tid]);
++						svint32_t y_vec_int = svld1_s32(valid, &y[pass][tid]);
++						svint32_t z_vec_int = svld1_s32(valid, &z[pass][tid]);
++						svfloat32_t x_vec = svcvt_f32_s32_z(valid, x_vec_int); // Convert to float
++						svfloat32_t y_vec = svcvt_f32_s32_z(valid, y_vec_int); // Convert to float
++						svfloat32_t z_vec = svcvt_f32_s32_z(valid, z_vec_int); // Convert to float
++						
++						armpl_svsincos_f32_x(svmla_f32_z(valid, svmla_f32_z(valid, svmul_f32_z(valid, x_vec, tx_vec), y_vec, ty_vec), z_vec, tz_vec), s, c, valid);
++						svfloat32_t s_vec = svld1_f32(valid, s);
++						svfloat32_t c_vec = svld1_f32(valid, c);
++						svfloat32_t s_real_vec = svld1_f32(valid, &s_real[pass][tid]);
++						svfloat32_t s_imag_vec = svld1_f32(valid, &s_imag[pass][tid]);
++
++						real_vec = svmls_f32_z(valid, svmul_f32_z(valid, c_vec, s_real_vec), s_vec, s_imag_vec);
++						imag_vec = svmla_f32_z(valid, svmul_f32_z(valid, c_vec, s_imag_vec), s_vec, s_real_vec);
++
++					} else {
++						float s[svcntw()], c[svcntw()];
++
++						svint32_t x_vec_int = svld1_s32(valid, &x[pass][tid]);
++						svint32_t y_vec_int = svld1_s32(valid, &y[pass][tid]);
++						svfloat32_t x_vec = svcvt_f32_s32_z(valid, x_vec_int); // Convert to float
++						svfloat32_t y_vec = svcvt_f32_s32_z(valid, y_vec_int); // Convert to float
++						
++						armpl_svsincos_f32_x(svmla_f32_z(valid, svmul_f32_z(valid, x_vec, tx_vec), y_vec, ty_vec), s, c, valid);
++
++						svfloat32_t s_vec = svld1_f32(valid, s);
++						svfloat32_t c_vec = svld1_f32(valid, c);
++						svfloat32_t s_real_vec = svld1_f32(valid, &s_real[pass][tid]);
++						svfloat32_t s_imag_vec = svld1_f32(valid, &s_imag[pass][tid]);
++
++						real_vec = svmls_f32_z(valid, svmul_f32_z(valid, c_vec, s_real_vec), s_vec, s_imag_vec);
++						imag_vec = svmla_f32_z(valid, svmul_f32_z(valid, c_vec, s_imag_vec), s_vec, s_real_vec);
++					}
++
++					svfloat32_t corr_factor = svld1_f32(valid, &s_corr[pass][tid]);
++					#pragma unroll(eulers_per_block)
++					for (int j = 0; j < eulers_per_block; j++) {
++						svfloat32_t s_ref_real_vec = svld1_f32(valid, &s_ref_real[j][tid]);
++						svfloat32_t s_ref_imag_vec = svld1_f32(valid, &s_ref_imag[j][tid]);
++
++						svfloat32_t diff_real_vec = svsub_f32_z(valid, s_ref_real_vec, real_vec);
++						svfloat32_t diff_imag_vec = svsub_f32_z(valid, s_ref_imag_vec, imag_vec);
++						svfloat32_t diff_square = svmla_f32_z(valid, svmul_f32_z(valid, diff_real_vec, diff_real_vec),
++																	diff_imag_vec, diff_imag_vec);
++
++						diffi[j] += svaddv_f32(valid, svmul_f32_z(valid, diff_square, corr_factor));
++					}
++				} // for tid
++				for (int j = 0; j < eulers_per_block; j ++)
++					diff2s[i][j] += diffi[j];
++			}  // for each translation
++		}  // for each pass
++
++		XFLOAT *pData = g_diff2s + (size_t)block * (size_t)eulers_per_block * (size_t)translation_num;
++		for(int i=0; i<eulers_per_block; i++)
++			for(unsigned long j=0; j<translation_num; j++)
++				pData[i*translation_num + j] += diff2s[j][i];
++	} // block
++}
++// template<bool REF3D, bool DATA3D, int block_sz, int eulers_per_block, int prefetch_fraction>
++// #ifndef __INTEL_COMPILER
++// __attribute__((always_inline))
++// #endif
++// inline 
++// void diff2_coarse(
++// 		unsigned long     grid_size,
++// 		XFLOAT *g_eulers,
++// 		XFLOAT *trans_x,
++// 		XFLOAT *trans_y,
++// 		XFLOAT *trans_z,
++// #ifdef DEBUG_CUDA		
++// 		XFLOAT *_g_real,
++// #else
++// 		XFLOAT *g_real,	
++// #endif
++// 		XFLOAT *g_imag,
++// 		AccProjectorKernel &projector,
++// 		XFLOAT *g_corr,
++// 		XFLOAT *g_diff2s,
++// 		unsigned long translation_num,
++// 		unsigned long image_size
++// 		)
++// {
++// // auto start0 = std::chrono::high_resolution_clock::now();
++// #ifdef DEBUG_CUDA
++// 	checkedArray<XFLOAT> g_real;
++// 	g_real.initCheckedArray(_g_real);
++// #endif
++// 	const int xSize = projector.imgX;
++// 	const int ySize = projector.imgY;
++// 	const int zSize = projector.imgZ;
++// 	const int maxR = projector.maxR;
++// 	const unsigned pass_num(ceilfracf(image_size,block_sz));
++	
++// 	int x[pass_num][block_sz], y[pass_num][block_sz], z[pass_num][block_sz];
++// 	// try to merge real and imag into one structure and them use complex simd?
++// 	XFLOAT s_real[pass_num][block_sz];
++// 	XFLOAT s_imag[pass_num][block_sz];
++// 	XFLOAT s_corr[pass_num][block_sz];
++	
++// 	// Pre-calculate x/y/z
++// 	for (unsigned pass = 0; pass < pass_num; pass++) { // finish an entire ref image each block
++//    		unsigned long start = pass * block_sz;
++// 		unsigned long elements = block_sz;
++// 		if (start + block_sz >= image_size)
++// 			elements = image_size - start;
++
++// 		// Rotate the reference image per block_sz, saved in cache
++// 		#pragma omp simd
++// 		for (int tid=0; tid<elements; tid++){
++// 			unsigned long pixel = (unsigned long)start + (unsigned long)tid;
++
++// 			if(DATA3D)
++// 			{
++// 				z[pass][tid] = floorfracf(pixel, xSize*ySize);
++// 				int xy = pixel % (xSize*ySize);
++// 				x[pass][tid] =             xy  % xSize;
++// 				y[pass][tid] = floorfracf( xy,   xSize);
++// 				if (z[pass][tid] > maxR)
++// 					z[pass][tid] -= zSize;
++// 			}
++// 			else
++// 			{
++// 				x[pass][tid] =            pixel % xSize;
++// 				y[pass][tid] = floorfracf(pixel, xSize);
++// 				z[pass][tid] = (XFLOAT)0.0;
++// 			}
++// 			if (y[pass][tid] > maxR)
++// 				y[pass][tid] -= ySize;
++
++// 			s_real[pass][tid] = g_real[pixel];
++// 			s_imag[pass][tid] = g_imag[pixel];
++// 			s_corr[pass][tid] = g_corr[pixel] * (XFLOAT)0.5;
++// 		}
++
++// 		// Make sure un-used elements are zeroed - just in case
++// 		if (elements != block_sz)
++// 			for (int tid=elements; tid < block_sz; tid++)
++// 			{
++// 				x[pass][tid] = (XFLOAT)0.0;
++// 				y[pass][tid] = (XFLOAT)0.0;
++// 			}
++// 	}
++
++// 	XFLOAT diff2s[translation_num][eulers_per_block];
++// 	XFLOAT diffi[eulers_per_block];
++
++// 	for (unsigned long block = 0; block < grid_size; block++) {
++// 		//Prefetch euler matrices with cacheline friendly index
++// 		XFLOAT s_eulers[eulers_per_block * 16];
++// 		for (int e = 0; e < eulers_per_block; e++)
++// 			for (int i = 0; i < 9; i++)
++// 				s_eulers[e*16+i] = g_eulers[(size_t)block * (size_t)eulers_per_block * (size_t)9 + e*9+i];
++
++// 		//Setup variables
++// 		XFLOAT s_ref_real[eulers_per_block][block_sz];
++// 		XFLOAT s_ref_imag[eulers_per_block][block_sz];
++
++// 		memset(&diff2s[0][0], 0, sizeof(XFLOAT) * translation_num * eulers_per_block);
++
++// 		//Step through data
++// 		for (unsigned pass = 0; pass < pass_num; pass++) { // finish an entire ref image each block
++// 			unsigned long start = pass * block_sz;
++// 			unsigned long elements = block_sz;
++// 			if (start + block_sz >= image_size)
++// 				elements = image_size - start;
++
++// 			for (int i = 0; i < eulers_per_block; i ++) {
++// 				#pragma omp simd
++// 				for (int tid=0; tid<elements; tid++){
++
++// 					if(DATA3D) // if DATA3D, then REF3D as well.
++// 						projector.project3Dmodel(
++// 								x[pass][tid], y[pass][tid], z[pass][tid],
++// 								s_eulers[i*16  ],
++// 								s_eulers[i*16+1],
++// 								s_eulers[i*16+2],
++// 								s_eulers[i*16+3],
++// 								s_eulers[i*16+4],
++// 								s_eulers[i*16+5],
++// 								s_eulers[i*16+6],
++// 								s_eulers[i*16+7],
++// 								s_eulers[i*16+8],
++// 								s_ref_real[i][tid],
++// 								s_ref_imag[i][tid]);
++// 					else if(REF3D)
++// 						projector.project3Dmodel(
++// 								x[pass][tid], y[pass][tid], 
++// 								s_eulers[i*16  ],
++// 								s_eulers[i*16+1],
++// 								s_eulers[i*16+3],
++// 								s_eulers[i*16+4],
++// 								s_eulers[i*16+6],
++// 								s_eulers[i*16+7],
++// 								s_ref_real[i][tid],
++// 								s_ref_imag[i][tid]);                    
++// 					else
++// 						projector.project2Dmodel(
++// 								x[pass][tid], y[pass][tid], 
++// 								s_eulers[i*16  ],
++// 								s_eulers[i*16+1],
++// 								s_eulers[i*16+3],
++// 								s_eulers[i*16+4],
++// 								s_ref_real[i][tid],
++// 								s_ref_imag[i][tid]);
++// 				}
++// 			}
++
++// 			for(unsigned long i=0; i<translation_num; i++) {
++// 				XFLOAT tx = trans_x[i];
++// 				XFLOAT ty = trans_y[i];
++// 				XFLOAT tz = trans_z[i];
++
++// 				// Preload common variables
++// 			#ifdef ACC_DOUBLE_PRECISION
++// 				svfloat64_t tx_vec = svdup_n_f64(tx);
++// 				svfloat64_t ty_vec = svdup_n_f64(ty);
++// 				svfloat64_t tz_vec = svdup_n_f64(tz);
++// 			#else
++// 				svfloat32_t tx_vec = svdup_n_f32(tx);
++// 				svfloat32_t ty_vec = svdup_n_f32(ty);
++// 				svfloat32_t tz_vec = svdup_n_f32(tz);
++// 			#endif
++// 				svuint32_t image_size_vec = svdup_n_u32(image_size);
++
++// 				for (int j = 0; j < eulers_per_block; j ++)
++// 					diffi[j] = 0.0;
++
++// 				// if double svcntd
++// 				for (int tid=0; tid<block_sz; tid+=svcntw()) {
++// 					if (start + tid >= image_size) break;
++// 					svbool_t pg = svwhilelt_b32(tid, block_sz);
++// 					svuint32_t pixel = svindex_u32(start + tid, 1);
++
++// 					// Skip if pixel is out of bounds
++// 					svbool_t valid = svcmplt_u32(pg, pixel, image_size_vec);
++// 					// if (!svptest_any(svptrue_b32(), valid))
++// 					// 	break;
++
++// 				// can use complex simd in arm?
++// 					#ifdef ACC_DOUBLE_PRECISION
++// 							svfloat64_t real_vec, imag_vec;
++// 					#else
++// 							svfloat32_t real_vec, imag_vec;
++// 					#endif
++// 					if(DATA3D) {
++// 						#ifdef ACC_DOUBLE_PRECISION
++// 							// svfloat64_t s, c;
++// 							double s[svcntw()], c[svcntw()];
++
++// 							// this convert may have some problems, we need to load svcntd() int and two lanes store one int
++// 							svint32_t x_vec_int = svld1_s32(valid, &x[pass][tid]);
++//         					svint32_t y_vec_int = svld1_s32(valid, &y[pass][tid]);
++// 							svint32_t z_vec_int = svld1_s32(valid, &z[pass][tid]);
++// 							svfloat64_t x_vec = svcvt_f64_s32_z(valid, x_vec_int); // Convert to float
++//             				svfloat64_t y_vec = svcvt_f64_s32_z(valid, y_vec_int); // Convert to float
++// 							svfloat64_t z_vec = svcvt_f64_s32_z(valid, z_vec_int); // Convert to float
++
++
++// 							svfloat64_t s_real_vec = svld1_f64(valid, &s_real[pass][tid]);
++// 							svfloat64_t s_imag_vec = svld1_f64(valid, &s_imag[pass][tid]);
++
++// 							armpl_svsincos_f64_x(svmla_f64_z(valid, svmla_f64_z(valid, svmul_f64_z(valid, x_vec, tx_vec), y_vec, ty_vec), z_vec, tz_vec), s, c, valid);
++// 							svfloat64_t s_vec = svld1_f64(valid, s);
++// 							svfloat64_t c_vec = svld1_f64(valid, c);
++// 							real_vec = svmls_f64_z(valid, svmul_f64_z(valid, c_vec, s_real_vec), s_vec, s_imag_vec);
++//         					imag_vec = svmla_f64_z(valid, svmul_f64_z(valid, c_vec, s_imag_vec), s_vec, s_real_vec);
++// 						#else
++// 							// svfloat32_t s, c;
++// 							float s[svcntw()], c[svcntw()];
++
++// 							svint32_t x_vec_int = svld1_s32(valid, &x[pass][tid]);
++//         					svint32_t y_vec_int = svld1_s32(valid, &y[pass][tid]);
++// 							svint32_t z_vec_int = svld1_s32(valid, &z[pass][tid]);
++// 							svfloat32_t x_vec = svcvt_f32_s32_z(valid, x_vec_int); // Convert to float
++//             				svfloat32_t y_vec = svcvt_f32_s32_z(valid, y_vec_int); // Convert to float
++//             				svfloat32_t z_vec = svcvt_f32_s32_z(valid, z_vec_int); // Convert to float
++							
++// 							armpl_svsincos_f32_x(svmla_f32_z(valid, svmla_f32_z(valid, svmul_f32_z(valid, x_vec, tx_vec), y_vec, ty_vec), z_vec, tz_vec), s, c, valid);
++// 							// svml_sincos_f32(svmla_f32_z(valid, svmla_f32_z(valid, svmul_f32_z(valid, x_vec, tx_vec), y_vec, ty_vec), z_vec, tz_vec), &s, &c);
++// 							svfloat32_t s_vec = svld1_f32(valid, s);
++// 							svfloat32_t c_vec = svld1_f32(valid, c);
++// 							svfloat32_t s_real_vec = svld1_f32(valid, &s_real[pass][tid]);
++// 							svfloat32_t s_imag_vec = svld1_f32(valid, &s_imag[pass][tid]);
++
++// 							// real_vec = svmls_f32_z(valid, svmul_f32_z(valid, c, s_real_vec), s, s_imag_vec);
++//         					// imag_vec = svmla_f32_z(valid, svmul_f32_z(valid, c, s_imag_vec), s, s_real_vec);
++// 							real_vec = svmls_f32_z(valid, svmul_f32_z(valid, c_vec, s_real_vec), s_vec, s_imag_vec);
++//         					imag_vec = svmla_f32_z(valid, svmul_f32_z(valid, c_vec, s_imag_vec), s_vec, s_real_vec);
++// 						#endif
++// 					}
++// 					else {
++// 						#ifdef ACC_DOUBLE_PRECISION
++// 							// svfloat64_t s, c;
++// 							double s[svcntw()], c[svcntw()];
++
++// 							svint32_t x_vec_int = svld1_s32(valid, &x[pass][tid]);
++//         					svint32_t y_vec_int = svld1_s32(valid, &y[pass][tid]);
++// 							svfloat64_t x_vec = svcvt_f64_s32_z(valid, x_vec_int); // Convert to float
++//             				svfloat64_t y_vec = svcvt_f64_s32_z(valid, y_vec_int); // Convert to float
++
++// 							svfloat64_t s_real_vec = svld1_f64(valid, &s_real[pass][tid]);
++// 							svfloat64_t s_imag_vec = svld1_f64(valid, &s_imag[pass][tid]);
++
++// 							armpl_svsincos_f64_x(svmla_f64_m(valid, svmul_f64_m(valid, x_vec, tx_vec), y_vec, ty_vec), s, c, valid);
++// 							svfloat64_t s_vec = svld1_f64(valid, s);
++// 							svfloat64_t c_vec = svld1_f64(valid, c);
++// 							real_vec = svmls_f64_z(valid, svmul_f64_z(valid, c_vec, s_real_vec), s_vec, s_imag_vec);
++//         					imag_vec = svmla_f64_z(valid, svmul_f64_z(valid, c_vec, s_imag_vec), s_vec, s_real_vec);
++// 						#else
++// 							// svfloat32_t s, c;
++// 							float s[svcntw()], c[svcntw()];
++
++// 							svint32_t x_vec_int = svld1_s32(valid, &x[pass][tid]);
++//         					svint32_t y_vec_int = svld1_s32(valid, &y[pass][tid]);
++// 							svfloat32_t x_vec = svcvt_f32_s32_z(valid, x_vec_int); // Convert to float
++//             				svfloat32_t y_vec = svcvt_f32_s32_z(valid, y_vec_int); // Convert to float
++							
++// 							armpl_svsincos_f32_x(svmla_f32_z(valid, svmul_f32_z(valid, x_vec, tx_vec), y_vec, ty_vec), s, c, valid);
++// 							// svml_sincos_f32(svmla_f32_z(valid, svmul_f32_z(valid, x_vec, tx_vec), y_vec, ty_vec), &s, &c);
++
++// 							svfloat32_t s_vec = svld1_f32(valid, s);
++// 							svfloat32_t c_vec = svld1_f32(valid, c);
++// 							svfloat32_t s_real_vec = svld1_f32(valid, &s_real[pass][tid]);
++// 							svfloat32_t s_imag_vec = svld1_f32(valid, &s_imag[pass][tid]);
++
++// 							// real_vec = svmls_f32_z(valid, svmul_f32_z(valid, c, s_real_vec), s, s_imag_vec);
++//         					// imag_vec = svmla_f32_z(valid, svmul_f32_z(valid, c, s_imag_vec), s, s_real_vec);
++// 							real_vec = svmls_f32_z(valid, svmul_f32_z(valid, c_vec, s_real_vec), s_vec, s_imag_vec);
++//         					imag_vec = svmla_f32_z(valid, svmul_f32_z(valid, c_vec, s_imag_vec), s_vec, s_real_vec);
++// 						#endif
++// 					}
++
++// 					svfloat32_t corr_factor = svld1_f32(valid, &s_corr[pass][tid]);
++// 					#pragma unroll(eulers_per_block)
++// 					for (int j = 0; j < eulers_per_block; j++) {
++// 						svfloat32_t s_ref_real_vec = svld1_f32(valid, &s_ref_real[j][tid]);
++// 						svfloat32_t s_ref_imag_vec = svld1_f32(valid, &s_ref_imag[j][tid]);
++
++// 						svfloat32_t diff_real_vec = svsub_f32_z(valid, s_ref_real_vec, real_vec);
++// 						svfloat32_t diff_imag_vec = svsub_f32_z(valid, s_ref_imag_vec, imag_vec);
++// 						svfloat32_t diff_square = svmla_f32_z(valid, svmul_f32_z(valid, diff_real_vec, diff_real_vec),
++// 																	diff_imag_vec, diff_imag_vec);
++
++// 						diffi[j] += svaddv_f32(valid, svmul_f32_z(valid, diff_square, corr_factor));
++// 					}
++// 				} // for tid
++// 				for (int j = 0; j < eulers_per_block; j ++)
++// 					diff2s[i][j] += diffi[j];
++// 			}  // for each translation
++// 		}  // for each pass
++
++// 		XFLOAT *pData = g_diff2s + (size_t)block * (size_t)eulers_per_block * (size_t)translation_num;
++// 		for(int i=0; i<eulers_per_block; i++)
++// 			for(unsigned long j=0; j<translation_num; j++)
++// 				pData[i*translation_num + j] += diff2s[j][i];
++// 	} // block
++// // auto end0 = std::chrono::high_resolution_clock::now();
++// // std::chrono::duration<size_t, std::nano> dur = end0 - start0;
++// // std::cout << "time0: " << dur.count() << " ns" << std::endl;
++// }
++#else
+ template<bool REF3D, bool DATA3D, int block_sz, int eulers_per_block, int prefetch_fraction>
+ #ifndef __INTEL_COMPILER
+ __attribute__((always_inline))
+@@ -603,7 +1141,416 @@
+ 				pData[i*translation_num + j] += diff2s[j][i];
+ 	} // block
+ }
++#endif
++// #define ARM_OPT_fine
++#ifdef ARM_OPT_fine
++// template<bool REF3D>
++// #ifndef __INTEL_COMPILER
++// __attribute__((always_inline))
++// #endif
++// inline void diff2_fine_2D(
++// 		unsigned long     grid_size,
++// 		XFLOAT *g_eulers,
++// #ifdef DEBUG_CUDA
++// 		XFLOAT *_g_imgs_real,
++// #else
++// 		XFLOAT *g_imgs_real,		
++// #endif
++// 		XFLOAT *g_imgs_imag,
++// 		XFLOAT *g_trans_x,
++// 		XFLOAT *g_trans_y,
++// 		XFLOAT *g_trans_z,		
++// 		AccProjectorKernel &projector,
++// 		XFLOAT *g_corr_img,
++// 		XFLOAT *g_diff2s,
++// 		unsigned long image_size,
++// 		XFLOAT sum_init,
++// 		unsigned long orientation_num,
++// 		unsigned long translation_num,
++// 		unsigned long num_jobs,
++// 		unsigned long *d_rot_idx,
++// 		unsigned long *d_trans_idx,
++// 		unsigned long *d_job_idx,
++// 		unsigned long *d_job_num
++// 		)
++// {
++// // auto start0 = std::chrono::high_resolution_clock::now();
++// 	svfloat32_t half_vec = svdup_n_f32(0.5);
++// #ifdef DEBUG_CUDA
++// 	checkedArray<XFLOAT> g_imgs_real;
++// 	g_imgs_real.initCheckedArray(_g_imgs_real);
++// #endif
++//     // Set up arrays to hold largest possible values
++// 	int xSize = projector.imgX;
++// 	int ySize = projector.imgY;
++// 	XFLOAT sin_x[translation_num][xSize], cos_x[translation_num][xSize];
++// 	XFLOAT sin_y[translation_num][ySize], cos_y[translation_num][ySize];
++
++// 	XFLOAT trans_x[translation_num], trans_y[translation_num];
++	
++// 	XFLOAT ref_real[xSize],  ref_imag[xSize];
++// 	XFLOAT imgs_real[xSize], imgs_imag[xSize];
++	
++// 	XFLOAT s[translation_num];   
++	
++// 	// Now do calculations
++// 	for (unsigned long bid = 0; bid < grid_size; bid++) {
++// 		unsigned long trans_num        = (unsigned long)d_job_num[bid];     
++// 		unsigned long int iy_part = d_trans_idx[d_job_idx[bid]];  
++
++// 		size_t offset = d_rot_idx[d_job_idx[bid]] * 9;
++// 		XFLOAT e1 = g_eulers[offset  ], e2 = g_eulers[offset+1];
++// 		XFLOAT e3 = g_eulers[offset+3], e4 = g_eulers[offset+4];
++// 		XFLOAT e5 = g_eulers[offset+6], e6 = g_eulers[offset+7];        
++
++// 		// build lookup table for sin and cos
++// 		for(unsigned long i=0; i<trans_num; i++) {
++// 			int itrans = d_trans_idx[d_job_idx[bid]] + i;
++// 			trans_x[i] = g_trans_x[itrans];
++// 			trans_y[i] = g_trans_y[itrans];	       
++// 		}	
++// 		computeSincosLookupTable2D(trans_num, trans_x, trans_y,
++// 				xSize, ySize,
++// 				&sin_x[0][0], &cos_x[0][0], 
++// 				&sin_y[0][0], &cos_y[0][0]);		
++ 
++// 		memset(s, 0, sizeof(XFLOAT) * trans_num);
++
++// 		unsigned long pixel = 0;
++// 		int xy_size = xSize * ySize;
++// 		if (ySize <= 2*projector.maxR && xy_size % svcntw() == 0) { // no need to handle special case
++// 			for (int ixy = 0; ixy < xy_size; ixy+=svcntw()) {
++// 				int iy = ixy / xSize;
++// 				int x = ixy % xSize;
++// 				#pragma omp simd
++// 				for (int vi = 0; vi < svcntw(); vi++) {
++// 					int y = (ixy + vi) / xSize;
++// 					if (y > projector.maxR) {
++// 						y -= ySize;
++// 					}
++// 					if(REF3D)
++// 						projector.project3Dmodel((ixy+vi)%xSize, y, e1, e2, e3, e4, e5, e6, 
++// 											ref_real[(ixy+vi)%xSize], ref_imag[(ixy+vi)%xSize]);
++// 					else			                         
++// 						projector.project2Dmodel((ixy+vi)%xSize, y, e1, e2, e3, e4, 
++// 											ref_real[(ixy+vi)%xSize], ref_imag[(ixy+vi)%xSize]);
++// 				}
++
++// 				svbool_t pg = svwhilelt_b32(x, xSize);
++// 				svfloat32_t g_corr_img_vec = svld1_f32(pg, &g_corr_img[pixel + x]);
++// 				svfloat32_t g_corr_img_mul_half_vec = svmul_f32_z(pg, g_corr_img_vec, half_vec);
++// 				svfloat32_t half_corr = armpl_svsqrt_f32_x(g_corr_img_mul_half_vec, pg);
++
++// 				svfloat32_t ref_real_vec = svld1_f32(pg, &ref_real[x]);
++// 				svfloat32_t ref_imag_vec = svld1_f32(pg, &ref_imag[x]);
++// 				ref_real_vec = svmul_f32_z(pg, ref_real_vec, half_corr);
++// 				ref_imag_vec = svmul_f32_z(pg, ref_imag_vec, half_corr);
++// 				svst1_f32(pg, &ref_real[x], ref_real_vec);
++// 				svst1_f32(pg, &ref_imag[x], ref_imag_vec);
++
++// 				svfloat32_t g_imgs_real_vec = svld1_f32(pg, &g_imgs_real[pixel + x]);
++// 				svfloat32_t g_imgs_imag_vec = svld1_f32(pg, &g_imgs_imag[pixel + x]);
++// 				svst1(pg, &imgs_real[x], svmul_f32_z(pg, g_imgs_real_vec, half_corr));
++// 				svst1(pg, &imgs_imag[x], svmul_f32_z(pg, g_imgs_imag_vec, half_corr));
++
++// 				if (x > 1) { // return to head
++// 					int len = svcntw() - (xSize - x);
++// 					svbool_t pg = svwhilelt_b32(0, len);
++// 					svfloat32_t g_corr_img_vec = svld1_f32(pg, &g_corr_img[pixel + xSize + 0]);
++// 					svfloat32_t g_corr_img_mul_half_vec = svmul_f32_z(pg, g_corr_img_vec, half_vec);
++// 					svfloat32_t half_corr = armpl_svsqrt_f32_x(g_corr_img_mul_half_vec, pg);
++
++// 					svfloat32_t ref_real_vec = svld1_f32(pg, &ref_real[0]);
++// 					svfloat32_t ref_imag_vec = svld1_f32(pg, &ref_imag[0]);
++// 					ref_real_vec = svmul_f32_z(pg, ref_real_vec, half_corr);
++// 					ref_imag_vec = svmul_f32_z(pg, ref_imag_vec, half_corr);
++// 					svst1_f32(pg, &ref_real[0], ref_real_vec);
++// 					svst1_f32(pg, &ref_imag[0], ref_imag_vec);
++
++// 					svfloat32_t g_imgs_real_vec = svld1_f32(pg, &g_imgs_real[pixel + xSize + 0]);
++// 					svfloat32_t g_imgs_imag_vec = svld1_f32(pg, &g_imgs_imag[pixel + xSize + 0]);
++// 					svst1(pg, &imgs_real[0], svmul_f32_z(pg, g_imgs_real_vec, half_corr));
++// 					svst1(pg, &imgs_imag[0], svmul_f32_z(pg, g_imgs_imag_vec, half_corr));
++// 				}
++
++// 				for (unsigned long itrans=0; itrans<trans_num; itrans++) {
++// 					XFLOAT sum = (XFLOAT) 0.0;
++// 					#pragma omp simd  reduction(+:sum) 
++// 					for (int vi = 0; vi < svcntw(); vi++) {
++// 						int y = (ixy + vi) / xSize;
++// 						if (y > projector.maxR) {
++// 							y -= ySize;
++// 						}
++// 						XFLOAT trans_cos_y, trans_sin_y;
++// 						if ( y < 0) {
++// 							trans_cos_y =  cos_y[itrans][-y];
++// 							trans_sin_y = -sin_y[itrans][-y];            
++// 						}
++// 						else {
++// 							trans_cos_y = cos_y[itrans][y];
++// 							trans_sin_y = sin_y[itrans][y];
++// 						}
++
++// 						XFLOAT *trans_cos_x = &cos_x[itrans][0];
++// 						XFLOAT *trans_sin_x = &sin_x[itrans][0];
++
++// 						XFLOAT ss = trans_sin_x[(ixy+vi)%xSize] * trans_cos_y + trans_cos_x[(ixy+vi)%xSize] * trans_sin_y;
++// 						XFLOAT cc = trans_cos_x[(ixy+vi)%xSize] * trans_cos_y - trans_sin_x[(ixy+vi)%xSize] * trans_sin_y;
++
++// 						XFLOAT shifted_real = cc * imgs_real[(ixy+vi)%xSize] - ss * imgs_imag[(ixy+vi)%xSize];
++// 						XFLOAT shifted_imag = cc * imgs_imag[(ixy+vi)%xSize] + ss * imgs_real[(ixy+vi)%xSize];
++
++// 						XFLOAT diff_real =  ref_real[(ixy+vi)%xSize] - shifted_real;
++// 						XFLOAT diff_imag =  ref_imag[(ixy+vi)%xSize] - shifted_imag;
++
++// 						sum += (diff_real * diff_real + diff_imag * diff_imag);
++// 					}
++// 					s[itrans] += sum;
++// 				}
++
++// 				pixel = (unsigned long) (iy * xSize); // == ixy?
++// 			}
++// 		} else {
++// 			for(int iy = 0; iy < ySize; iy++) {
++// 				int xstart = 0, xend = xSize;
++// 				int y = iy;
++// 				if (iy > projector.maxR) {
++// 					if (iy >= ySize - projector.maxR)
++// 						y = iy - ySize;
++// 					else {
++// 						// handle special case for one pixel
++// 						xstart = projector.maxR;
++// 						xend   = xstart + 1;
++// 					}
++// 				}
++
++// 				#pragma omp simd
++// 				for(int x = xstart; x < xend; x++) {
++// 					if(REF3D)
++// 						projector.project3Dmodel(x, y, e1, e2, e3, e4, e5, e6, 
++// 											ref_real[x], ref_imag[x]);
++// 					else			                         
++// 						projector.project2Dmodel(x, y, e1, e2, e3, e4, 
++// 											ref_real[x], ref_imag[x]);			                      
++// 				}
++
++// 				#pragma omp simd
++// 				for(int x = xstart; x < xend; x++) {
++// 		#ifdef ACC_DOUBLE_PRECISION        
++// 					XFLOAT half_corr = sqrt (g_corr_img[pixel + x] * (XFLOAT)0.5);
++// 		#else
++// 					XFLOAT half_corr = sqrtf(g_corr_img[pixel + x] * (XFLOAT)0.5);
++// 		#endif            
++// 					ref_real[x]  *= half_corr;
++// 					ref_imag[x]  *= half_corr;            
++// 					imgs_real[x]  = g_imgs_real[pixel + x] * half_corr;
++// 					imgs_imag[x]  = g_imgs_imag[pixel + x] * half_corr;
++// 				}
++
++
++// 				for (unsigned long itrans=0; itrans<trans_num; itrans++) {
++// 					XFLOAT trans_cos_y, trans_sin_y;
++// 					if ( y < 0) {
++// 						trans_cos_y =  cos_y[itrans][-y];
++// 						trans_sin_y = -sin_y[itrans][-y];            
++// 					}
++// 					else {
++// 						trans_cos_y = cos_y[itrans][y];
++// 						trans_sin_y = sin_y[itrans][y];
++// 					}
++
++// 					XFLOAT *trans_cos_x = &cos_x[itrans][0];
++// 					XFLOAT *trans_sin_x = &sin_x[itrans][0];     
++
++// 					XFLOAT sum = (XFLOAT) 0.0;                   
++// 					#pragma omp simd  reduction(+:sum) 
++// 					for(int x = xstart; x < xend; x++) {
++// 						XFLOAT ss = trans_sin_x[x] * trans_cos_y + trans_cos_x[x] * trans_sin_y;
++// 						XFLOAT cc = trans_cos_x[x] * trans_cos_y - trans_sin_x[x] * trans_sin_y;
++
++// 						XFLOAT shifted_real = cc * imgs_real[x] - ss * imgs_imag[x];
++// 						XFLOAT shifted_imag = cc * imgs_imag[x] + ss * imgs_real[x];
++
++// 						XFLOAT diff_real =  ref_real[x] - shifted_real;
++// 						XFLOAT diff_imag =  ref_imag[x] - shifted_imag;
++
++// 						sum += (diff_real * diff_real + diff_imag * diff_imag);
++// 					}
++// 					s[itrans] += sum;
++// 				}
++
++// 				pixel += (unsigned long)xSize;
++// 			}  // for pass
++// 		}
++
++// 		for (unsigned long itrans=0; itrans<trans_num; itrans++)
++// 		{
++// 			unsigned long int iy = d_job_idx[bid]+itrans;
++// 			g_diff2s[iy] = s[itrans] + sum_init;
++// 		}
++// 	}  // for bid
++// auto end0 = std::chrono::high_resolution_clock::now();
++// std::chrono::duration<size_t, std::nano> dur = end0 - start0;
++// std::cout << "time1: " << dur.count() << " ns" << std::endl;
++// }
++template<bool REF3D>
++#ifndef __INTEL_COMPILER
++__attribute__((always_inline))
++#endif
++inline void diff2_fine_2D(
++		unsigned long     grid_size,
++		XFLOAT *g_eulers,
++#ifdef DEBUG_CUDA
++		XFLOAT *_g_imgs_real,
++#else
++		XFLOAT *g_imgs_real,		
++#endif
++		XFLOAT *g_imgs_imag,
++		XFLOAT *g_trans_x,
++		XFLOAT *g_trans_y,
++		XFLOAT *g_trans_z,		
++		AccProjectorKernel &projector,
++		XFLOAT *g_corr_img,
++		XFLOAT *g_diff2s,
++		unsigned long image_size,
++		XFLOAT sum_init,
++		unsigned long orientation_num,
++		unsigned long translation_num,
++		unsigned long num_jobs,
++		unsigned long *d_rot_idx,
++		unsigned long *d_trans_idx,
++		unsigned long *d_job_idx,
++		unsigned long *d_job_num
++		)
++{
++#ifdef DEBUG_CUDA
++	checkedArray<XFLOAT> g_imgs_real;
++	g_imgs_real.initCheckedArray(_g_imgs_real);
++#endif
++	svfloat32_t half_vec = svdup_n_f32(0.5f);
++    // Set up arrays to hold largest possible values
++	int xSize = projector.imgX;
++	int ySize = projector.imgY;
++	XFLOAT sin_x[translation_num][xSize], cos_x[translation_num][xSize];
++	XFLOAT sin_y[translation_num][ySize], cos_y[translation_num][ySize];
++
++	XFLOAT trans_x[translation_num], trans_y[translation_num];
++	
++	XFLOAT ref_real[xSize],  ref_imag[xSize];
++	XFLOAT imgs_real[xSize], imgs_imag[xSize];
++	
++	XFLOAT s[translation_num];   
++	
++	// Now do calculations
++	for (unsigned long bid = 0; bid < grid_size; bid++) {
++		unsigned long trans_num        = (unsigned long)d_job_num[bid];     
++		unsigned long int iy_part = d_trans_idx[d_job_idx[bid]];  
++
++		size_t offset = d_rot_idx[d_job_idx[bid]] * 9;
++		XFLOAT e1 = g_eulers[offset  ], e2 = g_eulers[offset+1];
++		XFLOAT e3 = g_eulers[offset+3], e4 = g_eulers[offset+4];
++		XFLOAT e5 = g_eulers[offset+6], e6 = g_eulers[offset+7];        
+ 
++		// build lookup table for sin and cos
++		for(unsigned long i=0; i<trans_num; i++) {
++			int itrans = d_trans_idx[d_job_idx[bid]] + i;
++			trans_x[i] = g_trans_x[itrans];
++			trans_y[i] = g_trans_y[itrans];	       
++		}	
++		computeSincosLookupTable2D(trans_num, trans_x, trans_y,
++				xSize, ySize,
++				&sin_x[0][0], &cos_x[0][0], 
++				&sin_y[0][0], &cos_y[0][0]);		
++ 
++		memset(s, 0, sizeof(XFLOAT) * trans_num);
++
++		unsigned long pixel = 0;
++		for(int iy = 0; iy < ySize; iy++) {
++			int xstart = 0, xend = xSize;
++			int y = iy;
++			if (iy > projector.maxR) {
++				if (iy >= ySize - projector.maxR)
++					y = iy - ySize;
++				else {
++					// handle special case for one pixel
++					xstart = projector.maxR;
++					xend   = xstart + 1;
++				}
++			}
++
++			#pragma omp simd
++			for(int x = xstart; x < xend; x++) {
++				if(REF3D)
++					projector.project3Dmodel(x, y, e1, e2, e3, e4, e5, e6, 
++										 ref_real[x], ref_imag[x]);
++				else			                         
++					projector.project2Dmodel(x, y, e1, e2, e3, e4, 
++										 ref_real[x], ref_imag[x]);			                      
++			}
++
++			#pragma omp simd
++			for(int x = xstart; x < xend; x+=svcntw()) {
++				svbool_t pg = svwhilelt_b32(x, xend);
++				svfloat32_t g_corr_img_vec = svld1_f32(pg, &g_corr_img[pixel + x]);
++				svfloat32_t g_corr_img_mul_half_vec = svmul_f32_z(pg, g_corr_img_vec, half_vec);
++				svfloat32_t half_corr = svsqrt_f32_z(pg, g_corr_img_mul_half_vec);
++				
++				svfloat32_t ref_real_vec = svld1_f32(pg, &ref_real[x]);
++				svfloat32_t ref_imag_vec = svld1_f32(pg, &ref_imag[x]);
++				ref_real_vec = svmul_f32_z(pg, ref_real_vec, half_corr);
++				ref_imag_vec = svmul_f32_z(pg, ref_imag_vec, half_corr);
++				svst1_f32(pg, &ref_real[x], ref_real_vec);
++				svst1_f32(pg, &ref_imag[x], ref_imag_vec);
++
++				svfloat32_t g_imgs_real_vec = svld1_f32(pg, &g_imgs_real[pixel + x]);
++				svfloat32_t g_imgs_imag_vec = svld1_f32(pg, &g_imgs_imag[pixel + x]);
++				svst1(pg, &imgs_real[x], svmul_f32_z(pg, g_imgs_real_vec, half_corr));
++				svst1(pg, &imgs_imag[x], svmul_f32_z(pg, g_imgs_imag_vec, half_corr));
++			}
++
++
++			for (unsigned long itrans=0; itrans<trans_num; itrans++) {
++				XFLOAT trans_cos_y, trans_sin_y;
++				if ( y < 0) {
++					trans_cos_y =  cos_y[itrans][-y];
++					trans_sin_y = -sin_y[itrans][-y];            
++				}
++				else {
++					trans_cos_y = cos_y[itrans][y];
++					trans_sin_y = sin_y[itrans][y];
++				}
++
++				XFLOAT *trans_cos_x = &cos_x[itrans][0];
++				XFLOAT *trans_sin_x = &sin_x[itrans][0];     
++
++				XFLOAT sum = (XFLOAT) 0.0;                   
++				#pragma omp simd  reduction(+:sum) 
++				for(int x = xstart; x < xend; x++) {
++					XFLOAT ss = trans_sin_x[x] * trans_cos_y + trans_cos_x[x] * trans_sin_y;
++					XFLOAT cc = trans_cos_x[x] * trans_cos_y - trans_sin_x[x] * trans_sin_y;
++
++					XFLOAT shifted_real = cc * imgs_real[x] - ss * imgs_imag[x];
++					XFLOAT shifted_imag = cc * imgs_imag[x] + ss * imgs_real[x];
++
++					XFLOAT diff_real =  ref_real[x] - shifted_real;
++					XFLOAT diff_imag =  ref_imag[x] - shifted_imag;
++
++					sum += (diff_real * diff_real + diff_imag * diff_imag);
++				}
++				s[itrans] += sum;
++			}
++
++			pixel += (unsigned long)xSize;
++		}  // for pass
++
++		for (unsigned long itrans=0; itrans<trans_num; itrans++)
++		{
++			unsigned long int iy = d_job_idx[bid]+itrans;
++			g_diff2s[iy] = s[itrans] + sum_init;
++		}
++	}  // for bid
++}
++#else // ARM_OPT
+ template<bool REF3D>
+ #ifndef __INTEL_COMPILER
+ __attribute__((always_inline))
+@@ -753,6 +1700,7 @@
+ 		}
+ 	}  // for bid
+ }
++#endif // no ARM_OPT
+ 
+ #ifndef __INTEL_COMPILER
+ __attribute__((always_inline))
+diff -wur relion-4.0.1/src/acc/cpu/cpu_kernels/helper.cpp relion-opt/src/acc/cpu/cpu_kernels/helper.cpp
+--- relion-4.0.1/src/acc/cpu/cpu_kernels/helper.cpp	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/src/acc/cpu/cpu_kernels/helper.cpp	2025-10-21 20:48:08.009138000 +0800
+@@ -115,6 +115,8 @@
+ 		}
+     }
+ }
++// #define ARM_OPT
++#ifdef ARM_OPT
+ void softMaskBackgroundValue(	int      block_dim,
+                                 int      block_size,
+                                 XFLOAT  *vol,
+@@ -131,6 +133,19 @@
+ 								XFLOAT  *g_sum,
+ 								XFLOAT  *g_sum_bg)
+ {
++	svfloat32_t radius_vec = svdup_n_f32(radius);
++	svfloat32_t radius_p_vec = svdup_n_f32(radius_p);
++	svfloat32_t pi_vec = svdup_n_f32(M_PI);
++	svfloat32_t cosine_width_vec = svdup_n_f32(cosine_width);
++	svfloat32_t half_vec = svdup_n_f32(0.5);
++	svfloat32_t one_vec = svdup_n_f32(1.0);
++	svint32_t vol_size_vec = svdup_n_s32(vol_size);
++	svint32_t x_dim_vec = svdup_n_s32(xdim);
++	svint32_t y_dim_vec = svdup_n_s32(ydim);
++	svint32_t xy_dim_vec = svdup_n_s32(xdim*ydim);
++	svint32_t zinit_vec = svdup_n_s32(zinit);
++	svint32_t yinit_vec = svdup_n_s32(yinit);
++	svint32_t xinit_vec = svdup_n_s32(xinit);
+ 	for(int bid=0; bid<block_dim; bid++)
+ 	{
+ 		for(int tid=0; tid<block_size; tid++)
+@@ -141,8 +156,98 @@
+ 			XFLOAT     img_pixels;
+ 
+ 			size_t texel_pass_num = ceilfracf((size_t)vol_size,(size_t)block_size*(size_t)block_dim);
++			// size_t texel = (size_t)bid*(size_t)block_size*(size_t)texel_pass_num + tid;
++			// size_t texel_pass_num = (size_t)vol_size / ((size_t)block_size*(size_t)block_dim);
++			// if (vol_size % (block_dim*block_size))
++			// 	texel_pass_num += 1;
+ 			size_t texel = (size_t)bid*(size_t)block_size*(size_t)texel_pass_num + tid;
++			for (size_t pass = 0; pass < texel_pass_num; pass+=svcntw(), texel+=svcntw()*block_size) // loop through all translations for this orientation
++			{
++				if (texel >= vol_size) break;
++				svbool_t pg = svwhilelt_b32(pass, texel_pass_num);
++				svint32_t texel_vec = svindex_s32(texel, block_size);
++				svbool_t valid = svcmplt(pg, texel_vec, vol_size_vec);        
++				
++				svfloat32_t img_pixels = svld1_f32(valid, vol);
++
++				svint32_t z_vec = svsub_s32_z(valid, svdiv_s32_z(valid, texel_vec, xy_dim_vec), zinit_vec);
++				// svuint32_t mod_vec = svsub_u32_z(valid, texel_vec, svmul_u32_z(valid, z_vec, xy_dim_vec));
++				svint32_t mod_vec = svmls_s32_z(valid, texel_vec, z_vec, xy_dim_vec);
++				svint32_t y_vec = svsub_s32_z(valid, svdiv_s32_z(valid, mod_vec, x_dim_vec), yinit_vec);
++				// svuint32_t x_vec = svsub_u32_z(valid, svsub_u32_z(valid, mod_vec, svmul_u32_z(valid, y_vec, x_dim_vec)), xinit_vec);
++				svint32_t x_vec = svsub_s32_z(valid, svmls_s32_z(valid, mod_vec, y_vec, x_dim_vec), xinit_vec);
++
++				svfloat32_t z_f_vec = svcvt_f32_s32_z(valid, z_vec);
++				svfloat32_t y_f_vec = svcvt_f32_s32_z(valid, y_vec);
++				svfloat32_t x_f_vec = svcvt_f32_s32_z(valid, x_vec);
++
++				svfloat32_t r_vec = svsqrt_f32_z(valid, 
++												svmla_f32_z(valid, 
++													svmla_f32_z(valid, 
++														svmul_f32_z(valid, x_f_vec, x_f_vec), y_f_vec, y_f_vec), 
++													z_f_vec, z_f_vec));
++
++				svbool_t mask_r_ge_radius = svcmpge_f32(valid, r_vec, radius_vec);
++				// if no true in mask_r_ge_radius break;
++				if (!svptest_any(svptrue_b32(), mask_r_ge_radius)) continue;
++				svbool_t mask_r_gt_radius_p = svcmpgt_f32(valid, r_vec, radius_p_vec);
++
++				// r >= radius && r > radius_p
++				svbool_t combined_mask1 = svand_b_z(valid, mask_r_ge_radius, mask_r_gt_radius_p);
++				// if any true in combined_mask1 then:
++				if (svptest_any(svptrue_b32(), combined_mask1)) {
++					g_sum[tid] += svaddv_f32(combined_mask1, one_vec);
++					g_sum_bg[tid] += svaddv_f32(combined_mask1, img_pixels);
++				}
++
++				// r >= radius && r <= radius_p
++				svbool_t combined_mask2 = svand_b_z(valid, mask_r_ge_radius, svnot_b_z(valid, mask_r_gt_radius_p));
++				// if any true in combined_mask2 then:
++				if (svptest_any(svptrue_b32(), combined_mask2)) {
++					svfloat32_t raisedcos_vec = svmla_f32_z(combined_mask2, 
++									half_vec,
++									half_vec,
++									armpl_svcos_f32_x(svdiv_f32_z(combined_mask2, 
++									svmul_f32_z(combined_mask2, pi_vec, svsub_f32_z(combined_mask2, radius_p_vec, r_vec)),
++									cosine_width_vec), combined_mask2));
++					g_sum[tid] += svaddv_f32(combined_mask2, raisedcos_vec);
++					g_sum_bg[tid] += svaddv_f32(combined_mask2, svmul_f32_z(combined_mask2, raisedcos_vec, img_pixels));
++				}
++			}
++		} // tid
++	} // bid
++}
++#else // ARM_OPT
++void softMaskBackgroundValue(	int      block_dim,
++                                int      block_size,
++                                XFLOAT  *vol,
++								long int vol_size,
++								long int xdim,
++								long int ydim,
++								long int zdim,
++								long int xinit,
++								long int yinit,
++								long int zinit,
++								XFLOAT   radius,
++								XFLOAT   radius_p,
++								XFLOAT   cosine_width,
++								XFLOAT  *g_sum,
++								XFLOAT  *g_sum_bg)
++{
++	for(int bid=0; bid<block_dim; bid++)
++	{
++		for(int tid=0; tid<block_size; tid++)
++		{
++	//		vol.setXmippOrigin(); // sets xinit=xdim , also for y z
++			XFLOAT r, raisedcos;
++			int x,y,z;
++			XFLOAT     img_pixels;
+ 
++			size_t texel_pass_num = ceilfracf((size_t)vol_size,(size_t)block_size*(size_t)block_dim);
++			size_t texel = (size_t)bid*(size_t)block_size*(size_t)texel_pass_num + tid;
++
++			// int b1 = 0, b2 = 0, b3 = 0;
++			// XFLOAT img_pixels_gt[texel_pass_num], img_pixels_le[texel_pass_num];
+ 			for (size_t pass = 0; pass < texel_pass_num; pass++, texel+=block_size) // loop through all translations for this orientation
+ 			{
+ 				if(texel<vol_size)
+@@ -160,16 +265,21 @@
+ 					r = sqrt(XFLOAT(x*x + y*y + z*z));
+ 
+ 					if (r < radius)
++					{
++						// b1++;
+ 						continue;
++					}
+ 					else if (r > radius_p)
+ 					{
++						// b2++;
+ 						g_sum[tid]    += (XFLOAT)1.0;
+-						g_sum_bg[tid] += img_pixels;
++						g_sum_bg[tid] += img_pixels;//仅需记录落在这里的次数和img+pixels，后面统一处理？
+ 					}
+ 					else
+ 					{
++						// b3++;
+ 	#if defined(ACC_DOUBLE_PRECISION)
+-						raisedcos = 0.5 + 0.5  * cos ( (radius_p - r) / cosine_width * M_PI);
++						raisedcos = 0.5 + 0.5  * cos ( (radius_p - r) / cosine_width * M_PI);//记录这些r，后面统一处理
+ 	#else
+ 						raisedcos = 0.5 + 0.5  * cosf( (radius_p - r) / cosine_width * M_PI);
+ 	#endif
+@@ -178,9 +288,11 @@
+ 					}
+ 				}
+ 			}
++			// std::cout << texel_pass_num << ", " << b1 << ", " << b2 << ", " << b3 << std::endl;
+ 		} // tid
+ 	} // bid
+ }
++#endif
+ 
+ 
+ void cosineFilter(	int      block_dim,
+diff -wur relion-4.0.1/src/acc/cpu/cpu_kernels/helper.h relion-opt/src/acc/cpu/cpu_kernels/helper.h
+--- relion-4.0.1/src/acc/cpu/cpu_kernels/helper.h	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/src/acc/cpu/cpu_kernels/helper.h	2025-10-21 20:48:08.030351000 +0800
+@@ -10,6 +10,9 @@
+ #include "src/acc/acc_projector.h"
+ #include "src/acc/acc_projectorkernel_impl.h"
+ 
++#include "amath.h"
++// #include "ksvml.h"
++
+ namespace CpuKernels
+ {
+ 
+@@ -639,6 +642,47 @@
+ // translation index. Since sin(a+B) = sin(A) * cos(B) + cos(A) * sin(B), and 
+ // cos(A+B) = cos(A) * cos(B) - sin(A) * sin(B), we can use lookup table to 
+ // compute sin(x*tx + y*ty) and cos(x*tx + y*ty). 
++// #define ARM_OPT2
++#ifdef ARM_OPT2
++#ifndef __INTEL_COMPILER
++__attribute__((always_inline))
++#endif
++inline void  computeSincosLookupTable2D(unsigned long  trans_num,
++                                        XFLOAT  *trans_x,
++										XFLOAT  *trans_y,										
++										int      xSize,
++										int      ySize,
++										XFLOAT  *sin_x,
++										XFLOAT  *cos_x,
++	                                    XFLOAT  *sin_y,
++	                                    XFLOAT  *cos_y)
++{
++// auto start0 = std::chrono::high_resolution_clock::now();
++	for(unsigned long i=0; i<trans_num; i++) {
++		XFLOAT tx = trans_x[i];
++		XFLOAT ty = trans_y[i];
++
++		svfloat32_t tx_vec = svdup_n_f32(tx);
++		unsigned long ipxSize = i * xSize;
++		for(int x=0; x<xSize; x+=svcntw()) {
++			svbool_t pg = svwhilelt_b32(x, xSize);
++			svint32_t x_vec = svindex_s32(x, 1);
++			armpl_svsincos_f32_x(svmul_f32_z(pg, svcvt_f32_s32_z(pg, x_vec), tx_vec), &sin_x[ipxSize+x], &cos_x[ipxSize+x], pg);
++		}
++		
++		svfloat32_t ty_vec = svdup_n_f32(ty);
++		unsigned long ipySize = i * ySize;
++		for(int y=0; y<ySize; y+=svcntw()) {
++			svbool_t pg = svwhilelt_b32(y, ySize);
++			svint32_t y_vec = svindex_s32(y, 1);
++			armpl_svsincos_f32_x(svmul_f32_z(pg, svcvt_f32_s32_z(pg, y_vec), ty_vec), &sin_y[ipySize+y], &cos_y[ipySize+y], pg);
++		}
++	}
++// auto end0 = std::chrono::high_resolution_clock::now();
++// std::chrono::duration<size_t, std::nano> dur = end0 - start0;
++// std::cout << "time0: " << dur.count() << " ns" << std::endl;
++}
++#else // ARM_OPT2
+ #ifndef __INTEL_COMPILER
+ __attribute__((always_inline))
+ #endif
+@@ -675,6 +719,7 @@
+ 		}        
+ 	}
+ }	                                    
++#endif	                                    
+ 				
+ #ifndef __INTEL_COMPILER
+ __attribute__((always_inline))
+diff -wur relion-4.0.1/src/acc/cpu/cpu_ml_optimiser.cpp relion-opt/src/acc/cpu/cpu_ml_optimiser.cpp
+--- relion-4.0.1/src/acc/cpu/cpu_ml_optimiser.cpp	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/src/acc/cpu/cpu_ml_optimiser.cpp	2025-10-21 20:48:07.925228000 +0800
+@@ -94,6 +94,7 @@
+ 				baseMLO->mymodel.PPref[imodel].r_max,
+ 				baseMLO->mymodel.PPref[imodel].padding_factor);
+ 
++		// projectors[imodel].initMdl(baseMLO->mdlClassComplex_new[imodel]);
+ 		projectors[imodel].initMdl(baseMLO->mdlClassComplex[imodel]);
+ 
+ 	}
+diff -wur relion-4.0.1/src/acc/cpu/cpu_settings.h relion-opt/src/acc/cpu/cpu_settings.h
+--- relion-4.0.1/src/acc/cpu/cpu_settings.h	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/src/acc/cpu/cpu_settings.h	2025-10-21 20:48:07.944029000 +0800
+@@ -11,13 +11,18 @@
+ 
+ 
+ // COARSE DIFF -------------------------
+-#define D2C_BLOCK_SIZE_2D 			256
++#define D2C_BLOCK_SIZE_2D 			4096
++// #define D2C_BLOCK_SIZE_2D 			256
++// #define D2C_EULERS_PER_BLOCK_2D 	32
+ #define D2C_EULERS_PER_BLOCK_2D 	16
+ 
+ #define D2C_BLOCK_SIZE_REF3D 		256
++// #define D2C_BLOCK_SIZE_REF3D			1024
+ #define D2C_EULERS_PER_BLOCK_REF3D 	16
++// #define D2C_EULERS_PER_BLOCK_REF3D 	32
+ 
+ #define D2C_BLOCK_SIZE_DATA3D 		64
++// #define D2C_BLOCK_SIZE_DATA3D 		512
+ #define D2C_EULERS_PER_BLOCK_DATA3D 32
+ // -------------------------------------
+ 
+@@ -43,6 +48,7 @@
+ // MISC --------------------------------
+ #define SUMW_BLOCK_SIZE 	  	32
+ #define SOFTMASK_BLOCK_SIZE 	128
++// #define SOFTMASK_BLOCK_SIZE 	64
+ #define CFTT_BLOCK_SIZE 	 	128
+ #define PROBRATIO_BLOCK_SIZE 	128
+ #define POWERCLASS_BLOCK_SIZE 	128
+diff -wur relion-4.0.1/src/acc/utilities_impl.h relion-opt/src/acc/utilities_impl.h
+--- relion-4.0.1/src/acc/utilities_impl.h	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/src/acc/utilities_impl.h	2025-10-21 20:48:07.813357000 +0800
+@@ -404,6 +404,7 @@
+ 	AccPtr<XFLOAT> &g_sum_bg)
+ {
+ 	int block_dim = 128; //TODO: set balanced (hardware-dep?)
++	// int block_dim = 16; //TODO: set balanced (hardware-dep?)
+ #ifdef _CUDA_ENABLED
+ 		cuda_kernel_softMaskBackgroundValue<<<block_dim,SOFTMASK_BLOCK_SIZE,0, vol.getStream()>>>(
+ 				~vol,
+diff -wur relion-4.0.1/src/apps/CMakeLists.txt relion-opt/src/apps/CMakeLists.txt
+--- relion-4.0.1/src/apps/CMakeLists.txt	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/src/apps/CMakeLists.txt	2025-10-21 20:48:02.128629000 +0800
+@@ -219,8 +219,11 @@
+ 	endif(GUI)
+ endif()
+ 
+-if(NOT MKLFFT)
++# FFTW_LIBRARIES is used even with MKLFFT.
++# This is empty for ICC.
++# See https://github.com/3dem/relion/issues/958#issuecomment-1498521352.
+ 	target_link_libraries(relion_lib ${FFTW_LIBRARIES})
++if(NOT MKLFFT)
+ 	if(BUILD_OWN_FFTW)
+ 		add_dependencies(relion_lib own_fftw_lib)
+ 	endif()
+@@ -435,17 +438,7 @@
+ 	install (TARGETS ${_target} RUNTIME DESTINATION bin)
+ endforeach()
+ 
+-FIND_PACKAGE( OpenMP REQUIRED)
+-if(OPENMP_FOUND)
+-	#message("OPENMP FOUND")
+-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+ 	target_link_libraries(relion_lib ${OpenMP_omp_LIBRARY})
+-endif()
+-
+-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
+-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+ 
+ # Set this flag to activate bounds checking in stl-vectors (incl. strings)
+ # It is useful to do this periodically, as it catches 
+diff -wur relion-4.0.1/src/backprojector.h relion-opt/src/backprojector.h
+--- relion-4.0.1/src/backprojector.h	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/src/backprojector.h	2025-10-21 20:47:58.054119000 +0800
+@@ -370,7 +370,7 @@
+ 
+ 	/* Applies the symmetry from the SymList object to the weight and the data array
+ 	 */
+-	void applyPointGroupSymmetry(int threads = 1);
++	void applyPointGroupSymmetry(int threads = 16);
+ 
+ 
+ 	/* Convolute in Fourier-space with the blob by multiplication in real-space
+diff -wur relion-4.0.1/src/float16.h relion-opt/src/float16.h
+--- relion-4.0.1/src/float16.h	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/src/float16.h	2025-10-21 20:47:58.067984000 +0800
+@@ -74,6 +74,26 @@
+   At the moment subnormal numbers are not implemented; they are truncated to signed zeros.
+ */
+ 
++inline void print_float32bits(float32 f)
++{
++	for (int i = 0; i < 32; i++)
++	{
++		printf("%d", (f.i >> (31 - i)) & 1);
++		if (i % 8 == 7) printf("|");
++		if (i % 8 == 3) printf(" ");
++	}
++}
++
++inline void print_float16bits(float16 f)
++{
++	for (int i = 0; i < 16; i++)
++	{
++		printf("%d", (f >> (15 - i)) & 1);
++		if (i % 8 == 7) printf("|");
++		if (i % 8 == 3) printf(" ");
++	}
++}
++
+ inline float16 float2half(float f32)
+ {
+ 	float32 f;
+@@ -97,9 +117,12 @@
+ 		return ret;
+ 	}
+ 
+-	fractional += 1 << 12; // add 1 to 13th bit to round.
++	fractional += 1 << 12; // add 1 to the 13th bit to round.
+ 	if (fractional & (1 << 23)) // carry up
++	{
++		fractional &= 0x007fffffu;
+ 		exponent++;
++	}
+ 
+ 	if (exponent > 127 + 15) // Overflow: don't create INF but truncate to MAX.
+ 	{
+diff -wur relion-4.0.1/src/gradient_optimisation.h relion-opt/src/gradient_optimisation.h
+--- relion-4.0.1/src/gradient_optimisation.h	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/src/gradient_optimisation.h	2025-10-21 20:47:57.853548000 +0800
+@@ -434,15 +434,18 @@
+ 			else
+ 				blobs_x[i] = random_normal<T>() * diameter / 7. + box.xdim / 2.;
+ 			blobs_y[i] = random_normal<T>() * diameter / 7. + box.ydim / 2.;
+-		}
+ 
+-		for (int i = 0; i < nr_blobs; i ++)
++			if (blobs_y[i] < amp_box.ydim && blobs_x[i] < amp_box.xdim)
+ 			blobs_amp[i] = fabs(amp_box.data[(long) blobs_y[i] * amp_box.xdim + (long) blobs_x[i]]);
++			else
++				blobs_amp[i] = 0;
++		}
+ 
+ 		T sigma_inv = 10. / diameter;
++		for (int i = 0; i < nr_blobs; i ++)
++			if (blobs_amp[i] > 0)
+ 		for (int y = 0; y < box.ydim; y ++)
+ 			for (int x = 0; x < box.xdim; x ++)
+-				for (int i = 0; i < nr_blobs; i ++)
+ 				{
+ 					T xp = (x-blobs_x[i]) * sigma_inv;
+ 					T yp = (y-blobs_y[i]) * sigma_inv;
+@@ -467,18 +470,21 @@
+ 				blobs_z[i] = ((T) rand() / (T) RAND_MAX) * box.zdim;
+ 			else
+ 				blobs_z[i] = random_normal<T>() * diameter / 6. + box.zdim / 2.;
+-		}
+ 
+-		for (int i = 0; i < nr_blobs; i ++)
++			if (blobs_z[i] < amp_box.zdim && blobs_y[i] < amp_box.ydim && blobs_x[i] < amp_box.xdim)
+ 			blobs_amp[i] = fabs(amp_box.data[
+ 				(long) blobs_z[i] * amp_box.yxdim +
+ 				(long) blobs_y[i] * amp_box.xdim +
+ 				(long) blobs_x[i]
+ 			]);
++			else
++				blobs_amp[i] = 0;
++		}
+ 
+ 		T span = diameter/3.;
+ 		T sigma_inv = 10./diameter;
+ 		for (int i = 0; i < nr_blobs; i ++)
++			if (blobs_amp[i] > 0)
+ 			for (int z = XMIPP_MAX(0, blobs_z[i]-span);
+ 				z < XMIPP_MIN(box.zdim, blobs_z[i]+span); z ++)
+ 				for (int y = XMIPP_MAX(0, blobs_y[i]-span);
+diff -wur relion-4.0.1/src/healpix_sampling.cpp relion-opt/src/healpix_sampling.cpp
+--- relion-4.0.1/src/healpix_sampling.cpp	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/src/healpix_sampling.cpp	2025-10-21 20:47:58.469748000 +0800
+@@ -662,7 +662,534 @@
+ 	// Get component along the new Y-axis
+ 	return fabs(ASIND(my_rot_direction(1)));
+ }
++#define SOWNZPP_OPT
++#ifdef SOWNZPP_OPT
++void HealpixSampling::selectOrientationsWithNonZeroPriorProbability(
++		RFLOAT prior_rot, RFLOAT prior_tilt, RFLOAT prior_psi,
++		RFLOAT sigma_rot, RFLOAT sigma_tilt, RFLOAT sigma_psi,
++    	std::vector<int> &pointer_dir_nonzeroprior, std::vector<RFLOAT> &directions_prior,
++    	std::vector<int> &pointer_psi_nonzeroprior, std::vector<RFLOAT> &psi_prior,
++		bool do_bimodal_search_psi,
++		RFLOAT sigma_cutoff, RFLOAT sigma_tilt_from_ninety, RFLOAT sigma_psi_from_zero)
++{
++	pointer_dir_nonzeroprior.clear();
++	directions_prior.clear();
++	// Do not check the mates again
++	std::vector<bool> idir_flag(rot_angles.size(), false);
++
++	if (is_3D)
++	{
++		//std::cerr<<"sigma_rot "<<sigma_rot<<" sigma_tilt "<<sigma_tilt<<std::endl;
++		Matrix1D<RFLOAT> prior90_direction;
++		RFLOAT cosSigmaTiltcutoff;
++		RFLOAT sqrt_sigmaTilt;
++		if (sigma_tilt_from_ninety > 0.)
++		{
++			cosSigmaTiltcutoff = cos(sigma_cutoff * sigma_tilt_from_ninety * PI / 180.0);
++			sqrt_sigmaTilt = sqrt(2*PI*sigma_tilt_from_ninety*sigma_tilt_from_ninety);
++			// pre-calculate original (0,90) direction
++			Euler_angles2direction(0., 90., prior90_direction);
++		}
++
++		// Loop over all directions
++		RFLOAT sumprior = 0.;
++		RFLOAT sumprior_withsigmafromzero = 0.;
++		// Keep track of the closest distance to prevent 0 orientations
++		RFLOAT best_ang = 9999.;
++		long int best_idir = -999;
++
++		if ( (sigma_rot > 0.) && (sigma_tilt > 0.) )
++		{
++			Matrix1D<RFLOAT> prior_direction;
++			// Get the direction of the prior
++			Euler_angles2direction(prior_rot, prior_tilt, prior_direction);
++			RFLOAT biggest_sigma = XMIPP_MAX(sigma_rot, sigma_tilt);
++			RFLOAT sqrt_sigma = sqrt(2*PI*biggest_sigma*biggest_sigma);
++			RFLOAT cosSigmaBiggestXcutoff = cos(sigma_cutoff * biggest_sigma * PI / 180.0);
++			for (long int idir = 0; idir < rot_angles.size(); idir++)
++			{
++				// Check if this direction was met before as symmetry mate
++				if (idir_flag[idir] == true)
++						continue;
++
++				bool is_nonzero_pdf = false;
++				Matrix1D<RFLOAT> my_direction, sym_direction, best_direction;
++				// Get the current direction in the loop
++				Euler_angles2direction(rot_angles[idir], tilt_angles[idir], my_direction);
++				best_direction = my_direction;
++
++				// Loop over all symmetry operators to find the operator that brings this direction nearest to the prior if no symmetry relaxation
++				if (!isRelax)
++				{
++					RFLOAT best_dotProduct = dotProduct(prior_direction, my_direction);
++					for (int j = 0; j < R_repository.size(); j++)
++					{
++						sym_direction =  L_repository[j] * (my_direction.transpose() * R_repository[j]).transpose();
++						RFLOAT my_dotProduct = dotProduct(prior_direction, sym_direction);
++						if (my_dotProduct > best_dotProduct)
++						{
++							best_direction = sym_direction;
++							best_dotProduct = my_dotProduct;
++						}
++					}
++				}
++
++				// Now that we have the best direction, find the corresponding prior probability
++				RFLOAT diffang = dotProduct(best_direction, prior_direction);
++
++				// Only consider differences within sigma_cutoff * sigma_rot
++				// TODO: If sigma_rot and sigma_tilt are not the same (NOT for helices)?
++				if (diffang > cosSigmaBiggestXcutoff)
++				{
++					diffang = ACOSD(diffang);
++					// TODO!!! If tilt is zero then any rot will be OK!!!!!
++					//std::cerr<<"Best direction index: "<<idir<<std::endl;
++					pointer_dir_nonzeroprior.push_back(idir);
++					RFLOAT prior = 1 / sqrt_sigma*exp(-0.5*((diffang / biggest_sigma)*(diffang / biggest_sigma)));
++					sumprior += prior;
++					if (isRelax)
++					{
++						idir_flag[idir] = true;
++						RFLOAT my_prior = prior / R_repository_relax.size();
++						directions_prior.push_back(my_prior);
++						findSymmetryMate(idir, my_prior, pointer_dir_nonzeroprior, directions_prior, idir_flag);
++					}
++					else
++						directions_prior.push_back(prior);
++					is_nonzero_pdf = true;
++				}
++
++
++				// Keep track of the nearest direction
++				if (diffang < best_ang)
++				{
++					best_idir = idir;
++					best_ang = diffang;
++				}
++
++				// For priors on deviations from (0,90)-degree (rot,tilt) angles in multi-body refinement
++				if (sigma_tilt_from_ninety > 0. && is_nonzero_pdf)
++				{
++					// Get the current direction in the loop (re-do, as sometimes sigma_rot and sigma_tilt are both zero!
++					Matrix1D<RFLOAT> my_direction, best_direction, sym_direction;
++					Euler_angles2direction(rot_angles[idir], tilt_angles[idir], my_direction);
++
++					// Loop over all symmetry operators to find the operator that brings this direction nearest to the prior
++					RFLOAT best_dotProduct = dotProduct(prior90_direction, my_direction);
++					best_direction = my_direction;
++					for (int j = 0; j < R_repository.size(); j++)
++					{
++						sym_direction =  L_repository[j] * (my_direction.transpose() * R_repository[j]).transpose();
++						RFLOAT my_dotProduct = dotProduct(prior90_direction, sym_direction);
++						if (my_dotProduct > best_dotProduct)
++						{
++							best_direction = sym_direction;
++							best_dotProduct = my_dotProduct;
++						}
++					}
++
++					// Now that we have the best direction, find the corresponding prior probability
++					RFLOAT diffang = dotProduct(best_direction, prior90_direction);
++
++					long int mypos = pointer_dir_nonzeroprior.size() - 1;
++					// Check tilt angle is within 3*sigma_tilt_from_ninety
++					if (diffang < cosSigmaTiltcutoff)
++					{
++						pointer_dir_nonzeroprior.pop_back();
++						directions_prior.pop_back();
++					}
++					else
++					{
++						diffang = ACOSD(diffang);
++						RFLOAT prior = 1 / sqrt_sigmaTilt*exp(-0.5*((diffang / sigma_tilt_from_ninety)*(diffang / sigma_tilt_from_ninety)));
++						directions_prior[mypos] *= prior;
++						sumprior_withsigmafromzero += directions_prior[mypos];
++					}
++				}
++				// Here add the code for relax symmetry to find the symmetry mates
++
++			}
++		} else if (sigma_rot > 0.)
++		{
++			for (long int idir = 0; idir < rot_angles.size(); idir++)
++			{
++				// Check if this direction was met before as symmetry mate
++				if (idir_flag[idir] == true)
++						continue;
++
++				bool is_nonzero_pdf = false;
++				Matrix1D<RFLOAT> my_direction, sym_direction;
++				RFLOAT sym_rot, sym_tilt;
++
++				// Get the current direction in the loop
++				Euler_angles2direction(rot_angles[idir], tilt_angles[idir], my_direction);
++				RFLOAT diffang = calculateDeltaRot(my_direction, prior_rot);
++				RFLOAT best_diffang = diffang;
++				for (int j = 0; j < R_repository.size(); j++)
++				{
++					sym_direction =  L_repository[j] * (my_direction.transpose() * R_repository[j]).transpose();
++					diffang = calculateDeltaRot(sym_direction, prior_rot);
++
++					if (diffang < best_diffang)
++						best_diffang = diffang;
++				}
++
++				// Only consider differences within sigma_cutoff * sigma_rot
++				if (best_diffang < sigma_cutoff * sigma_rot)
++				{
++					RFLOAT prior = gaussian1D(best_diffang, sigma_rot, 0.);
++					pointer_dir_nonzeroprior.push_back(idir);
++					directions_prior.push_back(prior);
++					sumprior += prior;
++					is_nonzero_pdf = true;
++				}
++
++				// Keep track of the nearest direction
++				if (best_diffang < best_ang)
++				{
++					best_idir = idir;
++					best_ang = diffang;
++				}
++
++				// For priors on deviations from (0,90)-degree (rot,tilt) angles in multi-body refinement
++				if (sigma_tilt_from_ninety > 0. && is_nonzero_pdf)
++				{
++					// Get the current direction in the loop (re-do, as sometimes sigma_rot and sigma_tilt are both zero!
++					Matrix1D<RFLOAT> my_direction, best_direction, sym_direction;
++					Euler_angles2direction(rot_angles[idir], tilt_angles[idir], my_direction);
++
++					// Loop over all symmetry operators to find the operator that brings this direction nearest to the prior
++					RFLOAT best_dotProduct = dotProduct(prior90_direction, my_direction);
++					best_direction = my_direction;
++					for (int j = 0; j < R_repository.size(); j++)
++					{
++						sym_direction =  L_repository[j] * (my_direction.transpose() * R_repository[j]).transpose();
++						RFLOAT my_dotProduct = dotProduct(prior90_direction, sym_direction);
++						if (my_dotProduct > best_dotProduct)
++						{
++							best_direction = sym_direction;
++							best_dotProduct = my_dotProduct;
++						}
++					}
++
++					// Now that we have the best direction, find the corresponding prior probability
++					RFLOAT diffang = dotProduct(best_direction, prior90_direction);
++
++					long int mypos = pointer_dir_nonzeroprior.size() - 1;
++					// Check tilt angle is within 3*sigma_tilt_from_ninety
++					if (diffang < cosSigmaTiltcutoff)
++					{
++						pointer_dir_nonzeroprior.pop_back();
++						directions_prior.pop_back();
++					}
++					else
++					{
++						diffang = ACOSD(diffang);
++						RFLOAT prior = 1 / sqrt_sigmaTilt*exp(-0.5*((diffang / sigma_tilt_from_ninety)*(diffang / sigma_tilt_from_ninety)));
++						directions_prior[mypos] *= prior;
++						sumprior_withsigmafromzero += directions_prior[mypos];
++					}
++				}
++				// Here add the code for relax symmetry to find the symmetry mates
++
++			}
++		} else if (sigma_tilt > 0.)
++		{
++			for (long int idir = 0; idir < rot_angles.size(); idir++)
++			{
++				// Check if this direction was met before as symmetry mate
++				if (idir_flag[idir] == true)
++						continue;
++
++				bool is_nonzero_pdf = false;
++				Matrix1D<RFLOAT> my_direction, sym_direction;
++				RFLOAT sym_rot, sym_tilt;
++
++				// Get the current direction in the loop
++				Euler_angles2direction(rot_angles[idir], tilt_angles[idir], my_direction);
++
++				// Loop over all symmetry operators to find the operator that brings this direction nearest to the prior
++				RFLOAT diffang = ABS(tilt_angles[idir] - prior_tilt);
++				if (diffang > 180.)
++					diffang = ABS(diffang - 360.);
++				RFLOAT best_diffang = diffang;
++				for (int j = 0; j < R_repository.size(); j++)
++				{
++					sym_direction =  L_repository[j] * (my_direction.transpose() * R_repository[j]).transpose();
++					Euler_direction2angles(sym_direction, sym_rot, sym_tilt);
++					diffang = ABS(sym_tilt - prior_tilt);
++					if (diffang > 180.)
++						diffang = ABS(diffang - 360.);
++					if (diffang < best_diffang)
++						best_diffang = diffang;
++				}
++
++				// Only consider differences within sigma_cutoff * sigma_tilt
++				if (best_diffang < sigma_cutoff * sigma_tilt)
++				{
++					RFLOAT prior = gaussian1D(best_diffang, sigma_tilt, 0.);
++					pointer_dir_nonzeroprior.push_back(idir);
++					directions_prior.push_back(prior);
++					sumprior += prior;
++					is_nonzero_pdf = true;
++				}
+ 
++				// Keep track of the nearest direction
++				if (best_diffang < best_ang)
++				{
++					best_idir = idir;
++					best_ang = diffang;
++				}
++
++				// For priors on deviations from (0,90)-degree (rot,tilt) angles in multi-body refinement
++				if (sigma_tilt_from_ninety > 0. && is_nonzero_pdf)
++				{
++					// Get the current direction in the loop (re-do, as sometimes sigma_rot and sigma_tilt are both zero!
++					Matrix1D<RFLOAT> my_direction, best_direction, sym_direction;
++					Euler_angles2direction(rot_angles[idir], tilt_angles[idir], my_direction);
++
++					// Loop over all symmetry operators to find the operator that brings this direction nearest to the prior
++					RFLOAT best_dotProduct = dotProduct(prior90_direction, my_direction);
++					best_direction = my_direction;
++					for (int j = 0; j < R_repository.size(); j++)
++					{
++						sym_direction =  L_repository[j] * (my_direction.transpose() * R_repository[j]).transpose();
++						RFLOAT my_dotProduct = dotProduct(prior90_direction, sym_direction);
++						if (my_dotProduct > best_dotProduct)
++						{
++							best_direction = sym_direction;
++							best_dotProduct = my_dotProduct;
++						}
++					}
++
++					// Now that we have the best direction, find the corresponding prior probability
++					RFLOAT diffang = dotProduct(best_direction, prior90_direction);
++
++					long int mypos = pointer_dir_nonzeroprior.size() - 1;
++					// Check tilt angle is within 3*sigma_tilt_from_ninety
++					if (diffang < cosSigmaTiltcutoff)
++					{
++						pointer_dir_nonzeroprior.pop_back();
++						directions_prior.pop_back();
++					}
++					else
++					{
++						diffang = ACOSD(diffang);
++						RFLOAT prior = 1 / sqrt_sigmaTilt*exp(-0.5*((diffang / sigma_tilt_from_ninety)*(diffang / sigma_tilt_from_ninety)));
++						directions_prior[mypos] *= prior;
++						sumprior_withsigmafromzero += directions_prior[mypos];
++					}
++				}
++				// Here add the code for relax symmetry to find the symmetry mates
++
++			}
++		} else
++		{
++			for (long int idir = 0; idir < rot_angles.size(); idir++)
++			{
++				// Check if this direction was met before as symmetry mate
++				if (idir_flag[idir] == true)
++						continue;
++
++				bool is_nonzero_pdf = false;
++				// If no prior on the directions: just add all of them
++				pointer_dir_nonzeroprior.push_back(idir);
++				directions_prior.push_back(1.);
++				sumprior += 1.;
++				is_nonzero_pdf = true;
++				// For priors on deviations from (0,90)-degree (rot,tilt) angles in multi-body refinement
++				if (sigma_tilt_from_ninety > 0. && is_nonzero_pdf)
++				{
++					// Get the current direction in the loop (re-do, as sometimes sigma_rot and sigma_tilt are both zero!
++					Matrix1D<RFLOAT> my_direction, best_direction, sym_direction;
++					Euler_angles2direction(rot_angles[idir], tilt_angles[idir], my_direction);
++
++					// Loop over all symmetry operators to find the operator that brings this direction nearest to the prior
++					RFLOAT best_dotProduct = dotProduct(prior90_direction, my_direction);
++					best_direction = my_direction;
++					for (int j = 0; j < R_repository.size(); j++)
++					{
++						sym_direction =  L_repository[j] * (my_direction.transpose() * R_repository[j]).transpose();
++						RFLOAT my_dotProduct = dotProduct(prior90_direction, sym_direction);
++						if (my_dotProduct > best_dotProduct)
++						{
++							best_direction = sym_direction;
++							best_dotProduct = my_dotProduct;
++						}
++					}
++
++					// Now that we have the best direction, find the corresponding prior probability
++					RFLOAT diffang = dotProduct(best_direction, prior90_direction);
++
++					long int mypos = pointer_dir_nonzeroprior.size() - 1;
++					// Check tilt angle is within 3*sigma_tilt_from_ninety
++					if (diffang < cosSigmaTiltcutoff)
++					{
++						pointer_dir_nonzeroprior.pop_back();
++						directions_prior.pop_back();
++					}
++					else
++					{
++						diffang = ACOSD(diffang);
++						RFLOAT prior = 1 / sqrt_sigmaTilt*exp(-0.5*((diffang / sigma_tilt_from_ninety)*(diffang / sigma_tilt_from_ninety)));
++						directions_prior[mypos] *= prior;
++						sumprior_withsigmafromzero += directions_prior[mypos];
++					}
++				}
++				// Here add the code for relax symmetry to find the symmetry mates
++
++			}
++		}
++
++		//Normalise the prior probability distribution to have sum 1 over all psi-angles
++		for (long int idir = 0; idir < directions_prior.size(); idir++)
++		{
++			if (sigma_tilt_from_ninety > 0.)
++				directions_prior[idir] /= sumprior_withsigmafromzero;
++			else
++				directions_prior[idir] /= sumprior;
++		}
++
++		// If there were no directions at all, just select the single nearest one:
++		if (directions_prior.size() == 0)
++		{
++			pointer_dir_nonzeroprior.push_back(best_idir);
++			//std::cerr<<"No direction has been found"<<std::endl;
++			if (best_idir < 0)
++				REPORT_ERROR("HealpixSampling::selectOrientationsWithNonZeroPriorProbability BUG: best_idir < 0");
++			if (isRelax)
++			{
++				idir_flag[best_idir] = true;
++				RFLOAT my_prior = 1./R_repository_relax.size();
++				directions_prior.push_back(my_prior);
++				findSymmetryMate(best_idir, my_prior, pointer_dir_nonzeroprior, directions_prior, idir_flag);
++			}
++			else
++				directions_prior.push_back(1.);
++		}
++
++#ifdef  DEBUG_SAMPLING
++		writeNonZeroPriorOrientationsToBild("orients_local.bild", prior_rot, prior_tilt, pointer_dir_nonzeroprior, "0 0 1", 0.023);
++		std::cerr << " directions_prior.size()= " << directions_prior.size() << " pointer_dir_nonzeroprior.size()= " << pointer_dir_nonzeroprior.size() << std::endl;
++		std::cerr << " sumprior= " << sumprior << std::endl;
++		char c;
++		std::cerr << "Written orients_local.bild for prior on angles ("<<prior_rot<<","<<prior_tilt<<") Press any key to continue.." << std::endl;
++		std::cin >> c;
++#endif
++
++	}
++	else
++	{
++		pointer_dir_nonzeroprior.push_back(0);
++		directions_prior.push_back(1.);
++	}
++
++	// Psi-angles
++	pointer_psi_nonzeroprior.clear();
++	psi_prior.clear();
++
++	RFLOAT sumprior = 0.;
++	RFLOAT sumprior_withsigmafromzero = 0.;
++	RFLOAT best_diff = 9999.;
++	long int best_ipsi = -999;
++	for (long int ipsi = 0; ipsi < psi_angles.size(); ipsi++)
++	{
++		bool is_nonzero_pdf = false;
++		// Sjors 12jul2017: for small tilt-angles, rot-angle may become anything, psi-angle then follows that
++		// Therefore, psi-prior may be completely wrong.... The following line would however be a very expensive fix....
++		//if (sigma_psi > 0. && prior_tilt > 10.)
++		if (sigma_psi > 0.)
++		{
++			RFLOAT diffpsi = ABS(psi_angles[ipsi] - prior_psi);
++			if (diffpsi > 180.)
++				diffpsi = ABS(diffpsi - 360.);
++			if (do_bimodal_search_psi && (diffpsi > 90.))
++				diffpsi = ABS(diffpsi - 180.);
++
++			// Only consider differences within sigma_cutoff * sigma_psi
++			if (diffpsi < sigma_cutoff * sigma_psi)
++			{
++				RFLOAT prior = gaussian1D(diffpsi, sigma_psi, 0.);
++				pointer_psi_nonzeroprior.push_back(ipsi);
++				psi_prior.push_back(prior);
++				sumprior += prior;
++				is_nonzero_pdf = true;
++
++				// TMP DEBUGGING
++				if (prior == 0.)
++				{
++					std::cerr << " psi_angles[ipsi]= " << psi_angles[ipsi] << " prior_psi= " << prior_psi << std::endl;
++					std::cerr << " diffpsi= " << diffpsi << " sigma_cutoff= " << sigma_cutoff << " sigma_psi= " << sigma_psi << std::endl;
++					REPORT_ERROR("prior on psi is zero!");
++				}
++
++			}
++
++			// Keep track of the nearest sampling point
++			if (diffpsi < best_diff)
++			{
++				best_ipsi = ipsi;
++				best_diff = diffpsi;
++			}
++		}
++		else
++		{
++			pointer_psi_nonzeroprior.push_back(ipsi);
++			psi_prior.push_back(1.);
++			sumprior += 1.;
++			is_nonzero_pdf = true;
++		}
++
++		// For priors on deviations from 0 psi angles in multi-body refinement
++		if (sigma_psi_from_zero > 0. && is_nonzero_pdf)
++		{
++			long int mypos = pointer_psi_nonzeroprior.size() - 1;
++			// Check psi angle is within sigma_cutoff*sigma_psi_from_zero
++			RFLOAT diff_psi = psi_angles[ipsi];
++			if (diff_psi > 180.)
++				diff_psi -= 360.;
++			else if (diff_psi < -180.)
++				diff_psi += 360.;
++			diff_psi = ABS(diff_psi);
++			if (diff_psi > sigma_cutoff * sigma_psi_from_zero)
++			{
++				pointer_psi_nonzeroprior.pop_back();
++				psi_prior.pop_back();
++			}
++			else
++			{
++				RFLOAT prior = gaussian1D(diff_psi, sigma_psi_from_zero, 0.);
++				psi_prior[mypos] *= prior;
++				sumprior_withsigmafromzero += psi_prior[mypos];
++			}
++		}
++
++	} // end for ipsi
++	// Normalise the prior probability distribution to have sum 1 over all psi-angles
++	for (long int ipsi = 0; ipsi < psi_prior.size(); ipsi++)
++	{
++		if (sigma_psi_from_zero > 0.)
++			psi_prior[ipsi] /= sumprior_withsigmafromzero;
++		else
++			psi_prior[ipsi] /= sumprior;
++	}
++
++	// If there were no directions at all, just select the single nearest one:
++	if (psi_prior.size() == 0)
++	{
++		if (best_ipsi < 0)
++			REPORT_ERROR("HealpixSampling::selectOrientationsWithNonZeroPriorProbability BUG: best_ipsi < 0");
++		pointer_psi_nonzeroprior.push_back(best_ipsi);
++		psi_prior.push_back(1.);
++	}
++
++#ifdef  DEBUG_SAMPLING
++	std::cerr << " psi_angles.size()= " << psi_angles.size() << " psi_step= " << psi_step << std::endl;
++	std::cerr << " psi_prior.size()= " << psi_prior.size() << " pointer_psi_nonzeroprior.size()= " << pointer_psi_nonzeroprior.size() << " sumprior= " << sumprior << std::endl;
++#endif
++	return;
++}
++#else
+ void HealpixSampling::selectOrientationsWithNonZeroPriorProbability(
+ 		RFLOAT prior_rot, RFLOAT prior_tilt, RFLOAT prior_psi,
+ 		RFLOAT sigma_rot, RFLOAT sigma_tilt, RFLOAT sigma_psi,
+@@ -1045,6 +1572,7 @@
+ #endif
+ 	return;
+ }
++#endif
+ 
+ void HealpixSampling::findSymmetryMate(long int idir_, RFLOAT prior_,
+     		std::vector<int> &pointer_dir_nonzeroprior,
+diff -wur relion-4.0.1/src/jaz/single_particle/movie_loader.h relion-opt/src/jaz/single_particle/movie_loader.h
+--- relion-4.0.1/src/jaz/single_particle/movie_loader.h	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/src/jaz/single_particle/movie_loader.h	2025-10-21 20:48:06.654754000 +0800
+@@ -183,8 +183,6 @@
+ 
+ 		RawImage<T> muGraphFrame(muGraphFrame_xmipp);
+ 
+-		if (useGain)
+-		{
+ 			#pragma omp parallel for num_threads(num_threads)
+ 			for (long int i = 0; i < pixCt; i++)
+ 			{
+@@ -193,7 +191,6 @@
+ 
+ 				muGraphFrame[i] = -gain * val;
+ 			}
+-		}
+ 
+ 		if (do_fixDefect)
+ 		{
+diff -wur relion-4.0.1/src/macros.h relion-opt/src/macros.h
+--- relion-4.0.1/src/macros.h	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/src/macros.h	2025-10-21 20:47:57.524610000 +0800
+@@ -45,7 +45,7 @@
+ #ifndef MACROS_H
+ #define MACROS_H
+ 
+-#define RELION_SHORT_VERSION "4.0.1"
++#define RELION_SHORT_VERSION "4.0.2"
+ extern const char *g_RELION_VERSION;
+ 
+ #include <math.h>
+diff -wur relion-4.0.1/src/ml_optimiser.cpp relion-opt/src/ml_optimiser.cpp
+--- relion-4.0.1/src/ml_optimiser.cpp	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/src/ml_optimiser.cpp	2025-10-21 20:47:57.704766000 +0800
+@@ -51,11 +51,13 @@
+ #ifdef ALTCPU
+ 	#include <atomic>
+ 	#include <tbb/tbb.h>
++	#include "amath.h"
+ 	#include <tbb/parallel_for.h>
+ 	#define TBB_PREVIEW_GLOBAL_CONTROL 1
+ 	#include <tbb/global_control.h>
+ 	#include "src/acc/cpu/cpu_ml_optimiser.h"
+ #endif
++#include <arm_sve.h>
+ 
+ #define NR_CLASS_MUTEXES 5
+ 
+@@ -511,8 +513,8 @@
+ 	skip_gridding = !parser.checkOption("--dont_skip_gridding", "Perform gridding in the reconstruction step (obsolete?)");
+ 	nr_iter_max = textToInteger(parser.getOption("--auto_iter_max", "In auto-refinement, stop at this iteration.", "999"));
+ 	debug_split_random_half = textToInteger(getParameter(argc, argv, "--debug_split_random_half", "0"));
+-    do_red = parser.checkOption("--do_red", "", "false", true);
+     skip_realspace_helical_sym = parser.checkOption("--skip_realspace_helical_sym", "", "false", true);
++	do_external_reconstruct = parser.checkOption("--external_reconstruct", "Perform the reconstruction step outside relion_refine, e.g. for learned priors?)");
+ 
+ 	// We read input optimiser set to create the output one
+ 	fn_OS = parser.getOption("--ios", "Input tomo optimiser set file. It is used to set --i, --ref or --solvent_mask if they are not provided. Updated output optimiser set is created.", "");
+@@ -2422,7 +2424,7 @@
+ 
+ 	if (myverb > 0)
+ 	{
+-            std::cout << " Estimating initial noise spectra from " << total_nr_particles_todo << " particles " << std::endl;
++            std::cout << " Estimating initial noise spectra from at most " << total_nr_particles_todo << " particles " << std::endl;
+ 		init_progress_bar(total_nr_particles_todo);
+ 		barstep = XMIPP_MAX(1, total_nr_particles_todo / 60);
+ 	}
+@@ -2821,6 +2823,158 @@
+ 
+ }
+ 
++#define ARM_OPT
++#ifdef ARM_OPT
++void MlOptimiser::initialLowPassFilterReferences()
++{
++	if (ini_high > 0.)
++	{
++
++		// Make a soft (raised cosine) filter in Fourier space to prevent artefacts in real-space
++		// The raised cosine goes through 0.5 at the filter frequency and has a width of width_mask_edge fourier pixels
++		RFLOAT radius = mymodel.ori_size * mymodel.pixel_size / ini_high;
++		radius -= WIDTH_FMASK_EDGE / 2.;
++		RFLOAT radius_p = radius + WIDTH_FMASK_EDGE;
++		FourierTransformer transformer;
++		MultidimArray<Complex > Faux;
++
++		svfloat32_t radius_vec = svdup_n_f32(radius);
++		svfloat32_t radius_p_vec = svdup_n_f32(radius_p);
++		svfloat32_t pi_vec = svdup_n_f32(PI);
++		svfloat32_t width_mask_edge_vec = svdup_n_f32(WIDTH_FMASK_EDGE);
++		svfloat32_t half_vec = svdup_n_f32(0.5);
++		svfloat32_t zero_vec = svdup_n_f32(0.0);
++
++		int j_split = (XSIZE(Faux) - XSIZE(Faux) % svcntw());
++
++		// float tmp_Faux_real[16], tmp_Faux_imag[16];
++		for (int iclass = 0; iclass < mymodel.nr_classes; iclass++)
++		{
++			// we can test the performance of cmla (zip factor and 0)
++			transformer.FourierTransform(mymodel.Iref[iclass], Faux);
++			// printf("xsize = %d\n", XSIZE(Faux));
++			for (long int k = 0, kp = 0; k<ZSIZE(Faux); k++, kp = (k < XSIZE(Faux)) ? k : k - ZSIZE(Faux)) {
++				svfloat32_t kp_vec = svcvt_f32_s32_z(svptrue_b32(), svdup_n_s32(kp));
++				svfloat32_t kp2_vec = svmul_f32_z(svptrue_b32(), kp_vec, kp_vec);
++				for (long int i = 0, ip = 0 ; i<YSIZE(Faux); i++, ip = (i < XSIZE(Faux)) ? i : i - YSIZE(Faux)) {
++					svfloat32_t ip_vec = svcvt_f32_s32_z(svptrue_b32(), svdup_n_s32(ip));
++					// can use svmla
++					svfloat32_t ip2_vec = svmul_f32_z(svptrue_b32(), ip_vec, ip_vec);
++					svfloat32_t kp2andip2_vec = svadd_f32_z(svptrue_b32(), kp2_vec, ip2_vec); 
++					for (long int j = 0, jp = 0; j<j_split; j+=svcntw(), jp = j)
++					{
++						// load Faux
++						// for (int t = 0; t < svcntw(); t++) {
++						// 	tmp_Faux_real[t] = Faux.data[(k)*YXSIZE(Faux)+((i)*XSIZE(Faux))+(j)].real;
++						// 	tmp_Faux_imag[t] = Faux.data[(k)*YXSIZE(Faux)+((i)*XSIZE(Faux))+(j)].imag;
++						// }
++
++						svbool_t pg = svwhilelt_b32(j, XSIZE(Faux));
++						float *Faux_part1 = (float*)(void*)&Faux.data[(k)*YXSIZE(Faux)+((i)*XSIZE(Faux))+(j)];
++						// this maybe unsafe, xsize == 129!
++						float *Faux_part2 = (float*)(void*)&Faux.data[(k)*YXSIZE(Faux)+((i)*XSIZE(Faux))+(j)+(svcntd())];
++
++						// Faux.data: (float, float) , (float, float) , ...
++						// svld1 j = v1 + svld1 j+svcntw() = v2 then:
++						// svuzp1[_f32]: Extract the even-indexed (0, 2, ...) elements from op1 and op2 and concatenate them together 
++						// -> real array
++						// svuzp2[_f32]: Extract the odd-indexed (1, 3, ...) elements from op1 and op2 and concatenate them together 
++						// -> imag array
++						// Load a vector of interleaved real/imag pairs
++						// for pg == 1110, pg1 == 1111, pg2 == 1100?
++						// actually, when pg == btrue, there is no problem. so we process the remainder in next loop.
++						svfloat32_t v1 = svld1(pg, Faux_part1);				// Load real and imag pairs from data (part 1, 8 * 2 float)
++						svfloat32_t v2 = svld1(pg, Faux_part2);	// Load real and imag pairs from data (part 2, +svcntd()==8, next 8 pairs?)
++
++						// Extract the real components (even-indexed elements)
++						svfloat32_t real_vec = svuzp1_f32(v1, v2);
++
++						// Extract the imaginary components (odd-indexed elements)
++						svfloat32_t imag_vec = svuzp2_f32(v1, v2);
++
++						svfloat32_t jp_vec = svcvt_f32_s32_z(pg, svindex_s32(jp,1)); // not dup since jp is 0,1,2,3,...
++
++						// can use svmla
++						svfloat32_t r_vec = svsqrt_f32_z(pg, 
++												svadd_f32_z(pg, 
++													kp2andip2_vec, 
++													svmul_f32_z(pg, jp_vec, jp_vec)));
++
++						svbool_t mask_r_ge_radius = svcmpge_f32(pg, r_vec, radius_vec);
++						svbool_t mask_r_gt_radius_p = svcmpgt_f32(pg, r_vec, radius_p_vec);
++						// r >= radius && r > radius_p
++						svbool_t combined_mask1 = svand_b_z(pg, mask_r_ge_radius, mask_r_gt_radius_p);
++						real_vec = svsel_f32(combined_mask1, zero_vec, real_vec);
++						imag_vec = svsel_f32(combined_mask1, zero_vec, imag_vec);
++
++						// r >= radius && r <= radius_p
++						svbool_t combined_mask2 = svand_b_z(pg, mask_r_ge_radius, svnot_b_z(pg, mask_r_gt_radius_p));
++
++						if (svptest_any(svptrue_b32(), combined_mask2)) {
++							// T re = real*arg.real - imag*arg.imag;
++							// T im = real*arg.imag + imag*arg.real;
++
++							// real = re;
++							// imag = im;
++							svfloat32_t factor = svmsb_f32_z(combined_mask2, 
++											half_vec,
++											_ZGVsMxv_cosf(svdiv_f32_z(combined_mask2, 
++											svmul_f32_z(combined_mask2, pi_vec, svsub_f32_z(combined_mask2, radius_p_vec, r_vec)),
++											width_mask_edge_vec), combined_mask2),
++											half_vec);
++							// *= means that the rval cast from float to tComplex(rval, 0)?
++							// combined_mask2 if false no memory access will happen for tmp_Faux_real!
++							// real*factor
++							real_vec = svmul_f32_m(combined_mask2, real_vec, factor);
++							// imag*factor
++							imag_vec = svmul_f32_m(combined_mask2, imag_vec, factor);
++						}
++
++						// store Faux
++						// for (int t = 0; t < svcntw(); t++) {
++						// 	Faux.data[(k)*YXSIZE(Faux)+((i)*XSIZE(Faux))+(j)].real = tmp_Faux_real[t];
++						// 	Faux.data[(k)*YXSIZE(Faux)+((i)*XSIZE(Faux))+(j)].imag = tmp_Faux_imag[t];
++						// }
++
++						// v1: real, v2: imag
++						// svzip1[_f32]: Extract the lowest-indexed halves of op1 and op2 and interleave the elements, so that each low element of op1 is followed by the corresponding element of op2. 
++						// -> v_low
++						// svzip2[_f32]: Extract the highest-indexed halves of op1 and op2 and interleave the elements, so that each high element of op1 is followed by the corresponding element of op2. 
++						// -> v_high
++						// svst1 j = v_low + svst1 j+svcntw() = v_high
++						// Faux.data: (float, float) , (float, float) , ...
++						// merge real and imag to complex part 1
++						svfloat32_t complex_vec1 = svuzp1_f32(real_vec, imag_vec);
++
++						// merge real and imag to complex part 2
++						svfloat32_t complex_vec2 = svuzp2_f32(real_vec, imag_vec);
++
++						// store back to Faux
++						svst1(pg, Faux_part1, complex_vec1); // maybe we can use mask_r_ge_radius as predicator?
++						svst1(pg, Faux_part2, complex_vec2);
++					}
++
++					for (long int j = j_split, jp = j_split; j<XSIZE(Faux); j++, jp = j)
++					{
++						RFLOAT r = sqrt((RFLOAT)(kp*kp + ip*ip + jp*jp));
++						if (r < radius)
++							continue;
++						else if (r > radius_p)
++							DIRECT_A3D_ELEM(Faux, k, i, j) = 0.;
++						else
++						{
++							DIRECT_A3D_ELEM(Faux, k, i, j) *= 0.5 - 0.5 * cos(PI * (radius_p - r) / WIDTH_FMASK_EDGE);
++						}
++					}
++				}
++			}
++			transformer.inverseFourierTransform(Faux, mymodel.Iref[iclass]);
++		}
++
++	}
++
++}
++#else
+ void MlOptimiser::initialLowPassFilterReferences()
+ {
+ 	if (ini_high > 0.)
+@@ -2854,6 +3008,7 @@
+ 	}
+ 
+ }
++#endif
+ 
+ /** ========================== EM-Iteration  ================================= */
+ 
+@@ -4446,11 +4601,11 @@
+ 
+ void MlOptimiser::applyLocalSymmetryForEachRef()
+ {
+-	if ( (fn_local_symmetry_masks.size() < 1) || (fn_local_symmetry_operators.size() < 1) )
++	if ( (fn_local_symmetry_masks.size() == 0) || (fn_local_symmetry_operators.size() == 0) )
+ 		return;
+ 
+ 	if (verb > 0)
+-		std::cout << " Applying local symmetry in real space according to " << fn_local_symmetry_operators.size() << " operators..." << std::endl;
++		std::cout << " Applying local symmetry in real space..." << std::endl;
+ 
+ 	for (int ibody = 0; ibody < mymodel.nr_bodies; ibody++)
+ 	{
+diff -wur relion-4.0.1/src/ml_optimiser.h relion-opt/src/ml_optimiser.h
+--- relion-4.0.1/src/ml_optimiser.h	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/src/ml_optimiser.h	2025-10-21 20:47:58.649889000 +0800
+@@ -94,6 +94,8 @@
+ 
+ class MlOptimiser;
+ 
++// struct FourPoint;
++
+ class MlOptimiser
+ {
+ public:
+@@ -113,6 +115,7 @@
+ 	CpuOptimiserType   tbbCpuOptimiser;
+ 
+ 	std::complex<XFLOAT> **mdlClassComplex __attribute__((aligned(64)));
++	// FourPoint **mdlClassComplex_new __attribute__((aligned(64)));
+ #endif
+ 
+ 
+@@ -685,9 +688,6 @@
+ 	// This can be set by user or automatically
+ 	int maximum_significants;
+ 
+-	//Do regularization by denoising
+-	bool do_red;
+-
+ 	// Tabulated sine and cosine values (for 3D helical sub-tomogram averaging with on-the-fly shifts)
+ 	TabSine tab_sin;
+ 	TabCosine tab_cos;
+diff -wur relion-4.0.1/src/ml_optimiser_mpi.cpp relion-opt/src/ml_optimiser_mpi.cpp
+--- relion-4.0.1/src/ml_optimiser_mpi.cpp	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/src/ml_optimiser_mpi.cpp	2025-10-21 20:47:57.432361000 +0800
+@@ -491,24 +491,27 @@
+ 
+ 	initialiseWorkLoad();
+ 
+-	// Only the first follower calculates the sigma2_noise spectra and sets initial guesses for Iref
+-	if (node->rank == 1)
+-	{
+-		MlOptimiser::initialiseSigma2Noise();
++	// Only the first follower calculates the sigma2_noise spectra (and if fn_ref == None, later sets initial guesses for Iref)
++	if (node->rank == 1) MlOptimiser::initialiseSigma2Noise();
++
+ 		MlOptimiser::initialiseReferences();
+-    }
+ 
+-	//Now the first follower broadcasts resulting Iref and sigma2_noise to everyone else
++	// Now the first follower broadcasts resulting sigma2_noise to everyone else
+ 	for (int i = 0; i < mymodel.sigma2_noise.size(); i++)
+ 	{
+ 		node->relion_MPI_Bcast(MULTIDIM_ARRAY(mymodel.sigma2_noise[i]),
+ 							   MULTIDIM_SIZE(mymodel.sigma2_noise[i]), MY_MPI_DOUBLE, 1, MPI_COMM_WORLD);
+ 	}
++
++	// Also broadcast Iref if that was set in initialiseSigma2Noise
++        if (fn_ref == "None")
++        {
+ 	for (int i = 0; i < mymodel.Iref.size(); i++)
+ 	{
+ 		node->relion_MPI_Bcast(MULTIDIM_ARRAY(mymodel.Iref[i]),
+ 							   MULTIDIM_SIZE(mymodel.Iref[i]), MY_MPI_DOUBLE, 1, MPI_COMM_WORLD);
+ 	}
++        }
+ 
+ 	// Initialise the data_versus_prior ratio to get the initial current_size right
+ 	if (iter == 0 && !do_initialise_bodies && !node->isLeader())
+@@ -990,6 +993,8 @@
+ 		// Allocate Array of complex arrays for this class
+ 		if (posix_memalign((void **)&mdlClassComplex, MEM_ALIGN, nr_classes * sizeof (std::complex<XFLOAT> *)))
+ 			CRITICAL(RAMERR);
++		// if (posix_memalign((void **)&mdlClassComplex_new, MEM_ALIGN, nr_classes * sizeof (FourPoint *)))
++			// CRITICAL(RAMERR);
+ 
+ 		// Set up XFLOAT complex array shared by all threads for each class
+ 		for (int iclass = 0; iclass < nr_classes; iclass++)
+@@ -1005,6 +1010,7 @@
+ 
+ 			try
+ 			{
++				// mdlClassComplex_new[iclass] = new FourPoint[mdlXYZ];
+ 				mdlClassComplex[iclass] = new std::complex<XFLOAT>[mdlXYZ];
+ 			}
+ 			catch (std::bad_alloc& ba)
+@@ -1012,6 +1018,7 @@
+ 				CRITICAL(RAMERR);
+ 			}
+ 
++			// FourPoint *pData = mdlClassComplex_new[iclass];
+ 			std::complex<XFLOAT> *pData = mdlClassComplex[iclass];
+ 
+ 			// Copy results into complex number array
+@@ -1023,6 +1030,282 @@
+ 				);
+ 				pData[i] = arrayval;
+ 			}
++			// std::cout << "mdlZ = " << mdlZ << ", mdlXYZ = " << mdlXYZ << std::endl;
++			// if (mdlZ == 0) {
++			// 	// store (x0, y0), (x0+1, y0) and (x0, y0+1), (x0+1, y0+1) continuously
++			// 	for (int y = 0; y < mdlY; y+=2) {
++			// 		int y_mdlX = y * mdlX;
++			// 		for (int x = 0; x < mdlX; x+=2) {
++			// 			int y_mdlX_x = y_mdlX + x;
++			// 			int y_mdlX_x1 = y_mdlX_x + 1;
++			// 			int y1_mdlX_x = y_mdlX_x + mdlX;
++			// 			int y1_mdlX_x1 = y1_mdlX_x + 1;
++			// 			std::complex<XFLOAT> arrayval00(
++			// 				(XFLOAT) mymodel.PPref[iclass].data.data[y_mdlX_x].real,
++			// 				(XFLOAT) mymodel.PPref[iclass].data.data[y_mdlX_x].imag
++			// 			);
++			// 			pData[y_mdlX_x].ep[0] = arrayval00;
++			// 			std::complex<XFLOAT> arrayval01(
++			// 				(XFLOAT) mymodel.PPref[iclass].data.data[y_mdlX_x1].real,
++			// 				(XFLOAT) mymodel.PPref[iclass].data.data[y_mdlX_x1].imag
++			// 			);
++			// 			pData[y_mdlX_x].ep[2] = arrayval01;
++			// 			std::complex<XFLOAT> arrayval10(
++			// 				(XFLOAT) mymodel.PPref[iclass].data.data[y1_mdlX_x].real,
++			// 				(XFLOAT) mymodel.PPref[iclass].data.data[y1_mdlX_x].imag
++			// 			);
++			// 			pData[y_mdlX_x].ep[1] = arrayval10;
++			// 			std::complex<XFLOAT> arrayval11(
++			// 				(XFLOAT) mymodel.PPref[iclass].data.data[y1_mdlX_x1].real,
++			// 				(XFLOAT) mymodel.PPref[iclass].data.data[y1_mdlX_x1].imag
++			// 			);
++			// 			pData[y_mdlX_x].ep[3] = arrayval11;
++			// 		}
++			// 	}
++			// } else {
++			// 	// (x0, y0, z0), (x0+1, y0, z0) and (x0, y0+1, z0), (x0+1, y0+1, z0)
++			// 	// (x0, y0, z0+1), (x0+1, y0, z0+1) and (x0, y0+1, z0+1), (x0+1, y0+1, z0+1)
++			// 	// int tmp_mdlZ = mdlZ;
++			// 	// if (mdlZ % 2) {
++			// 	// 	tmp_mdlZ -= 1;
++			// 	// }
++			// 	for (int z = 0; z < mdlZ; z += 2) {
++			// 		int z_mdlXY = z * mdlX * mdlY;
++			// 		if (mdlZ % 2 && z == mdlZ - 1) {
++			// 			for (int y = 0; y < mdlY; y+=2) {
++			// 				int y_mdlX = y * mdlX;
++			// 				if (mdlY % 2 && y == mdlY - 1) {
++			// 					for (int x = 0; x < mdlX; x+=2) {
++			// 						if (mdlX %2 && x == mdlX - 1) {
++			// 							int z_mdlXY_y_mdlX_x = z_mdlXY + y_mdlX + x;
++			// 							std::complex<XFLOAT> arrayval000(
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y_mdlX_x].real,
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y_mdlX_x].imag
++			// 							);
++			// 							pData[z_mdlXY + y_mdlX + x].ep[0] = arrayval000;
++			// 						} else {
++			// 							int z_mdlXY_y_mdlX_x = z_mdlXY + y_mdlX + x;
++			// 							int z_mdlXY_y_mdlX_x1 = z_mdlXY_y_mdlX_x + 1;
++			// 							std::complex<XFLOAT> arrayval000(
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y_mdlX_x].real,
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y_mdlX_x].imag
++			// 							);
++			// 							pData[z_mdlXY_y_mdlX_x].ep[0] = arrayval000;
++			// 							std::complex<XFLOAT> arrayval001(
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y_mdlX_x1].real,
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y_mdlX_x1].imag
++			// 							);
++			// 							pData[z_mdlXY_y_mdlX_x+1].ep[0] = arrayval001;
++			// 						}
++			// 					}
++			// 				} else {
++			// 					for (int x = 0; x < mdlX; x+=2) {
++			// 						if (mdlX %2 && x == mdlX - 1) {
++			// 							int z_mdlXY_y_mdlX_x = z_mdlXY + y_mdlX + x;
++			// 							int z_mdlXY_y1_mdlX_x = z_mdlXY_y_mdlX_x + mdlX;
++			// 							std::complex<XFLOAT> arrayval000(
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y_mdlX_x].real,
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y_mdlX_x].imag
++			// 							);
++			// 							pData[z_mdlXY_y_mdlX_x].ep[0] = arrayval000;
++			// 							std::complex<XFLOAT> arrayval010(
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y1_mdlX_x].real,
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y1_mdlX_x].imag
++			// 							);
++			// 							pData[z_mdlXY_y_mdlX_x].ep[1] = arrayval010;
++			// 						} else {
++			// 							int z_mdlXY_y_mdlX_x = z_mdlXY + y_mdlX + x;
++			// 							int z_mdlXY_y_mdlX_x1 = z_mdlXY_y_mdlX_x + 1;
++			// 							int z_mdlXY_y1_mdlX_x = z_mdlXY_y_mdlX_x + mdlX;
++			// 							int z_mdlXY_y1_mdlX_x1 = z_mdlXY_y1_mdlX_x + 1;
++			// 							std::complex<XFLOAT> arrayval000(
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y_mdlX_x].real,
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y_mdlX_x].imag
++			// 							);
++			// 							pData[z_mdlXY_y_mdlX_x].ep[0] = arrayval000;
++			// 							std::complex<XFLOAT> arrayval001(
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y_mdlX_x1].real,
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y_mdlX_x1].imag
++			// 							);
++			// 							pData[z_mdlXY_y_mdlX_x+1].ep[0] = arrayval001;
++			// 							std::complex<XFLOAT> arrayval010(
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y1_mdlX_x].real,
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y1_mdlX_x].imag
++			// 							);
++			// 							pData[z_mdlXY_y_mdlX_x].ep[1] = arrayval010;
++			// 							std::complex<XFLOAT> arrayval011(
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y1_mdlX_x1].real,
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y1_mdlX_x1].imag
++			// 							);
++			// 							pData[z_mdlXY_y_mdlX_x+1].ep[1] = arrayval011;
++			// 						}
++			// 					}
++			// 				}
++			// 			}
++			// 		} else {
++			// 			for (int y = 0; y < mdlY; y+=2) {
++			// 				int y_mdlX = y * mdlX;
++			// 				if (mdlY % 2 && y == mdlY - 1) {
++			// 					for (int x = 0; x < mdlX; x+=2) {
++			// 						if (mdlX %2 && x == mdlX - 1) {
++			// 							int z_mdlXY_y_mdlX_x = z_mdlXY + y_mdlX + x;
++			// 							std::complex<XFLOAT> arrayval000(
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y_mdlX_x].real,
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y_mdlX_x].imag
++			// 							);
++			// 							pData[z_mdlXY_y_mdlX_x].ep[0] = arrayval000;
++
++			// 							int z1_mdlXY_y_mdlX_x = z_mdlXY_y_mdlX_x + mdlX * mdlY;
++			// 							std::complex<XFLOAT> arrayval100(
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z1_mdlXY_y_mdlX_x].real,
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z1_mdlXY_y_mdlX_x].imag
++			// 							);
++			// 							pData[z_mdlXY_y_mdlX_x].ep[2] = arrayval100;
++			// 						} else {
++			// 							int z_mdlXY_y_mdlX_x = z_mdlXY + y_mdlX + x;
++			// 							int z_mdlXY_y_mdlX_x1 = z_mdlXY_y_mdlX_x + 1;
++			// 							std::complex<XFLOAT> arrayval000(
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y_mdlX_x].real,
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y_mdlX_x].imag
++			// 							);
++			// 							pData[z_mdlXY_y_mdlX_x].ep[0] = arrayval000;
++			// 							std::complex<XFLOAT> arrayval001(
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y_mdlX_x1].real,
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y_mdlX_x1].imag
++			// 							);
++			// 							pData[z_mdlXY_y_mdlX_x+1].ep[0] = arrayval001;
++
++			// 							int z1_mdlXY_y_mdlX_x = z_mdlXY_y_mdlX_x + mdlX * mdlY;
++			// 							int z1_mdlXY_y_mdlX_x1 = z1_mdlXY_y_mdlX_x + 1;
++			// 							std::complex<XFLOAT> arrayval100(
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z1_mdlXY_y_mdlX_x].real,
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z1_mdlXY_y_mdlX_x].imag
++			// 							);
++			// 							pData[z_mdlXY_y_mdlX_x].ep[2] = arrayval100;
++			// 							std::complex<XFLOAT> arrayval101(
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z1_mdlXY_y_mdlX_x1].real,
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z1_mdlXY_y_mdlX_x1].imag
++			// 							);
++			// 							pData[z_mdlXY_y_mdlX_x+1].ep[2] = arrayval101;
++			// 						}
++			// 					}
++			// 				} else {
++			// 					for (int x = 0; x < mdlX; x+=2) {
++			// 						if (mdlX %2 && x == mdlX - 1) {
++			// 							int z_mdlXY_y_mdlX_x = z_mdlXY + y_mdlX + x;
++			// 							int z_mdlXY_y1_mdlX_x = z_mdlXY_y_mdlX_x + mdlX;
++			// 							std::complex<XFLOAT> arrayval000(
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y_mdlX_x].real,
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y_mdlX_x].imag
++			// 							);
++			// 							pData[z_mdlXY_y_mdlX_x].ep[0] = arrayval000;
++			// 							std::complex<XFLOAT> arrayval010(
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y1_mdlX_x].real,
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y1_mdlX_x].imag
++			// 							);
++			// 							pData[z_mdlXY_y_mdlX_x].ep[1] = arrayval010;
++
++			// 							int z1_mdlXY_y_mdlX_x = z_mdlXY_y_mdlX_x + mdlX * mdlY;
++			// 							int z1_mdlXY_y1_mdlX_x = z1_mdlXY_y_mdlX_x + mdlX;
++			// 							std::complex<XFLOAT> arrayval100(
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z1_mdlXY_y_mdlX_x].real,
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z1_mdlXY_y_mdlX_x].imag
++			// 							);
++			// 							pData[z_mdlXY_y_mdlX_x].ep[2] = arrayval100;
++			// 							std::complex<XFLOAT> arrayval110(
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z1_mdlXY_y1_mdlX_x].real,
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z1_mdlXY_y1_mdlX_x].imag
++			// 							);
++			// 							pData[z_mdlXY_y_mdlX_x].ep[3] = arrayval110;
++			// 						} else {
++			// 							int z_mdlXY_y_mdlX_x = z_mdlXY + y_mdlX + x;
++			// 							int z_mdlXY_y_mdlX_x1 = z_mdlXY_y_mdlX_x + 1;
++			// 							int z_mdlXY_y1_mdlX_x = z_mdlXY_y_mdlX_x + mdlX;
++			// 							int z_mdlXY_y1_mdlX_x1 = z_mdlXY_y1_mdlX_x + 1;
++			// 							std::complex<XFLOAT> arrayval000(
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y_mdlX_x].real,
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y_mdlX_x].imag
++			// 							);
++			// 							pData[z_mdlXY_y_mdlX_x].ep[0] = arrayval000;
++			// 							std::complex<XFLOAT> arrayval001(
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y_mdlX_x1].real,
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y_mdlX_x1].imag
++			// 							);
++			// 							pData[z_mdlXY_y_mdlX_x+1].ep[0] = arrayval001;
++			// 							std::complex<XFLOAT> arrayval010(
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y1_mdlX_x].real,
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y1_mdlX_x].imag
++			// 							);
++			// 							pData[z_mdlXY_y_mdlX_x].ep[1] = arrayval010;
++			// 							std::complex<XFLOAT> arrayval011(
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y1_mdlX_x1].real,
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y1_mdlX_x1].imag
++			// 							);
++			// 							pData[z_mdlXY_y_mdlX_x+1].ep[1] = arrayval011;
++
++			// 							int z1_mdlXY_y_mdlX_x = z_mdlXY_y_mdlX_x + mdlX * mdlY;
++			// 							int z1_mdlXY_y_mdlX_x1 = z1_mdlXY_y_mdlX_x + 1;
++			// 							int z1_mdlXY_y1_mdlX_x = z1_mdlXY_y_mdlX_x + mdlX;
++			// 							int z1_mdlXY_y1_mdlX_x1 = z1_mdlXY_y1_mdlX_x + 1;
++			// 							std::complex<XFLOAT> arrayval100(
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z1_mdlXY_y_mdlX_x].real,
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z1_mdlXY_y_mdlX_x].imag
++			// 							);
++			// 							pData[z_mdlXY_y_mdlX_x].ep[2] = arrayval100;
++			// 							std::complex<XFLOAT> arrayval101(
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z1_mdlXY_y_mdlX_x1].real,
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z1_mdlXY_y_mdlX_x1].imag
++			// 							);
++			// 							pData[z_mdlXY_y_mdlX_x+1].ep[2] = arrayval101;
++			// 							std::complex<XFLOAT> arrayval110(
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z1_mdlXY_y1_mdlX_x].real,
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z1_mdlXY_y1_mdlX_x].imag
++			// 							);
++			// 							pData[z_mdlXY_y_mdlX_x].ep[3] = arrayval110;
++			// 							std::complex<XFLOAT> arrayval111(
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z1_mdlXY_y1_mdlX_x1].real,
++			// 								(XFLOAT) mymodel.PPref[iclass].data.data[z1_mdlXY_y1_mdlX_x1].imag
++			// 							);
++			// 							pData[z_mdlXY_y_mdlX_x+1].ep[3] = arrayval111;
++			// 						}
++			// 					}
++			// 				}
++			// 			}
++			// 		}
++			// 	}
++				// if (mdlZ % 2) {
++				// 	int z_mdlXY = tmp_mdlZ * mdlX * mdlY;
++				// 	for (int y = 0; y < mdlY; y+=2) {
++				// 		int y_mdlX = y * mdlX;
++				// 		for (int x = 0; x < mdlX; x+=2) {
++				// 			int z_mdlXY_y_mdlX_x = z_mdlXY + y_mdlX + x;
++				// 			int z_mdlXY_y_mdlX_x1 = z_mdlXY_y_mdlX_x + 1;
++				// 			int z_mdlXY_y1_mdlX_x = z_mdlXY_y_mdlX_x + mdlX;
++				// 			int z_mdlXY_y1_mdlX_x1 = z_mdlXY_y1_mdlX_x + 1;
++				// 			std::complex<XFLOAT> arrayval000(
++				// 				(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y_mdlX_x].real,
++				// 				(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y_mdlX_x].imag
++				// 			);
++				// 			pData[z_mdlXY_y_mdlX_x] = arrayval000;
++				// 			std::complex<XFLOAT> arrayval001(
++				// 				(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y_mdlX_x1].real,
++				// 				(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y_mdlX_x1].imag
++				// 			);
++				// 			pData[z_mdlXY_y_mdlX_x+1] = arrayval001;
++				// 			std::complex<XFLOAT> arrayval010(
++				// 				(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y1_mdlX_x].real,
++				// 				(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y1_mdlX_x].imag
++				// 			);
++				// 			pData[z_mdlXY_y_mdlX_x+2] = arrayval010;
++				// 			std::complex<XFLOAT> arrayval011(
++				// 				(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y1_mdlX_x1].real,
++				// 				(XFLOAT) mymodel.PPref[iclass].data.data[z_mdlXY_y1_mdlX_x1].imag
++				// 			);
++				// 			pData[z_mdlXY_y_mdlX_x+3] = arrayval011;
++				// 		}
++				// 	}
++				// }
++			// }
+ 		}
+ 
+ 		MlDataBundle *b = new MlDataBundle();
+@@ -1510,7 +1793,9 @@
+ 				for (int iclass = 0; iclass < nr_classes; iclass++)
+ 				{
+ 					delete [] mdlClassComplex[iclass];
++					// delete [] mdlClassComplex_new[iclass];
+ 				}
++				// free(mdlClassComplex_new);
+ 				free(mdlClassComplex);
+ 
+ 				tbbCpuOptimiser.clear();
+@@ -1986,6 +2271,7 @@
+     bool do_correct_tau2_by_avgctf2 = setAverageCTF2(avgctf2);
+ 
+ 	// First reconstruct all classes in parallel
++	// std::cout << "nr_bodies = " << mymodel.nr_bodies << ", nr_classes = " << mymodel.nr_classes << std::endl;
+ 	for (int ibody = 0; ibody < mymodel.nr_bodies; ibody++)
+ 	{
+ 
+@@ -2093,7 +2379,7 @@
+ 					}
+ 
+ 					// Apply local symmetry according to a list of masks and their operators
+-					if ( (fn_local_symmetry_masks.size() >= 1) && (fn_local_symmetry_operators.size() >= 1) && (!has_converged) )
++					if ( (fn_local_symmetry_masks.size() != 0) && (fn_local_symmetry_operators.size() != 0) && (!has_converged) )
+ 						applyLocalSymmetry(mymodel.Iref[ith_recons], fn_local_symmetry_masks, fn_local_symmetry_operators);
+ 
+ 					// Shaoda Jul26,2015 - Helical symmetry local refinement
+@@ -2225,7 +2511,7 @@
+ 							}
+ 
+ 							// Apply local symmetry according to a list of masks and their operators
+-							if ( (fn_local_symmetry_masks.size() >= 1) && (fn_local_symmetry_operators.size() >= 1) && (!has_converged) )
++							if ( (fn_local_symmetry_masks.size() != 0) && (fn_local_symmetry_operators.size() != 0) && (!has_converged) )
+ 								applyLocalSymmetry(mymodel.Iref[ith_recons], fn_local_symmetry_masks, fn_local_symmetry_operators);
+ 
+ 							// Shaoda Jul26,2015 - Helical symmetry local refinement
+@@ -2261,9 +2547,11 @@
+ 										mymodel.helical_twist[ith_recons],
+ 										width_mask_edge);
+ 							}
++						} // end if !do_join_random_halves
++
++                        // Rank 2 still updates the estimated twist and rise
+ 							helical_rise_half2 = mymodel.helical_rise[ith_recons];
+ 							helical_twist_half2 = mymodel.helical_twist[ith_recons];
+-						} // end if !do_join_random_halves
+ 
+ 						// But rank 2 always does the unfiltered reconstruction
+ 						if (do_auto_refine && has_converged)
+@@ -3543,8 +3831,8 @@
+ 		}
+ 		symmetriseReconstructions();
+ 
+-		if ( (verb > 0) && (node->isLeader()) && (fn_local_symmetry_masks.size() >= 1) && (fn_local_symmetry_operators.size() >= 1) )
+-			std::cout << " Applying local symmetry in real space according to " << fn_local_symmetry_operators.size() << " operators..." << std::endl;
++		if ( (verb > 0) && (node->isLeader()) && (fn_local_symmetry_masks.size() != 0) && (fn_local_symmetry_operators.size() != 0) )
++			std::cout << " Applying local symmetry in real space..." << std::endl;
+ 
+ 		// Write out data and weight arrays to disc in order to also do an unregularized reconstruction
+ #ifndef DEBUG_RECONSTRUCTION
+diff -wur relion-4.0.1/src/motioncorr_runner.cpp relion-opt/src/motioncorr_runner.cpp
+--- relion-4.0.1/src/motioncorr_runner.cpp	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/src/motioncorr_runner.cpp	2025-10-21 20:47:58.134936000 +0800
+@@ -285,6 +285,10 @@
+ 		}
+ 	}
+ 
++	// Make sure fn_out ends with a slash
++	if (fn_out[fn_out.length() - 1] != '/')
++		fn_out += "/";
++
+ 	// First backup the given list of all micrographs
+ 	std::vector<int> optics_group_given_all = optics_group_micrographs;
+ 	std::vector<FileName> fn_mic_given_all = fn_micrographs;
+@@ -340,10 +344,6 @@
+ 		}
+ 	}
+ 
+-	// Make sure fn_out ends with a slash
+-	if (fn_out[fn_out.length()-1] != '/')
+-		fn_out += "/";
+-
+ 	// Make all output directories if necessary
+ 	FileName prevdir="";
+ 	for (size_t i = 0; i < fn_micrographs.size(); i++)
+diff -wur relion-4.0.1/src/multidim_array.h relion-opt/src/multidim_array.h
+--- relion-4.0.1/src/multidim_array.h	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/src/multidim_array.h	2025-10-21 20:47:58.233258000 +0800
+@@ -2702,6 +2702,59 @@
+         _maxval = maxval;
+     }
+ 
++
++    // Will have problem when the recursion is too deep
++    // RFLOAT quickselect(MultidimArray< RFLOAT > &arr, int l, int r, int k) const {
++    //     if (l == r) {
++    //         return DIRECT_MULTIDIM_ELEM(arr,k);
++    //     }
++    //     RFLOAT partition = DIRECT_MULTIDIM_ELEM(arr,l); // l is bad choice when the arr is sorted
++    //     int i = l - 1, j = r + 1;
++    //     while (i < j) {
++    //         do i++; while (DIRECT_MULTIDIM_ELEM(arr,i) < partition);
++    //         do j--; while (DIRECT_MULTIDIM_ELEM(arr,j) > partition);
++    //         if (i < j) {
++    //             RFLOAT tmp = DIRECT_MULTIDIM_ELEM(arr,i);
++    //             DIRECT_MULTIDIM_ELEM(arr,i) = DIRECT_MULTIDIM_ELEM(arr,j);
++    //             DIRECT_MULTIDIM_ELEM(arr,j) = tmp;
++    //         }
++    //     }
++    //     if (k <= j)return quickselect(arr, l, j, k);
++    //     else return quickselect(arr, j + 1, r, k);
++    // }
++    RFLOAT findMin(MultidimArray< RFLOAT > &arr, int l, int r) const {
++        int minVal = DIRECT_MULTIDIM_ELEM(arr,l);
++        for (int i = l + 1; i <= r; i++) {
++            if (DIRECT_MULTIDIM_ELEM(arr,i) < minVal) minVal = DIRECT_MULTIDIM_ELEM(arr,i);
++        } 
++
++        return minVal;
++    }
++    RFLOAT quickselect(MultidimArray< RFLOAT > &arr, int l, int r, int k) const {
++        while (true) {
++            if (l == r)
++                break;
++            RFLOAT partition = DIRECT_MULTIDIM_ELEM(arr,(l+r)/2);
++            int i = l - 1, j = r + 1;
++            while (i < j) {
++                do i++; while (DIRECT_MULTIDIM_ELEM(arr,i) < partition);
++                do j--; while (DIRECT_MULTIDIM_ELEM(arr,j) > partition);
++                if (i < j) {
++                    RFLOAT tmp = DIRECT_MULTIDIM_ELEM(arr,i);
++                    DIRECT_MULTIDIM_ELEM(arr,i) = DIRECT_MULTIDIM_ELEM(arr,j);
++                    DIRECT_MULTIDIM_ELEM(arr,j) = tmp;
++                }
++            }
++            if (k <= j) {
++                r = j;
++            } else {
++                l = j + 1;
++            }
++        }
++
++        return DIRECT_MULTIDIM_ELEM(arr,k);
++    }
++
+     /** Median
+      *
+      * Calculate the median element.
+@@ -2726,14 +2779,21 @@
+         }
+ 
+         // Sort indexes
+-        temp.sort();
++        // temp.sort();
+ 
+         // Get median
++        // if (NZYXSIZE(*this)%2==0)
++        //     return 0.5*(DIRECT_MULTIDIM_ELEM(temp,NZYXSIZE(*this)/2-1)+
++        //                 DIRECT_MULTIDIM_ELEM(temp,NZYXSIZE(*this)/2  ));
++        // else
++        //     return DIRECT_MULTIDIM_ELEM(temp,NZYXSIZE(*this)/2);
++        // printf("%f, %f, %f, %f\n", DIRECT_MULTIDIM_ELEM(temp,NZYXSIZE(*this)/2-1), quickselect(temp, 0, NZYXSIZE(*this) - 1, NZYXSIZE(*this)/2-1), DIRECT_MULTIDIM_ELEM(temp,NZYXSIZE(*this)/2  ), quickselect(temp, 0, NZYXSIZE(*this) - 1, NZYXSIZE(*this)/2));
+         if (NZYXSIZE(*this)%2==0)
+-            return 0.5*(DIRECT_MULTIDIM_ELEM(temp,NZYXSIZE(*this)/2-1)+
+-                        DIRECT_MULTIDIM_ELEM(temp,NZYXSIZE(*this)/2  ));
++            return 0.5*(quickselect(temp, 0, NZYXSIZE(*this) - 1, NZYXSIZE(*this)/2-1)+
++                        findMin(temp, NZYXSIZE(*this)/2, NZYXSIZE(*this) - 1));
++                        // quickselect(temp, 0, NZYXSIZE(*this) - 1, NZYXSIZE(*this)/2));// can be replaced by finding the smallest element in the second half.
+         else
+-            return DIRECT_MULTIDIM_ELEM(temp,NZYXSIZE(*this)/2);
++            return quickselect(temp, 0, NZYXSIZE(*this) - 1, NZYXSIZE(*this)/2);
+     }
+ 
+     /** Adjust the range of the array to a given one.
+diff -wur relion-4.0.1/src/pipeline_jobs.cpp relion-opt/src/pipeline_jobs.cpp
+--- relion-4.0.1/src/pipeline_jobs.cpp	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/src/pipeline_jobs.cpp	2025-10-21 20:47:58.185768000 +0800
+@@ -3413,7 +3413,7 @@
+ 	command2 += " --i " + fn_model;
+ 	command2 += " --o " + outputname + "initial_model.mrc";
+ 
+-	if ( joboptions["do_run_C1"].getBoolean() && !(fn_sym.contains("C1") || fn_sym.contains("c1")) )
++	if ( joboptions["do_run_C1"].getBoolean() && !(fn_sym == "C1" || fn_sym == "c1") )
+ 	{
+ 		command2 += " --sym " + joboptions["sym_name"].getString();
+ 	}
+diff -wur relion-4.0.1/src/pipeliner.cpp relion-opt/src/pipeliner.cpp
+--- relion-4.0.1/src/pipeliner.cpp	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/src/pipeliner.cpp	2025-10-21 20:47:58.299168000 +0800
+@@ -292,7 +292,8 @@
+ 
+     //FileName fn_type = get_node_label(node.type) + "/";
+ 	// PIPELINER
+-    FileName fn_type = node.type + "/";
++    FileName fn_type = node.type;
++    fn_type = fn_type.beforeFirstOf(".") + "/";
+ 	FileName fn = fn_dir + fn_type + fnt;
+ 	int res = remove(fn.c_str());
+ 
+@@ -1929,14 +1930,22 @@
+ 
+ 	MetaDataTable MDgen, MDnode, MDproc, MDedge1, MDedge2;
+ 
+-	// This if allows for older version of the pipeline without the jobcounter
+-	// TODO: remove after alpha-testing
++	// There seem to be some file systems, where reading the starfile is not entirely robust. Let's try 3 times
++    bool has_read = false;
++    for (int i= 0; i < 3; i++)
++    {
+ 	if (MDgen.readStar(in, "pipeline_general"))
+ 	{
+ 		MDgen.getValue(EMDL_PIPELINE_JOB_COUNTER, job_counter);
+ 		if (job_counter < 0)
+ 			REPORT_ERROR("PipeLine::read: rlnPipeLineJobCounter must not be negative!");
++            has_read = true;
++            break;
++        }
++        //std::cerr <<" read has failed reading pipeline_general table from the default_pipeliner.star file, will sleep 0.5 seconds and try again; attempt "<< i << " out of 3" << std::endl;
++        sleep(0.5);
+ 	}
++    if (!has_read) REPORT_ERROR("ERROR: cannot read expected pipeline_general table from the default_pipeliner.star file...");
+ 
+ 	MDnode.readStar(in, "pipeline_nodes");
+ 	FOR_ALL_OBJECTS_IN_METADATA_TABLE(MDnode)
+diff -wur relion-4.0.1/src/postprocessing.cpp relion-opt/src/postprocessing.cpp
+--- relion-4.0.1/src/postprocessing.cpp	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/src/postprocessing.cpp	2025-10-21 20:47:58.339922000 +0800
+@@ -880,14 +880,11 @@
+ 	delete plot2Dc;
+ 
+ 	FileName fn_log = fn_out.beforeLastOf("/") + "/logfile.pdf";
+-	if (!exists(fn_log))
+-	{
+ 		std::vector<FileName> fn_eps;
+ 		fn_eps.push_back(fn_out + "_fsc.eps");
+ 		fn_eps.push_back(fn_out + "_fsc_part.eps");
+ 		fn_eps.push_back(fn_out + "_guinier.eps");
+ 		joinMultipleEPSIntoSinglePDF(fn_log, fn_eps);
+-	}
+ 
+ 	if (verb > 0)
+ 	{
+diff -wur relion-4.0.1/src/projector.cpp relion-opt/src/projector.cpp
+--- relion-4.0.1/src/projector.cpp	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/src/projector.cpp	2025-10-21 20:47:57.924958000 +0800
+@@ -21,6 +21,7 @@
+ #include <src/jaz/gravis/t3Vector.h>
+ #include <src/time.h>
+ #include <src/jaz/image/buffered_image.h>
++#include "amath.h"
+ #ifdef CUDA
+ #include <cufft.h>
+ #include <sys/types.h>
+@@ -486,6 +487,80 @@
+ 
+ }
+ 
++#define ARM_OPT
++#ifdef ARM_OPT
++void Projector::griddingCorrect(MultidimArray<RFLOAT> &vol_in)
++{
++	svfloat32_t zero_vec = svdup_n_f32(0.);
++	svfloat32_t pi_vec = svdup_n_f32(PI);
++	svfloat32_t ori_size_vec = svdup_n_f32(ori_size); // maybe int
++	svfloat32_t padd_vec = svdup_n_f32(padding_factor); // maybe int
++	svfloat32_t ori_p_padd_vec = svmul_f32_z(svptrue_b32(), ori_size_vec, padd_vec);
++	// Correct real-space map by dividing it by the Fourier transform of the interpolator(s)
++	vol_in.setXmippOrigin();
++	if (interpolator==NEAREST_NEIGHBOUR && r_min_nn == 0) {
++		for (long int k=STARTINGZ(vol_in); k<=FINISHINGZ(vol_in); k++) {
++			svfloat32_t k_vec = svcvt_f32_s32_z(svptrue_b32(), svdup_n_s32(k));
++			svfloat32_t k2_vec = svmul_f32_z(svptrue_b32(), k_vec, k_vec);
++			for (long int i=STARTINGY(vol_in); i<=FINISHINGY(vol_in); i++) {
++				svfloat32_t i_vec = svcvt_f32_s32_z(svptrue_b32(), svdup_n_s32(i));
++				svfloat32_t i2_vec = svmul_f32_z(svptrue_b32(), i_vec, i_vec);
++				svfloat32_t k2andi2_vec = svadd_f32_z(svptrue_b32(), k2_vec, i2_vec); 
++				for (long int j=STARTINGX(vol_in); j<=FINISHINGX(vol_in); j+=svcntw())
++				{
++					svbool_t pg = svwhilele_b32(j, FINISHINGX(vol_in));
++					svfloat32_t j_vec = svcvt_f32_s32_z(pg, svindex_s32(j,1)); // not dup since j is 0,1,2,3,...
++
++					svfloat32_t r_vec = svsqrt_f32_z(pg, 
++											svadd_f32_z(pg, 
++												k2andi2_vec, 
++												svmul_f32_z(pg, j_vec, j_vec)));
++
++					svbool_t mask_r_ge_zero = svcmpgt_f32(pg, r_vec, zero_vec);
++					svfloat32_t rval_vec = svdiv_f32_z(mask_r_ge_zero, r_vec, ori_p_padd_vec);
++					svfloat32_t pi_p_rval_vec = svmul_f32_z(mask_r_ge_zero, pi_vec, rval_vec);
++					svfloat32_t sinc_vec = svdiv_f32_z(mask_r_ge_zero, armpl_svsin_f32_x(pi_p_rval_vec, mask_r_ge_zero), pi_p_rval_vec);
++					svfloat32_t vol_in_data_vec = svld1_f32(mask_r_ge_zero, &A3D_ELEM(vol_in, k, i, j));
++					svfloat32_t vol_in_data_d_sinc_vec = svdiv_f32_z(mask_r_ge_zero, vol_in_data_vec, sinc_vec);
++					svst1_f32(mask_r_ge_zero, &A3D_ELEM(vol_in, k, i, j), vol_in_data_d_sinc_vec);
++					// A3D_ELEM(vol_in, k, i, j) /= sinc;
++					// vol_in.data[((k) - STARTINGZ(vol_in))*YXSIZE(vol_in)+(((i) - STARTINGY(vol_in))*XSIZE(vol_in))+((j) - STARTINGX(vol_in))]
++				}
++			}
++		}
++	} else if (interpolator==TRILINEAR || (interpolator==NEAREST_NEIGHBOUR && r_min_nn > 0) ) {
++		for (long int k=STARTINGZ(vol_in); k<=FINISHINGZ(vol_in); k++) {
++			svfloat32_t k_vec = svcvt_f32_s32_z(svptrue_b32(), svdup_n_s32(k));
++			svfloat32_t k2_vec = svmul_f32_z(svptrue_b32(), k_vec, k_vec);
++			for (long int i=STARTINGY(vol_in); i<=FINISHINGY(vol_in); i++) {
++				svfloat32_t i_vec = svcvt_f32_s32_z(svptrue_b32(), svdup_n_s32(i));
++				svfloat32_t i2_vec = svmul_f32_z(svptrue_b32(), i_vec, i_vec);
++				svfloat32_t k2andi2_vec = svadd_f32_z(svptrue_b32(), k2_vec, i2_vec); 
++				for (long int j=STARTINGX(vol_in); j<=FINISHINGX(vol_in); j+=svcntw())
++				{
++					svbool_t pg = svwhilele_b32(j, FINISHINGX(vol_in));
++					svfloat32_t j_vec = svcvt_f32_s32_z(pg, svindex_s32(j,1)); // not dup since j is 0,1,2,3,...
++
++					svfloat32_t r_vec = svsqrt_f32_z(pg, 
++											svadd_f32_z(pg, 
++												k2andi2_vec, 
++												svmul_f32_z(pg, j_vec, j_vec)));
++
++					svbool_t mask_r_ge_zero = svcmpgt_f32(pg, r_vec, zero_vec);
++					svfloat32_t rval_vec = svdiv_f32_z(mask_r_ge_zero, r_vec, ori_p_padd_vec);
++					svfloat32_t pi_p_rval_vec = svmul_f32_z(mask_r_ge_zero, pi_vec, rval_vec);
++					svfloat32_t sinc_vec = svdiv_f32_z(mask_r_ge_zero, armpl_svsin_f32_x(pi_p_rval_vec, mask_r_ge_zero), pi_p_rval_vec);
++					// A3D_ELEM(vol_in, k, i, j) /= sinc * sinc;
++					svfloat32_t vol_in_data_vec = svld1_f32(mask_r_ge_zero, &A3D_ELEM(vol_in, k, i, j));
++					svfloat32_t vol_in_data_d_sinc_vec = svdiv_f32_z(mask_r_ge_zero, vol_in_data_vec, svmul_f32_z(mask_r_ge_zero, sinc_vec, sinc_vec));
++					svst1_f32(mask_r_ge_zero, &A3D_ELEM(vol_in, k, i, j), vol_in_data_d_sinc_vec);
++				}
++			}
++		}
++	} else
++		REPORT_ERROR("BUG Projector::griddingCorrect: unrecognised interpolator scheme.");
++}
++#else // ARM_OPT
+ void Projector::griddingCorrect(MultidimArray<RFLOAT> &vol_in)
+ {
+ 	// Correct real-space map by dividing it by the Fourier transform of the interpolator(s)
+@@ -520,6 +595,7 @@
+ 		}
+ 	}
+ }
++#endif // NO ARM_OPT
+ 
+ void Projector::project(MultidimArray<Complex > &f2d, Matrix2D<RFLOAT> &A)
+ {
+diff -wur relion-4.0.1/src/reconstructor.cpp relion-opt/src/reconstructor.cpp
+--- relion-4.0.1/src/reconstructor.cpp	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/src/reconstructor.cpp	2025-10-21 20:47:57.744115000 +0800
+@@ -877,14 +877,6 @@
+ 
+ 				softMaskOutsideMap(Iapp, ROUND(mask_diameter/(angpix*2.)), (RFLOAT)width_mask_edge);
+ 
+-				// Re-box to a smaller size if necessary....
+-				if (newbox > 0 && newbox < YSIZE(Fin))
+-				{
+-					Iapp.setXmippOrigin();
+-					Iapp.window(FIRST_XMIPP_INDEX(newbox), FIRST_XMIPP_INDEX(newbox),
+-					            LAST_XMIPP_INDEX(newbox),  LAST_XMIPP_INDEX(newbox));
+-
+-				}
+ 				// Back into Fourier-space
+ 				transformer.FourierTransform(Iapp, Fapp, false); // false means: leave Fapp in the transformer
+ 				CenterFFTbySign(Fapp);
+diff -wur relion-4.0.1/src/renderEER.cpp relion-opt/src/renderEER.cpp
+--- relion-4.0.1/src/renderEER.cpp	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/src/renderEER.cpp	2025-10-21 20:47:58.219740000 +0800
+@@ -448,7 +448,7 @@
+ 		else if (eer_upsampling == 1)
+ 			render4K(image, positions, symbols, n_electron);
+ 		else
+-			REPORT_ERROR("Invalid EER upsamle");
++			REPORT_ERROR("Invalid EER upsample");
+ 		RCTOC(TIMING_RENDER_ELECTRONS);
+ 
+ 		total_n_electron += n_electron;
+diff -wur relion-4.0.1/src/tiff_converter.cpp relion-opt/src/tiff_converter.cpp
+--- relion-4.0.1/src/tiff_converter.cpp	2023-03-06 09:49:39.000000000 +0800
++++ relion-opt/src/tiff_converter.cpp	2025-10-21 20:47:57.800218000 +0800
+@@ -97,7 +97,7 @@
+ //#define DEBUG
+ #ifdef DEBUG
+ 				printf(" negative: %s frame %2d pos %4d %4d obs % 8.4f gain %.4f\n", 
+-				       fn_movie.c_str(), iframe, n / XSIZE(gain()), n % XSIZE(gain()), (double)val, (double)gain_here);
++				       fn_movie.c_str(), iframe + 1, n / XSIZE(gain()), n % XSIZE(gain()), (double)val, (double)gain_here);
+ #endif
+ 				negative++;
+ 				DIRECT_MULTIDIM_ELEM(defects(), n) = -1;
+@@ -116,7 +116,7 @@
+ 				{
+ #ifdef DEBUG
+ 					printf(" mismatch: %s frame %2d pos %4d %4d obs % 8.4f expected % 8.4f gain %.4f\n",
+-					       fn_movie.c_str(), iframe, n / XSIZE(gain()), n % XSIZE(gain()), (double)val,
++					       fn_movie.c_str(), iframe + 1, n / XSIZE(gain()), n % XSIZE(gain()), (double)val,
+ 					       (double)expected, (double)gain_here);
+ #endif
+ 					error++;
+@@ -208,7 +208,7 @@
+ 			if (fabs(expected - val) > 0.0001)
+ 			{
+ 				snprintf(msg, 255, " mismatch: %s frame %2d pos %4ld %4ld obs % 8.4f status %d expected % 8.4f gain %.4f\n",
+-					 fn_movie.c_str(), iframe, n / XSIZE(gain()), n % XSIZE(gain()), (double)val, DIRECT_MULTIDIM_ELEM(defects(), n),
++					 fn_movie.c_str(), iframe + 1, n / XSIZE(gain()), n % XSIZE(gain()), (double)val, DIRECT_MULTIDIM_ELEM(defects(), n),
+ 					 (double)expected, (double)gain_here);
+ 				std::cerr << msg << std::endl;
+ 				if (!dont_die_on_error)
+@@ -227,7 +227,7 @@
+ 					error++;
+ 					
+ 					printf(" underflow: %s frame %2d pos %4ld %4ld obs % 8.4f expected % 8.4f gain %.4f\n",
+-					       fn_movie.c_str(), iframe, n / XSIZE(gain()), n % XSIZE(gain()), (double)val,
++					       fn_movie.c_str(), iframe + 1, n / XSIZE(gain()), n % XSIZE(gain()), (double)val,
+ 					       (double)expected, (double)gain_here);
+ 				}
+ 				else if (ival > overflow)
+@@ -236,7 +236,7 @@
+ 					error++;
+ 
+ 					printf(" overflow: %s frame %2d pos %4ld %4ld obs % 8.4f expected % 8.4f gain %.4f\n",
+-					       fn_movie.c_str(), iframe, n / XSIZE(buf), n % XSIZE(buf), (double)val,
++					       fn_movie.c_str(), iframe + 1, n / XSIZE(buf), n % XSIZE(buf), (double)val,
+ 					       (double)expected, (double)gain_here);
+ 				}
+ 			}
+@@ -361,6 +361,9 @@
+ 		fn_first = fn_in;
+ 	}
+ 
++	if (do_estimate)
++		MD.randomiseOrder();
++
+ 	if (fn_first.getExtension() != "mrc" && fn_first.getExtension() != "mrcs" && !EERRenderer::isEER(fn_first))
+ 		REPORT_ERROR(fn_first + ": the input must be MRC, MRCS or EER files");
+ 
+@@ -392,9 +395,6 @@
+ 	}
+ 	else
+ 	{
+-		if (do_estimate)
+-			MD.randomiseOrder();	
+-
+ 		// Check type and mode of the input
+ 		Image<RFLOAT> Ihead;
+ 		Ihead.read(fn_first, false, -1, false, true); // select_img -1, mmap false, is_2D true
+@@ -508,9 +508,8 @@
+ void TIFFConverter::run()
+ {
+ 	long int my_first, my_last;
+-	 divide_equally(MD.numberOfObjects(), total_ranks, rank, my_first, my_last); // MPI parallelization
+ 
+-	for (long i = my_first; i <= my_last; i++)
++	for (long i = rank; i < MD.numberOfObjects(); i += total_ranks)
+ 	{
+ 		FileName fn_movie, fn_tiff;
+ 		MD.getValue(EMDL_MICROGRAPH_MOVIE_NAME, fn_movie, i);

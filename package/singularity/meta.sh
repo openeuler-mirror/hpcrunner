@@ -3,7 +3,10 @@ set -x
 set -e
 cd ${JARVIS_TMP}
 . $CHECK_DEPS go
-. $CHECK_ROOT && yum install -y libseccomp-devel squashfs-tools cryptsetup
+#. $CHECK_ROOT && yum install -y libseccomp-devel squashfs-tools cryptsetup
+set +x && source ${JARVIS_LIBSHELL}  && set -x
+set +x && check_rpms_installed  libseccomp-devel squashfs-tools cryptsetup   || exit 1
+set -x
 file_noext="singularity-ce-$singularity_ver"
 file_name="${file_noext}.tar.gz"
 . ${DOWNLOAD_TOOL} -u  $JARVIS_PROXY/sylabs/singularity/releases/download/v${singularity_ver}/${file_name}

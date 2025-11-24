@@ -1,0 +1,17 @@
+#generic-repos is licensed under the Mulan PSL v2.
+#You can use this software according to the terms and conditions of the Mulan PSL v2.
+#You may obtain a copy of Mulan PSL v2 at:
+#    http://license.coscl.org.cn/MulanPSL2
+#THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR
+#PURPOSE.
+#See the Mulan PSL v2 for more details.
+
+[JARVIS_SYS_CDROM]
+name=OS
+baseurl=file:///var/mnt/cdrom
+metadata_expire=1h
+enabled=1
+gpgcheck=0
+gpgkey=http://repo.openeuler.org/openEuler-22.03-LTS-SP4/OS/$basearch/RPM-GPG-KEY-openEuler
+

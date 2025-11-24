@@ -9,6 +9,8 @@ from installService import InstallService
 from envService import EnvService
 import subprocess
 import os
+import sys
+from pathlib import Path
 
 class BuildService:
     DEFAULT_APP_NAME = "unknown"
@@ -24,6 +26,7 @@ class BuildService:
         self.env_service = EnvService()
         self.command = CommandBuilder()
         self.installService = InstallService()
+        self.bmod = "force"
 
     def get_build_file(self):
         if self.ds.app_config.build_dir:
@@ -47,25 +50,45 @@ class BuildService:
         self.env_service.env()
         env_cmd = self.command.env_activation()
         self.exe.exec_inject(env_cmd)
-
-    def build(self):
+    ### build --> bool
+    def build(self,bmod="force"):
+        self.bmod = bmod
         self.inject_env()
         app_name = self.ds.get_app_name() or self.DEFAULT_APP_NAME
         app_version = self.ds.get_app_version() or self.DEFAULT_APP_VERSION
         app_compiler = self.ds.get_app_compiler() or self.DEFAULT_COMPILER
-
+        
         install_profile = self.installService.install([f"{app_name}/{app_version}", app_compiler], True)
-        self._handle_install_result(install_profile)
-
+        res=self._handle_install_result(install_profile)
+        if not res:
+            print(f"build failed")
+            sys.exit(1)
+        else:
+            print(f"build OK")
+        return res
+    
+    ### _handle_install_result -> bool
     def _handle_install_result(self, result):
         install_path = result.install_path
         software_info = result.software_info
         env_info = result.env_info
         build_cmd = self.command.build()
-        self._execute_script(self.get_build_file(), build_cmd, "build", install_path)
-        self.installService.add_install_info(software_info, install_path)
-        self._update_dependencies()
-        self.installService.gen_module_file(install_path, software_info, env_info)
+       
+       #{"include":["/mnt/sdb/wlj/share","/root/path_test","/a/b/c","/a/b/c","/a/b/c/d","/a/b/d","/mnt/sdb/wlj/share/software/soft/app/tvm/0.16.
+       #0-bisheng4.2.0"], "exclude":["/mnt/sdb/wlj/share/software/soft/app/tvm/0.16.0-bisheng4.2.0/tvm","/a/b/d","/a/b/f","/a/b"]}
+
+        mod_exc_dir=[str(Path(self.ds.app_config.build_dir).resolve())]
+        if self.ds.app_config.mod_exc_dir:
+            mod_exc_dir.extend([ str(Path(install_path).joinpath(x)) for x in self.ds.app_config.mod_exc_dir.split(";")])
+
+        search_dir={'include':[],'exclude':mod_exc_dir}
+        print(search_dir)
+        res=self._execute_script(self.get_build_file(), build_cmd, "build", install_path)
+        if self.ds.get_app_fake() != "1" :
+            self.installService.add_install_info(software_info, install_path)
+            self._update_dependencies()
+            self.installService.gen_module_file(install_path, software_info, env_info,search_dir=search_dir)
+        return res
 
     def _update_dependencies(self):
         loaded_modules = self.installService.get_loaded_modules()
@@ -74,8 +97,8 @@ class BuildService:
     def _execute_script(self, file_name, command, action, *args):
         print(f"start {action} {self.ds.get_app_name()}")
         self.tool.write_file(file_name, command)
-        run_cmd = f"chmod +x {file_name}\nsh {file_name} " + " ".join(args)
-        self.exe.exec_raw(run_cmd)
+        run_cmd = f"chmod +x {file_name}\nsh {file_name} " + " ".join(args) + f" bmod={self.bmod}"
+        return self.exe.exec_raw(run_cmd)
 
 # Example usage:
 if __name__ == "__main__":

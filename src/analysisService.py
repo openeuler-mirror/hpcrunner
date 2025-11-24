@@ -72,9 +72,10 @@ class AnalysisService:
 
     def clean(self):
         self.jbuild.clean()
-    
-    def build(self):
-        self.jbuild.build()
+   
+    ### build -> bool
+    def build(self, bmod="force"):
+        return self.jbuild.build(bmod)
 
     def env(self):
         self.jenv.env()
@@ -90,9 +91,10 @@ class AnalysisService:
 
     def find(self,content):
         self.jinstall.find(content)
-    
+   
+    ### install_deps -> bool
     def install_deps(self):
-        self.jinstall.install_depend()
+        return self.jinstall.install_depend()
     
     def update(self):
         self.jinstall.update()

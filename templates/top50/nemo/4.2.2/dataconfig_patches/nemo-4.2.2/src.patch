@@ -1,0 +1,2643 @@
+diff --git a/src/ICE/icealb.F90 b/src/ICE/icealb.F90
+index 7a7b3e4..fc5d429 100644
+--- a/src/ICE/icealb.F90
++++ b/src/ICE/icealb.F90
+@@ -194,9 +194,9 @@ CONTAINS
+       NAMELIST/namalb/ rn_alb_sdry, rn_alb_smlt, rn_alb_idry, rn_alb_imlt, rn_alb_dpnd, rn_alb_hpiv
+       !!----------------------------------------------------------------------
+       !
+-      READ  ( numnam_ice_ref, namalb, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ice_ref(INDEX(numnam_ice_ref,"namalb")-1:), namalb, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namalb in reference namelist' )
+-      READ  ( numnam_ice_cfg, namalb, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_ice_cfg(INDEX(numnam_ice_cfg,"namalb")-1:), namalb, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namalb in configuration namelist' )
+       IF(lwm) WRITE( numoni, namalb )
+       !
+diff --git a/src/ICE/icedia.F90 b/src/ICE/icedia.F90
+index 154d89d..b9c6be9 100644
+--- a/src/ICE/icedia.F90
++++ b/src/ICE/icedia.F90
+@@ -193,9 +193,9 @@ CONTAINS
+       NAMELIST/namdia/ ln_icediachk, rn_icechk_cel, rn_icechk_glo, ln_icediahsb, ln_icectl, iiceprt, jiceprt
+       !!----------------------------------------------------------------------
+       !
+-      READ  ( numnam_ice_ref, namdia, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ice_ref(INDEX(numnam_ice_ref,"namdia")-1:), namdia, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namdia in reference namelist' )
+-      READ  ( numnam_ice_cfg, namdia, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_ice_cfg(INDEX(numnam_ice_cfg,"namdia")-1:), namdia, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namdia in configuration namelist' )
+       IF(lwm) WRITE ( numoni, namdia )
+       !
+diff --git a/src/ICE/icedyn.F90 b/src/ICE/icedyn.F90
+index dcbe3e7..f037845 100644
+--- a/src/ICE/icedyn.F90
++++ b/src/ICE/icedyn.F90
+@@ -233,9 +233,9 @@ CONTAINS
+          &             sn_icbmsk, cn_dir
+       !!-------------------------------------------------------------------
+       !
+-      READ  ( numnam_ice_ref, namdyn, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ice_ref(INDEX(numnam_ice_ref,"namdyn")-1:), namdyn, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namdyn in reference namelist' )
+-      READ  ( numnam_ice_cfg, namdyn, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_ice_cfg(INDEX(numnam_ice_cfg,"namdyn")-1:), namdyn, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namdyn in configuration namelist' )
+       IF(lwm) WRITE( numoni, namdyn )
+       !
+diff --git a/src/ICE/icedyn_adv.F90 b/src/ICE/icedyn_adv.F90
+index e2beb79..c15a9cb 100644
+--- a/src/ICE/icedyn_adv.F90
++++ b/src/ICE/icedyn_adv.F90
+@@ -128,9 +128,9 @@ CONTAINS
+       NAMELIST/namdyn_adv/ ln_adv_Pra, ln_adv_UMx, nn_UMx
+       !!-------------------------------------------------------------------
+       !
+-      READ  ( numnam_ice_ref, namdyn_adv, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ice_ref(INDEX(numnam_ice_ref,"namdyn_adv")-1:), namdyn_adv, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namdyn_adv in reference namelist' )
+-      READ  ( numnam_ice_cfg, namdyn_adv, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_ice_cfg(INDEX(numnam_ice_cfg,"namdyn_adv")-1:), namdyn_adv, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namdyn_adv in configuration namelist' )
+       IF(lwm) WRITE( numoni, namdyn_adv )
+       !
+diff --git a/src/ICE/icedyn_rdgrft.F90 b/src/ICE/icedyn_rdgrft.F90
+index fdb1db4..5ac9cb8 100644
+--- a/src/ICE/icedyn_rdgrft.F90
++++ b/src/ICE/icedyn_rdgrft.F90
+@@ -994,9 +994,9 @@ CONTAINS
+          &                    ln_rafting, rn_hraft, rn_craft  , rn_fsnwrft, rn_fpndrft
+       !!-------------------------------------------------------------------
+       !
+-      READ  ( numnam_ice_ref, namdyn_rdgrft, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ice_ref(INDEX(numnam_ice_ref,"namdyn_rdgrft")-1:), namdyn_rdgrft, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namdyn_rdgrft in reference namelist' )
+-      READ  ( numnam_ice_cfg, namdyn_rdgrft, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_ice_cfg(INDEX(numnam_ice_cfg,"namdyn_rdgrft")-1:), namdyn_rdgrft, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namdyn_rdgrft in configuration namelist' )
+       IF(lwm) WRITE ( numoni, namdyn_rdgrft )
+       !
+diff --git a/src/ICE/icedyn_rhg.F90 b/src/ICE/icedyn_rhg.F90
+index 245dbc1..e10f77c 100644
+--- a/src/ICE/icedyn_rhg.F90
++++ b/src/ICE/icedyn_rhg.F90
+@@ -123,9 +123,9 @@ CONTAINS
+          &                  ln_rhg_VP, nn_vp_nout, nn_vp_ninn, nn_vp_chkcvg                                            !-- vp
+       !!-------------------------------------------------------------------
+       !
+-      READ  ( numnam_ice_ref, namdyn_rhg, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ice_ref(INDEX(numnam_ice_ref,"namdyn_rhg")-1:), namdyn_rhg, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 ) CALL ctl_nam ( ios , 'namdyn_rhg in reference namelist' )
+-      READ  ( numnam_ice_cfg, namdyn_rhg, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_ice_cfg(INDEX(numnam_ice_cfg,"namdyn_rhg")-1:), namdyn_rhg, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 ) CALL ctl_nam ( ios , 'namdyn_rhg in configuration namelist' )
+       IF(lwm) WRITE ( numoni, namdyn_rhg )
+       !
+diff --git a/src/ICE/iceistate.F90 b/src/ICE/iceistate.F90
+index 97c7831..097ffe5 100644
+--- a/src/ICE/iceistate.F90
++++ b/src/ICE/iceistate.F90
+@@ -504,9 +504,9 @@ CONTAINS
+          &             sn_hti, sn_hts, sn_ati, sn_tsu, sn_tmi, sn_smi, sn_tms, sn_apd, sn_hpd, sn_hld, cn_dir
+       !!-----------------------------------------------------------------------------
+       !
+-      READ  ( numnam_ice_ref, namini, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ice_ref(INDEX(numnam_ice_ref,"namini")-1:), namini, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namini in reference namelist' )
+-      READ  ( numnam_ice_cfg, namini, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_ice_cfg(INDEX(numnam_ice_cfg,"namini")-1:), namini, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namini in configuration namelist' )
+       IF(lwm) WRITE ( numoni, namini )
+       !
+diff --git a/src/ICE/iceitd.F90 b/src/ICE/iceitd.F90
+index f3e6627..974f71a 100644
+--- a/src/ICE/iceitd.F90
++++ b/src/ICE/iceitd.F90
+@@ -711,9 +711,9 @@ CONTAINS
+       !
+       rn_catbnd(:) =  0._wp ! Circumvent possible initialization by compiler
+                             ! to prevent from errors when writing output
+-      READ  ( numnam_ice_ref, namitd, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ice_ref(INDEX(numnam_ice_ref,"namitd")-1:), namitd, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namitd in reference namelist' )
+-      READ  ( numnam_ice_cfg, namitd, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_ice_cfg(INDEX(numnam_ice_cfg,"namitd")-1:), namitd, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namitd in configuration namelist' )
+       IF(lwm) WRITE( numoni, namitd )
+       !
+diff --git a/src/ICE/icesbc.F90 b/src/ICE/icesbc.F90
+index 404236d..6ffe54e 100644
+--- a/src/ICE/icesbc.F90
++++ b/src/ICE/icesbc.F90
+@@ -380,9 +380,9 @@ CONTAINS
+       NAMELIST/namsbc/ rn_cio, nn_snwfra, rn_snwblow, nn_flxdist, ln_cndflx, ln_cndemulate, nn_qtrice
+       !!-------------------------------------------------------------------
+       !
+-      READ  ( numnam_ice_ref, namsbc, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ice_ref(INDEX(numnam_ice_ref,"namsbc")-1:), namsbc, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namsbc in reference namelist' )
+-      READ  ( numnam_ice_cfg, namsbc, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_ice_cfg(INDEX(numnam_ice_cfg,"namsbc")-1:), namsbc, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namsbc in configuration namelist' )
+       IF(lwm) WRITE( numoni, namsbc )
+       !
+diff --git a/src/ICE/icestp.F90 b/src/ICE/icestp.F90
+index 070052d..1996fee 100644
+--- a/src/ICE/icestp.F90
++++ b/src/ICE/icestp.F90
+@@ -315,9 +315,9 @@ CONTAINS
+          &             cn_icerst_in, cn_icerst_indir, cn_icerst_out, cn_icerst_outdir
+       !!-------------------------------------------------------------------
+       !
+-      READ  ( numnam_ice_ref, nampar, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ice_ref(INDEX(numnam_ice_ref,"nampar")-1:), nampar, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'nampar in reference namelist' )
+-      READ  ( numnam_ice_cfg, nampar, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_ice_cfg(INDEX(numnam_ice_cfg,"nampar")-1:), nampar, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios > 0 )   CALL ctl_nam ( ios , 'nampar in configuration namelist' )
+       IF(lwm) WRITE( numoni, nampar )
+       !
+diff --git a/src/ICE/icethd.F90 b/src/ICE/icethd.F90
+index fbd87f7..05acc89 100644
+--- a/src/ICE/icethd.F90
++++ b/src/ICE/icethd.F90
+@@ -475,9 +475,9 @@ CONTAINS
+       NAMELIST/namthd/ ln_icedH, ln_icedA, ln_icedO, ln_icedS, ln_leadhfx
+       !!-------------------------------------------------------------------
+       !
+-      READ  ( numnam_ice_ref, namthd, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ice_ref(INDEX(numnam_ice_ref,"namthd")-1:), namthd, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namthd in reference namelist' )
+-      READ  ( numnam_ice_cfg, namthd, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_ice_cfg(INDEX(numnam_ice_cfg,"namthd")-1:), namthd, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namthd in configuration namelist' )
+       IF(lwm) WRITE( numoni, namthd )
+       !
+diff --git a/src/ICE/icethd_da.F90 b/src/ICE/icethd_da.F90
+index 69896c5..275fba4 100644
+--- a/src/ICE/icethd_da.F90
++++ b/src/ICE/icethd_da.F90
+@@ -174,9 +174,9 @@ CONTAINS
+       NAMELIST/namthd_da/ rn_beta, rn_dmin
+       !!-------------------------------------------------------------------
+       !
+-      READ  ( numnam_ice_ref, namthd_da, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ice_ref(INDEX(numnam_ice_ref,"namthd_da")-1:), namthd_da, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namthd_da in reference namelist' )
+-      READ  ( numnam_ice_cfg, namthd_da, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_ice_cfg(INDEX(numnam_ice_cfg,"namthd_da")-1:), namthd_da, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namthd_da in configuration namelist' )
+       IF(lwm) WRITE( numoni, namthd_da )
+       !
+diff --git a/src/ICE/icethd_do.F90 b/src/ICE/icethd_do.F90
+index 3cd1bcd..307cd4c 100644
+--- a/src/ICE/icethd_do.F90
++++ b/src/ICE/icethd_do.F90
+@@ -438,9 +438,9 @@ CONTAINS
+       NAMELIST/namthd_do/ rn_hinew, ln_frazil, rn_maxfraz, rn_vfraz, rn_Cfraz
+       !!-------------------------------------------------------------------
+       !
+-      READ  ( numnam_ice_ref, namthd_do, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ice_ref(INDEX(numnam_ice_ref,"namthd_do")-1:), namthd_do, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namthd_do in reference namelist' )
+-      READ  ( numnam_ice_cfg, namthd_do, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_ice_cfg(INDEX(numnam_ice_cfg,"namthd_do")-1:), namthd_do, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namthd_do in configuration namelist' )
+       IF(lwm) WRITE( numoni, namthd_do )
+       !
+diff --git a/src/ICE/icethd_pnd.F90 b/src/ICE/icethd_pnd.F90
+index f0949d8..f8a2115 100644
+--- a/src/ICE/icethd_pnd.F90
++++ b/src/ICE/icethd_pnd.F90
+@@ -1357,9 +1357,9 @@ CONTAINS
+          &                          ln_pnd_lids, ln_pnd_alb
+       !!-------------------------------------------------------------------
+       !
+-      READ  ( numnam_ice_ref, namthd_pnd, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ice_ref(INDEX(numnam_ice_ref,"namthd_pnd")-1:), namthd_pnd, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namthd_pnd  in reference namelist' )
+-      READ  ( numnam_ice_cfg, namthd_pnd, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_ice_cfg(INDEX(numnam_ice_cfg,"namthd_pnd")-1:), namthd_pnd, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namthd_pnd in configuration namelist' )
+       IF(lwm) WRITE ( numoni, namthd_pnd )
+       !
+diff --git a/src/ICE/icethd_sal.F90 b/src/ICE/icethd_sal.F90
+index 11ca64e..2d91568 100644
+--- a/src/ICE/icethd_sal.F90
++++ b/src/ICE/icethd_sal.F90
+@@ -137,9 +137,9 @@ CONTAINS
+          &                 rn_sal_fl, rn_time_fl, rn_simax , rn_simin 
+       !!-------------------------------------------------------------------
+       !
+-      READ  ( numnam_ice_ref, namthd_sal, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ice_ref(INDEX(numnam_ice_ref,"namthd_sal")-1:), namthd_sal, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namthd_sal in reference namelist' )
+-      READ  ( numnam_ice_cfg, namthd_sal, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_ice_cfg(INDEX(numnam_ice_cfg,"namthd_sal")-1:), namthd_sal, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namthd_sal in configuration namelist' )
+       IF(lwm) WRITE ( numoni, namthd_sal )
+       !
+diff --git a/src/ICE/icethd_zdf.F90 b/src/ICE/icethd_zdf.F90
+index 681bfbf..f903074 100644
+--- a/src/ICE/icethd_zdf.F90
++++ b/src/ICE/icethd_zdf.F90
+@@ -88,9 +88,9 @@ CONTAINS
+          &                 rn_kappa_i, rn_kappa_s, rn_kappa_smlt, rn_kappa_sdry, ln_zdf_chkcvg
+       !!-------------------------------------------------------------------
+       !
+-      READ  ( numnam_ice_ref, namthd_zdf, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ice_ref(INDEX(numnam_ice_ref,"namthd_zdf")-1:), namthd_zdf, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namthd_zdf in reference namelist' )
+-      READ  ( numnam_ice_cfg, namthd_zdf, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_ice_cfg(INDEX(numnam_ice_cfg,"namthd_zdf")-1:), namthd_zdf, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namthd_zdf in configuration namelist' )
+       IF(lwm) WRITE( numoni, namthd_zdf )
+       !
+diff --git a/src/NST/agrif_ice_interp.F90 b/src/NST/agrif_ice_interp.F90
+index eea3d94..3cad726 100644
+--- a/src/NST/agrif_ice_interp.F90
++++ b/src/NST/agrif_ice_interp.F90
+@@ -120,9 +120,9 @@ CONTAINS
+       !                       !**  read Surface Module namelist
+       !                       (we only need nn_ice actually which is unknown at the 
+       !                        time this subroutine is called)
+-      READ  ( numnam_ref, namsbc, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namsbc")-1:), namsbc, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namsbc in reference namelist' )
+-      READ  ( numnam_cfg, namsbc, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namsbc")-1:), namsbc, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namsbc in configuration namelist' )
+       !
+       IF ( (nn_ice/=2).AND.((Agrif_Parent(nn_ice)==2).AND.           &
+diff --git a/src/NST/agrif_user.F90 b/src/NST/agrif_user.F90
+index 4af2c2e..0fd8392 100644
+--- a/src/NST/agrif_user.F90
++++ b/src/NST/agrif_user.F90
+@@ -929,9 +929,9 @@
+       !
+       IF ( .NOT.Agrif_Root() ) THEN
+          !
+-         READ  ( numnam_ref, namagrif, IOSTAT = ios, ERR = 901)
++         READ  ( numnam_ref(INDEX(numnam_ref,"namagrif")-1:), namagrif, IOSTAT = ios, ERR = 901)
+ 901 IF( ios /= 0 )   CALL ctl_nam ( ios , 'namagrif in reference namelist' )
+-         READ  ( numnam_cfg, namagrif, IOSTAT = ios, ERR = 902 )
++         READ  ( numnam_cfg(INDEX(numnam_cfg,"namagrif")-1:), namagrif, IOSTAT = ios, ERR = 902 )
+ 902 IF( ios >  0 )   CALL ctl_nam ( ios , 'namagrif in configuration namelist' )
+          IF(lwm) WRITE ( numond, namagrif )
+          !
+diff --git a/src/OCE/ASM/asminc.F90 b/src/OCE/ASM/asminc.F90
+index 4e0892f..e2f20c7 100644
+--- a/src/OCE/ASM/asminc.F90
++++ b/src/OCE/ASM/asminc.F90
+@@ -147,9 +147,9 @@ CONTAINS
+       !-----------------------------------------------------------------------
+       ! Read Namelist nam_asminc : assimilation increment interface
+       !-----------------------------------------------------------------------
+-      READ  ( numnam_ref, nam_asminc, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"nam_asminc")-1:), nam_asminc, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'nam_asminc in reference namelist' )
+-      READ  ( numnam_cfg, nam_asminc, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"nam_asminc")-1:), nam_asminc, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'nam_asminc in configuration namelist' )
+       IF(lwm) WRITE ( numond, nam_asminc )
+ 
+diff --git a/src/OCE/BDY/bdydta.F90 b/src/OCE/BDY/bdydta.F90
+index 062b705..df3ffd6 100644
+--- a/src/OCE/BDY/bdydta.F90
++++ b/src/OCE/BDY/bdydta.F90
+@@ -426,7 +426,7 @@ CONTAINS
+          WRITE(ctmp2, '(a,i2)') 'block nambdy_dta number ', jbdy
+ 
+          ! There is only one nambdy_dta block in namelist_ref -> use it for each bdy so we read from the beginning
+-         READ  ( numnam_ref, nambdy_dta, IOSTAT = ios, ERR = 901)
++         READ  ( numnam_ref(INDEX(numnam_ref,"nambdy_dta")-1:), nambdy_dta, IOSTAT = ios, ERR = 901)
+ 901      IF( ios /= 0 )   CALL ctl_nam ( ios , 'nambdy_dta in reference namelist' )
+ 
+          !   by-pass nambdy_dta reading if no input data used in this bdy   
+diff --git a/src/OCE/BDY/bdyini.F90 b/src/OCE/BDY/bdyini.F90
+index 9bed363..ba07bff 100644
+--- a/src/OCE/BDY/bdyini.F90
++++ b/src/OCE/BDY/bdyini.F90
+@@ -78,7 +78,7 @@ CONTAINS
+       ! ------------------------
+       ! Read namelist parameters
+       ! ------------------------
+-      READ  ( numnam_ref, nambdy, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"nambdy")-1:), nambdy, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'nambdy in reference namelist' )
+       ! make sur that all elements of the namelist variables have a default definition from namelist_ref
+       ln_coords_file (2:jp_bdy) = ln_coords_file (1)
+@@ -96,7 +96,7 @@ CONTAINS
+       cn_ice         (2:jp_bdy) = cn_ice         (1)
+       nn_ice_dta     (2:jp_bdy) = nn_ice_dta     (1)
+       nn_rimwidth    (2:jp_bdy) = nn_rimwidth    (1)
+-      READ  ( numnam_cfg, nambdy, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"nambdy")-1:), nambdy, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'nambdy in configuration namelist' )
+       IF(lwm) WRITE ( numond, nambdy )
+ 
+diff --git a/src/OCE/BDY/bdytides.F90 b/src/OCE/BDY/bdytides.F90
+index 0c14f5b..c21bc50 100644
+--- a/src/OCE/BDY/bdytides.F90
++++ b/src/OCE/BDY/bdytides.F90
+@@ -99,7 +99,7 @@ CONTAINS
+             ! Namelist nambdy_tide : tidal harmonic forcing at open boundaries
+             filtide(:) = ''
+ 
+-            READ  ( numnam_ref, nambdy_tide, IOSTAT = ios, ERR = 901)
++            READ  ( numnam_ref(INDEX(numnam_ref,"nambdy_tide")-1:), nambdy_tide, IOSTAT = ios, ERR = 901)
+ 901         IF( ios /= 0 )   CALL ctl_nam ( ios , 'nambdy_tide in reference namelist' )
+             !
+             ! Need to support possibility of reading more than one
+diff --git a/src/OCE/C1D/c1d.F90 b/src/OCE/C1D/c1d.F90
+index 65858a9..043abf6 100644
+--- a/src/OCE/C1D/c1d.F90
++++ b/src/OCE/C1D/c1d.F90
+@@ -44,10 +44,10 @@ CONTAINS
+       NAMELIST/namc1d/ rn_lat1d, rn_lon1d
+       !!----------------------------------------------------------------------
+       !
+-      READ  ( numnam_ref, namc1d, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namc1d")-1:), namc1d, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namc1d in reference namelist' )
+       !
+-      READ  ( numnam_cfg, namc1d, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namc1d")-1:), namc1d, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namc1d in configuration namelist' )
+       IF(lwm) WRITE ( numond, namc1d )
+       !
+diff --git a/src/OCE/C1D/dtauvd.F90 b/src/OCE/C1D/dtauvd.F90
+index b91d1a9..37a4df6 100644
+--- a/src/OCE/C1D/dtauvd.F90
++++ b/src/OCE/C1D/dtauvd.F90
+@@ -62,10 +62,10 @@ CONTAINS
+       !
+       ierr0 = 0   ;   ierr1 = 0   ;   ierr2 = 0  ;   ierr3 = 0
+ 
+-      READ  ( numnam_ref, namc1d_uvd, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namc1d_uvd")-1:), namc1d_uvd, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namc1d_uvd in reference namelist' )
+       !
+-      READ  ( numnam_cfg, namc1d_uvd, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namc1d_uvd")-1:), namc1d_uvd, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namc1d_uvd in configuration namelist' )
+       IF(lwm) WRITE ( numond, namc1d_uvd )
+ 
+diff --git a/src/OCE/C1D/dyndmp.F90 b/src/OCE/C1D/dyndmp.F90
+index cc335dc..1755657 100644
+--- a/src/OCE/C1D/dyndmp.F90
++++ b/src/OCE/C1D/dyndmp.F90
+@@ -79,9 +79,9 @@ CONTAINS
+       NAMELIST/namc1d_dyndmp/ ln_dyndmp
+       !!----------------------------------------------------------------------
+       !
+-      READ  ( numnam_ref, namc1d_dyndmp, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namc1d_dyndmp")-1:), namc1d_dyndmp, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namc1d_dyndmp in reference namelist' )
+-      READ  ( numnam_cfg, namc1d_dyndmp, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namc1d_dyndmp")-1:), namc1d_dyndmp, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namc1d_dyndmp in configuration namelist' )
+       IF(lwm) WRITE ( numond, namc1d_dyndmp )
+       !
+diff --git a/src/OCE/CRS/crsini.F90 b/src/OCE/CRS/crsini.F90
+index 9f551b5..af72033 100644
+--- a/src/OCE/CRS/crsini.F90
++++ b/src/OCE/CRS/crsini.F90
+@@ -84,9 +84,9 @@ CONTAINS
+      ! 1. Read Namelist file
+      !---------------------------------------------------------
+      !
+-      READ  ( numnam_ref, namcrs, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namcrs")-1:), namcrs, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namcrs in reference namelist' )
+-      READ  ( numnam_cfg, namcrs, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namcrs")-1:), namcrs, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namcrs in configuration namelist' )
+       IF(lwm) WRITE ( numond, namcrs )
+ 
+diff --git a/src/OCE/DIA/dia25h.F90 b/src/OCE/DIA/dia25h.F90
+index 8c3161e..7f9ace2 100644
+--- a/src/OCE/DIA/dia25h.F90
++++ b/src/OCE/DIA/dia25h.F90
+@@ -57,9 +57,9 @@ CONTAINS
+       NAMELIST/nam_dia25h/ ln_dia25h
+       !!----------------------------------------------------------------------
+       !
+-      READ   ( numnam_ref, nam_dia25h, IOSTAT=ios, ERR= 901 )
++      READ   ( numnam_ref(INDEX(numnam_ref,"nam_dia25h")-1:), nam_dia25h, IOSTAT=ios, ERR= 901 )
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'nam_dia25h in reference namelist' )
+-      READ  ( numnam_cfg, nam_dia25h, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"nam_dia25h")-1:), nam_dia25h, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'nam_dia25h in configuration namelist' )
+       IF(lwm) WRITE ( numond, nam_dia25h )
+ 
+diff --git a/src/OCE/DIA/diadct.F90 b/src/OCE/DIA/diadct.F90
+index ae17749..1ee06f3 100644
+--- a/src/OCE/DIA/diadct.F90
++++ b/src/OCE/DIA/diadct.F90
+@@ -129,10 +129,10 @@ CONTAINS
+       NAMELIST/nam_diadct/ln_diadct, nn_dct, nn_dctwri, nn_secdebug
+       !!---------------------------------------------------------------------
+ 
+-     READ  ( numnam_ref, nam_diadct, IOSTAT = ios, ERR = 901)
++     READ  ( numnam_ref(INDEX(numnam_ref,"nam_diadct")-1:), nam_diadct, IOSTAT = ios, ERR = 901)
+ 901  IF( ios /= 0 ) CALL ctl_nam ( ios , 'nam_diadct in reference namelist' )
+ 
+-     READ  ( numnam_cfg, nam_diadct, IOSTAT = ios, ERR = 902 )
++     READ  ( numnam_cfg(INDEX(numnam_cfg,"nam_diadct")-1:), nam_diadct, IOSTAT = ios, ERR = 902 )
+ 902  IF( ios >  0 ) CALL ctl_nam ( ios , 'nam_diadct in configuration namelist' )
+      IF(lwm) WRITE ( numond, nam_diadct )
+ 
+diff --git a/src/OCE/DIA/diahsb.F90 b/src/OCE/DIA/diahsb.F90
+index b6e85fa..deb5b70 100644
+--- a/src/OCE/DIA/diahsb.F90
++++ b/src/OCE/DIA/diahsb.F90
+@@ -401,9 +401,9 @@ CONTAINS
+          WRITE(numout,*) 'dia_hsb_init : heat and salt budgets diagnostics'
+          WRITE(numout,*) '~~~~~~~~~~~~ '
+       ENDIF
+-      READ  ( numnam_ref, namhsb, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namhsb")-1:), namhsb, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namhsb in reference namelist' )
+-      READ  ( numnam_cfg, namhsb, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namhsb")-1:), namhsb, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namhsb in configuration namelist' )
+       IF(lwm) WRITE( numond, namhsb )
+ 
+diff --git a/src/OCE/DIU/diu_bulk.F90 b/src/OCE/DIU/diu_bulk.F90
+index 28e321f..9c3bcc0 100644
+--- a/src/OCE/DIU/diu_bulk.F90
++++ b/src/OCE/DIU/diu_bulk.F90
+@@ -53,9 +53,9 @@ CONTAINS
+       !!----------------------------------------------------------------------      
+ 
+       ! Read the namelist
+-      READ  ( numnam_ref, namdiu, IOSTAT = ios, ERR = 901 )
++      READ  ( numnam_ref(INDEX(numnam_ref,"namdiu")-1:), namdiu, IOSTAT = ios, ERR = 901 )
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namdiu in reference namelist' )
+-      READ  ( numnam_cfg, namdiu, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namdiu")-1:), namdiu, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namdiu in configuration namelist' )      
+       !
+       IF( ln_diurnal_only .AND. ( .NOT. ln_diurnal ) ) THEN
+diff --git a/src/OCE/DOM/closea.F90 b/src/OCE/DOM/closea.F90
+index 98386a3..d94aec8 100644
+--- a/src/OCE/DOM/closea.F90
++++ b/src/OCE/DOM/closea.F90
+@@ -76,9 +76,9 @@ CONTAINS
+       NAMELIST/namclo/ ln_maskcs, ln_mask_csundef, ln_clo_rnf
+       !!---------------------------------------------------------------------
+       !!
+-      READ  ( numnam_ref, namclo, IOSTAT = ios, ERR = 901 )
++      READ  ( numnam_ref(INDEX(numnam_ref,"namclo")-1:), namclo, IOSTAT = ios, ERR = 901 )
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namclo in reference namelist' )
+-      READ  ( numnam_cfg, namclo, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namclo")-1:), namclo, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namclo in configuration namelist' )
+       IF(lwm) WRITE ( numond, namclo )
+       !!
+diff --git a/src/OCE/DOM/domain.F90 b/src/OCE/DOM/domain.F90
+index 7735ad5..e8edbff 100644
+--- a/src/OCE/DOM/domain.F90
++++ b/src/OCE/DOM/domain.F90
+@@ -291,9 +291,9 @@ CONTAINS
+       !                       !==  namelist namdom  ==!
+       !                       !=======================!
+       !
+-      READ  ( numnam_ref, namdom, IOSTAT = ios, ERR = 903)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namdom")-1:), namdom, IOSTAT = ios, ERR = 903)
+ 903   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namdom in reference namelist' )
+-      READ  ( numnam_cfg, namdom, IOSTAT = ios, ERR = 904 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namdom")-1:), namdom, IOSTAT = ios, ERR = 904 )
+ 904   IF( ios >  0 )   CALL ctl_nam ( ios , 'namdom in configuration namelist' )
+       IF(lwm) WRITE( numond, namdom )
+       !
+@@ -335,9 +335,9 @@ CONTAINS
+       !                       !==  namelist namrun  ==!
+       !                       !=======================!
+       !
+-      READ  ( numnam_ref, namrun, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namrun")-1:), namrun, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namrun in reference namelist' )
+-      READ  ( numnam_cfg, namrun, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namrun")-1:), namrun, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namrun in configuration namelist' )
+       IF(lwm) WRITE ( numond, namrun )
+ 
+@@ -478,9 +478,9 @@ CONTAINS
+       !                       !==  namelist namtile  ==!
+       !                       !========================!
+       !
+-      READ  ( numnam_ref, namtile, IOSTAT = ios, ERR = 905 )
++      READ  ( numnam_ref(INDEX(numnam_ref,"namtile")-1:), namtile, IOSTAT = ios, ERR = 905 )
+ 905   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namtile in reference namelist' )
+-      READ  ( numnam_cfg, namtile, IOSTAT = ios, ERR = 906 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namtile")-1:), namtile, IOSTAT = ios, ERR = 906 )
+ 906   IF( ios >  0 )   CALL ctl_nam ( ios , 'namtile in configuration namelist' )
+       IF(lwm) WRITE( numond, namtile )
+ 
+@@ -504,9 +504,9 @@ CONTAINS
+       !                       !==  namelist namnc4  ==!   NetCDF 4 case   ("key_netcdf4" defined)
+       !                       !=======================!
+       !
+-      READ  ( numnam_ref, namnc4, IOSTAT = ios, ERR = 907)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namnc4")-1:), namnc4, IOSTAT = ios, ERR = 907)
+ 907   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namnc4 in reference namelist' )
+-      READ  ( numnam_cfg, namnc4, IOSTAT = ios, ERR = 908 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namnc4")-1:), namnc4, IOSTAT = ios, ERR = 908 )
+ 908   IF( ios >  0 )   CALL ctl_nam ( ios , 'namnc4 in configuration namelist' )
+       IF(lwm) WRITE( numond, namnc4 )
+ 
+diff --git a/src/OCE/DOM/dommsk.F90 b/src/OCE/DOM/dommsk.F90
+index 362b11e..aae0f9b 100644
+--- a/src/OCE/DOM/dommsk.F90
++++ b/src/OCE/DOM/dommsk.F90
+@@ -94,9 +94,9 @@ CONTAINS
+          &             ln_vol, nn_volctl, nn_rimwidth
+       !!---------------------------------------------------------------------
+       !
+-      READ  ( numnam_ref, namlbc, IOSTAT = ios, ERR = 901 )
++      READ  ( numnam_ref(INDEX(numnam_ref,"namlbc")-1:), namlbc, IOSTAT = ios, ERR = 901 )
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namlbc in reference namelist' )
+-      READ  ( numnam_cfg, namlbc, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namlbc")-1:), namlbc, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namlbc in configuration namelist' )
+       IF(lwm) WRITE ( numond, namlbc )
+       
+@@ -131,9 +131,9 @@ CONTAINS
+       END_2D
+       !
+       ! Mask corrections for bdy (read in mppini2)
+-      READ  ( numnam_ref, nambdy, IOSTAT = ios, ERR = 903)
++      READ  ( numnam_ref(INDEX(numnam_ref,"nambdy")-1:), nambdy, IOSTAT = ios, ERR = 903)
+ 903   IF( ios /= 0 )   CALL ctl_nam ( ios , 'nambdy in reference namelist' )
+-      READ  ( numnam_cfg, nambdy, IOSTAT = ios, ERR = 904 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"nambdy")-1:), nambdy, IOSTAT = ios, ERR = 904 )
+ 904   IF( ios >  0 )   CALL ctl_nam ( ios , 'nambdy in configuration namelist' )
+       ! ------------------------
+       IF ( ln_bdy .AND. ln_mask_file ) THEN
+diff --git a/src/OCE/DOM/domqco.F90 b/src/OCE/DOM/domqco.F90
+index 92f5ae0..b5fcb4b 100644
+--- a/src/OCE/DOM/domqco.F90
++++ b/src/OCE/DOM/domqco.F90
+@@ -236,9 +236,9 @@ CONTAINS
+          &              nn_vvl_interp
+       !!----------------------------------------------------------------------
+       !
+-      READ  ( numnam_ref, nam_vvl, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"nam_vvl")-1:), nam_vvl, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'nam_vvl in reference namelist' )
+-      READ  ( numnam_cfg, nam_vvl, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"nam_vvl")-1:), nam_vvl, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 ) CALL ctl_nam ( ios , 'nam_vvl in configuration namelist' )
+       IF(lwm) WRITE ( numond, nam_vvl )
+       !
+diff --git a/src/OCE/DOM/domvvl.F90 b/src/OCE/DOM/domvvl.F90
+index 70fc465..a7ddada 100644
+--- a/src/OCE/DOM/domvvl.F90
++++ b/src/OCE/DOM/domvvl.F90
+@@ -1032,9 +1032,9 @@ CONTAINS
+          &              nn_vvl_interp
+       !!----------------------------------------------------------------------
+       !
+-      READ  ( numnam_ref, nam_vvl, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"nam_vvl")-1:), nam_vvl, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'nam_vvl in reference namelist' )
+-      READ  ( numnam_cfg, nam_vvl, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"nam_vvl")-1:), nam_vvl, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 ) CALL ctl_nam ( ios , 'nam_vvl in configuration namelist' )
+       IF(lwm) WRITE ( numond, nam_vvl )
+       !
+diff --git a/src/OCE/DOM/dtatsd.F90 b/src/OCE/DOM/dtatsd.F90
+index 8e35fde..348ca4b 100644
+--- a/src/OCE/DOM/dtatsd.F90
++++ b/src/OCE/DOM/dtatsd.F90
+@@ -67,9 +67,9 @@ CONTAINS
+       !  Initialisation
+       ierr0 = 0  ;  ierr1 = 0  ;  ierr2 = 0  ;  ierr3 = 0
+       !
+-      READ  ( numnam_ref, namtsd, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namtsd")-1:), namtsd, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namtsd in reference namelist' )
+-      READ  ( numnam_cfg, namtsd, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namtsd")-1:), namtsd, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namtsd in configuration namelist' )
+       IF(lwm) WRITE ( numond, namtsd )
+ 
+diff --git a/src/OCE/DYN/dynadv.F90 b/src/OCE/DYN/dynadv.F90
+index 7271ec7..faf293b 100644
+--- a/src/OCE/DYN/dynadv.F90
++++ b/src/OCE/DYN/dynadv.F90
+@@ -108,9 +108,9 @@ CONTAINS
+          WRITE(numout,*) '~~~~~~~~~~~~'
+       ENDIF
+       !
+-      READ  ( numnam_ref, namdyn_adv, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namdyn_adv")-1:), namdyn_adv, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namdyn_adv in reference namelist' )
+-      READ  ( numnam_cfg, namdyn_adv, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namdyn_adv")-1:), namdyn_adv, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namdyn_adv in configuration namelist' )
+       IF(lwm) WRITE ( numond, namdyn_adv )
+ 
+diff --git a/src/OCE/DYN/dynhpg.F90 b/src/OCE/DYN/dynhpg.F90
+index 0214ce4..2a4ccac 100644
+--- a/src/OCE/DYN/dynhpg.F90
++++ b/src/OCE/DYN/dynhpg.F90
+@@ -162,10 +162,10 @@ CONTAINS
+          &                 ln_hpg_djc_vnh, ln_hpg_djc_vnv
+       !!----------------------------------------------------------------------
+       !
+-      READ  ( numnam_ref, namdyn_hpg, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namdyn_hpg")-1:), namdyn_hpg, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namdyn_hpg in reference namelist' )
+       !
+-      READ  ( numnam_cfg, namdyn_hpg, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namdyn_hpg")-1:), namdyn_hpg, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namdyn_hpg in configuration namelist' )
+       IF(lwm) WRITE ( numond, namdyn_hpg )
+       !
+diff --git a/src/OCE/DYN/dynspg.F90 b/src/OCE/DYN/dynspg.F90
+index 2c46cf1..aa239d6 100644
+--- a/src/OCE/DYN/dynspg.F90
++++ b/src/OCE/DYN/dynspg.F90
+@@ -205,10 +205,10 @@ CONTAINS
+          WRITE(numout,*) '~~~~~~~~~~~~'
+       ENDIF
+       !
+-      READ  ( numnam_ref, namdyn_spg, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namdyn_spg")-1:), namdyn_spg, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namdyn_spg in reference namelist' )
+       !
+-      READ  ( numnam_cfg, namdyn_spg, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namdyn_spg")-1:), namdyn_spg, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namdyn_spg in configuration namelist' )
+       IF(lwm) WRITE ( numond, namdyn_spg )
+       !
+diff --git a/src/OCE/DYN/dynvor.F90 b/src/OCE/DYN/dynvor.F90
+index ee767e9..a14a627 100644
+--- a/src/OCE/DYN/dynvor.F90
++++ b/src/OCE/DYN/dynvor.F90
+@@ -946,9 +946,9 @@ CONTAINS
+          WRITE(numout,*) '~~~~~~~~~~~~'
+       ENDIF
+       !
+-      READ  ( numnam_ref, namdyn_vor, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namdyn_vor")-1:), namdyn_vor, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namdyn_vor in reference namelist' )
+-      READ  ( numnam_cfg, namdyn_vor, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namdyn_vor")-1:), namdyn_vor, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namdyn_vor in configuration namelist' )
+       IF(lwm) WRITE ( numond, namdyn_vor )
+       !
+diff --git a/src/OCE/DYN/wet_dry.F90 b/src/OCE/DYN/wet_dry.F90
+index 9420e8c..0acc340 100644
+--- a/src/OCE/DYN/wet_dry.F90
++++ b/src/OCE/DYN/wet_dry.F90
+@@ -74,9 +74,9 @@ CONTAINS
+          &             ln_wd_dl_bc, ln_wd_dl_rmp, rn_wd_sbcdep,rn_wd_sbcfra
+       !!----------------------------------------------------------------------
+       !
+-      READ  ( numnam_ref, namwad, IOSTAT = ios, ERR = 905)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namwad")-1:), namwad, IOSTAT = ios, ERR = 905)
+ 905   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namwad in reference namelist' ) 
+-      READ  ( numnam_cfg, namwad, IOSTAT = ios, ERR = 906)
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namwad")-1:), namwad, IOSTAT = ios, ERR = 906)
+ 906   IF( ios >  0 )   CALL ctl_nam ( ios , 'namwad in configuration namelist' )
+       IF(lwm) WRITE ( numond, namwad )
+       !
+diff --git a/src/OCE/FLO/floats.F90 b/src/OCE/FLO/floats.F90
+index 3c3b012..e60d47e 100644
+--- a/src/OCE/FLO/floats.F90
++++ b/src/OCE/FLO/floats.F90
+@@ -88,10 +88,10 @@ CONTAINS
+       IF(lwp) WRITE(numout,*) 'flo_stp : call floats routine '
+       IF(lwp) WRITE(numout,*) '~~~~~~~'
+ 
+-      READ  ( numnam_ref, namflo, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namflo")-1:), namflo, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namflo in reference namelist' )
+ 
+-      READ  ( numnam_cfg, namflo, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namflo")-1:), namflo, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namflo in configuration namelist' )
+       IF(lwm) WRITE ( numond, namflo )
+       !
+diff --git a/src/OCE/ICB/icbini.F90 b/src/OCE/ICB/icbini.F90
+index 10e8404..7731845 100644
+--- a/src/OCE/ICB/icbini.F90
++++ b/src/OCE/ICB/icbini.F90
+@@ -431,9 +431,9 @@ CONTAINS
+       ENDIF
+ #endif   
+       !                             !==  read namelist  ==!
+-      READ  ( numnam_ref, namberg, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namberg")-1:), namberg, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 ) CALL ctl_nam ( ios , 'namberg in reference namelist' )
+-      READ  ( numnam_cfg, namberg, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namberg")-1:), namberg, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 ) CALL ctl_nam ( ios , 'namberg in configuration namelist' )
+       IF(lwm) WRITE ( numond, namberg )
+       !
+diff --git a/src/OCE/ISF/isfstp.F90 b/src/OCE/ISF/isfstp.F90
+index e774910..e1c3ce9 100644
+--- a/src/OCE/ISF/isfstp.F90
++++ b/src/OCE/ISF/isfstp.F90
+@@ -302,10 +302,10 @@ CONTAINS
+          &             rn_isfpar_bg03_gt0
+       !!----------------------------------------------------------------------
+       !
+-      READ  ( numnam_ref, namisf, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namisf")-1:), namisf, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namisf in reference namelist' )
+       !
+-      READ  ( numnam_cfg, namisf, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namisf")-1:), namisf, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namisf in configuration namelist' )
+       IF(lwm) WRITE ( numond, namisf )
+ 
+diff --git a/src/OCE/LBC/lbc_lnk_pt2pt_generic.h90 b/src/OCE/LBC/lbc_lnk_pt2pt_generic.h90
+index c832081..8fb1d5c 100644
+--- a/src/OCE/LBC/lbc_lnk_pt2pt_generic.h90
++++ b/src/OCE/LBC/lbc_lnk_pt2pt_generic.h90
+@@ -299,3 +299,4 @@
+       END DO   ;   END DO   ;   END DO   ;   END DO   ;   END DO
+    END SELECT
+ #endif
++
+diff --git a/src/OCE/LBC/lbclnk.F90 b/src/OCE/LBC/lbclnk.F90
+index be65cdc..b19d999 100644
+--- a/src/OCE/LBC/lbclnk.F90
++++ b/src/OCE/LBC/lbclnk.F90
+@@ -209,3 +209,4 @@ CONTAINS
+ #     undef ROUTINE_LNK
+ 
+ END MODULE lbclnk
++
+diff --git a/src/OCE/LBC/mppini.F90 b/src/OCE/LBC/mppini.F90
+index 537dcf5..c39a23d 100644
+--- a/src/OCE/LBC/mppini.F90
++++ b/src/OCE/LBC/mppini.F90
+@@ -160,9 +160,9 @@ CONTAINS
+       !  0. read namelists parameters
+       ! -----------------------------------
+       !
+-      READ  ( numnam_ref, nammpp, IOSTAT = ios, ERR = 901 )
++      READ  ( numnam_ref(INDEX(numnam_ref,"nammpp")-1:), nammpp, IOSTAT = ios, ERR = 901 )
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'nammpp in reference namelist' )
+-      READ  ( numnam_cfg, nammpp, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"nammpp")-1:), nammpp, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'nammpp in configuration namelist' )
+       !
+       nn_hls = MAX(1, nn_hls)   ! nn_hls must be > 0
+@@ -186,9 +186,9 @@ CONTAINS
+       jpjglo = Nj0glo + 2 * nn_hls
+       !
+       ! do we need to take into account bdy_msk?
+-      READ  ( numnam_ref, nambdy, IOSTAT = ios, ERR = 903)
++      READ  ( numnam_ref(INDEX(numnam_ref,"nambdy")-1:), nambdy, IOSTAT = ios, ERR = 903)
+ 903   IF( ios /= 0 )   CALL ctl_nam ( ios , 'nambdy in reference namelist (mppini)' )
+-      READ  ( numnam_cfg, nambdy, IOSTAT = ios, ERR = 904 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"nambdy")-1:), nambdy, IOSTAT = ios, ERR = 904 )
+ 904   IF( ios >  0 )   CALL ctl_nam ( ios , 'nambdy in configuration namelist (mppini)' )
+       !
+       IF(               ln_read_cfg ) CALL iom_open( cn_domcfg,    numbot )
+diff --git a/src/OCE/LDF/ldfdyn.F90 b/src/OCE/LDF/ldfdyn.F90
+index 66c797b..3c45c5e 100644
+--- a/src/OCE/LDF/ldfdyn.F90
++++ b/src/OCE/LDF/ldfdyn.F90
+@@ -119,10 +119,10 @@ CONTAINS
+          &                 rn_csmc      , rn_minfac    , rn_maxfac                           ! Smagorinsky settings
+       !!----------------------------------------------------------------------
+       !
+-      READ  ( numnam_ref, namdyn_ldf, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namdyn_ldf")-1:), namdyn_ldf, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namdyn_ldf in reference namelist' )
+ 
+-      READ  ( numnam_cfg, namdyn_ldf, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namdyn_ldf")-1:), namdyn_ldf, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namdyn_ldf in configuration namelist' )
+       IF(lwm) WRITE ( numond, namdyn_ldf )
+ 
+diff --git a/src/OCE/LDF/ldftra.F90 b/src/OCE/LDF/ldftra.F90
+index 510166d..aa6aedc 100644
+--- a/src/OCE/LDF/ldftra.F90
++++ b/src/OCE/LDF/ldftra.F90
+@@ -152,9 +152,9 @@ CONTAINS
+       !  Choice of lateral tracer physics
+       ! =================================
+       !
+-      READ  ( numnam_ref, namtra_ldf, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namtra_ldf")-1:), namtra_ldf, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namtra_ldf in reference namelist' )
+-      READ  ( numnam_cfg, namtra_ldf, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namtra_ldf")-1:), namtra_ldf, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namtra_ldf in configuration namelist' )
+       IF(lwm) WRITE( numond, namtra_ldf )
+       !
+@@ -504,10 +504,10 @@ CONTAINS
+          WRITE(numout,*) '~~~~~~~~~~~~ '
+       ENDIF
+       !
+-      READ  ( numnam_ref, namtra_eiv, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namtra_eiv")-1:), namtra_eiv, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namtra_eiv in reference namelist' )
+       !
+-      READ  ( numnam_cfg, namtra_eiv, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namtra_eiv")-1:), namtra_eiv, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namtra_eiv in configuration namelist' )
+       IF(lwm)  WRITE ( numond, namtra_eiv )
+ 
+diff --git a/src/OCE/OBS/diaobs.F90 b/src/OCE/OBS/diaobs.F90
+index 7ee22c3..7e03ce5 100644
+--- a/src/OCE/OBS/diaobs.F90
++++ b/src/OCE/OBS/diaobs.F90
+@@ -212,9 +212,9 @@ CONTAINS
+       CALL fin_date( rn_dobsend )
+ 
+       ! Read namelist namobs : control observation diagnostics
+-      READ  ( numnam_ref, namobs, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namobs")-1:), namobs, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namobs in reference namelist' )
+-      READ  ( numnam_cfg, namobs, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namobs")-1:), namobs, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namobs in configuration namelist' )
+       IF(lwm) WRITE ( numond, namobs )
+ 
+diff --git a/src/OCE/SBC/sbcapr.F90 b/src/OCE/SBC/sbcapr.F90
+index ec79264..d5c0fed 100644
+--- a/src/OCE/SBC/sbcapr.F90
++++ b/src/OCE/SBC/sbcapr.F90
+@@ -67,10 +67,10 @@ CONTAINS
+       !!
+       NAMELIST/namsbc_apr/ cn_dir, sn_apr, ln_ref_apr, rn_pref, ln_apr_obc
+       !!----------------------------------------------------------------------
+-      READ  ( numnam_ref, namsbc_apr, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namsbc_apr")-1:), namsbc_apr, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namsbc_apr in reference namelist' )
+ 
+-      READ  ( numnam_cfg, namsbc_apr, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namsbc_apr")-1:), namsbc_apr, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namsbc_apr in configuration namelist' )
+       IF(lwm) WRITE ( numond, namsbc_apr )
+       !
+diff --git a/src/OCE/SBC/sbcblk.F90 b/src/OCE/SBC/sbcblk.F90
+index 035a251..46374b2 100644
+--- a/src/OCE/SBC/sbcblk.F90
++++ b/src/OCE/SBC/sbcblk.F90
+@@ -241,10 +241,10 @@ CONTAINS
+ #endif
+       !
+       !                             !** read bulk namelist
+-      READ  ( numnam_ref, namsbc_blk, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namsbc_blk")-1:), namsbc_blk, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namsbc_blk in reference namelist' )
+       !
+-      READ  ( numnam_cfg, namsbc_blk, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namsbc_blk")-1:), namsbc_blk, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namsbc_blk in configuration namelist' )
+       !
+       IF(lwm) WRITE( numond, namsbc_blk )
+diff --git a/src/OCE/SBC/sbccpl.F90 b/src/OCE/SBC/sbccpl.F90
+index fb6f2a2..3b473fe 100644
+--- a/src/OCE/SBC/sbccpl.F90
++++ b/src/OCE/SBC/sbccpl.F90
+@@ -291,10 +291,10 @@ CONTAINS
+       !      Namelist informations       !
+       ! ================================ !
+       !
+-      READ  ( numnam_ref, namsbc_cpl, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namsbc_cpl")-1:), namsbc_cpl, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namsbc_cpl in reference namelist' )
+       !
+-      READ  ( numnam_cfg, namsbc_cpl, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namsbc_cpl")-1:), namsbc_cpl, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namsbc_cpl in configuration namelist' )
+       IF(lwm) WRITE ( numond, namsbc_cpl )
+       !
+diff --git a/src/OCE/SBC/sbcflx.F90 b/src/OCE/SBC/sbcflx.F90
+index c9ad4fc..39dd78f 100644
+--- a/src/OCE/SBC/sbcflx.F90
++++ b/src/OCE/SBC/sbcflx.F90
+@@ -93,10 +93,10 @@ CONTAINS
+       !
+       IF( kt == nit000 ) THEN                ! First call kt=nit000
+          ! set file information
+-         READ  ( numnam_ref, namsbc_flx, IOSTAT = ios, ERR = 901)
++         READ  ( numnam_ref(INDEX(numnam_ref,"namsbc_flx")-1:), namsbc_flx, IOSTAT = ios, ERR = 901)
+ 901      IF( ios /= 0 )   CALL ctl_nam ( ios , 'namsbc_flx in reference namelist' )
+ 
+-         READ  ( numnam_cfg, namsbc_flx, IOSTAT = ios, ERR = 902 )
++         READ  ( numnam_cfg(INDEX(numnam_cfg,"namsbc_flx")-1:), namsbc_flx, IOSTAT = ios, ERR = 902 )
+ 902      IF( ios >  0 )   CALL ctl_nam ( ios , 'namsbc_flx in configuration namelist' )
+          IF(lwm) WRITE ( numond, namsbc_flx )
+          !
+diff --git a/src/OCE/SBC/sbcfwb.F90 b/src/OCE/SBC/sbcfwb.F90
+index 91754a5..fb7b2c0 100644
+--- a/src/OCE/SBC/sbcfwb.F90
++++ b/src/OCE/SBC/sbcfwb.F90
+@@ -87,9 +87,9 @@ CONTAINS
+       !!----------------------------------------------------------------------
+       !
+       IF( kt == nit000 ) THEN
+-         READ( numnam_ref, namsbc_fwb, IOSTAT = ios, ERR = 901 )
++         READ( numnam_ref(INDEX(numnam_ref,"namsbc_fwb")-1:), namsbc_fwb, IOSTAT = ios, ERR = 901 )
+ 901      IF( ios /= 0 ) CALL ctl_nam( ios, 'namsbc_fwb in reference namelist'     )
+-         READ( numnam_cfg, namsbc_fwb, IOSTAT = ios, ERR = 902 )
++         READ( numnam_cfg(INDEX(numnam_cfg,"namsbc_fwb")-1:), namsbc_fwb, IOSTAT = ios, ERR = 902 )
+ 902      IF( ios >  0 ) CALL ctl_nam( ios, 'namsbc_fwb in configuration namelist' )
+          IF(lwm) WRITE( numond, namsbc_fwb )
+          IF(lwp) THEN
+diff --git a/src/OCE/SBC/sbcice_cice.F90 b/src/OCE/SBC/sbcice_cice.F90
+index 07e7c90..64d8c96 100644
+--- a/src/OCE/SBC/sbcice_cice.F90
++++ b/src/OCE/SBC/sbcice_cice.F90
+@@ -748,10 +748,10 @@ taum(:,:)=(1.0-fr_i(:,:))*taum(:,:)+fr_i(:,:)*SQRT(ztmp1*ztmp1 + ztmp2*ztmp2)
+          sn_bot4 = FLD_N( 'botmeltn4_1m' ,    -1.    ,  'botmeltn4' ,  .true.    , .true.  ,  ' yearly'  , ''       , ''         ,  ''    )
+          sn_bot5 = FLD_N( 'botmeltn5_1m' ,    -1.    ,  'botmeltn5' ,  .true.    , .true.  ,  ' yearly'  , ''       , ''         ,  ''    )
+ 
+-         READ  ( numnam_ref, namsbc_cice, IOSTAT = ios, ERR = 901)
++         READ  ( numnam_ref(INDEX(numnam_ref,"namsbc_cice")-1:), namsbc_cice, IOSTAT = ios, ERR = 901)
+ 901      IF( ios /= 0 )   CALL ctl_nam ( ios , 'namsbc_cice in reference namelist' )
+ 
+-         READ  ( numnam_cfg, namsbc_cice, IOSTAT = ios, ERR = 902 )
++         READ  ( numnam_cfg(INDEX(numnam_cfg,"namsbc_cice")-1:), namsbc_cice, IOSTAT = ios, ERR = 902 )
+ 902      IF( ios >  0 )   CALL ctl_nam ( ios , 'namsbc_cice in configuration namelist' )
+          IF(lwm) WRITE ( numond, namsbc_cice )
+ 
+diff --git a/src/OCE/SBC/sbcice_if.F90 b/src/OCE/SBC/sbcice_if.F90
+index d5acb29..04306f2 100644
+--- a/src/OCE/SBC/sbcice_if.F90
++++ b/src/OCE/SBC/sbcice_if.F90
+@@ -76,10 +76,10 @@ CONTAINS
+       IF( kt == nit000 ) THEN                   !  First call kt=nit000  !
+          !                                      ! ====================== !
+          ! set file information
+-         READ  ( numnam_ref, namsbc_iif, IOSTAT = ios, ERR = 901)
++         READ  ( numnam_ref(INDEX(numnam_ref,"namsbc_iif")-1:), namsbc_iif, IOSTAT = ios, ERR = 901)
+ 901      IF( ios /= 0 )   CALL ctl_nam ( ios , 'namsbc_iif in reference namelist' )
+ 
+-         READ  ( numnam_cfg, namsbc_iif, IOSTAT = ios, ERR = 902 )
++         READ  ( numnam_cfg(INDEX(numnam_cfg,"namsbc_iif")-1:), namsbc_iif, IOSTAT = ios, ERR = 902 )
+ 902      IF( ios >  0 )   CALL ctl_nam ( ios , 'namsbc_iif in configuration namelist' )
+          IF(lwm) WRITE ( numond, namsbc_iif )
+ 
+diff --git a/src/OCE/SBC/sbcmod.F90 b/src/OCE/SBC/sbcmod.F90
+index 65f4495..a24ae04 100644
+--- a/src/OCE/SBC/sbcmod.F90
++++ b/src/OCE/SBC/sbcmod.F90
+@@ -115,9 +115,9 @@ CONTAINS
+       ENDIF
+       !
+       !                       !**  read Surface Module namelist
+-      READ  ( numnam_ref, namsbc, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namsbc")-1:), namsbc, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namsbc in reference namelist' )
+-      READ  ( numnam_cfg, namsbc, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namsbc")-1:), namsbc, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namsbc in configuration namelist' )
+       IF(lwm) WRITE( numond, namsbc )
+       !
+diff --git a/src/OCE/SBC/sbcrnf.F90 b/src/OCE/SBC/sbcrnf.F90
+index 4ab71be..32ddd72 100644
+--- a/src/OCE/SBC/sbcrnf.F90
++++ b/src/OCE/SBC/sbcrnf.F90
+@@ -272,10 +272,10 @@ CONTAINS
+       !                                   !   Namelist
+       !                                   ! ============
+       !
+-      READ  ( numnam_ref, namsbc_rnf, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namsbc_rnf")-1:), namsbc_rnf, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namsbc_rnf in reference namelist' )
+ 
+-      READ  ( numnam_cfg, namsbc_rnf, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namsbc_rnf")-1:), namsbc_rnf, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namsbc_rnf in configuration namelist' )
+       IF(lwm) WRITE ( numond, namsbc_rnf )
+       !
+diff --git a/src/OCE/SBC/sbcssr.F90 b/src/OCE/SBC/sbcssr.F90
+index d841f59..32621c6 100644
+--- a/src/OCE/SBC/sbcssr.F90
++++ b/src/OCE/SBC/sbcssr.F90
+@@ -180,10 +180,10 @@ CONTAINS
+          WRITE(numout,*) '~~~~~~~ '
+       ENDIF
+       ! 
+-      READ  ( numnam_ref, namsbc_ssr, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namsbc_ssr")-1:), namsbc_ssr, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namsbc_ssr in reference namelist' )
+ 
+-      READ  ( numnam_cfg, namsbc_ssr, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namsbc_ssr")-1:), namsbc_ssr, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namsbc_ssr in configuration namelist' )
+       IF(lwm) WRITE ( numond, namsbc_ssr )
+ 
+diff --git a/src/OCE/SBC/sbcwave.F90 b/src/OCE/SBC/sbcwave.F90
+index a9435f9..26d727b 100644
+--- a/src/OCE/SBC/sbcwave.F90
++++ b/src/OCE/SBC/sbcwave.F90
+@@ -358,10 +358,10 @@ CONTAINS
+          WRITE(numout,*) '~~~~~~~~~~~~~ '
+       ENDIF
+       !
+-      READ  ( numnam_ref, namsbc_wave, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namsbc_wave")-1:), namsbc_wave, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namsbc_wave in reference namelist')
+ 
+-      READ  ( numnam_cfg, namsbc_wave, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namsbc_wave")-1:), namsbc_wave, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namsbc_wave in configuration namelist' )
+       IF(lwm) WRITE ( numond, namsbc_wave )
+       !
+diff --git a/src/OCE/STO/stopar.F90 b/src/OCE/STO/stopar.F90
+index 2ba74a5..bd64d05 100644
+--- a/src/OCE/STO/stopar.F90
++++ b/src/OCE/STO/stopar.F90
+@@ -262,10 +262,10 @@ CONTAINS
+       INTEGER  ::   ios                 ! Local integer output status for namelist read
+ 
+       ! Read namsto namelist : stochastic parameterization
+-      READ  ( numnam_ref, namsto, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namsto")-1:), namsto, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 ) CALL ctl_nam ( ios , 'namsto in reference namelist' )
+ 
+-      READ  ( numnam_cfg, namsto, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namsto")-1:), namsto, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 ) CALL ctl_nam ( ios , 'namsto in configuration namelist' )
+       IF(lwm) WRITE ( numond, namsto )
+ 
+diff --git a/src/OCE/TDE/tide_mod.F90 b/src/OCE/TDE/tide_mod.F90
+index 60665cd..cac9c31 100644
+--- a/src/OCE/TDE/tide_mod.F90
++++ b/src/OCE/TDE/tide_mod.F90
+@@ -131,10 +131,10 @@ CONTAINS
+       ! typically do not appear in namelist_ref or namelist_cfg
+       sn_tide_cnames(:) = ''
+       ! Read Namelist nam_tide
+-      READ  ( numnam_ref, nam_tide, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"nam_tide")-1:), nam_tide, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'nam_tide in reference namelist' )
+       !
+-      READ  ( numnam_cfg, nam_tide, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"nam_tide")-1:), nam_tide, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'nam_tide in configuration namelist' )
+       IF(lwm) WRITE ( numond, nam_tide )
+       !
+diff --git a/src/OCE/TRA/eosbn2.F90 b/src/OCE/TRA/eosbn2.F90
+index e13b4c9..115aa40 100644
+--- a/src/OCE/TRA/eosbn2.F90
++++ b/src/OCE/TRA/eosbn2.F90
+@@ -1349,10 +1349,10 @@ CONTAINS
+          &                                             rn_lambda2, rn_mu2, rn_nu
+       !!----------------------------------------------------------------------
+       !
+-      READ  ( numnam_ref, nameos, IOSTAT = ios, ERR = 901 )
++      READ  ( numnam_ref(INDEX(numnam_ref,"nameos")-1:), nameos, IOSTAT = ios, ERR = 901 )
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'nameos in reference namelist' )
+       !
+-      READ  ( numnam_cfg, nameos, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"nameos")-1:), nameos, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'nameos in configuration namelist' )
+       IF(lwm) WRITE( numond, nameos )
+       !
+diff --git a/src/OCE/TRA/traadv.F90 b/src/OCE/TRA/traadv.F90
+index 2c6dcdd..b7bc138 100644
+--- a/src/OCE/TRA/traadv.F90
++++ b/src/OCE/TRA/traadv.F90
+@@ -233,10 +233,10 @@ CONTAINS
+       !!----------------------------------------------------------------------
+       !
+       !                                !==  Namelist  ==!
+-      READ  ( numnam_ref, namtra_adv, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namtra_adv")-1:), namtra_adv, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namtra_adv in reference namelist' )
+       !
+-      READ  ( numnam_cfg, namtra_adv, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namtra_adv")-1:), namtra_adv, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namtra_adv in configuration namelist' )
+       IF(lwm) WRITE( numond, namtra_adv )
+       !
+diff --git a/src/OCE/TRA/traadv_fct.F90 b/src/OCE/TRA/traadv_fct.F90
+index 878841a..38a0610 100644
+--- a/src/OCE/TRA/traadv_fct.F90
++++ b/src/OCE/TRA/traadv_fct.F90
+@@ -411,18 +411,24 @@ CONTAINS
+       REAL(wp) ::   zpos, zneg, zbt, zbig                 ! local scalars
+       REAL(wp) ::   zup, zdo                              !   -      -
+       REAL(wp), DIMENSION(A2D(nn_hls),jpk) :: zbetup, zbetdo, zbup, zbdo
++      ! !增加中间变量 减少访存
++      ! REAL(dp) :: pbef_single,paft_single
+       !!----------------------------------------------------------------------
+       !
+       zbig = HUGE(1._wp)
+       zbetup(:,:,jpk) = zbig   ;   zbetdo(:,:,jpk) = zbig
+ 
++      
+       ! Search local extrema
+       ! --------------------
+       ! max/min of pbef & paft with large negative/positive value (-/+zbig) inside land
++      !编译器未自动向量化
+       DO_3D( nn_hls, nn_hls, nn_hls, nn_hls, 1, jpk )
++         
+          IF( tmask(ji,jj,jk) == 1._wp ) THEN
+             zbup(ji,jj,jk) = MAX( pbef(ji,jj,jk), paft(ji,jj,jk) )
+             zbdo(ji,jj,jk) = MIN( pbef(ji,jj,jk), paft(ji,jj,jk) )
++           
+          ELSE
+             zbup(ji,jj,jk) = -zbig
+             zbdo(ji,jj,jk) =  zbig
+@@ -431,9 +437,11 @@ CONTAINS
+ 
+       DO jk = 1, jpkm1
+          ikm1 = MAX(jk-1,1)
++         
+          DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
+ 
+             ! search maximum in neighbourhood
++            
+             zup = MAX(  zbup(ji  ,jj  ,jk  ),   &
+                &        zbup(ji-1,jj  ,jk  ), zbup(ji+1,jj  ,jk  ),   &
+                &        zbup(ji  ,jj-1,jk  ), zbup(ji  ,jj+1,jk  ),   &
+@@ -498,7 +506,7 @@ CONTAINS
+       INTEGER :: ji, jj, jk   ! dummy loop integers
+       REAL(wp),DIMENSION(jpi,jpj,jpk) :: zwd, zwi, zws, zwrm, zwt
+       !!----------------------------------------------------------------------
+-
++      !未自动向量化
+       DO_3D( 1, 1, 1, 1, 3, jpkm1 )       !==  build the three diagonal matrix  ==!
+          zwd (ji,jj,jk) = 4._wp
+          zwi (ji,jj,jk) = 1._wp
+@@ -583,6 +591,7 @@ CONTAINS
+          zwd(:,:,2) = 1._wp  ;  zwi(:,:,2) = 0._wp  ;  zws(:,:,2) = 0._wp  ;  zwrm(:,:,2) = 0._wp
+       END IF
+       !
++      !未自动向量化
+       DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )              ! 2nd order centered at top & bottom
+          ikt = mikt(ji,jj) + 1            ! w-point below the 1st  wet point
+          ikb = MAX(mbkt(ji,jj), 2)        !     -   above the last wet point
+@@ -600,6 +609,7 @@ CONTAINS
+       !
+       !                       !==  tridiagonal solver  ==!
+       !
++      !未自动向量化
+       DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )           !* 1st recurrence:   Tk = Dk - Ik Sk-1 / Tk-1
+          zwt(ji,jj,2) = zwd(ji,jj,2)
+       END_2D
+@@ -607,6 +617,7 @@ CONTAINS
+          zwt(ji,jj,jk) = zwd(ji,jj,jk) - zwi(ji,jj,jk) * zws(ji,jj,jk-1) /zwt(ji,jj,jk-1)
+       END_3D
+       !
++      !未自动向量化
+       DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )           !* 2nd recurrence:    Zk = Yk - Ik / Tk-1  Zk-1
+          pt_out(ji,jj,2) = zwrm(ji,jj,2)
+       END_2D
+@@ -656,6 +667,7 @@ CONTAINS
+       !
+       kstart =  1  + klev
+       !
++      !未自动向量化
+       DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )                         !* 1st recurrence:   Tk = Dk - Ik Sk-1 / Tk-1
+          zwt(ji,jj,kstart) = pD(ji,jj,kstart)
+       END_2D
+@@ -663,6 +675,7 @@ CONTAINS
+          zwt(ji,jj,jk) = pD(ji,jj,jk) - pL(ji,jj,jk) * pU(ji,jj,jk-1) /zwt(ji,jj,jk-1)
+       END_3D
+       !
++      !未自动向量化
+       DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )                        !* 2nd recurrence:    Zk = Yk - Ik / Tk-1  Zk-1
+          pt_out(ji,jj,kstart) = pRHS(ji,jj,kstart)
+       END_2D
+@@ -1008,3 +1021,4 @@ CONTAINS
+ #endif
+    !!======================================================================
+ END MODULE traadv_fct
++
+diff --git a/src/OCE/TRA/trabbc.F90 b/src/OCE/TRA/trabbc.F90
+index 12d2091..7e1e711 100644
+--- a/src/OCE/TRA/trabbc.F90
++++ b/src/OCE/TRA/trabbc.F90
+@@ -136,10 +136,10 @@ CONTAINS
+       NAMELIST/nambbc/ln_trabbc, nn_geoflx, rn_geoflx_cst, sn_qgh, cn_dir
+       !!----------------------------------------------------------------------
+       !
+-      READ  ( numnam_ref, nambbc, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"nambbc")-1:), nambbc, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'nambbc in reference namelist' )
+       !
+-      READ  ( numnam_cfg, nambbc, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"nambbc")-1:), nambbc, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'nambbc in configuration namelist' )
+       IF(lwm) WRITE ( numond, nambbc )
+       !
+diff --git a/src/OCE/TRA/trabbl.F90 b/src/OCE/TRA/trabbl.F90
+index f8afe44..f02dcb6 100644
+--- a/src/OCE/TRA/trabbl.F90
++++ b/src/OCE/TRA/trabbl.F90
+@@ -467,10 +467,10 @@ CONTAINS
+       NAMELIST/nambbl/ ln_trabbl, nn_bbl_ldf, nn_bbl_adv, rn_ahtbbl, rn_gambbl
+       !!----------------------------------------------------------------------
+       !
+-      READ  ( numnam_ref, nambbl, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"nambbl")-1:), nambbl, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'nambbl in reference namelist' )
+       !
+-      READ  ( numnam_cfg, nambbl, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"nambbl")-1:), nambbl, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'nambbl in configuration namelist' )
+       IF(lwm) WRITE ( numond, nambbl )
+       !
+diff --git a/src/OCE/TRA/tradmp.F90 b/src/OCE/TRA/tradmp.F90
+index 67760bf..f63222b 100644
+--- a/src/OCE/TRA/tradmp.F90
++++ b/src/OCE/TRA/tradmp.F90
+@@ -193,10 +193,10 @@ CONTAINS
+       NAMELIST/namtra_dmp/ ln_tradmp, nn_zdmp, cn_resto
+       !!----------------------------------------------------------------------
+       !
+-      READ  ( numnam_ref, namtra_dmp, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namtra_dmp")-1:), namtra_dmp, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namtra_dmp in reference namelist' )
+       !
+-      READ  ( numnam_cfg, namtra_dmp, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namtra_dmp")-1:), namtra_dmp, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namtra_dmp in configuration namelist' )
+       IF(lwm) WRITE ( numond, namtra_dmp )
+       !
+diff --git a/src/OCE/TRA/traldf_iso.F90 b/src/OCE/TRA/traldf_iso.F90
+index 36e5f9d..b986c9d 100644
+--- a/src/OCE/TRA/traldf_iso.F90
++++ b/src/OCE/TRA/traldf_iso.F90
+@@ -406,3 +406,4 @@ CONTAINS
+ 
+    !!==============================================================================
+ END MODULE traldf_iso
++
+diff --git a/src/OCE/TRA/tramle.F90 b/src/OCE/TRA/tramle.F90
+index 8ad7587..52c2351 100644
+--- a/src/OCE/TRA/tramle.F90
++++ b/src/OCE/TRA/tramle.F90
+@@ -300,10 +300,10 @@ CONTAINS
+       NAMELIST/namtra_mle/ ln_mle , nn_mle, rn_ce, rn_lf, rn_time, rn_lat, nn_mld_uv, nn_conv, rn_rho_c_mle
+       !!----------------------------------------------------------------------
+ 
+-      READ  ( numnam_ref, namtra_mle, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namtra_mle")-1:), namtra_mle, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namtra_mle in reference namelist' )
+ 
+-      READ  ( numnam_cfg, namtra_mle, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namtra_mle")-1:), namtra_mle, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namtra_mle in configuration namelist' )
+       IF(lwm) WRITE ( numond, namtra_mle )
+ 
+diff --git a/src/OCE/TRA/traqsr.F90 b/src/OCE/TRA/traqsr.F90
+index 16b534f..44c71e5 100644
+--- a/src/OCE/TRA/traqsr.F90
++++ b/src/OCE/TRA/traqsr.F90
+@@ -351,10 +351,10 @@ CONTAINS
+          &                  nn_chldta, rn_abs, rn_si0, rn_si1
+       !!----------------------------------------------------------------------
+       !
+-      READ  ( numnam_ref, namtra_qsr, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namtra_qsr")-1:), namtra_qsr, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namtra_qsr in reference namelist' )
+       !
+-      READ  ( numnam_cfg, namtra_qsr, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namtra_qsr")-1:), namtra_qsr, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namtra_qsr in configuration namelist' )
+       IF(lwm) WRITE ( numond, namtra_qsr )
+       !
+diff --git a/src/OCE/TRA/trazdf.F90 b/src/OCE/TRA/trazdf.F90
+index a376ad8..c308405 100644
+--- a/src/OCE/TRA/trazdf.F90
++++ b/src/OCE/TRA/trazdf.F90
+@@ -258,6 +258,7 @@ CONTAINS
+             pt(ji,jj,jk,jn,Kaa) = ( pt(ji,jj,jk,jn,Kaa) - zws(ji,jj,jk) * pt(ji,jj,jk+1,jn,Kaa) )   &
+                &             / zwt(ji,jj,jk) * tmask(ji,jj,jk)
+          END_3D
++
+          !                                            ! ================= !
+       END DO                                          !  end tracer loop  !
+       !                                               ! ================= !
+@@ -265,3 +266,4 @@ CONTAINS
+ 
+    !!==============================================================================
+ END MODULE trazdf
++
+diff --git a/src/OCE/TRD/trdini.F90 b/src/OCE/TRD/trdini.F90
+index c20114f..e2ecc3d 100644
+--- a/src/OCE/TRD/trdini.F90
++++ b/src/OCE/TRD/trdini.F90
+@@ -45,10 +45,10 @@ CONTAINS
+          &             ln_tra_trd, ln_PE_trd, ln_glo_trd, ln_tra_mxl, nn_trd
+       !!----------------------------------------------------------------------
+       !
+-      READ  ( numnam_ref, namtrd, IOSTAT = ios, ERR = 901 )
++      READ  ( numnam_ref(INDEX(numnam_ref,"namtrd")-1:), namtrd, IOSTAT = ios, ERR = 901 )
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namtrd in reference namelist' )
+       !
+-      READ  ( numnam_cfg, namtrd, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namtrd")-1:), namtrd, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namtrd in configuration namelist' )
+       IF(lwm) WRITE( numond, namtrd )
+       !
+diff --git a/src/OCE/TRD/trdmxl.F90 b/src/OCE/TRD/trdmxl.F90
+index cd711fe..cb03c4c 100644
+--- a/src/OCE/TRD/trdmxl.F90
++++ b/src/OCE/TRD/trdmxl.F90
+@@ -734,10 +734,10 @@ CONTAINS
+          &                 nn_ctls, cn_trdrst_out, ln_trdmxl_instant, rn_ucf, rn_rho_c
+       !!----------------------------------------------------------------------
+       !
+-      READ  ( numnam_ref, namtrd_mxl, IOSTAT = ios, ERR = 901 )
++      READ  ( numnam_ref(INDEX(numnam_ref,"namtrd_mxl")-1:), namtrd_mxl, IOSTAT = ios, ERR = 901 )
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namtrd_mxl in reference namelist' )
+ 
+-      READ  ( numnam_cfg, namtrd_mxl, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namtrd_mxl")-1:), namtrd_mxl, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namtrd_mxl in configuration namelist' )
+       IF(lwm) WRITE( numond, namtrd_mxl )
+       !
+diff --git a/src/OCE/USR/usrdef_nam.F90 b/src/OCE/USR/usrdef_nam.F90
+index fe5efb3..a12bd40 100644
+--- a/src/OCE/USR/usrdef_nam.F90
++++ b/src/OCE/USR/usrdef_nam.F90
+@@ -60,7 +60,7 @@ CONTAINS
+       NAMELIST/namusr_def/ nn_GYRE, ln_bench, jpkglo
+       !!----------------------------------------------------------------------
+       !
+-      READ  ( numnam_cfg, namusr_def, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namusr_def")-1:), namusr_def, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namusr_def in configuration namelist' )
+       !
+       IF(lwm)   WRITE( numond, namusr_def )
+diff --git a/src/OCE/ZDF/zdfdrg.F90 b/src/OCE/ZDF/zdfdrg.F90
+index a8916a1..38af6f0 100644
+--- a/src/OCE/ZDF/zdfdrg.F90
++++ b/src/OCE/ZDF/zdfdrg.F90
+@@ -232,9 +232,9 @@ CONTAINS
+       !
+       !                     !==  drag nature  ==!
+       !
+-      READ  ( numnam_ref, namdrg, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namdrg")-1:), namdrg, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam( ios , 'namdrg in reference namelist' )
+-      READ  ( numnam_cfg, namdrg, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namdrg")-1:), namdrg, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam( ios , 'namdrg in configuration namelist' )
+       IF(lwm) WRITE ( numond, namdrg )
+       !
+@@ -337,11 +337,11 @@ CONTAINS
+       !
+       !                          !==  read namlist  ==!
+       !
+-      IF(ll_top)   READ  ( numnam_ref, namdrg_top, IOSTAT = ios, ERR = 901)
+-      IF(ll_bot)   READ  ( numnam_ref, namdrg_bot, IOSTAT = ios, ERR = 901)
++      IF(ll_top)   READ  ( numnam_ref(INDEX(numnam_ref,"namdrg_top")-1:), namdrg_top, IOSTAT = ios, ERR = 901)
++      IF(ll_bot)   READ  ( numnam_ref(INDEX(numnam_ref,"namdrg_bot")-1:), namdrg_bot, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam( ios , TRIM(cl_namref) )
+-      IF(ll_top)   READ  ( numnam_cfg, namdrg_top, IOSTAT = ios, ERR = 902 )
+-      IF(ll_bot)   READ  ( numnam_cfg, namdrg_bot, IOSTAT = ios, ERR = 902 )
++      IF(ll_top)   READ  ( numnam_cfg(INDEX(numnam_cfg,"namdrg_top")-1:), namdrg_top, IOSTAT = ios, ERR = 902 )
++      IF(ll_bot)   READ  ( numnam_cfg(INDEX(numnam_cfg,"namdrg_bot")-1:), namdrg_bot, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam( ios , TRIM(cl_namcfg) )
+       IF(lwm .AND. ll_top)   WRITE ( numond, namdrg_top )
+       IF(lwm .AND. ll_bot)   WRITE ( numond, namdrg_bot )
+diff --git a/src/OCE/ZDF/zdfgls.F90 b/src/OCE/ZDF/zdfgls.F90
+index 61cc05e..fbc2126 100644
+--- a/src/OCE/ZDF/zdfgls.F90
++++ b/src/OCE/ZDF/zdfgls.F90
+@@ -889,10 +889,10 @@ CONTAINS
+          &            nn_stab_func, nn_clos
+       !!----------------------------------------------------------
+       !
+-      READ  ( numnam_ref, namzdf_gls, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namzdf_gls")-1:), namzdf_gls, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namzdf_gls in reference namelist' )
+ 
+-      READ  ( numnam_cfg, namzdf_gls, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namzdf_gls")-1:), namzdf_gls, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namzdf_gls in configuration namelist' )
+       IF(lwm) WRITE ( numond, namzdf_gls )
+ 
+diff --git a/src/OCE/ZDF/zdfiwm.F90 b/src/OCE/ZDF/zdfiwm.F90
+index 7a8ba8d..f19e687 100644
+--- a/src/OCE/ZDF/zdfiwm.F90
++++ b/src/OCE/ZDF/zdfiwm.F90
+@@ -355,10 +355,10 @@ CONTAINS
+           &                cn_dir, sn_mpb, sn_mpc, sn_mpn, sn_mps, sn_dsb, sn_dsc
+       !!----------------------------------------------------------------------
+       !
+-      READ  ( numnam_ref, namzdf_iwm, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namzdf_iwm")-1:), namzdf_iwm, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namzdf_iwm in reference namelist' )
+       !
+-      READ  ( numnam_cfg, namzdf_iwm, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namzdf_iwm")-1:), namzdf_iwm, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namzdf_iwm in configuration namelist' )
+       IF(lwm) WRITE ( numond, namzdf_iwm )
+       !
+diff --git a/src/OCE/ZDF/zdfmfc.F90 b/src/OCE/ZDF/zdfmfc.F90
+index 095b2c0..686f2c7 100644
+--- a/src/OCE/ZDF/zdfmfc.F90
++++ b/src/OCE/ZDF/zdfmfc.F90
+@@ -451,11 +451,11 @@ CONTAINS
+       !
+       !
+ !      REWIND( numnam_ref )              ! Namelist namzdf_mfc in reference namelist : Vertical eddy diffivity mass flux
+-      READ  ( numnam_ref, namzdf_mfc, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namzdf_mfc")-1:), namzdf_mfc, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 ) CALL ctl_nam ( ios , 'namzdf_edmf in reference namelist' )
+ 
+ !      REWIND( numnam_cfg )              ! Namelist namzdf_mfc in configuration namelist : Vertical eddy diffivity mass flux
+-      READ  ( numnam_cfg, namzdf_mfc, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namzdf_mfc")-1:), namzdf_mfc, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios /= 0 ) CALL ctl_nam ( ios , 'namzdf_edmf in configuration namelist' )
+       IF(lwm) WRITE ( numond, namzdf_mfc )
+ 
+diff --git a/src/OCE/ZDF/zdfosm.F90 b/src/OCE/ZDF/zdfosm.F90
+index d1ede9a..bd23d6b 100644
+--- a/src/OCE/ZDF/zdfosm.F90
++++ b/src/OCE/ZDF/zdfosm.F90
+@@ -3013,10 +3013,10 @@ CONTAINS
+          &                 rn_osm_mle_rho_c, rn_osm_mle_thresh, rn_osm_mle_tau, ln_osm_hmle_limit, rn_osm_hmle_limit
+       !!----------------------------------------------------------------------
+       !
+-      READ  ( numnam_ref, namzdf_osm, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namzdf_osm")-1:), namzdf_osm, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 ) CALL ctl_nam ( ios , 'namzdf_osm in reference namelist' )
+ 
+-      READ  ( numnam_cfg, namzdf_osm, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namzdf_osm")-1:), namzdf_osm, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 ) CALL ctl_nam ( ios , 'namzdf_osm in configuration namelist' )
+       IF(lwm) WRITE ( numond, namzdf_osm )
+ 
+@@ -3078,9 +3078,9 @@ CONTAINS
+       IF( zdf_osm_alloc() /= 0 ) CALL ctl_stop( 'STOP', 'zdf_osm_init : unable to allocate arrays' )
+       !
+       IF( ln_osm_mle ) THEN   ! Initialise Fox-Kemper parametrization
+-         READ  ( numnam_ref, namosm_mle, IOSTAT = ios, ERR = 903)
++         READ  ( numnam_ref(INDEX(numnam_ref,"namosm_mle")-1:), namosm_mle, IOSTAT = ios, ERR = 903)
+ 903      IF( ios /= 0 ) CALL ctl_nam( ios, 'namosm_mle in reference namelist' )
+-         READ  ( numnam_cfg, namosm_mle, IOSTAT = ios, ERR = 904 )
++         READ  ( numnam_cfg(INDEX(numnam_cfg,"namosm_mle")-1:), namosm_mle, IOSTAT = ios, ERR = 904 )
+ 904      IF( ios >  0 ) CALL ctl_nam( ios, 'namosm_mle in configuration namelist' )
+          IF(lwm) WRITE ( numond, namosm_mle )
+          !
+diff --git a/src/OCE/ZDF/zdfphy.F90 b/src/OCE/ZDF/zdfphy.F90
+index 890e839..f419c3e 100644
+--- a/src/OCE/ZDF/zdfphy.F90
++++ b/src/OCE/ZDF/zdfphy.F90
+@@ -101,10 +101,10 @@ CONTAINS
+       ENDIF
+       !
+       !                           !==  Namelist  ==!
+-      READ  ( numnam_ref, namzdf, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namzdf")-1:), namzdf, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namzdf in reference namelist' )
+       !
+-      READ  ( numnam_cfg, namzdf, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namzdf")-1:), namzdf, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namzdf in configuration namelist' )
+       IF(lwm)   WRITE ( numond, namzdf )
+       !
+diff --git a/src/OCE/ZDF/zdfric.F90 b/src/OCE/ZDF/zdfric.F90
+index 8d86bd1..51d83aa 100644
+--- a/src/OCE/ZDF/zdfric.F90
++++ b/src/OCE/ZDF/zdfric.F90
+@@ -78,10 +78,10 @@ CONTAINS
+          &                rn_mldmin, rn_mldmax, rn_wtmix, rn_wvmix, ln_mldw
+       !!----------------------------------------------------------------------
+       !
+-      READ  ( numnam_ref, namzdf_ric, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namzdf_ric")-1:), namzdf_ric, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 ) CALL ctl_nam ( ios , 'namzdf_ric in reference namelist' )
+ 
+-      READ  ( numnam_cfg, namzdf_ric, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namzdf_ric")-1:), namzdf_ric, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 ) CALL ctl_nam ( ios , 'namzdf_ric in configuration namelist' )
+       IF(lwm) WRITE ( numond, namzdf_ric )
+       !
+diff --git a/src/OCE/ZDF/zdftke.F90 b/src/OCE/ZDF/zdftke.F90
+index a26df6b..8e3bd5d 100644
+--- a/src/OCE/ZDF/zdftke.F90
++++ b/src/OCE/ZDF/zdftke.F90
+@@ -737,10 +737,10 @@ CONTAINS
+          &                 nn_bc_surf, nn_bc_bot, ln_mxhsw
+       !!----------------------------------------------------------------------
+       !
+-      READ  ( numnam_ref, namzdf_tke, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namzdf_tke")-1:), namzdf_tke, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 ) CALL ctl_nam ( ios , 'namzdf_tke in reference namelist' )
+ 
+-      READ  ( numnam_cfg, namzdf_tke, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namzdf_tke")-1:), namzdf_tke, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 ) CALL ctl_nam ( ios , 'namzdf_tke in configuration namelist' )
+       IF(lwm) WRITE ( numond, namzdf_tke )
+       !
+diff --git a/src/OCE/module_example.F90 b/src/OCE/module_example.F90
+index 0cfd06a..f8c45d3 100644
+--- a/src/OCE/module_example.F90
++++ b/src/OCE/module_example.F90
+@@ -151,11 +151,11 @@ CONTAINS
+       !!----------------------------------------------------------------------
+       !
+       REWIND( numnam_ref )              ! Namelist namexa in reference namelist : Example
+-      READ  ( numnam_ref, namexa, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namexa")-1:), namexa, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 ) CALL ctl_nam ( ios , 'namexa in reference namelist' )
+       !
+       REWIND( numnam_cfg )              ! Namelist namexa in configuration namelist : Example
+-      READ  ( numnam_cfg, namexa, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namexa")-1:), namexa, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 ) CALL ctl_nam ( ios , 'namexa in configuration namelist' )
+    ! Output namelist for control
+       WRITE ( numond, namexa )
+diff --git a/src/OCE/nemogcm.F90 b/src/OCE/nemogcm.F90
+index 68fc8dd..dd1e886 100644
+--- a/src/OCE/nemogcm.F90
++++ b/src/OCE/nemogcm.F90
+@@ -74,7 +74,6 @@ MODULE nemogcm
+    USE mppini         ! shared/distributed memory setting (mpp_init routine)
+    USE lib_fortran    ! Fortran utilities (allows no signed zero when 'key_nosignedzero' defined)
+    USE halo_mng       ! halo manager
+-
+    IMPLICIT NONE
+    PRIVATE
+ 
+@@ -88,7 +87,6 @@ MODULE nemogcm
+    ! need MPI_Wtime
+    INCLUDE 'mpif.h'
+ #endif
+-
+    !!----------------------------------------------------------------------
+    !! NEMO/OCE 4.0 , NEMO Consortium (2018)
+    !! $Id: nemogcm.F90 15267 2021-09-17 09:04:34Z smasson $
+@@ -112,7 +110,8 @@ CONTAINS
+       !!----------------------------------------------------------------------
+       INTEGER ::   istp   ! time step index
+       REAL(wp)::   zstptiming   ! elapsed time for 1 time step
+-      !!----------------------------------------------------------------------
++      integer :: ret,comm_int
++	  !!----------------------------------------------------------------------
+       !
+ #if defined key_agrif
+       CALL Agrif_Init_Grids()      ! AGRIF: set the meshes
+@@ -141,6 +140,7 @@ CONTAINS
+       !
+       istp = nit000
+       !
++      !ret = gptlinitialize()
+ # if defined key_agrif
+       !                                               !==  AGRIF time-stepping  ==!
+       CALL Agrif_Regrid()
+@@ -194,6 +194,9 @@ CONTAINS
+       ENDIF
+       !
+ # endif
++	  comm_int = MPI_COMM_WORLD
++	  !ret = gptlpr_summary(comm_int)
++	  !ret =  gptlfinalize()
+       !
+       IF( ln_diaobs   )   CALL dia_obs_wri
+       !
+@@ -305,9 +308,9 @@ CONTAINS
+       !                             ! Open listing units !  -> need sn_cfctl from namctl to define lwp
+       !                             !--------------------!
+       !
+-      READ  ( numnam_ref, namctl, IOSTAT = ios, ERR = 901 )
++      READ  ( numnam_ref(INDEX(numnam_ref,"namctl")-1:), namctl, IOSTAT = ios, ERR = 901 )
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namctl in reference namelist' )
+-      READ  ( numnam_cfg, namctl, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namctl")-1:), namctl, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namctl in configuration namelist' )
+       !
+       ! finalize the definition of namctl variables
+@@ -360,9 +363,9 @@ CONTAINS
+       !                             !  Set global domain size parameters !
+       !                             !------------------------------------!
+       !
+-      READ  ( numnam_ref, namcfg, IOSTAT = ios, ERR = 903 )
++      READ  ( numnam_ref(INDEX(numnam_ref,"namcfg")-1:), namcfg, IOSTAT = ios, ERR = 903 )
+ 903   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namcfg in reference namelist' )
+-      READ  ( numnam_cfg, namcfg, IOSTAT = ios, ERR = 904 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namcfg")-1:), namcfg, IOSTAT = ios, ERR = 904 )
+ 904   IF( ios >  0 )   CALL ctl_nam ( ios , 'namcfg in configuration namelist' )
+       !
+       IF( ln_read_cfg ) THEN            ! Read sizes in domain configuration file
+diff --git a/src/OFF/dtadyn.F90 b/src/OFF/dtadyn.F90
+index 01c3fac..222b72f 100644
+--- a/src/OFF/dtadyn.F90
++++ b/src/OFF/dtadyn.F90
+@@ -239,9 +239,9 @@ CONTAINS
+          &                sn_empb, sn_div 
+       !!----------------------------------------------------------------------
+       !
+-      READ  ( numnam_ref, namdta_dyn, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namdta_dyn")-1:), namdta_dyn, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namdta_dyn in reference namelist' )
+-      READ  ( numnam_cfg, namdta_dyn, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namdta_dyn")-1:), namdta_dyn, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namdta_dyn in configuration namelist' )
+       IF(lwm) WRITE ( numond, namdta_dyn )
+       !                                         ! store namelist information in an array
+@@ -761,9 +761,9 @@ CONTAINS
+          &                sn_tem, sn_sal
+       !!----------------------------------------------------------------------
+       !
+-      READ  ( numnam_ref, namdta_dyn, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namdta_dyn")-1:), namdta_dyn, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namdta_dyn in reference namelist' )
+-      READ  ( numnam_cfg, namdta_dyn, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namdta_dyn")-1:), namdta_dyn, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namdta_dyn in configuration namelist' )
+       IF(lwm) WRITE ( numond, namdta_dyn )
+       !                                         ! store namelist information in an array
+diff --git a/src/OFF/nemogcm.F90 b/src/OFF/nemogcm.F90
+index 8f73b41..6a882b4 100644
+--- a/src/OFF/nemogcm.F90
++++ b/src/OFF/nemogcm.F90
+@@ -256,9 +256,9 @@ CONTAINS
+       !                             ! Open listing units !  -> need sn_cfctl from namctl to define lwp
+       !                             !--------------------!
+       !
+-      READ  ( numnam_ref, namctl, IOSTAT = ios, ERR = 901 )
++      READ  ( numnam_ref(INDEX(numnam_ref,"namctl")-1:), namctl, IOSTAT = ios, ERR = 901 )
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namctl in reference namelist' )
+-      READ  ( numnam_cfg, namctl, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namctl")-1:), namctl, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namctl in configuration namelist' )
+       !
+       ! finalize the definition of namctl variables
+@@ -303,9 +303,9 @@ CONTAINS
+       !                             !  Set global domain size parameters !
+       !                             !------------------------------------!
+       !     
+-      READ  ( numnam_ref, namcfg, IOSTAT = ios, ERR = 903 )
++      READ  ( numnam_ref(INDEX(numnam_ref,"namcfg")-1:), namcfg, IOSTAT = ios, ERR = 903 )
+ 903   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namcfg in reference namelist' )
+-      READ  ( numnam_cfg, namcfg, IOSTAT = ios, ERR = 904 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namcfg")-1:), namcfg, IOSTAT = ios, ERR = 904 )
+ 904   IF( ios >  0 )   CALL ctl_nam ( ios , 'namcfg in configuration namelist' )   
+       !
+       IF( ln_read_cfg ) THEN              ! Read sizes in domain configuration file
+diff --git a/src/SAO/nemogcm.F90 b/src/SAO/nemogcm.F90
+index fe08c91..5649054 100644
+--- a/src/SAO/nemogcm.F90
++++ b/src/SAO/nemogcm.F90
+@@ -152,9 +152,9 @@ CONTAINS
+       !                             ! Open listing units !  -> need sn_cfctl from namctl to define lwp
+       !                             !--------------------!
+       !
+-      READ  ( numnam_ref, namctl, IOSTAT = ios, ERR = 901 )
++      READ  ( numnam_ref(INDEX(numnam_ref,"namctl")-1:), namctl, IOSTAT = ios, ERR = 901 )
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namctl in reference namelist' )
+-      READ  ( numnam_cfg, namctl, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namctl")-1:), namctl, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namctl in configuration namelist' )
+       !
+       ! finalize the definition of namctl variables
+@@ -199,9 +199,9 @@ CONTAINS
+       !                             !  Set global domain size parameters !
+       !                             !------------------------------------!
+       !
+-      READ  ( numnam_ref, namcfg, IOSTAT = ios, ERR = 903 )
++      READ  ( numnam_ref(INDEX(numnam_ref,"namcfg")-1:), namcfg, IOSTAT = ios, ERR = 903 )
+ 903   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namcfg in reference namelist' )
+-      READ  ( numnam_cfg, namcfg, IOSTAT = ios, ERR = 904 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namcfg")-1:), namcfg, IOSTAT = ios, ERR = 904 )
+ 904   IF( ios >  0 )   CALL ctl_nam ( ios , 'namcfg in configuration namelist' )   
+       !
+       IF( ln_read_cfg ) THEN            ! Read sizes in domain configuration file
+diff --git a/src/SAO/sao_data.F90 b/src/SAO/sao_data.F90
+index fb93441..f325f81 100644
+--- a/src/SAO/sao_data.F90
++++ b/src/SAO/sao_data.F90
+@@ -51,9 +51,9 @@ CONTAINS
+       nn_sao_freq   = -1         ! input frequency in time steps
+ 
+       ! Standard offline obs_oper settings
+-      READ  ( numnam_ref, namsao, IOSTAT = ios, ERR = 901 )
++      READ  ( numnam_ref(INDEX(numnam_ref,"namsao")-1:), namsao, IOSTAT = ios, ERR = 901 )
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namsao in reference namelist' )
+-      READ  ( numnam_cfg, namsao, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namsao")-1:), namsao, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namsao in configuration namelist' )
+      
+       lmask(:) = .FALSE.               ! count input files
+diff --git a/src/SAS/nemogcm.F90 b/src/SAS/nemogcm.F90
+index 62e7450..5aaf8f2 100644
+--- a/src/SAS/nemogcm.F90
++++ b/src/SAS/nemogcm.F90
+@@ -281,9 +281,9 @@ CONTAINS
+       !                             ! Open listing units !  -> need sn_cfctl from namctl to define lwp
+       !                             !--------------------!
+       !
+-      READ  ( numnam_ref, namctl, IOSTAT = ios, ERR = 901 )
++      READ  ( numnam_ref(INDEX(numnam_ref,"namctl")-1:), namctl, IOSTAT = ios, ERR = 901 )
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namctl in reference namelist' )
+-      READ  ( numnam_cfg, namctl, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namctl")-1:), namctl, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namctl in configuration namelist' )
+       !
+       ! finalize the definition of namctl variables
+@@ -332,9 +332,9 @@ CONTAINS
+       !                             !  Set global domain size parameters !
+       !                             !------------------------------------!
+       !
+-      READ  ( numnam_ref, namcfg, IOSTAT = ios, ERR = 903 )
++      READ  ( numnam_ref(INDEX(numnam_ref,"namcfg")-1:), namcfg, IOSTAT = ios, ERR = 903 )
+ 903   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namcfg in reference namelist' )
+-      READ  ( numnam_cfg, namcfg, IOSTAT = ios, ERR = 904 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namcfg")-1:), namcfg, IOSTAT = ios, ERR = 904 )
+ 904   IF( ios >  0 )   CALL ctl_nam ( ios , 'namcfg in configuration namelist' )   
+       !
+       IF( ln_read_cfg ) THEN            ! Read sizes in domain configuration file
+diff --git a/src/SAS/sbcssm.F90 b/src/SAS/sbcssm.F90
+index bd72a97..37dba02 100644
+--- a/src/SAS/sbcssm.F90
++++ b/src/SAS/sbcssm.F90
+@@ -203,9 +203,9 @@ CONTAINS
+          WRITE(numout,*) '~~~~~~~~~~~~ '
+       ENDIF
+       !
+-      READ  ( numnam_ref, namsbc_sas, IOSTAT = ios, ERR = 901)
++      READ  ( numnam_ref(INDEX(numnam_ref,"namsbc_sas")-1:), namsbc_sas, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namsbc_sas in reference namelist' )
+-      READ  ( numnam_cfg, namsbc_sas, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namsbc_sas")-1:), namsbc_sas, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namsbc_sas in configuration namelist' )
+       IF(lwm) WRITE ( numond, namsbc_sas )
+       !
+diff --git a/src/SWE/nemogcm.F90 b/src/SWE/nemogcm.F90
+index 2087d2d..ff5659e 100644
+--- a/src/SWE/nemogcm.F90
++++ b/src/SWE/nemogcm.F90
+@@ -198,9 +198,9 @@ CONTAINS
+       !                             ! Open listing units !  -> need sn_cfctl from namctl to define lwp
+       !                             !--------------------!
+       !
+-      READ  ( numnam_ref, namctl, IOSTAT = ios, ERR = 901 )
++      READ  ( numnam_ref(INDEX(numnam_ref,"namctl")-1:), namctl, IOSTAT = ios, ERR = 901 )
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namctl in reference namelist' )
+-      READ  ( numnam_cfg, namctl, IOSTAT = ios, ERR = 902 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namctl")-1:), namctl, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namctl in configuration namelist' )
+       !
+       ! finalize the definition of namctl variables
+@@ -256,9 +256,9 @@ CONTAINS
+       !                             !  Set global domain size parameters !
+       !                             !------------------------------------!
+       !
+-      READ  ( numnam_ref, namcfg, IOSTAT = ios, ERR = 903 )
++      READ  ( numnam_ref(INDEX(numnam_ref,"namcfg")-1:), namcfg, IOSTAT = ios, ERR = 903 )
+ 903   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namcfg in reference namelist' )
+-      READ  ( numnam_cfg, namcfg, IOSTAT = ios, ERR = 904 )
++      READ  ( numnam_cfg(INDEX(numnam_cfg,"namcfg")-1:), namcfg, IOSTAT = ios, ERR = 904 )
+ 904   IF( ios >  0 )   CALL ctl_nam ( ios , 'namcfg in configuration namelist' )   
+       !
+       IF( ln_read_cfg ) THEN            ! Read sizes in domain configuration file
+diff --git a/src/TOP/AGE/trcnam_age.F90 b/src/TOP/AGE/trcnam_age.F90
+index 4ffe5d8..b960609 100644
+--- a/src/TOP/AGE/trcnam_age.F90
++++ b/src/TOP/AGE/trcnam_age.F90
+@@ -54,9 +54,9 @@ CONTAINS
+       ln_trc_obc(jp_age) = .false.
+       ln_trc_ais(jp_age) = .false.
+       !
+-      READ  ( numnat_ref, namage, IOSTAT = ios, ERR = 901)
++      READ  ( numnat_ref(INDEX(numnat_ref,"namage")-1:), namage, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namage in reference namelist' )
+-      READ  ( numnat_cfg, namage, IOSTAT = ios, ERR = 902 )
++      READ  ( numnat_cfg(INDEX(numnat_cfg,"namage")-1:), namage, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namage in configuration namelist' )
+       IF(lwm) WRITE ( numont, namage )
+       !
+diff --git a/src/TOP/C14/trcnam_c14.F90 b/src/TOP/C14/trcnam_c14.F90
+index 9d7d997..357811d 100644
+--- a/src/TOP/C14/trcnam_c14.F90
++++ b/src/TOP/C14/trcnam_c14.F90
+@@ -61,9 +61,9 @@ CONTAINS
+       ln_trc_obc(jp_c14) = .false.
+       ln_trc_ais(jp_c14) = .false.
+       !
+-      READ  ( numtrc_ref, namc14_typ, IOSTAT = ios, ERR = 901)
++      READ  ( numtrc_ref(INDEX(numtrc_ref,"namc14_typ")-1:), namc14_typ, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namc14_typ in reference namelist' )
+-      READ  ( numtrc_cfg, namc14_typ, IOSTAT = ios, ERR = 902)
++      READ  ( numtrc_cfg(INDEX(numtrc_cfg,"namc14_typ")-1:), namc14_typ, IOSTAT = ios, ERR = 902)
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namc14_typ in configuration namelist' )
+       IF(lwm) WRITE ( numonr, namc14_typ )
+       !
+@@ -76,9 +76,9 @@ CONTAINS
+          WRITE(numout,*)
+       ENDIF
+ 
+-      READ  ( numtrc_ref, namc14_sbc, IOSTAT = ios, ERR = 903)
++      READ  ( numtrc_ref(INDEX(numtrc_ref,"namc14_sbc")-1:), namc14_sbc, IOSTAT = ios, ERR = 903)
+ 903   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namc14_sbc in reference namelist' )
+-      READ  ( numtrc_cfg, namc14_sbc, IOSTAT = ios, ERR = 904)
++      READ  ( numtrc_cfg(INDEX(numtrc_cfg,"namc14_sbc")-1:), namc14_sbc, IOSTAT = ios, ERR = 904)
+ 904   IF( ios >  0 )   CALL ctl_nam ( ios , 'namc14_sbc in configuration namelist' )
+       IF(lwm) WRITE( numonr, namc14_sbc )
+       !
+@@ -90,9 +90,9 @@ CONTAINS
+          WRITE(numout,*)
+       ENDIF
+ 
+-      READ  ( numtrc_ref, namc14_fcg, IOSTAT = ios, ERR = 905)
++      READ  ( numtrc_ref(INDEX(numtrc_ref,"namc14_fcg")-1:), namc14_fcg, IOSTAT = ios, ERR = 905)
+ 905   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namc14_fcg in reference namelist' )
+-      READ  ( numtrc_cfg, namc14_fcg, IOSTAT = ios, ERR = 906)
++      READ  ( numtrc_cfg(INDEX(numtrc_cfg,"namc14_fcg")-1:), namc14_fcg, IOSTAT = ios, ERR = 906)
+ 906   IF( ios >  0 )   CALL ctl_nam ( ios , 'namc14_fcg in configuration namelist' )
+       IF(lwm) WRITE ( numonr, namc14_fcg )
+       !
+diff --git a/src/TOP/CFC/trcnam_cfc.F90 b/src/TOP/CFC/trcnam_cfc.F90
+index 4f22022..c7cf8b1 100644
+--- a/src/TOP/CFC/trcnam_cfc.F90
++++ b/src/TOP/CFC/trcnam_cfc.F90
+@@ -50,9 +50,9 @@ CONTAINS
+          WRITE(numout,*) ' ~~~~~~~~~~~'
+       ENDIF
+       !
+-      READ  ( numtrc_ref, namcfc, IOSTAT = ios, ERR = 901)
++      READ  ( numtrc_ref(INDEX(numtrc_ref,"namcfc")-1:), namcfc, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namcfc in reference namelist' )
+-      READ  ( numtrc_cfg, namcfc, IOSTAT = ios, ERR = 902 )
++      READ  ( numtrc_cfg(INDEX(numtrc_cfg,"namcfc")-1:), namcfc, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namcfc in configuration namelist' )
+       IF(lwm) WRITE( numonr, namcfc )
+       IF(lwm) CALL FLUSH ( numonr )     ! flush output namelist CFC
+diff --git a/src/TOP/PISCES/P2Z/p2zbio.F90 b/src/TOP/PISCES/P2Z/p2zbio.F90
+index ecbfc9f..09b4d3c 100644
+--- a/src/TOP/PISCES/P2Z/p2zbio.F90
++++ b/src/TOP/PISCES/P2Z/p2zbio.F90
+@@ -399,9 +399,9 @@ CONTAINS
+       IF(lwp) WRITE(numout,*) ' p2z_bio_init : LOBSTER bio-model initialization'
+       IF(lwp) WRITE(numout,*) ' ~~~~~~~~~~~~'
+       !
+-      READ  ( numnatp_ref, namlobphy, IOSTAT = ios, ERR = 901)
++      READ  ( numnatp_ref(INDEX(numnatp_ref,"namlobphy")-1:), namlobphy, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namlobphy in reference namelist' )
+-      READ  ( numnatp_cfg, namlobphy, IOSTAT = ios, ERR = 902 )
++      READ  ( numnatp_cfg(INDEX(numnatp_cfg,"namlobphy")-1:), namlobphy, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namlobphy in configuration namelist' )
+       IF(lwm) WRITE ( numonp, namlobphy )
+       !
+@@ -414,9 +414,9 @@ CONTAINS
+          WRITE(numout,*) '      light hlaf saturation constant                       aki       =', aki
+       ENDIF
+ 
+-      READ  ( numnatp_ref, namlobnut, IOSTAT = ios, ERR = 903)
++      READ  ( numnatp_ref(INDEX(numnatp_ref,"namlobnut")-1:), namlobnut, IOSTAT = ios, ERR = 903)
+ 903   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namlobnut in reference namelist' )
+-      READ  ( numnatp_cfg, namlobnut, IOSTAT = ios, ERR = 904 )
++      READ  ( numnatp_cfg(INDEX(numnatp_cfg,"namlobnut")-1:), namlobnut, IOSTAT = ios, ERR = 904 )
+ 904   IF( ios >  0 )   CALL ctl_nam ( ios , 'namlobnut in configuration namelist' )
+       IF(lwm) WRITE ( numonp, namlobnut )
+ 
+@@ -429,9 +429,9 @@ CONTAINS
+          WRITE(numout,*) '      inhibition of no3 uptake by nh4                      psinut    =', psinut
+       ENDIF
+ 
+-      READ  ( numnatp_ref, namlobzoo, IOSTAT = ios, ERR = 905)
++      READ  ( numnatp_ref(INDEX(numnatp_ref,"namlobzoo")-1:), namlobzoo, IOSTAT = ios, ERR = 905)
+ 905   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namlobzoo in reference namelist' )
+-      READ  ( numnatp_cfg, namlobzoo, IOSTAT = ios, ERR = 906 )
++      READ  ( numnatp_cfg(INDEX(numnatp_cfg,"namlobzoo")-1:), namlobzoo, IOSTAT = ios, ERR = 906 )
+ 906   IF( ios >  0 )   CALL ctl_nam ( ios , 'namlobzoo in configuration namelist' )
+       IF(lwm) WRITE ( numonp, namlobzoo )
+ 
+@@ -449,9 +449,9 @@ CONTAINS
+          WRITE(numout,*) '      Zooplankton mortality fraction that goes to detritus fdbod     =', fdbod
+       ENDIF
+ 
+-      READ  ( numnatp_ref, namlobdet, IOSTAT = ios, ERR = 907)
++      READ  ( numnatp_ref(INDEX(numnatp_ref,"namlobdet")-1:), namlobdet, IOSTAT = ios, ERR = 907)
+ 907   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namlobdet in reference namelist' )
+-      READ  ( numnatp_cfg, namlobdet, IOSTAT = ios, ERR = 908 )
++      READ  ( numnatp_cfg(INDEX(numnatp_cfg,"namlobdet")-1:), namlobdet, IOSTAT = ios, ERR = 908 )
+ 908   IF( ios >  0 )   CALL ctl_nam ( ios , 'namlobdet in configuration namelist' )
+       IF(lwm) WRITE ( numonp, namlobdet )
+ 
+@@ -462,9 +462,9 @@ CONTAINS
+           WRITE(numout,*) '      NH4 fraction of detritus dissolution                 fdetlab   =', fdetlab
+       ENDIF
+ 
+-      READ  ( numnatp_ref, namlobdom, IOSTAT = ios, ERR = 909)
++      READ  ( numnatp_ref(INDEX(numnatp_ref,"namlobdom")-1:), namlobdom, IOSTAT = ios, ERR = 909)
+ 909   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namlobdom in reference namelist' )
+-      READ  ( numnatp_cfg, namlobdom, IOSTAT = ios, ERR = 910 )
++      READ  ( numnatp_cfg(INDEX(numnatp_cfg,"namlobdom")-1:), namlobdom, IOSTAT = ios, ERR = 910 )
+ 910   IF( ios >  0 )   CALL ctl_nam ( ios , 'namlobdom in configuration namelist' )
+       IF(lwm) WRITE ( numonp, namlobdom )
+ 
+diff --git a/src/TOP/PISCES/P2Z/p2zopt.F90 b/src/TOP/PISCES/P2Z/p2zopt.F90
+index 85f8b3e..04c2721 100644
+--- a/src/TOP/PISCES/P2Z/p2zopt.F90
++++ b/src/TOP/PISCES/P2Z/p2zopt.F90
+@@ -72,6 +72,7 @@ CONTAINS
+       REAL(wp) ::   zcoef               ! temporary scalar
+       REAL(wp), DIMENSION(jpi,jpj    ) :: zpar100, zpar0m
+       REAL(wp), DIMENSION(jpi,jpj,jpk) :: zparr, zparg
++      REAL(wp), DIMENSION(jpi,jpj,jpk) :: zkr_exp, zkg_exp,zkr_arr,zkg_arr
+       !!---------------------------------------------------------------------
+       !
+       IF( ln_timing )   CALL timing_start('p2z_opt')
+@@ -94,21 +95,39 @@ CONTAINS
+ 
+       !                                          ! Photosynthetically Available Radiation (PAR)
+       zcoef = 12 * redf / rcchl / rpig           ! --------------------------------------
+-      DO_3D( nn_hls, nn_hls, nn_hls, nn_hls, 2, jpk )
++      DO_3D(nn_hls, nn_hls, nn_hls, nn_hls, 1, jpkm1)
+          zpig = LOG(  MAX( TINY(0.), tr(ji,jj,jk-1,jpphy,Kmm) ) * zcoef  )
+          zkr  = xkr0 + xkrp * EXP( xlr * zpig )
+          zkg  = xkg0 + xkgp * EXP( xlg * zpig )
+-         zparr(ji,jj,jk) = zparr(ji,jj,jk-1) * EXP( -zkr * e3t(ji,jj,jk-1,Kmm) )
+-         zparg(ji,jj,jk) = zparg(ji,jj,jk-1) * EXP( -zkg * e3t(ji,jj,jk-1,Kmm) )
++         zkr_arr(ji,jj,jk) = zkr * e3t(ji,jj,jk,Kmm)
++         zkg_arr(ji,jj,jk) = zkg * e3t(ji,jj,jk,Kmm)
++         zkr_exp(ji,jj,jk) = EXP(-zkr_arr(ji,jj,jk))
++         zkg_exp(ji,jj,jk) = EXP(-zkg_arr(ji,jj,jk))
++      END_3D
++      DO_3D( nn_hls, nn_hls, nn_hls, nn_hls, 2, jpk )
++         zparr(ji,jj,jk) = zparr(ji,jj,jk-1) * zkr_exp(ji,jj,jk-1)
++         zparg(ji,jj,jk) = zparg(ji,jj,jk-1) * zkg_exp(ji,jj,jk-1)
+       END_3D
+       DO_3D( nn_hls, nn_hls, nn_hls, nn_hls, 1, jpkm1 ) ! mean par at t-levels
+-         zpig = LOG(  MAX( TINY(0.), tr(ji,jj,jk,jpphy,Kmm) ) * zcoef  )
+-         zkr  = xkr0 + xkrp * EXP( xlr * zpig )
+-         zkg  = xkg0 + xkgp * EXP( xlg * zpig )
+-         zparr(ji,jj,jk) = zparr(ji,jj,jk) / ( zkr * e3t(ji,jj,jk,Kmm) ) * ( 1 - EXP( -zkr * e3t(ji,jj,jk,Kmm) ) )
+-         zparg(ji,jj,jk) = zparg(ji,jj,jk) / ( zkg * e3t(ji,jj,jk,Kmm) ) * ( 1 - EXP( -zkg * e3t(ji,jj,jk,Kmm) ) )
++         zparr(ji,jj,jk) = zparr(ji,jj,jk) / zkr_arr(ji,jj,jk) * ( 1 - zkr_exp(ji,jj,jk) )
++         zparg(ji,jj,jk) = zparg(ji,jj,jk) / zkg_arr(ji,jj,jk) * ( 1 - zkg_exp(ji,jj,jk) )
+          etot (ji,jj,jk) = MAX( zparr(ji,jj,jk) + zparg(ji,jj,jk), 1.e-15 )
+       END_3D
++      !DO_3D( nn_hls, nn_hls, nn_hls, nn_hls, 2, jpk )
++         !zpig = LOG(  MAX( TINY(0.), tr(ji,jj,jk-1,jpphy,Kmm) ) * zcoef  )
++         !zkr  = xkr0 + xkrp * EXP( xlr * zpig )
++         !zkg  = xkg0 + xkgp * EXP( xlg * zpig )
++         !zparr(ji,jj,jk) = zparr(ji,jj,jk-1) * EXP( -zkr * e3t(ji,jj,jk-1,Kmm) )
++         !zparg(ji,jj,jk) = zparg(ji,jj,jk-1) * EXP( -zkg * e3t(ji,jj,jk-1,Kmm) )
++      !END_3D
++      !DO_3D( nn_hls, nn_hls, nn_hls, nn_hls, 1, jpkm1 ) ! mean par at t-levels
++         !zpig = LOG(  MAX( TINY(0.), tr(ji,jj,jk,jpphy,Kmm) ) * zcoef  )
++         !zkr  = xkr0 + xkrp * EXP( xlr * zpig )
++         !zkg  = xkg0 + xkgp * EXP( xlg * zpig )
++         !zparr(ji,jj,jk) = zparr(ji,jj,jk) / ( zkr * e3t(ji,jj,jk,Kmm) ) * ( 1 - EXP( -zkr * e3t(ji,jj,jk,Kmm) ) )
++         !zparg(ji,jj,jk) = zparg(ji,jj,jk) / ( zkg * e3t(ji,jj,jk,Kmm) ) * ( 1 - EXP( -zkg * e3t(ji,jj,jk,Kmm) ) )
++         !etot (ji,jj,jk) = MAX( zparr(ji,jj,jk) + zparg(ji,jj,jk), 1.e-15 )
++      !END_3D
+ 
+       !                                          ! Euphotic layer
+       !                                          ! --------------
+@@ -187,3 +206,4 @@ CONTAINS
+ 
+    !!======================================================================
+ END MODULE p2zopt
++
+diff --git a/src/TOP/PISCES/P2Z/p2zsed.F90 b/src/TOP/PISCES/P2Z/p2zsed.F90
+index 1b77155..c6c9efb 100644
+--- a/src/TOP/PISCES/P2Z/p2zsed.F90
++++ b/src/TOP/PISCES/P2Z/p2zsed.F90
+@@ -129,9 +129,9 @@ CONTAINS
+       NAMELIST/namlobsed/ sedlam, sedlostpoc, vsed, xhr
+       !!----------------------------------------------------------------------
+       !
+-      READ  ( numnatp_ref, namlobsed, IOSTAT = ios, ERR = 901)
++      READ  ( numnatp_ref(INDEX(numnatp_ref,"namlobsed")-1:), namlobsed, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namlosed in reference namelist' )
+-      READ  ( numnatp_cfg, namlobsed, IOSTAT = ios, ERR = 902 )
++      READ  ( numnatp_cfg(INDEX(numnatp_cfg,"namlobsed")-1:), namlobsed, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namlobsed in configuration namelist' )
+       IF(lwm) WRITE ( numonp, namlobsed )
+       !
+diff --git a/src/TOP/PISCES/P4Z/p4zbc.F90 b/src/TOP/PISCES/P4Z/p4zbc.F90
+index 6265cc3..6ffc6ce 100644
+--- a/src/TOP/PISCES/P4Z/p4zbc.F90
++++ b/src/TOP/PISCES/P4Z/p4zbc.F90
+@@ -260,9 +260,9 @@ CONTAINS
+          WRITE(numout,*) '~~~~~~~~~~~~ '
+       ENDIF
+       !                            !* set file information
+-      READ  ( numnatp_ref, nampisbc, IOSTAT = ios, ERR = 901)
++      READ  ( numnatp_ref(INDEX(numnatp_ref,"nampisbc")-1:), nampisbc, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'nampisbc in reference namelist' )
+-      READ  ( numnatp_cfg, nampisbc, IOSTAT = ios, ERR = 902 )
++      READ  ( numnatp_cfg(INDEX(numnatp_cfg,"nampisbc")-1:), nampisbc, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'nampisbc in configuration namelist' )
+       IF(lwm) WRITE ( numonp, nampisbc )
+ 
+diff --git a/src/TOP/PISCES/P4Z/p4zfechem.F90 b/src/TOP/PISCES/P4Z/p4zfechem.F90
+index b5d5652..79e01c1 100644
+--- a/src/TOP/PISCES/P4Z/p4zfechem.F90
++++ b/src/TOP/PISCES/P4Z/p4zfechem.F90
+@@ -261,9 +261,9 @@ CONTAINS
+          WRITE(numout,*) '~~~~~~~~~~~~'
+       ENDIF
+       !
+-      READ  ( numnatp_ref, nampisfer, IOSTAT = ios, ERR = 901)
++      READ  ( numnatp_ref(INDEX(numnatp_ref,"nampisfer")-1:), nampisfer, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'nampisfer in reference namelist' )
+-      READ  ( numnatp_cfg, nampisfer, IOSTAT = ios, ERR = 902 )
++      READ  ( numnatp_cfg(INDEX(numnatp_cfg,"nampisfer")-1:), nampisfer, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'nampisfer in configuration namelist' )
+       IF(lwm) WRITE( numonp, nampisfer )
+ 
+diff --git a/src/TOP/PISCES/P4Z/p4zflx.F90 b/src/TOP/PISCES/P4Z/p4zflx.F90
+index 36940fd..b71a332 100644
+--- a/src/TOP/PISCES/P4Z/p4zflx.F90
++++ b/src/TOP/PISCES/P4Z/p4zflx.F90
+@@ -220,9 +220,9 @@ CONTAINS
+          WRITE(numout,*) ' ~~~~~~~~~~~~'
+       ENDIF
+       !
+-      READ  ( numnatp_ref, nampisext, IOSTAT = ios, ERR = 901)
++      READ  ( numnatp_ref(INDEX(numnatp_ref,"nampisext")-1:), nampisext, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'nampisext in reference namelist' )
+-      READ  ( numnatp_cfg, nampisext, IOSTAT = ios, ERR = 902 )
++      READ  ( numnatp_cfg(INDEX(numnatp_cfg,"nampisext")-1:), nampisext, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'nampisext in configuration namelist' )
+       IF(lwm) WRITE ( numonp, nampisext )
+       !
+@@ -299,9 +299,9 @@ CONTAINS
+             WRITE(numout,*) ' ~~~~~~~~'
+          ENDIF
+          !
+-         READ  ( numnatp_ref, nampisatm, IOSTAT = ios, ERR = 901)
++         READ  ( numnatp_ref(INDEX(numnatp_ref,"nampisatm")-1:), nampisatm, IOSTAT = ios, ERR = 901)
+ 901      IF( ios /= 0 ) CALL ctl_nam ( ios , 'nampisatm in reference namelist' )
+-         READ  ( numnatp_cfg, nampisatm, IOSTAT = ios, ERR = 902 )
++         READ  ( numnatp_cfg(INDEX(numnatp_cfg,"nampisatm")-1:), nampisatm, IOSTAT = ios, ERR = 902 )
+ 902      IF( ios >  0 )   CALL ctl_nam ( ios , 'nampisatm in configuration namelist' )
+          IF(lwm) WRITE ( numonp, nampisatm )
+          !
+diff --git a/src/TOP/PISCES/P4Z/p4zligand.F90 b/src/TOP/PISCES/P4Z/p4zligand.F90
+index 07ce54c..49dec33 100644
+--- a/src/TOP/PISCES/P4Z/p4zligand.F90
++++ b/src/TOP/PISCES/P4Z/p4zligand.F90
+@@ -133,9 +133,9 @@ CONTAINS
+          WRITE(numout,*) 'p4z_ligand_init : remineralization/scavenging of organic ligands'
+          WRITE(numout,*) '~~~~~~~~~~~~~~~'
+       ENDIF
+-      READ  ( numnatp_ref, nampislig, IOSTAT = ios, ERR = 901)
++      READ  ( numnatp_ref(INDEX(numnatp_ref,"nampislig")-1:), nampislig, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'nampislig in reference namelist' )
+-      READ  ( numnatp_cfg, nampislig, IOSTAT = ios, ERR = 902 )
++      READ  ( numnatp_cfg(INDEX(numnatp_cfg,"nampislig")-1:), nampislig, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'nampislig in configuration namelist' )
+       IF(lwm) WRITE ( numonp, nampislig )
+       !
+diff --git a/src/TOP/PISCES/P4Z/p4zlim.F90 b/src/TOP/PISCES/P4Z/p4zlim.F90
+index 6ea3723..16f8b94 100644
+--- a/src/TOP/PISCES/P4Z/p4zlim.F90
++++ b/src/TOP/PISCES/P4Z/p4zlim.F90
+@@ -291,9 +291,9 @@ CONTAINS
+          WRITE(numout,*) '~~~~~~~~~~~~'
+       ENDIF
+       !
+-      READ  ( numnatp_ref, namp4zlim, IOSTAT = ios, ERR = 901)
++      READ  ( numnatp_ref(INDEX(numnatp_ref,"namp4zlim")-1:), namp4zlim, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namp4zlim in reference namelist' )
+-      READ  ( numnatp_cfg, namp4zlim, IOSTAT = ios, ERR = 902 )
++      READ  ( numnatp_cfg(INDEX(numnatp_cfg,"namp4zlim")-1:), namp4zlim, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namp4zlim in configuration namelist' )
+       IF(lwm) WRITE( numonp, namp4zlim )
+ 
+diff --git a/src/TOP/PISCES/P4Z/p4zlys.F90 b/src/TOP/PISCES/P4Z/p4zlys.F90
+index df54a75..a70cf14 100644
+--- a/src/TOP/PISCES/P4Z/p4zlys.F90
++++ b/src/TOP/PISCES/P4Z/p4zlys.F90
+@@ -164,9 +164,9 @@ CONTAINS
+          WRITE(numout,*) '~~~~~~~~~~~~'
+       ENDIF
+       !
+-      READ  ( numnatp_ref, nampiscal, IOSTAT = ios, ERR = 901)
++      READ  ( numnatp_ref(INDEX(numnatp_ref,"nampiscal")-1:), nampiscal, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'nampiscal in reference namelist' )
+-      READ  ( numnatp_cfg, nampiscal, IOSTAT = ios, ERR = 902 )
++      READ  ( numnatp_cfg(INDEX(numnatp_cfg,"nampiscal")-1:), nampiscal, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'nampiscal in configuration namelist' )
+       IF(lwm) WRITE( numonp, nampiscal )
+       !
+diff --git a/src/TOP/PISCES/P4Z/p4zmeso.F90 b/src/TOP/PISCES/P4Z/p4zmeso.F90
+index bc8cf94..8500099 100644
+--- a/src/TOP/PISCES/P4Z/p4zmeso.F90
++++ b/src/TOP/PISCES/P4Z/p4zmeso.F90
+@@ -451,10 +451,10 @@ CONTAINS
+          WRITE(numout,*) '~~~~~~~~~~~~~'
+       ENDIF
+       !
+-      READ  ( numnatp_ref, namp4zmes, IOSTAT = ios, ERR = 901)
++      READ  ( numnatp_ref(INDEX(numnatp_ref,"namp4zmes")-1:), namp4zmes, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namp4zmes in reference namelist' )
+ 
+-      READ  ( numnatp_cfg, namp4zmes, IOSTAT = ios, ERR = 902 )
++      READ  ( numnatp_cfg(INDEX(numnatp_cfg,"namp4zmes")-1:), namp4zmes, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namp4zmes in configuration namelist' )
+       IF(lwm) WRITE( numonp, namp4zmes )
+       !
+diff --git a/src/TOP/PISCES/P4Z/p4zmicro.F90 b/src/TOP/PISCES/P4Z/p4zmicro.F90
+index f91b04d..6a6d509 100644
+--- a/src/TOP/PISCES/P4Z/p4zmicro.F90
++++ b/src/TOP/PISCES/P4Z/p4zmicro.F90
+@@ -305,10 +305,10 @@ CONTAINS
+          WRITE(numout,*) '~~~~~~~~~~~~~~'
+       ENDIF
+       !
+-      READ  ( numnatp_ref, namp4zzoo, IOSTAT = ios, ERR = 901)
++      READ  ( numnatp_ref(INDEX(numnatp_ref,"namp4zzoo")-1:), namp4zzoo, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namp4zzoo in reference namelist' )
+ 
+-      READ  ( numnatp_cfg, namp4zzoo, IOSTAT = ios, ERR = 902 )
++      READ  ( numnatp_cfg(INDEX(numnatp_cfg,"namp4zzoo")-1:), namp4zzoo, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namp4zzoo in configuration namelist' )
+       IF(lwm) WRITE( numonp, namp4zzoo )
+       !
+diff --git a/src/TOP/PISCES/P4Z/p4zmort.F90 b/src/TOP/PISCES/P4Z/p4zmort.F90
+index 5a32dd9..0aff473 100644
+--- a/src/TOP/PISCES/P4Z/p4zmort.F90
++++ b/src/TOP/PISCES/P4Z/p4zmort.F90
+@@ -227,10 +227,10 @@ CONTAINS
+          WRITE(numout,*) '~~~~~~~~~~~~~'
+       ENDIF
+       !
+-      READ  ( numnatp_ref, namp4zmort, IOSTAT = ios, ERR = 901)
++      READ  ( numnatp_ref(INDEX(numnatp_ref,"namp4zmort")-1:), namp4zmort, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namp4zmort in reference namelist' )
+ 
+-      READ  ( numnatp_cfg, namp4zmort, IOSTAT = ios, ERR = 902 )
++      READ  ( numnatp_cfg(INDEX(numnatp_cfg,"namp4zmort")-1:), namp4zmort, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namp4zmort in configuration namelist' )
+       IF(lwm) WRITE( numonp, namp4zmort )
+       !
+diff --git a/src/TOP/PISCES/P4Z/p4zopt.F90 b/src/TOP/PISCES/P4Z/p4zopt.F90
+index 8daf2ed..51f09fa 100644
+--- a/src/TOP/PISCES/P4Z/p4zopt.F90
++++ b/src/TOP/PISCES/P4Z/p4zopt.F90
+@@ -449,9 +449,9 @@ CONTAINS
+          WRITE(numout,*) 'p4z_opt_init : '
+          WRITE(numout,*) '~~~~~~~~~~~~ '
+       ENDIF
+-      READ  ( numnatp_ref, nampisopt, IOSTAT = ios, ERR = 901)
++      READ  ( numnatp_ref(INDEX(numnatp_ref,"nampisopt")-1:), nampisopt, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'nampisopt in reference namelist' )
+-      READ  ( numnatp_cfg, nampisopt, IOSTAT = ios, ERR = 902 )
++      READ  ( numnatp_cfg(INDEX(numnatp_cfg,"nampisopt")-1:), nampisopt, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'nampisopt in configuration namelist' )
+       IF(lwm) WRITE ( numonp, nampisopt )
+ 
+diff --git a/src/TOP/PISCES/P4Z/p4zpoc.F90 b/src/TOP/PISCES/P4Z/p4zpoc.F90
+index bc0ae47..8b96ffc 100644
+--- a/src/TOP/PISCES/P4Z/p4zpoc.F90
++++ b/src/TOP/PISCES/P4Z/p4zpoc.F90
+@@ -486,9 +486,9 @@ CONTAINS
+          WRITE(numout,*) '~~~~~~~~~~~~'
+       ENDIF
+       !
+-      READ  ( numnatp_ref, nampispoc, IOSTAT = ios, ERR = 901)
++      READ  ( numnatp_ref(INDEX(numnatp_ref,"nampispoc")-1:), nampispoc, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'nampispoc in reference namelist' )
+-      READ  ( numnatp_cfg, nampispoc, IOSTAT = ios, ERR = 902 )
++      READ  ( numnatp_cfg(INDEX(numnatp_cfg,"nampispoc")-1:), nampispoc, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'nampispoc in configuration namelist' )
+       IF(lwm) WRITE( numonp, nampispoc )
+ 
+diff --git a/src/TOP/PISCES/P4Z/p4zprod.F90 b/src/TOP/PISCES/P4Z/p4zprod.F90
+index a0c736a..0423578 100644
+--- a/src/TOP/PISCES/P4Z/p4zprod.F90
++++ b/src/TOP/PISCES/P4Z/p4zprod.F90
+@@ -441,10 +441,10 @@ CONTAINS
+          WRITE(numout,*) '~~~~~~~~~~~~~'
+       ENDIF
+       !
+-      READ  ( numnatp_ref, namp4zprod, IOSTAT = ios, ERR = 901)
++      READ  ( numnatp_ref(INDEX(numnatp_ref,"namp4zprod")-1:), namp4zprod, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namp4zprod in reference namelist' )
+ 
+-      READ  ( numnatp_cfg, namp4zprod, IOSTAT = ios, ERR = 902 )
++      READ  ( numnatp_cfg(INDEX(numnatp_cfg,"namp4zprod")-1:), namp4zprod, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namp4zprod in configuration namelist' )
+       IF(lwm) WRITE( numonp, namp4zprod )
+ 
+diff --git a/src/TOP/PISCES/P4Z/p4zrem.F90 b/src/TOP/PISCES/P4Z/p4zrem.F90
+index 126f1e5..d52c0eb 100644
+--- a/src/TOP/PISCES/P4Z/p4zrem.F90
++++ b/src/TOP/PISCES/P4Z/p4zrem.F90
+@@ -277,9 +277,9 @@ CONTAINS
+          WRITE(numout,*) '~~~~~~~~~~~~'
+       ENDIF
+       !
+-      READ  ( numnatp_ref, nampisrem, IOSTAT = ios, ERR = 901)
++      READ  ( numnatp_ref(INDEX(numnatp_ref,"nampisrem")-1:), nampisrem, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'nampisrem in reference namelist' )
+-      READ  ( numnatp_cfg, nampisrem, IOSTAT = ios, ERR = 902 )
++      READ  ( numnatp_cfg(INDEX(numnatp_cfg,"nampisrem")-1:), nampisrem, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'nampisrem in configuration namelist' )
+       IF(lwm) WRITE( numonp, nampisrem )
+ 
+diff --git a/src/TOP/PISCES/P4Z/p4zsed.F90 b/src/TOP/PISCES/P4Z/p4zsed.F90
+index 7bf4145..f4165a0 100644
+--- a/src/TOP/PISCES/P4Z/p4zsed.F90
++++ b/src/TOP/PISCES/P4Z/p4zsed.F90
+@@ -347,9 +347,9 @@ CONTAINS
+          WRITE(numout,*) '~~~~~~~~~~~~ '
+       ENDIF
+       !                            !* set file information
+-      READ  ( numnatp_ref, nampissed, IOSTAT = ios, ERR = 901)
++      READ  ( numnatp_ref(INDEX(numnatp_ref,"nampissed")-1:), nampissed, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'nampissed in reference namelist' )
+-      READ  ( numnatp_cfg, nampissed, IOSTAT = ios, ERR = 902 )
++      READ  ( numnatp_cfg(INDEX(numnatp_cfg,"nampissed")-1:), nampissed, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'nampissed in configuration namelist' )
+       IF(lwm) WRITE ( numonp, nampissed )
+ 
+diff --git a/src/TOP/PISCES/P4Z/p4zsms.F90 b/src/TOP/PISCES/P4Z/p4zsms.F90
+index 32a3c6f..cd27814 100644
+--- a/src/TOP/PISCES/P4Z/p4zsms.F90
++++ b/src/TOP/PISCES/P4Z/p4zsms.F90
+@@ -261,9 +261,9 @@ CONTAINS
+          WRITE(numout,*) '~~~~~~~~~~~~'
+       ENDIF
+ 
+-      READ  ( numnatp_ref, nampisbio, IOSTAT = ios, ERR = 901)
++      READ  ( numnatp_ref(INDEX(numnatp_ref,"nampisbio")-1:), nampisbio, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'nampisbio in reference namelist' )
+-      READ  ( numnatp_cfg, nampisbio, IOSTAT = ios, ERR = 902 )
++      READ  ( numnatp_cfg(INDEX(numnatp_cfg,"nampisbio")-1:), nampisbio, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'nampisbio in configuration namelist' )
+       IF(lwm) WRITE( numonp, nampisbio )
+       !
+@@ -291,9 +291,9 @@ CONTAINS
+       ENDIF
+ 
+ 
+-      READ  ( numnatp_ref, nampisdmp, IOSTAT = ios, ERR = 905)
++      READ  ( numnatp_ref(INDEX(numnatp_ref,"nampisdmp")-1:), nampisdmp, IOSTAT = ios, ERR = 905)
+ 905   IF( ios /= 0 )   CALL ctl_nam ( ios , 'nampisdmp in reference namelist' )
+-      READ  ( numnatp_cfg, nampisdmp, IOSTAT = ios, ERR = 906 )
++      READ  ( numnatp_cfg(INDEX(numnatp_cfg,"nampisdmp")-1:), nampisdmp, IOSTAT = ios, ERR = 906 )
+ 906   IF( ios >  0 )   CALL ctl_nam ( ios , 'nampisdmp in configuration namelist' )
+       IF(lwm) WRITE( numonp, nampisdmp )
+       !
+@@ -304,9 +304,9 @@ CONTAINS
+          WRITE(numout,*) '      Frequency of Relaxation                     nn_pisdmp =', nn_pisdmp
+       ENDIF
+ 
+-      READ  ( numnatp_ref, nampismass, IOSTAT = ios, ERR = 907)
++      READ  ( numnatp_ref(INDEX(numnatp_ref,"nampismass")-1:), nampismass, IOSTAT = ios, ERR = 907)
+ 907   IF( ios /= 0 )   CALL ctl_nam ( ios , 'nampismass in reference namelist' )
+-      READ  ( numnatp_cfg, nampismass, IOSTAT = ios, ERR = 908 )
++      READ  ( numnatp_cfg(INDEX(numnatp_cfg,"nampismass")-1:), nampismass, IOSTAT = ios, ERR = 908 )
+ 908   IF( ios >  0 )   CALL ctl_nam ( ios , 'nampismass in configuration namelist' )
+       IF(lwm) WRITE( numonp, nampismass )
+ 
+diff --git a/src/TOP/PISCES/P4Z/p5zlim.F90 b/src/TOP/PISCES/P4Z/p5zlim.F90
+index f452823..c9e6467 100644
+--- a/src/TOP/PISCES/P4Z/p5zlim.F90
++++ b/src/TOP/PISCES/P4Z/p5zlim.F90
+@@ -528,10 +528,10 @@ CONTAINS
+          &                  qfnopt, qfpopt, qfdopt
+       !!----------------------------------------------------------------------
+       !
+-      READ  ( numnatp_ref, namp5zlim, IOSTAT = ios, ERR = 901)
++      READ  ( numnatp_ref(INDEX(numnatp_ref,"namp5zlim")-1:), namp5zlim, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 ) CALL ctl_nam ( ios , 'namp5zlim in reference namelist' )
+       !
+-      READ  ( numnatp_cfg, namp5zlim, IOSTAT = ios, ERR = 902 )
++      READ  ( numnatp_cfg(INDEX(numnatp_cfg,"namp5zlim")-1:), namp5zlim, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 ) CALL ctl_nam ( ios , 'namp5zlim in configuration namelist' )
+       IF(lwm) WRITE ( numonp, namp5zlim )
+       !
+@@ -567,10 +567,10 @@ CONTAINS
+          WRITE(numout,*) '    halk saturation constant for anoxia       oxymin   =' , oxymin
+       ENDIF
+ 
+-      READ  ( numnatp_ref, namp5zquota, IOSTAT = ios, ERR = 903)
++      READ  ( numnatp_ref(INDEX(numnatp_ref,"namp5zquota")-1:), namp5zquota, IOSTAT = ios, ERR = 903)
+ 903   IF( ios /= 0 ) CALL ctl_nam ( ios , 'nampisquota in reference namelist' )
+       !
+-      READ  ( numnatp_cfg, namp5zquota, IOSTAT = ios, ERR = 904 )
++      READ  ( numnatp_cfg(INDEX(numnatp_cfg,"namp5zquota")-1:), namp5zquota, IOSTAT = ios, ERR = 904 )
+ 904   IF( ios >  0 ) CALL ctl_nam ( ios , 'nampisquota in configuration namelist' )
+       IF(lwm) WRITE ( numonp, namp5zquota )
+       !
+diff --git a/src/TOP/PISCES/P4Z/p5zmeso.F90 b/src/TOP/PISCES/P4Z/p5zmeso.F90
+index 8883570..d557bca 100644
+--- a/src/TOP/PISCES/P4Z/p5zmeso.F90
++++ b/src/TOP/PISCES/P4Z/p5zmeso.F90
+@@ -556,10 +556,10 @@ CONTAINS
+          &                unass2n, unass2p, srespir2, xsigma2, xsigma2del, grazflux, ln_dvm_meso, xfracmig
+       !!----------------------------------------------------------------------
+       !
+-      READ  ( numnatp_ref, namp5zmes, IOSTAT = ios, ERR = 901)
++      READ  ( numnatp_ref(INDEX(numnatp_ref,"namp5zmes")-1:), namp5zmes, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 ) CALL ctl_nam ( ios , 'namp5zmes in reference namelist' )
+       !
+-      READ  ( numnatp_cfg, namp5zmes, IOSTAT = ios, ERR = 902 )
++      READ  ( numnatp_cfg(INDEX(numnatp_cfg,"namp5zmes")-1:), namp5zmes, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 ) CALL ctl_nam ( ios , 'namp5zmes in configuration namelist' )
+       IF(lwm) WRITE ( numonp, namp5zmes )
+       !
+diff --git a/src/TOP/PISCES/P4Z/p5zmicro.F90 b/src/TOP/PISCES/P4Z/p5zmicro.F90
+index 97459e7..f04e1c2 100644
+--- a/src/TOP/PISCES/P4Z/p5zmicro.F90
++++ b/src/TOP/PISCES/P4Z/p5zmicro.F90
+@@ -385,10 +385,10 @@ CONTAINS
+          &                xsigma, xsigmadel   
+       !!----------------------------------------------------------------------
+       !
+-      READ  ( numnatp_ref, namp5zzoo, IOSTAT = ios, ERR = 901)
++      READ  ( numnatp_ref(INDEX(numnatp_ref,"namp5zzoo")-1:), namp5zzoo, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 ) CALL ctl_nam ( ios , 'namp5zzoo in reference namelist' )
+       !
+-      READ  ( numnatp_cfg, namp5zzoo, IOSTAT = ios, ERR = 902 )
++      READ  ( numnatp_cfg(INDEX(numnatp_cfg,"namp5zzoo")-1:), namp5zzoo, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 ) CALL ctl_nam ( ios , 'namp5zzoo in configuration namelist' )
+       IF(lwm) WRITE ( numonp, namp5zzoo )
+       !
+diff --git a/src/TOP/PISCES/P4Z/p5zmort.F90 b/src/TOP/PISCES/P4Z/p5zmort.F90
+index 396be16..0402ac5 100644
+--- a/src/TOP/PISCES/P4Z/p5zmort.F90
++++ b/src/TOP/PISCES/P4Z/p5zmort.F90
+@@ -291,10 +291,10 @@ CONTAINS
+       NAMELIST/namp5zmort/ wchln, wchlp, wchld, mpratn, mpratp, mpratd
+       !!----------------------------------------------------------------------
+ 
+-      READ  ( numnatp_ref, namp5zmort, IOSTAT = ios, ERR = 901)
++      READ  ( numnatp_ref(INDEX(numnatp_ref,"namp5zmort")-1:), namp5zmort, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 ) CALL ctl_nam ( ios , 'namp5zmort in reference namelist' )
+ 
+-      READ  ( numnatp_cfg, namp5zmort, IOSTAT = ios, ERR = 902 )
++      READ  ( numnatp_cfg(INDEX(numnatp_cfg,"namp5zmort")-1:), namp5zmort, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 ) CALL ctl_nam ( ios , 'namp5zmort in configuration namelist' )
+       IF(lwm) WRITE ( numonp, namp5zmort )
+ 
+diff --git a/src/TOP/PISCES/P4Z/p5zprod.F90 b/src/TOP/PISCES/P4Z/p5zprod.F90
+index 5dbc757..237e4cd 100644
+--- a/src/TOP/PISCES/P4Z/p5zprod.F90
++++ b/src/TOP/PISCES/P4Z/p5zprod.F90
+@@ -595,10 +595,10 @@ CONTAINS
+          &                 thetannm, thetanpm, thetandm, chlcmin, grosip, bresp
+       !!----------------------------------------------------------------------
+ 
+-      READ  ( numnatp_ref, namp5zprod, IOSTAT = ios, ERR = 901)
++      READ  ( numnatp_ref(INDEX(numnatp_ref,"namp5zprod")-1:), namp5zprod, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 ) CALL ctl_nam ( ios , 'namp5zprod in reference namelist' )
+ 
+-      READ  ( numnatp_cfg, namp5zprod, IOSTAT = ios, ERR = 902 )
++      READ  ( numnatp_cfg(INDEX(numnatp_cfg,"namp5zprod")-1:), namp5zprod, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 ) CALL ctl_nam ( ios , 'namp5zprod in configuration namelist' )
+       IF(lwm) WRITE ( numonp, namp5zprod )
+ 
+diff --git a/src/TOP/PISCES/trcnam_pisces.F90 b/src/TOP/PISCES/trcnam_pisces.F90
+index 4954e84..d8742e4 100644
+--- a/src/TOP/PISCES/trcnam_pisces.F90
++++ b/src/TOP/PISCES/trcnam_pisces.F90
+@@ -54,9 +54,9 @@ CONTAINS
+       CALL load_nml( numnatp_cfg, TRIM( clname )//'_cfg', numout, lwm )
+       IF(lwm) CALL ctl_opn( numonp     , 'output.namelist.pis' , 'UNKNOWN', 'FORMATTED', 'SEQUENTIAL', -1, numout, .FALSE. )
+       !
+-      READ  ( numnatp_ref, nampismod, IOSTAT = ios, ERR = 901)
++      READ  ( numnatp_ref(INDEX(numnatp_ref,"nampismod")-1:), nampismod, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'nampismod in reference namelist' )
+-      READ  ( numnatp_cfg, nampismod, IOSTAT = ios, ERR = 902 )
++      READ  ( numnatp_cfg(INDEX(numnatp_cfg,"nampismod")-1:), nampismod, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'nampismod in configuration namelist' )
+       IF(lwm) WRITE( numonp, nampismod )
+       !
+diff --git a/src/TOP/TRP/trcadv.F90 b/src/TOP/TRP/trcadv.F90
+index c6ceff3..3804d50 100644
+--- a/src/TOP/TRP/trcadv.F90
++++ b/src/TOP/TRP/trcadv.F90
+@@ -181,9 +181,9 @@ CONTAINS
+       !!----------------------------------------------------------------------
+       !
+       !                                !==  Namelist  ==!
+-      READ  ( numnat_ref, namtrc_adv, IOSTAT = ios, ERR = 901)
++      READ  ( numnat_ref(INDEX(numnat_ref,"namtrc_adv")-1:), namtrc_adv, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namtrc_adv in reference namelist' )
+-      READ  ( numnat_cfg, namtrc_adv, IOSTAT = ios, ERR = 902 )
++      READ  ( numnat_cfg(INDEX(numnat_cfg,"namtrc_adv")-1:), namtrc_adv, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namtrc_adv in configuration namelist' )
+       IF(lwm) WRITE ( numont, namtrc_adv )
+       !
+diff --git a/src/TOP/TRP/trcdmp.F90 b/src/TOP/TRP/trcdmp.F90
+index 8b2be2d..fddd004 100644
+--- a/src/TOP/TRP/trcdmp.F90
++++ b/src/TOP/TRP/trcdmp.F90
+@@ -172,9 +172,9 @@ CONTAINS
+       NAMELIST/namtrc_dmp/ nn_zdmp_tr , cn_resto_tr
+       !!----------------------------------------------------------------------
+       !
+-      READ  ( numnat_ref, namtrc_dmp, IOSTAT = ios, ERR = 909)
++      READ  ( numnat_ref(INDEX(numnat_ref,"namtrc_dmp")-1:), namtrc_dmp, IOSTAT = ios, ERR = 909)
+ 909   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namtrc_dmp in reference namelist' )
+-      READ  ( numnat_cfg, namtrc_dmp, IOSTAT = ios, ERR = 910)
++      READ  ( numnat_cfg(INDEX(numnat_cfg,"namtrc_dmp")-1:), namtrc_dmp, IOSTAT = ios, ERR = 910)
+ 910   IF( ios >  0 )   CALL ctl_nam ( ios , 'namtrc_dmp in configuration namelist' )
+       IF(lwm) WRITE ( numont, namtrc_dmp )
+ 
+diff --git a/src/TOP/TRP/trcldf.F90 b/src/TOP/TRP/trcldf.F90
+index b3344d0..69853b7 100644
+--- a/src/TOP/TRP/trcldf.F90
++++ b/src/TOP/TRP/trcldf.F90
+@@ -146,10 +146,10 @@ CONTAINS
+          WRITE(numout,*) '~~~~~~~~~~~'
+       ENDIF
+       !
+-      READ  ( numnat_ref, namtrc_ldf, IOSTAT = ios, ERR = 903)
++      READ  ( numnat_ref(INDEX(numnat_ref,"namtrc_ldf")-1:), namtrc_ldf, IOSTAT = ios, ERR = 903)
+ 903   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namtrc_ldf in reference namelist' )
+       !
+-      READ  ( numnat_cfg, namtrc_ldf, IOSTAT = ios, ERR = 904 )
++      READ  ( numnat_cfg(INDEX(numnat_cfg,"namtrc_ldf")-1:), namtrc_ldf, IOSTAT = ios, ERR = 904 )
+ 904   IF( ios >  0 )   CALL ctl_nam ( ios , 'namtrc_ldf in configuration namelist' )
+       IF(lwm) WRITE ( numont, namtrc_ldf )
+       !
+diff --git a/src/TOP/TRP/trcrad.F90 b/src/TOP/TRP/trcrad.F90
+index 4e82863..8917180 100644
+--- a/src/TOP/TRP/trcrad.F90
++++ b/src/TOP/TRP/trcrad.F90
+@@ -91,9 +91,9 @@ CONTAINS
+       NAMELIST/namtrc_rad/ ln_trcrad
+       !!----------------------------------------------------------------------
+       !
+-      READ  ( numnat_ref, namtrc_rad, IOSTAT = ios, ERR = 907)
++      READ  ( numnat_ref(INDEX(numnat_ref,"namtrc_rad")-1:), namtrc_rad, IOSTAT = ios, ERR = 907)
+ 907   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namtrc_rad in reference namelist' )
+-      READ  ( numnat_cfg, namtrc_rad, IOSTAT = ios, ERR = 908 )
++      READ  ( numnat_cfg(INDEX(numnat_cfg,"namtrc_rad")-1:), namtrc_rad, IOSTAT = ios, ERR = 908 )
+ 908   IF( ios > 0 )   CALL ctl_nam ( ios , 'namtrc_rad in configuration namelist' )
+       IF(lwm) WRITE( numont, namtrc_rad )
+ 
+diff --git a/src/TOP/TRP/trcsink.F90 b/src/TOP/TRP/trcsink.F90
+index 5cee9b0..9c24566 100644
+--- a/src/TOP/TRP/trcsink.F90
++++ b/src/TOP/TRP/trcsink.F90
+@@ -205,9 +205,9 @@ CONTAINS
+       NAMELIST/namtrc_snk/ nitermax
+       !!----------------------------------------------------------------------
+       !
+-      READ  ( numnat_ref, namtrc_snk, IOSTAT = ios, ERR = 907)
++      READ  ( numnat_ref(INDEX(numnat_ref,"namtrc_snk")-1:), namtrc_snk, IOSTAT = ios, ERR = 907)
+ 907   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namtrc_snk in reference namelist' )
+-      READ  ( numnat_cfg, namtrc_snk, IOSTAT = ios, ERR = 908 )
++      READ  ( numnat_cfg(INDEX(numnat_cfg,"namtrc_snk")-1:), namtrc_snk, IOSTAT = ios, ERR = 908 )
+ 908   IF( ios > 0 )   CALL ctl_nam ( ios , 'namtrc_snk in configuration namelist' )
+       IF(lwm) WRITE( numont, namtrc_snk )
+ 
+diff --git a/src/TOP/trcais.F90 b/src/TOP/trcais.F90
+index 5bd0513..6dacf2a 100644
+--- a/src/TOP/trcais.F90
++++ b/src/TOP/trcais.F90
+@@ -83,9 +83,9 @@ CONTAINS
+       n_trc_indais(:) = 0
+       !
+       ! Read Antarctic Ice Sheet Namelist
+-      READ  ( numnat_ref, namtrc_ais, IOSTAT = ios, ERR = 901)
++      READ  ( numnat_ref(INDEX(numnat_ref,"namtrc_ais")-1:), namtrc_ais, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namtrc_ais in reference namelist' )
+-      READ  ( numnat_cfg, namtrc_ais, IOSTAT = ios, ERR = 902 )
++      READ  ( numnat_cfg(INDEX(numnat_cfg,"namtrc_ais")-1:), namtrc_ais, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namtrc_ais in configuration namelist' )
+       IF(lwm) WRITE ( numont, namtrc_ais )
+       ! 
+diff --git a/src/TOP/trcbc.F90 b/src/TOP/trcbc.F90
+index c92053c..3ee9547 100644
+--- a/src/TOP/trcbc.F90
++++ b/src/TOP/trcbc.F90
+@@ -130,9 +130,9 @@ CONTAINS
+       rn_trcfac(:)    = 1._wp
+       !
+       ! Read Boundary Conditions Namelists
+-      READ  ( numnat_ref, namtrc_bc, IOSTAT = ios, ERR = 901)
++      READ  ( numnat_ref(INDEX(numnat_ref,"namtrc_bc")-1:), namtrc_bc, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namtrc_bc in reference namelist' )
+-      READ  ( numnat_cfg, namtrc_bc, IOSTAT = ios, ERR = 902 )
++      READ  ( numnat_cfg(INDEX(numnat_cfg,"namtrc_bc")-1:), namtrc_bc, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namtrc_bc in configuration namelist' )
+       IF(lwm) WRITE ( numont, namtrc_bc )
+ 
+diff --git a/src/TOP/trcbdy.F90 b/src/TOP/trcbdy.F90
+index 331bc68..25bda92 100644
+--- a/src/TOP/trcbdy.F90
++++ b/src/TOP/trcbdy.F90
+@@ -61,13 +61,13 @@ CONTAINS
+          WRITE(numout,*) '~~~~~~~~~~~'
+       END IF
+       !
+-      READ( numnat_ref, namtrc_bdy, IOSTAT = ios, ERR = 903 )
++      READ( numnat_ref(INDEX(numnat_ref,"namtrc_bdy")-1:), namtrc_bdy, IOSTAT = ios, ERR = 903 )
+ 903   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namtrc_bdy in reference namelist'     )
+       ! make sure that all elements of the namelist variables have a default definition from namelist_top_ref
+       cn_trc       (2:jp_bdy) = cn_trc       (1)
+       cn_trc_dflt  (2:jp_bdy) = cn_trc_dflt  (1)
+       nn_trcdmp_bdy(2:jp_bdy) = nn_trcdmp_bdy(1)
+-      READ( numnat_cfg, namtrc_bdy, IOSTAT = ios, ERR = 904 )
++      READ( numnat_cfg(INDEX(numnat_cfg,"namtrc_bdy")-1:), namtrc_bdy, IOSTAT = ios, ERR = 904 )
+ 904   IF( ios >  0 )   CALL ctl_nam ( ios , 'namtrc_bdy in configuration namelist' )
+       IF(lwm) WRITE ( numont, namtrc_bdy )
+       ! setup up preliminary information for BDY structure
+diff --git a/src/TOP/trcdta.F90 b/src/TOP/trcdta.F90
+index ec3a47d..bca3b2d 100644
+--- a/src/TOP/trcdta.F90
++++ b/src/TOP/trcdta.F90
+@@ -98,9 +98,9 @@ CONTAINS
+          WRITE(numout,*) '   number of passive tracers to be initialize by data :', ntra
+       ENDIF
+       !
+-      READ  ( numnat_ref, namtrc_dta, IOSTAT = ios, ERR = 901)
++      READ  ( numnat_ref(INDEX(numnat_ref,"namtrc_dta")-1:), namtrc_dta, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namtrc_dta_ini in reference namelist' )
+-      READ  ( numnat_cfg, namtrc_dta, IOSTAT = ios, ERR = 902 )
++      READ  ( numnat_cfg(INDEX(numnat_cfg,"namtrc_dta")-1:), namtrc_dta, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namtrc_dta_ini in configuration namelist' )
+       IF(lwm) WRITE ( numont, namtrc_dta )
+ 
+diff --git a/src/TOP/trcice.F90 b/src/TOP/trcice.F90
+index 406d6ac..b03a802 100644
+--- a/src/TOP/trcice.F90
++++ b/src/TOP/trcice.F90
+@@ -85,9 +85,9 @@ CONTAINS
+          WRITE(numout,*) '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+       ENDIF
+       !
+-      READ  ( numnat_ref, namtrc_ice, IOSTAT = ios, ERR = 901)
++      READ  ( numnat_ref(INDEX(numnat_ref,"namtrc_ice")-1:), namtrc_ice, IOSTAT = ios, ERR = 901)
+  901  IF( ios /= 0 )   CALL ctl_nam ( ios , ' namtrc_ice in reference namelist ' )
+-      READ  ( numnat_cfg, namtrc_ice, IOSTAT = ios, ERR = 902 )
++      READ  ( numnat_cfg(INDEX(numnat_cfg,"namtrc_ice")-1:), namtrc_ice, IOSTAT = ios, ERR = 902 )
+  902  IF( ios >  0 )   CALL ctl_nam ( ios , 'namtrc_ice in configuration namelist' )
+ 
+       IF( lwp ) THEN
+diff --git a/src/TOP/trcnam.F90 b/src/TOP/trcnam.F90
+index 351c710..e36780f 100644
+--- a/src/TOP/trcnam.F90
++++ b/src/TOP/trcnam.F90
+@@ -106,9 +106,9 @@ CONTAINS
+       CALL load_nml( numnat_cfg, 'namelist_top_cfg' , numout, lwm )
+       IF(lwm) CALL ctl_opn( numont, 'output.namelist.top', 'UNKNOWN', 'FORMATTED', 'SEQUENTIAL', -1, numout, .FALSE., 1 )
+       !
+-      READ  ( numnat_ref, namtrc_run, IOSTAT = ios, ERR = 901)
++      READ  ( numnat_ref(INDEX(numnat_ref,"namtrc_run")-1:), namtrc_run, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namtrc in reference namelist' )
+-      READ  ( numnat_cfg, namtrc_run, IOSTAT = ios, ERR = 902 )
++      READ  ( numnat_cfg(INDEX(numnat_cfg,"namtrc_run")-1:), namtrc_run, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namtrc in configuration namelist' )
+       IF(lwm) WRITE( numont, namtrc_run )
+ 
+@@ -146,9 +146,9 @@ CONTAINS
+       IF(lwp) WRITE(numout,*) 'trc_nam_trc : read the passive tracer namelists'
+       IF(lwp) WRITE(numout,*) '~~~~~~~~~~~'
+ 
+-      READ  ( numnat_ref, namtrc, IOSTAT = ios, ERR = 901)
++      READ  ( numnat_ref(INDEX(numnat_ref,"namtrc ")-1:), namtrc, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namtrc in reference namelist' )
+-      READ  ( numnat_cfg, namtrc, IOSTAT = ios, ERR = 902 )
++      READ  ( numnat_cfg(INDEX(numnat_cfg,"namtrc ")-1:), namtrc, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namtrc in configuration namelist' )
+       IF(lwm) WRITE( numont, namtrc )
+ 
+@@ -240,9 +240,9 @@ CONTAINS
+       IF(lwp) WRITE(numout,*) 'trc_nam_dcy : read the passive tracer diurnal cycle options'
+       IF(lwp) WRITE(numout,*) '~~~~~~~~~~~'
+       !
+-      READ  ( numnat_ref, namtrc_dcy, IOSTAT = ios, ERR = 905)
++      READ  ( numnat_ref(INDEX(numnat_ref,"namtrc_dcy")-1:), namtrc_dcy, IOSTAT = ios, ERR = 905)
+ 905   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namtrc_dcy in reference namelist' )
+-      READ  ( numnat_cfg, namtrc_dcy, IOSTAT = ios, ERR = 906 )
++      READ  ( numnat_cfg(INDEX(numnat_cfg,"namtrc_dcy")-1:), namtrc_dcy, IOSTAT = ios, ERR = 906 )
+ 906   IF( ios >  0 )   CALL ctl_nam ( ios , 'namtrc_dcy in configuration namelist' )
+       IF(lwm) WRITE( numont, namtrc_dcy )
+ 
+@@ -277,9 +277,9 @@ CONTAINS
+       !
+       ALLOCATE( ln_trdtrc(jptra) ) 
+       !
+-      READ  ( numnat_ref, namtrc_trd, IOSTAT = ios, ERR = 905)
++      READ  ( numnat_ref(INDEX(numnat_ref,"namtrc_trd")-1:), namtrc_trd, IOSTAT = ios, ERR = 905)
+ 905   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namtrc_trd in reference namelist' )
+-      READ  ( numnat_cfg, namtrc_trd, IOSTAT = ios, ERR = 906 )
++      READ  ( numnat_cfg(INDEX(numnat_cfg,"namtrc_trd")-1:), namtrc_trd, IOSTAT = ios, ERR = 906 )
+ 906   IF( ios >  0 )   CALL ctl_nam ( ios , 'namtrc_trd in configuration namelist' )
+       IF(lwm) WRITE( numont, namtrc_trd )
+ 
+diff --git a/src/TOP/trcopt.F90 b/src/TOP/trcopt.F90
+index 7620a4c..bc654df 100644
+--- a/src/TOP/trcopt.F90
++++ b/src/TOP/trcopt.F90
+@@ -296,9 +296,9 @@ CONTAINS
+          WRITE(numout,*) 'trc_opt_ini : Initialize light module'
+          WRITE(numout,*) '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+       ENDIF
+-      READ  ( numnat_ref, namtrc_opt, IOSTAT = ios, ERR = 901)
++      READ  ( numnat_ref(INDEX(numnat_ref,"namtrc_opt")-1:), namtrc_opt, IOSTAT = ios, ERR = 901)
+ 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namtrc_opt in reference namelist' )
+-      READ  ( numnat_cfg, namtrc_opt, IOSTAT = ios, ERR = 902 )
++      READ  ( numnat_cfg(INDEX(numnat_cfg,"namtrc_opt")-1:), namtrc_opt, IOSTAT = ios, ERR = 902 )
+ 902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namtrc_opt in configuration namelist' )
+       IF(lwm) WRITE ( numont, namtrc_opt )
+ 

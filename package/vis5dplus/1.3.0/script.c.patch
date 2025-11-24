@@ -1,0 +1,1558 @@
+--- script.c	2025-04-27 17:45:05.848000000 +0800
++++ script.c	2025-04-27 17:42:01.808000000 +0800
+@@ -173,8 +173,10 @@
+          return TCL_OK;
+       }
+       else {
+-         sprintf( interp->result,"can't read \"%s\": no such variable",
+-                  argv[1] );
++         //sprintf( interp->result,"can't read \"%s\": no such variable",
++         //         argv[1] );
++	 Tcl_SetObjResult(interp,Tcl_ObjPrintf("can't read \"%s\": no such variable",
++				 argv[1] ));
+          return TCL_ERROR;
+       }
+    }
+@@ -184,8 +186,9 @@
+       return TCL_OK;
+    }
+    else {
+-      sprintf( interp->result,
+-               "wrong # args: should be \"set varName ?newValue?\"" );
++      //sprintf( interp->result,
++      //         "wrong # args: should be \"set varName ?newValue?\"" );
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("wrong # args: should be \"set varName ?newValue?\"" ));
+       return TCL_ERROR;
+    }
+ }
+@@ -199,7 +202,8 @@
+                        int argc, char *argv[] )
+ {
+    if (argc!=2) {
+-      sprintf( interp->result, "Error: source requires a filename argument" );
++      //sprintf( interp->result, "Error: source requires a filename argument" );
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("Error: source requires a filename argument" ));
+       return TCL_ERROR;
+    }
+    return Tcl_EvalFile( interp, argv[1] );
+@@ -334,8 +338,9 @@
+    for (i=0;i<argc;i++) {
+       if (arg[i][0]=='$') {
+          if (!eval_var( interp, arg[i]+1, arg[i] )) {
+-            sprintf( interp->result,
+-                     "can't read \"%s\": no such variable", arg[i]+1 );
++            //sprintf( interp->result,
++            //         "can't read \"%s\": no such variable", arg[i]+1 );
++	    Tcl_SetObjResult(interp,Tcl_ObjPrintf("can't read \"%s\": no such variable", arg[i]+1 ));
+             return TCL_ERROR;
+          }
+       }
+@@ -353,7 +358,8 @@
+    }
+ 
+    /* command not found! */
+-   sprintf( interp->result, "invalid command name \"%s\"", arg[0] );
++   //sprintf( interp->result, "invalid command name \"%s\"", arg[0] );
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("invalid command name \"%s\"", arg[0] ));
+    return TCL_ERROR;
+ }
+ 
+@@ -581,27 +587,32 @@
+       return 1;
+    }
+    else if (min==max && min==1) {
+-      sprintf( interp->result, "Error in %s: one argument expected", func );
++      //sprintf( interp->result, "Error in %s: one argument expected", func );
++      Tcl_SetObjResult(interp, Tcl_ObjPrintf("Error in %s: one argument expected", func ));
+       return 0;
+    }
+    else if (min==max) {
+-      sprintf( interp->result, "Error in %s: %d arguments expected",
+-               func, min );
++      //sprintf( interp->result, "Error in %s: %d arguments expected",
++      //         func, min );
++      Tcl_SetObjResult(interp, Tcl_ObjPrintf("Error in %s: %d arguments expected",func, min ));
+       return 0;
+    }
+    else if (min==max-1) {
+-      sprintf( interp->result, "Error in %s: %d or %d arguments expected",
+-               func, min, max );
++      //sprintf( interp->result, "Error in %s: %d or %d arguments expected",
++      //         func, min, max );
++      Tcl_SetObjResult(interp, Tcl_ObjPrintf("Error in %s: %d or %d arguments expected",func, min, max ));
+       return 0;
+    }
+    else if (max<1000) {
+-      sprintf( interp->result, "Error in %s: from %d to %d arguments expected",
+-               func, min, max );
++      //sprintf( interp->result, "Error in %s: from %d to %d arguments expected",
++      //         func, min, max );
++      Tcl_SetObjResult(interp, Tcl_ObjPrintf("Error in %s: from %d to %d arguments expected",func, min, max ));
+       return 0;
+    }
+    else {
+-      sprintf( interp->result,"Error in %s: at least %d arguments expected",
+-               func, min );
++      //sprintf( interp->result,"Error in %s: at least %d arguments expected",
++      //         func, min );
++      Tcl_SetObjResult(interp, Tcl_ObjPrintf("Error in %s: at least %d arguments expected",func, min ));
+       return 0;
+    }
+ }
+@@ -615,28 +626,36 @@
+ {
+    switch (errno) {
+       case VIS5D_BAD_CONTEXT:
+-         sprintf( interp->result, "Error in %s: bad context", func );
++         //sprintf( interp->result, "Error in %s: bad context", func );
++	 Tcl_SetObjResult(interp,Tcl_ObjPrintf("Error in %s: bad context",func));
+          break;
+       case VIS5D_BAD_CONSTANT:
+-         sprintf( interp->result, "Error in %s: undefined constant", func );
++         //sprintf( interp->result, "Error in %s: undefined constant", func );
++	 Tcl_SetObjResult(interp,Tcl_ObjPrintf("Error in %s: undefined constant", func ));
+          break;
+       case VIS5D_BAD_MODE:
+-         sprintf( interp->result, "Error in %s: bad mode parameter", func );
++         //sprintf( interp->result, "Error in %s: bad mode parameter", func );
++	 Tcl_SetObjResult(interp,Tcl_ObjPrintf("Error in %s: bad mode parameter", func ));
+          break;
+       case VIS5D_BAD_VALUE:
+-         sprintf( interp->result, "Error in %s: bad parameter value", func );
++         //sprintf( interp->result, "Error in %s: bad parameter value", func );
++	 Tcl_SetObjResult(interp,Tcl_ObjPrintf("Error in %s: bad parameter value", func ));
+          break;
+       case VIS5D_BAD_VAR_NUMBER:
+-         sprintf( interp->result, "Error in %s: invalid variable number",func);
++         //sprintf( interp->result, "Error in %s: invalid variable number",func);
++	 Tcl_SetObjResult(interp,Tcl_ObjPrintf("Error in %s: invalid variable number",func));
+          break;
+       case VIS5D_BAD_TIME_STEP:
+-         sprintf( interp->result, "Error in %s: invalid timestep number",func);
++         //sprintf( interp->result, "Error in %s: invalid timestep number",func);
++	 Tcl_SetObjResult(interp,Tcl_ObjPrintf("Error in %s: invalid timestep number",func));
+          break;
+       case VIS5D_FAIL:
+-         sprintf( interp->result, "Error in %s: function failed", func );
++         //sprintf( interp->result, "Error in %s: function failed", func );
++	 Tcl_SetObjResult(interp,Tcl_ObjPrintf("Error in %s: function failed", func ));
+          break;
+       case VIS5D_OUT_OF_MEMORY:
+-         sprintf( interp->result, "Error in %s: out of memory", func );
++         //sprintf( interp->result, "Error in %s: out of memory", func );
++	 Tcl_SetObjResult(interp,Tcl_ObjPrintf("Error in %s: out of memory", func ));
+          break;
+       default:
+          return TCL_OK;
+@@ -664,7 +683,8 @@
+       return TCL_ERROR;
+    }
+    result = get_animate( atoi(argv[1]), &state, &rate, &dwell);
+-   sprintf( interp->result, "%d %d %d", state, rate, dwell);
++   //sprintf( interp->result, "%d %d %d", state, rate, dwell);
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d %d %d", state, rate, dwell));
+    return error_check( interp, "vis5d_gui_get_animate", result );
+ }
+ 
+@@ -789,7 +809,8 @@
+    }
+    result = vis5d_alloc_data_context();
+    result = vis5d_alloc_display_context();
+-   sprintf(interp->result,"%d",result);
++   //sprintf(interp->result,"%d",result);
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d",result));
+    return error_check( interp, "vis5d_alloc_context", result);
+ }
+ 
+@@ -823,7 +844,8 @@
+       return TCL_ERROR;
+    }
+    result = vis5d_alloc_data_context();
+-   sprintf(interp->result,"%d",result);
++   //sprintf(interp->result,"%d",result);
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d",result));
+    return error_check( interp, "vis5d_alloc_data_context", result);
+ }
+ 
+@@ -836,7 +858,8 @@
+       return TCL_ERROR;
+    }  
+    result = vis5d_alloc_irregular_data_context();
+-   sprintf(interp->result,"%d",result);
++   //sprintf(interp->result,"%d",result);
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d",result));
+    return error_check( interp, "vis5d_alloc_irregular_data_context", result);
+ }  
+ #endif /* HAVE_LIBNETCDF */
+@@ -849,7 +872,8 @@
+       return TCL_ERROR;
+    }
+    result = vis5d_alloc_display_context();
+-   sprintf(interp->result,"%d",result);
++   //sprintf(interp->result,"%d",result);
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d",result));
+    return error_check( interp, "vis5d_alloc_display_context", result);
+ }
+ 
+@@ -957,7 +981,11 @@
+    if (!arg_check( interp, "vis5d_get_v5dfilename", argc, 1, 1 )) {
+       return TCL_ERROR;
+    }
+-   result = vis5d_get_v5dfilename( atoi(argv[1]), interp->result );
++   //result = vis5d_get_v5dfilename( atoi(argv[1]), interp->result );
++   char *filename = NULL;
++   result = vis5d_get_v5dfilename(atoi(argv[1]), &filename);
++   Tcl_SetObjResult(interp, Tcl_NewStringObj(filename ? filename : "", -1));
++   if (filename) free(filename);
+    return error_check( interp, "vis5d_get_v5dfilename", result );
+ }
+ 
+@@ -971,7 +999,11 @@
+    if (!arg_check( interp, "vis5d_get_context_name", argc, 1, 1 )) {
+       return TCL_ERROR;
+    }
+-   result = vis5d_get_context_name( atoi(argv[1]), interp->result );
++   //result = vis5d_get_context_name( atoi(argv[1]), interp->result );
++   char *context_name = NULL;
++   result = vis5d_get_context_name(atoi(argv[1]), &context_name);
++   Tcl_SetObjResult(interp, Tcl_NewStringObj(context_name ? context_name : "", -1));
++   if (context_name) free(context_name);
+    return error_check( interp, "vis5d_get_context_name", result );
+ }
+ 
+@@ -1188,7 +1220,8 @@
+       what = VIS5D_MAP;
+    }
+    else {
+-      interp->result = "Error in vis5d_enable_sfc_graphics: bad constant";
++      //interp->result = "Error in vis5d_enable_sfc_graphics: bad constant";
++      Tcl_SetResult(interp, "Error in vis5d_enable_sfc_graphics: bad constant", TCL_STATIC);
+       return TCL_ERROR;
+    }
+ 
+@@ -1205,7 +1238,8 @@
+       mode = VIS5D_GET;
+    }
+    else {
+-      interp->result = "Error in vis5d_enable_sfc_graphics: bad mode";
++      //interp->result = "Error in vis5d_enable_sfc_graphics: bad mode";
++      Tcl_SetResult(interp, "Error in vis5d_enable_sfc_graphics: bad mode", TCL_STATIC);
+       return TCL_ERROR;
+    }
+ 
+@@ -1220,7 +1254,8 @@
+    result = vis5d_enable_sfc_graphics( index, what, n, mode );
+    if (result >= 0)
+    {
+-      interp->result = result ? "1" : "0";
++      //interp->result = result ? "1" : "0";
++      Tcl_SetResult(interp, result ? "1" : "0", TCL_STATIC);
+       return TCL_OK;
+    }
+    return error_check( interp, "vis5d_enable_sfc_graphics", result );
+@@ -1479,7 +1514,8 @@
+       return TCL_ERROR;
+    }
+    result = vis5d_get_ctx_numtimes( atoi(argv[1]), &numtimes );
+-   sprintf( interp->result, "%d", numtimes );
++   //sprintf( interp->result, "%d", numtimes );
++   Tcl_SetObjResult(interp, Tcl_ObjPrintf("%d", numtimes));
+    return error_check( interp, "vis5d_get_numtimes", result );
+ }
+ 
+@@ -1491,7 +1527,8 @@
+       return TCL_ERROR;
+    }
+    result = vis5d_get_ctx_numtimes( atoi(argv[1]), &numtimes );
+-   sprintf( interp->result, "%d", numtimes );
++   //sprintf( interp->result, "%d", numtimes );
++   Tcl_SetObjResult(interp, Tcl_ObjPrintf("%d", numtimes));
+    return error_check( interp, "vis5d_get_ctx_numtimes", result );
+ }
+ 
+@@ -1503,7 +1540,8 @@
+       return TCL_ERROR;
+    }
+    result = vis5d_get_itx_numtimes( atoi(argv[1]), &numtimes );
+-   sprintf( interp->result, "%d", numtimes );
++   //sprintf( interp->result, "%d", numtimes );
++   Tcl_SetObjResult(interp, Tcl_ObjPrintf("%d", numtimes));
+    return error_check( interp, "vis5d_get_itx_numtimes", result );
+ }
+ 
+@@ -1515,7 +1553,8 @@
+       return TCL_ERROR;
+    }
+    result = vis5d_get_dtx_numtimes( atoi(argv[1]), &numtimes );
+-   sprintf( interp->result, "%d", numtimes );
++   //sprintf( interp->result, "%d", numtimes );
++   Tcl_SetObjResult(interp, Tcl_ObjPrintf("%d", numtimes));
+    return error_check( interp, "vis5d_get_dtx_numtimes", result );
+ }
+ 
+@@ -1527,7 +1566,8 @@
+       return TCL_ERROR;
+    }
+    result = vis5d_get_grp_numtimes( atoi(argv[1]), &numtimes );
+-   sprintf( interp->result, "%d", numtimes );
++   //sprintf( interp->result, "%d", numtimes );
++   Tcl_SetObjResult(interp, Tcl_ObjPrintf("%d", numtimes));
+    return error_check( interp, "vis5d_get_grp_numtimes", result );
+ }
+ 
+@@ -1542,7 +1582,8 @@
+    date = v5dDaysToYYDDD( date );
+    time = v5dSecondsToHHMMSS( time );
+    result = vis5d_get_ctx_time_stamp( atoi(argv[1]), atoi(argv[2]), &date, &time );
+-   sprintf( interp->result, "%05d %06d", date, time );
++   //sprintf( interp->result, "%05d %06d", date, time );
++   Tcl_SetObjResult(interp, Tcl_ObjPrintf("%05d %06d", date, time ));
+    return error_check( interp, "vis5d_get_time_stamp", result );
+ }
+ 
+@@ -1556,7 +1597,8 @@
+    date = v5dDaysToYYDDD( date );
+    time = v5dSecondsToHHMMSS( time );
+    result = vis5d_get_ctx_time_stamp( atoi(argv[1]), atoi(argv[2]), &date, &time );
+-   sprintf( interp->result, "%05d %06d", date, time );
++   //sprintf( interp->result, "%05d %06d", date, time );
++   Tcl_SetObjResult(interp, Tcl_ObjPrintf("%05d %06d", date, time));
+    return error_check( interp, "vis5d_get_ctx_time_stamp", result );
+ }
+ 
+@@ -1570,7 +1612,8 @@
+    date = v5dDaysToYYDDD( date );
+    time = v5dSecondsToHHMMSS( time );
+    result = vis5d_get_itx_time_stamp( atoi(argv[1]), atoi(argv[2]), &date, &time );
+-   sprintf( interp->result, "%05d %06d", date, time );
++   //sprintf( interp->result, "%05d %06d", date, time );
++   Tcl_SetObjResult(interp, Tcl_ObjPrintf("%05d %06d", date, time));
+    return error_check( interp, "vis5d_get_itx_time_stamp", result );
+ }
+ 
+@@ -1598,7 +1641,8 @@
+    date = v5dDaysToYYDDD( date );
+    time = v5dSecondsToHHMMSS( time );
+    result = vis5d_get_dtx_time_stamp( atoi(argv[1]), atoi(argv[2]), &date, &time );
+-   sprintf( interp->result, "%05d %06d", date, time );
++   //sprintf( interp->result, "%05d %06d", date, time );
++   Tcl_SetObjResult(interp, Tcl_ObjPrintf("%05d %06d", date, time));
+    return error_check( interp, "vis5d_get_dtx_time_stamp", result );
+ }
+ 
+@@ -1660,7 +1704,8 @@
+       return TCL_ERROR;
+    }
+    result = vis5d_get_ctx_timestep( atoi(argv[1]), &time );
+-   sprintf( interp->result, "%d", time );
++   //sprintf( interp->result, "%d", time );
++   Tcl_SetObjResult(interp, Tcl_ObjPrintf("%d", time));
+    return error_check( interp, "vis5d_get_ctx_timestep", result );
+ }
+ 
+@@ -1672,7 +1717,8 @@
+       return TCL_ERROR;
+    }
+    result = vis5d_get_itx_timestep( atoi(argv[1]), &time );
+-   sprintf( interp->result, "%d", time );
++   //sprintf( interp->result, "%d", time );
++   Tcl_SetObjResult(interp, Tcl_ObjPrintf("%d", time));
+    return error_check( interp, "vis5d_get_itx_timestep", result );
+ }
+ 
+@@ -1684,7 +1730,8 @@
+       return TCL_ERROR;
+    }
+    result = vis5d_get_dtx_timestep( atoi(argv[1]), &time );
+-   sprintf( interp->result, "%d", time );
++   //sprintf( interp->result, "%d", time );
++   Tcl_SetObjResult(interp, Tcl_ObjPrintf("%d", time));
+    return error_check( interp, "vis5d_get_timestep", result );
+ }
+ 
+@@ -1696,7 +1743,8 @@
+       return TCL_ERROR;
+    }
+    result = vis5d_get_dtx_timestep( atoi(argv[1]), &time );
+-   sprintf( interp->result, "%d", time );
++   //sprintf( interp->result, "%d", time );
++   Tcl_SetObjResult(interp, Tcl_ObjPrintf("%d", time));
+    return error_check( interp, "vis5d_get_dtx_timestep", result );
+ }
+ 
+@@ -1709,7 +1757,8 @@
+       return TCL_ERROR;
+    }
+    result = vis5d_get_grp_timestep( atoi(argv[1]), &time );
+-   sprintf( interp->result, "%d", time );
++   //sprintf( interp->result, "%d", time );
++   Tcl_SetObjResult(interp, Tcl_ObjPrintf("%d", time));
+    return error_check( interp, "vis5d_get_grp_timestep", result );
+ }
+ 
+@@ -1725,7 +1774,8 @@
+    }
+    result = vis5d_get_ctx_numvars( atoi(argv[1]), &numvars );
+    if (result==0) {
+-      sprintf( interp->result, "%d", numvars );
++      //sprintf( interp->result, "%d", numvars );
++      Tcl_SetObjResult(interp, Tcl_ObjPrintf("%d", numvars));
+       return TCL_OK;
+    }
+    else {
+@@ -1742,7 +1792,8 @@
+    }
+    result = vis5d_get_itx_numvars( atoi(argv[1]), &numvars );
+    if (result==0) {
+-      sprintf( interp->result, "%d", numvars );
++      //sprintf( interp->result, "%d", numvars );
++      Tcl_SetObjResult(interp, Tcl_ObjPrintf("%d", numvars));
+       return TCL_OK;
+    }
+    else {
+@@ -1760,7 +1811,11 @@
+    }
+    index = atoi(argv[1]);
+    var = varnum(index,argv[2]);
+-   result = vis5d_get_ctx_var_name( index, var, interp->result );
++   //result = vis5d_get_ctx_var_name( index, var, interp->result );
++   char *var_name = NULL;
++   result = vis5d_get_ctx_var_name(index, var, &var_name);
++   Tcl_SetObjResult(interp, Tcl_NewStringObj(var_name ? var_name : "", -1));
++   if (var_name) free(var_name);
+    return error_check( interp, "vis5d_get_ctx_var_name", result );
+ }
+ 
+@@ -1773,7 +1828,11 @@
+    }
+    index = atoi(argv[1]);
+    var = varnum(index,argv[2]);
+-   result = vis5d_get_itx_var_name( index, var, interp->result );
++   //result = vis5d_get_itx_var_name( index, var, interp->result );
++   char *var_name = NULL;
++   result = vis5d_get_itx_var_name(index, var, &var_name);
++   Tcl_SetObjResult(interp, Tcl_NewStringObj(var_name ? var_name : "", -1));
++   if (var_name) free(var_name);
+    return error_check( interp, "vis5d_get_itx_var_name", result );
+ }
+ 
+@@ -1787,7 +1846,11 @@
+    }
+    index = atoi(argv[1]);
+    var = varnum(index,argv[2]);
+-   result = vis5d_get_var_units( index, var, interp->result );
++   //result = vis5d_get_var_units( index, var, interp->result );
++   char *var_name = NULL;
++   result = vis5d_get_var_units(index, var, &var_name);
++   Tcl_SetObjResult(interp, Tcl_NewStringObj(var_name ? var_name : "", -1));
++   if (var_name) free(var_name);
+    return error_check( interp, "vis5d_get_var_units", result );
+ }
+ 
+@@ -1804,16 +1867,20 @@
+    result = vis5d_get_var_type( index, var, &type );
+    if (result==0) {
+       if (type==VIS5D_REGULAR) {
+-         interp->result = "VIS5D_REGULAR";
++         //interp->result = "VIS5D_REGULAR";
++	 Tcl_SetResult(interp,"VIS5D_REGULAR",TCL_STATIC);
+       }
+       else if (type==VIS5D_CLONE) {
+-         interp->result = "VIS5D_CLONE";
++         //interp->result = "VIS5D_CLONE";
++	 Tcl_SetResult(interp,"VIS5D_CLONE",TCL_STATIC);
+       }
+       else if (type==VIS5D_EXT_FUNC) {
+-         interp->result = "VIS5D_EXT_FUNC";
++         //interp->result = "VIS5D_EXT_FUNC";
++	 Tcl_SetResult(interp,"VIS5D_EXT_FUNC",TCL_STATIC);
+       }
+       else if (type==VIS5D_EXPRESSION) {
+-         interp->result = "VIS5D_EXPRESSION";
++         //interp->result = "VIS5D_EXPRESSION";
++	 Tcl_SetResult(interp,"VIS5D_EXPRESSION",TCL_STATIC);
+       }
+       return TCL_OK;
+    }
+@@ -1836,7 +1903,8 @@
+    var = varnum(index, argv[2]);
+    result = vis5d_get_ctx_var_range( index, var, &min, &max );
+    if (result==0) {
+-      sprintf( interp->result, "%g %g", min, max );
++      //sprintf( interp->result, "%g %g", min, max );
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("%g %g", min, max ));
+       return TCL_OK;
+    }
+    else {
+@@ -1856,7 +1924,8 @@
+    var = varnum(index, argv[2]);
+    result = vis5d_get_itx_var_range( index, var, &min, &max );
+    if (result==0) {
+-      sprintf( interp->result, "%g %g", min, max );
++      //sprintf( interp->result, "%g %g", min, max );
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("%g %g", min, max ));
+       return TCL_OK;
+    }
+    else {
+@@ -1922,7 +1991,8 @@
+       return TCL_ERROR;
+    }
+    result = vis5d_get_display_group( atoi(argv[1]) , &gindex);
+-   sprintf( interp->result, "%d", gindex);
++   //sprintf( interp->result, "%d", gindex);
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d", gindex ));
+    return error_check( interp, "vis5d_get_display_group", 0);
+ }
+ 
+@@ -1935,7 +2005,8 @@
+    }
+    result = vis5d_load_v5dfile( atoi(argv[1]), atoi(argv[2]), argv[3], argv[4]);
+    if (result != VIS5D_FAIL){
+-      sprintf( interp->result, "%d", result);
++      //sprintf( interp->result, "%d", result);
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d", result));
+    }
+    redo_the_gui = 1;
+ 
+@@ -1955,7 +2026,8 @@
+    }
+    result = vis5d_load_irregular_v5dfile( atoi(argv[1]), atoi(argv[2]), argv[3], argv[4]);
+    if (result != VIS5D_FAIL){
+-      sprintf( interp->result, "%d", result);
++      //sprintf( interp->result, "%d", result);
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d", result));
+    } 
+    redo_the_gui = 1;
+ 
+@@ -2082,9 +2154,10 @@
+                                   &dewptowner, &dewpt, &uwindowner, &uwind,
+                                   &vwindowner, &vwind, &var1owner, &var1,
+                                   &var2owner,  &var2, &var3owner, &var3); 
+-   sprintf( interp->result, " %d %d %d %d %d %d %d",
+-            temp,  dewpt, uwind, 
+-             vwind, var1,  var2, var3 );
++   //sprintf( interp->result, " %d %d %d %d %d %d %d",
++   //         temp,  dewpt, uwind, 
++   //          vwind, var1,  var2, var3 );
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf(" %d %d %d %d %d %d %d", temp,  dewpt, uwind, vwind, var1,  var2, var3));
+    return error_check( interp, "vis5d_get_sound_vars", result );
+ }
+ 
+@@ -2104,9 +2177,12 @@
+                                   &dewptowner, &dewpt, &uwindowner, &uwind,
+                                   &vwindowner, &vwind, &var1owner, &var1,
+                                   &var2owner,  &var2, &var3owner, &var3);
+-   sprintf( interp->result, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d",
+-            tempowner, temp, dewptowner, dewpt, uwindowner, uwind,
+-            vwindowner, vwind, var1owner, var1, var2owner, var2, var3owner, var3 );
++   //sprintf( interp->result, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d",
++   //         tempowner, temp, dewptowner, dewpt, uwindowner, uwind,
++   //         vwindowner, vwind, var1owner, var1, var2owner, var2, var3owner, var3 );
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d %d %d %d %d %d %d %d %d %d %d %d %d %d",
++			   tempowner, temp, dewptowner, dewpt, uwindowner, uwind,
++			   vwindowner, vwind, var1owner, var1, var2owner, var2, var3owner, var3 ));
+    return error_check( interp, "vis5d_get_sound_vars_and_owners", result );
+ }
+ 
+@@ -2170,10 +2246,14 @@
+                         &u2varowner, &u2var, &v2varowner, &v2var,
+                         &w2varowner,  &w2var, &trajuowner,
+                         &traju, &trajvowner, &trajv, &trajwowner, &trajw );
+-   sprintf( interp->result, "%d %d %d %d %d %d %d %d %d",
+-            uvar, vvar, wvar,u2var,
+-            v2var, w2var, traju, 
+-            trajv, trajw);
++   //sprintf( interp->result, "%d %d %d %d %d %d %d %d %d",
++   //         uvar, vvar, wvar,u2var,
++   //         v2var, w2var, traju, 
++   //         trajv, trajw);
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d %d %d %d %d %d %d %d %d",
++			   uvar, vvar, wvar,u2var,
++			   v2var, w2var, traju,
++			   trajv, trajw));
+    return error_check( interp, "vis5d_get_wind_vars", result ); 
+ }
+ 
+@@ -2195,10 +2275,14 @@
+                         &u2varowner, &u2var, &v2varowner, &v2var,
+                         &w2varowner,  &w2var, &trajuowner,
+                         &traju, &trajvowner, &trajv, &trajwowner, &trajw );
+-   sprintf( interp->result, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
+-            uvarowner, uvar, vvarowner, vvar, wvarowner, wvar, u2varowner,u2var,
+-            v2varowner, v2var, w2varowner, w2var, trajuowner, traju,
+-            trajvowner, trajv, trajwowner, trajw);
++   //sprintf( interp->result, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
++   //         uvarowner, uvar, vvarowner, vvar, wvarowner, wvar, u2varowner,u2var,
++   //         v2varowner, v2var, w2varowner, w2var, trajuowner, traju,
++   //         trajvowner, trajv, trajwowner, trajw);
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
++			   uvarowner, uvar, vvarowner, vvar, wvarowner, wvar, u2varowner,u2var,
++			   v2varowner, v2var, w2varowner, w2var, trajuowner, traju,
++			   trajvowner, trajv, trajwowner, trajw));
+    return error_check( interp, "vis5d_get_wind_vars_and_owners", result );
+ }
+ 
+@@ -2268,7 +2352,8 @@
+    }
+    result = vis5d_get_grid_value(atoi(argv[1]), atoi(argv[2]),
+             atof(argv[3]), atof(argv[4]),atof(argv[5]), &value);
+-   sprintf( interp->result, "%f", value);
++   //sprintf( interp->result, "%f", value);
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%f", value));
+    return error_check( interp, "vis5d_get_grid_value", result );
+ }
+ 
+@@ -2281,7 +2366,8 @@
+    }
+    result = vis5d_get_size( atoi(argv[1]), &nr, NULL, NULL, NULL,
+                             NULL, NULL, NULL, NULL );
+-   sprintf( interp->result, "%d", nr );
++   //sprintf( interp->result, "%d", nr );
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d", nr ));
+    return error_check( interp, "vis5d_get_grid_rows", result );
+ }
+ 
+@@ -2294,7 +2380,8 @@
+    }
+    result = vis5d_get_size( atoi(argv[1]), &nr, NULL, NULL, NULL,
+                             NULL, NULL, NULL, NULL );
+-   sprintf( interp->result, "%d", nr );
++   //sprintf( interp->result, "%d", nr );
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d", nr ));
+    return error_check( interp, "vis5d_get_ctx_grid_rows", result );
+ }
+ 
+@@ -2307,7 +2394,8 @@
+    }
+    result = vis5d_get_sizePRIME( atoi(argv[1]), &nr, NULL, NULL, NULL,
+                              NULL, NULL );
+-   sprintf( interp->result, "%d", nr );
++   //sprintf( interp->result, "%d", nr );
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d", nr ));
+    return error_check( interp, "vis5d_get_dtx_grid_rows", result );
+ }
+ 
+@@ -2321,7 +2409,8 @@
+    }
+    result = vis5d_get_size( atoi(argv[1]), NULL, &nc, NULL, NULL,
+                             NULL, NULL, NULL, NULL );
+-   sprintf( interp->result, "%d", nc );
++   //sprintf( interp->result, "%d", nc );
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d", nc ));
+    return error_check( interp, "vis5d_get_grid_columns", result );
+ }
+ 
+@@ -2334,7 +2423,8 @@
+    }
+    result = vis5d_get_size( atoi(argv[1]), NULL, &nc, NULL, NULL,
+                             NULL, NULL, NULL, NULL );
+-   sprintf( interp->result, "%d", nc );
++   //sprintf( interp->result, "%d", nc );
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d", nc ));
+    return error_check( interp, "vis5d_get_ctx_grid_columns", result );
+ }
+ 
+@@ -2347,7 +2437,8 @@
+    }
+    result = vis5d_get_sizePRIME( atoi(argv[1]), NULL, &nc, NULL, NULL,
+                              NULL, NULL );
+-   sprintf( interp->result, "%d", nc );
++   //sprintf( interp->result, "%d", nc );
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d", nc ));
+    return error_check( interp, "vis5d_get_dtx_grid_columns", result );
+ }
+ 
+@@ -2364,7 +2455,8 @@
+    var = varnum( index, argv[2] );
+    result = vis5d_get_size( index, NULL, NULL, nl, NULL,
+                             NULL, NULL, NULL, NULL );
+-   sprintf( interp->result, "%d", nl[var] );
++   //sprintf( interp->result, "%d", nl[var] );
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d", nl[var] ));
+    return error_check( interp, "vis5d_get_grid_levels", result );
+ }
+ 
+@@ -2380,7 +2472,8 @@
+    var = varnum( index, argv[2] );
+    result = vis5d_get_size( index, NULL, NULL, nl, NULL,
+                             NULL, NULL, NULL, NULL );
+-   sprintf( interp->result, "%d", nl[var] );
++   //sprintf( interp->result, "%d", nl[var] );
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d", nl[var] ));
+    return error_check( interp, "vis5d_get_ctx_grid_levels", result );
+ }
+ 
+@@ -2395,7 +2488,8 @@
+    }
+    result = vis5d_get_sizePRIME( index, NULL, NULL, &nl, NULL,
+                              NULL, NULL );
+-   sprintf( interp->result, "%d", nl );
++   //sprintf( interp->result, "%d", nl );
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d", nl ));
+    return error_check( interp, "vis5d_get_dtx_grid_levels", result );
+ }
+ 
+@@ -2487,10 +2581,12 @@
+    result = vis5d_verylarge_mode( index, mode );
+ 
+    if (result) {
+-      sprintf( interp->result, "VIS5D_ON" );
++      //sprintf( interp->result, "VIS5D_ON" );
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("VIS5D_ON" ));
+    }
+    else {
+-      sprintf( interp->result, "VIS5D_OFF" );
++      //sprintf( interp->result, "VIS5D_OFF" );
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("VIS5D_OFF" ));
+    }
+    return TCL_OK;
+ }
+@@ -3014,10 +3110,12 @@
+    index = atoi(argv[1]);
+    result = vis5d_get_curved( index, &curved );
+    if (curved) {
+-      sprintf( interp->result, "VIS5D_ON" );
++      //sprintf( interp->result, "VIS5D_ON" );
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("VIS5D_ON" ));
+    }
+    else {
+-      sprintf( interp->result, "VIS5D_OFF" );
++      //sprintf( interp->result, "VIS5D_OFF" );
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("VIS5D_OFF" ));
+    }
+    return TCL_OK;
+ }
+@@ -3038,10 +3136,12 @@
+    index = atoi(argv[1]);
+    result = vis5d_check_topo( index, &flag );
+    if (flag) {
+-      sprintf( interp->result, "VIS5D_ON" );
++      //sprintf( interp->result, "VIS5D_ON" );
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("VIS5D_ON" ));
+    }
+    else {
+-      sprintf( interp->result, "VIS5D_OFF" );
++      //sprintf( interp->result, "VIS5D_OFF" );
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("VIS5D_OFF" ));
+    }
+    return TCL_OK;
+ }
+@@ -3058,10 +3158,12 @@
+    index = atoi(argv[1]);
+    result = vis5d_check_map( index, &flag );
+    if (flag) {
+-      sprintf( interp->result, "VIS5D_ON" );
++      //sprintf( interp->result, "VIS5D_ON" );
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("VIS5D_ON" ));
+    }
+    else {
+-      sprintf( interp->result, "VIS5D_OFF" );
++      //sprintf( interp->result, "VIS5D_OFF" );
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("VIS5D_OFF" ));
+    }
+    return TCL_OK;
+ }
+@@ -3089,7 +3191,8 @@
+       return TCL_ERROR;
+    }
+    result = vis5d_get_flatmap_level( atoi(argv[1]),  &level);
+-   sprintf( interp->result, "%g", level);
++   //sprintf( interp->result, "%g", level);
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%g", level ));
+    return error_check( interp, "vis5d_get_flatmap_level", result );
+ }
+ 
+@@ -3105,10 +3208,12 @@
+    index = atoi(argv[1]);
+    result = vis5d_check_texture( index, &flag );
+    if (flag) {
+-      sprintf( interp->result, "VIS5D_ON" );
++      //sprintf( interp->result, "VIS5D_ON" );
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("VIS5D_ON" ));
+    }
+    else {
+-      sprintf( interp->result, "VIS5D_OFF" );
++      //sprintf( interp->result, "VIS5D_OFF" );
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("VIS5D_OFF"));
+    }
+    return TCL_OK;
+ }
+@@ -3138,7 +3243,8 @@
+    }
+    index = atoi(argv[1]);
+    result = vis5d_get_topo_range( index, &min, &max );
+-   sprintf( interp->result, "%g %g", min, max );
++   //sprintf( interp->result, "%g %g", min, max );
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%g %g", min, max));
+    return TCL_OK;
+ }
+ 
+@@ -3312,10 +3418,12 @@
+    }
+    result = vis5d_check_redraw( atoi(argv[1]), &redraw );
+    if (redraw) {
+-      interp->result = "1";
++      //interp->result = "1";
++      Tcl_SetResult(interp,"1",TCL_STATIC);
+    }
+    else {
+-      interp->result = "0";
++      //interp->result = "0";
++      Tcl_SetResult(interp,"0",TCL_STATIC);
+    }
+    return error_check( interp, "vis5d_check_redraw", result );
+ }
+@@ -3500,7 +3608,8 @@
+    }
+ 
+    else {
+-      interp->result = "vis5d_graphics_mode: invalid argument";
++      //interp->result = "vis5d_graphics_mode: invalid argument";
++      Tcl_SetResult(interp,"vis5d_graphics_mode: invalid argument",TCL_STATIC);
+       return TCL_ERROR;
+    }
+    
+@@ -3517,13 +3626,15 @@
+       mode = VIS5D_GET;
+    }
+    else {
+-      interp->result = "vis5d_graphics_mode: invalid argument";
++      //interp->result = "vis5d_graphics_mode: invalid argument";
++      Tcl_SetResult(interp,"vis5d_graphics_mode: invalid argument",TCL_STATIC);
+       return TCL_ERROR;
+    }
+ 
+    n = vis5d_graphics_mode( atoi(argv[1]), what, mode );
+    if (n>=0) {
+-      interp->result = n ? "1" : "0";
++      //interp->result = n ? "1" : "0";
++      Tcl_SetResult(interp,n ? "1" : "0",TCL_STATIC);
+       return TCL_OK;
+    }
+    else {
+@@ -3545,7 +3656,8 @@
+       what = VIS5D_TEXTPLOT;
+    }
+    else { 
+-      interp->result = "Error in vis5d_enable_irregular_graphics: bad constant";
++      //interp->result = "Error in vis5d_enable_irregular_graphics: bad constant";
++      Tcl_SetResult(interp,"Error in vis5d_enable_irregular_graphics: bad constant",TCL_STATIC);
+       return TCL_ERROR;
+    }
+ 
+@@ -3559,7 +3671,8 @@
+       mode = VIS5D_TOGGLE;
+    }
+    else {
+-      interp->result = "Error in vis5d_enable_graphics: bad mode";
++      //interp->result = "Error in vis5d_enable_graphics: bad mode";
++      Tcl_SetResult(interp,"Error in vis5d_enable_graphics: bad mode",TCL_STATIC);
+       return TCL_ERROR;
+    }
+ 
+@@ -3619,7 +3732,8 @@
+       what = VIS5D_VSTREAM;
+    }
+    else {
+-      interp->result = "Error in vis5d_enable_graphics: bad constant";
++      //interp->result = "Error in vis5d_enable_graphics: bad constant";
++      Tcl_SetResult(interp,"Error in vis5_enable_graphics: bad constant",TCL_STATIC);
+       return TCL_ERROR;
+    }
+ 
+@@ -3633,7 +3747,8 @@
+       mode = VIS5D_TOGGLE;
+    }
+    else {
+-      interp->result = "Error in vis5d_enable_graphics: bad mode";
++      //interp->result = "Error in vis5d_enable_graphics: bad mode";
++      Tcl_SetResult(interp,"Error in vis5d_enable_graphics: bad mode",TCL_STATIC);
+       return TCL_ERROR;
+    }
+ 
+@@ -3658,7 +3773,8 @@
+       return TCL_ERROR;
+    }
+    result = vis5d_get_volume( atoi(argv[1]), &volowner, &vol );
+-   sprintf( interp->result, "%d",  vol );
++   //sprintf( interp->result, "%d",  vol );
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d",  vol));
+    return error_check( interp, "vis5d_get_volume", result );
+ }
+ 
+@@ -3671,7 +3787,8 @@
+       return TCL_ERROR;
+    }
+    result = vis5d_get_volume( atoi(argv[1]), &volowner, &vol ); 
+-   sprintf( interp->result, "%d %d", volowner, vol );
++   //sprintf( interp->result, "%d %d", volowner, vol );
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d %d", volowner, vol ));
+    return error_check( interp, "vis5d_get_volume_and_owner", result );
+ }
+ 
+@@ -3790,7 +3907,8 @@
+       do_both_maps = 1;
+    }
+    else {
+-      interp->result = "error in vis5d_set_color: bad constant";
++      //interp->result = "error in vis5d_set_color: bad constant";
++      Tcl_SetResult(interp,"error in vis5d_set_color: bad constant",TCL_STATIC);
+       return TCL_ERROR;
+    }
+ 
+@@ -3902,7 +4020,8 @@
+       what = VIS5D_LABEL;
+    }
+    else {
+-      interp->result = "error in vis5d_get_color: bad constant";
++      //interp->result = "error in vis5d_get_color: bad constant";
++      Tcl_SetResult(interp,"error in vis5d_get_color: bad constant",TCL_STATIC);
+       return TCL_ERROR;
+    }
+ 
+@@ -3925,7 +4044,8 @@
+    result = vis5d_get_color( atoi(argv[1]), what, n, 
+                              &r, &g, &b, &a);
+ 
+-   sprintf(interp->result,"%f %f %f %f", r, g, b, a);
++   //sprintf(interp->result,"%f %f %f %f", r, g, b, a);
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%f %f %f %f", r, g, b, a ));
+    return error_check( interp, "vis5d_get_color", result );
+ }
+  
+@@ -3998,7 +4118,8 @@
+       what = VIS5D_VOLUME;
+    }
+    else {
+-      interp->result = "error in vis5d_set_color_table_entry: bad constant";
++      //interp->result = "error in vis5d_set_color_table_entry: bad constant";
++      Tcl_SetResult(interp,"error in vis5d_set_color_table_entry: bad constant",TCL_STATIC);
+       return TCL_ERROR;
+    }
+ 
+@@ -4060,7 +4181,8 @@
+       what = VIS5D_VOLUME;
+    }
+    else {
+-      interp->result = "error in vis5d_set_color_table_params: bad constant";
++      //interp->result = "error in vis5d_set_color_table_params: bad constant";
++      Tcl_SetResult(interp,"error in vis5d_set_color_table_params: bad constant",TCL_STATIC);
+       return TCL_ERROR;
+    }
+    if (argc==9){
+@@ -4127,7 +4249,8 @@
+ #else
+    result = vis5d_get_font( atoi(argv[1]), fontname, &size );
+ #endif
+-   sprintf(interp->result,"%s %d", fontname, size);
++   //sprintf(interp->result,"%s %d", fontname, size);
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%s %d", fontname, size));
+    return error_check( interp, "vis5d_get_font", result );
+ }
+ 
+@@ -4152,7 +4275,8 @@
+    }
+    result = vis5d_get_font_height( atoi(argv[1]), &height );
+ #endif
+-   sprintf(interp->result,"%d", height);
++   //sprintf(interp->result,"%d", height);
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d", height));
+    return error_check( interp, "vis5d_get_font_height", result );
+ }
+ 
+@@ -4297,8 +4421,10 @@
+    }
+    index = atoi(argv[1]);
+    result = vis5d_get_view(index, &xrot, &yrot, &zrot, &scale, &xtrans, &ytrans, &ztrans );
+-   sprintf( interp->result, "%.0f %.0f %.0f %.0f %.0f %.0f %.0f", xrot, yrot, zrot, scale,
+-                                                    xtrans, ytrans, ztrans );
++   //sprintf( interp->result, "%.0f %.0f %.0f %.0f %.0f %.0f %.0f", xrot, yrot, zrot, scale,
++   //                                                 xtrans, ytrans, ztrans );
++    Tcl_SetObjResult(interp,Tcl_ObjPrintf("%.0f %.0f %.0f %.0f %.0f %.0f %.0f", xrot, yrot, zrot, scale,
++							xtrans, ytrans, ztrans ));                                              
+    return error_check( interp, "vis5d_get_view", result);
+ }
+ 
+@@ -4311,7 +4437,8 @@
+       return TCL_ERROR;
+    }
+    result = vis5d_get_view_scales(atoi(argv[1]), &scalex, &scaley, &scalez);
+-   sprintf( interp->result, "%.0f %.0f %.0f", scalex, scaley, scalez);
++   //sprintf( interp->result, "%.0f %.0f %.0f", scalex, scaley, scalez);
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%.0f %.0f %.0f", scalex, scaley, scalez));
+    return error_check( interp, "vis5d_get_view_scales", result);
+ }
+ 
+@@ -4347,7 +4474,8 @@
+    }
+    ctx = atoi(argv[1]);
+    r = vis5d_get_camera( ctx,  &perspec, &front, &zoom );
+-   sprintf( interp->result, "%u %g %g", perspec, front, zoom);
++   //sprintf( interp->result, "%u %g %g", perspec, front, zoom);
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%u %g %g", perspec, front, zoom));
+    return error_check( interp, "vis5d_get_camera", r);
+ }
+ 
+@@ -4373,7 +4501,8 @@
+       return error_check( interp, "vis5d_xyz_to_grid", n );
+    }
+    else {
+-      sprintf( interp->result, "%f %f %f", row, col, lev );
++      //sprintf( interp->result, "%f %f %f", row, col, lev );
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("%f %f %f", row, col, lev ));
+       return 0;
+    }
+ }
+@@ -4397,7 +4526,8 @@
+       return error_check( interp, "vis5d_xyzPRIME_to_gridPRIME", n );
+    }
+    else {
+-      sprintf( interp->result, "%f %f %f", row, col, lev );
++      //sprintf( interp->result, "%f %f %f", row, col, lev );
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("%f %f %f", row, col, lev ));
+       return 0;
+    }
+ }
+@@ -4422,7 +4552,8 @@
+       return error_check( interp, "vis5d_grid_to_xyz", n );
+    }
+    else {
+-      sprintf( interp->result, "%f %f %f", x, y, z );
++      //sprintf( interp->result, "%f %f %f", x, y, z );
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("%f %f %f", x, y, z ));
+       return 0;
+    }
+ }
+@@ -4446,7 +4577,8 @@
+       return error_check( interp, "vis5d_gridPRIME_to_xyzPRIME", n );
+    }
+    else {
+-      sprintf( interp->result, "%f %f %f", x, y, z );
++      //sprintf( interp->result, "%f %f %f", x, y, z );
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("%f %f %f", x, y, z ));
+       return 0;
+    }
+ }
+@@ -4472,7 +4604,8 @@
+       return error_check( interp, "vis5d_xyz_to_geo", n );
+    }
+    else {
+-      sprintf( interp->result, "%f %f %f", lat, lon, hgt );
++      //sprintf( interp->result, "%f %f %f", lat, lon, hgt );
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("%f %f %f", lat, lon, hgt ));
+       return 0;
+    }
+ }
+@@ -4495,7 +4628,8 @@
+       return error_check( interp, "vis5d_xyzPRIME_to_geo", n );
+    }
+    else { 
+-      sprintf( interp->result, "%f %f %f", lat, lon, hgt );
++      //sprintf( interp->result, "%f %f %f", lat, lon, hgt );
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("%f %f %f", lat, lon, hgt ));
+       return 0;
+    }
+ }
+@@ -4520,7 +4654,8 @@
+       return error_check( interp, "vis5d_grid_to_geo", n);
+    }
+    else {
+-      sprintf( interp->result, "%f %f %f", lat, lon, hgt);
++      //sprintf( interp->result, "%f %f %f", lat, lon, hgt);
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("%f %f %f", lat, lon, hgt));
+       return 0;
+    }
+ }
+@@ -4545,7 +4680,8 @@
+       return error_check( interp, "vis5d_gridPRIME_to_geo", n);
+    }
+    else { 
+-      sprintf( interp->result, "%f %f %f", lat, lon, hgt);
++      //sprintf( interp->result, "%f %f %f", lat, lon, hgt);
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("%f %f %f", lat, lon, hgt));
+       return 0;
+    }
+ }
+@@ -4572,7 +4708,8 @@
+       return error_check( interp, "vis5d_rowcol_to_latlon", n);
+    }
+    else {
+-      sprintf( interp->result, "%f %f", lat, lon);
++      //sprintf( interp->result, "%f %f", lat, lon);
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("%f %f", lat, lon));
+       return 0;
+    }
+ }
+@@ -4597,7 +4734,8 @@
+       return error_check( interp, "vis5d_rowcolPRIME_to_latlon", n);
+    }
+    else {
+-      sprintf( interp->result, "%f %f", lat, lon);
++      //sprintf( interp->result, "%f %f", lat, lon);
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("%f %f", lat, lon));
+       return 0;
+    }
+ }
+@@ -4623,7 +4761,8 @@
+       return error_check( interp, "vis5d_latlon_to_rowcol", n);
+    }
+    else {
+-      sprintf( interp->result, "%f %f", row, col);
++      //sprintf( interp->result, "%f %f", row, col);
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("%f %f", row, col));
+       return 0;
+    }
+ }
+@@ -4648,7 +4787,8 @@
+       return error_check( interp, "vis5d_latlonPRIME_to_rowcol", n);
+    }
+    else {
+-      sprintf( interp->result, "%f %f", row, col);
++      //sprintf( interp->result, "%f %f", row, col);
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("%f %f", row, col));
+       return 0;
+    }
+ }
+@@ -4674,7 +4814,8 @@
+       return error_check( interp, "vis5d_geo_to_grid", n);
+    }
+    else {
+-      sprintf( interp->result, "%f %f %f", row, col, lev);
++      //sprintf( interp->result, "%f %f %f", row, col, lev);
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("%f %f %f", row, col, lev));
+       return 0;
+    }
+ }
+@@ -4698,7 +4839,8 @@
+       return error_check( interp, "vis5d_geo_to_gridPRIME", n);
+    }
+    else {
+-      sprintf( interp->result, "%f %f %f", row, col, lev);
++      //sprintf( interp->result, "%f %f %f", row, col, lev);
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("%f %f %f", row, col, lev));
+       return 0;
+    }
+ }
+@@ -4723,7 +4865,8 @@
+       return error_check( interp, "vis5d_geo_to_xyz", n );
+    }
+    else {
+-      sprintf( interp->result, "%f %f %f", x, y, z );
++      //sprintf( interp->result, "%f %f %f", x, y, z );
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("%f %f %f", x, y, z ));
+       return 0;
+    }
+ }
+@@ -4747,7 +4890,8 @@
+       return error_check( interp, "vis5d_geo_to_xyzPRIME", n );
+    }
+    else {
+-      sprintf( interp->result, "%f %f %f", x, y, z );
++      //sprintf( interp->result, "%f %f %f", x, y, z );
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("%f %f %f", x, y, z ));
+       return 0;
+    }
+ }
+@@ -4784,7 +4928,8 @@
+       return TCL_ERROR;
+    }
+    result = vis5d_get_hclip(atoi(argv[1]), atoi(argv[2]), &lev);
+-   sprintf(interp->result,"%f", lev);
++   //sprintf(interp->result,"%f", lev);
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%f", lev));
+    return error_check( interp, "vis5d_get_hclip", result);
+ }
+ 
+@@ -4797,7 +4942,8 @@
+          return TCL_ERROR;
+    }
+    result = vis5d_get_vclip( atoi(argv[1]), atoi(argv[2]), &r1, &c1, &r2, &c2);
+-   sprintf(interp->result,"%f %f %f %f", r1, c1, r2, c2);
++   //sprintf(interp->result,"%f %f %f %f", r1, c1, r2, c2);
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%f %f %f %f", r1, c1, r2, c2));
+    return error_check( interp, "vis5d_get_vclip", result);
+ }
+ 
+@@ -4823,7 +4969,8 @@
+          return TCL_ERROR;
+    }
+    result = vis5d_get_clip_mode( atoi(argv[1]), atoi(argv[2]), &mode);
+-   sprintf(interp->result,"%d", mode);
++   //sprintf(interp->result,"%d", mode);
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d", mode));
+    return error_check( interp, "vis5d_get_clip_mode", result);
+ }
+ 
+@@ -4910,7 +5057,8 @@
+    }
+    n = vis5d_get_text_plot(atoi(argv[1]), &var, &spacing, 
+                            &fontx, &fonty, &fontspace);
+-   sprintf( interp->result, "%d %f %f %f %f", var, spacing, fontx, fonty, fontspace);
++   //sprintf( interp->result, "%d %f %f %f %f", var, spacing, fontx, fonty, fontspace);
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d %f %f %f %f", var, spacing, fontx, fonty, fontspace));
+    return error_check( interp, "vis5d_get_text_plot", n);
+ }
+ 
+@@ -4939,7 +5087,8 @@
+       status = VIS5D_OFF;
+    }
+    else{
+-      interp->result = "Error in vis5d_set_textplot_color_status";
++      //interp->result = "Error in vis5d_set_textplot_color_status";
++      Tcl_SetResult(interp,"Error in vis5d_set_textplot_color_status",TCL_STATIC);
+       return TCL_ERROR;
+    }
+    n = vis5d_set_textplot_color_status(atoi(argv[1]), atoi(argv[2]), status);
+@@ -4955,10 +5104,12 @@
+    }
+    n = vis5d_get_textplot_color_status(atoi(argv[1]), atoi(argv[2]), &status);
+    if (status == VIS5D_ON){
+-      sprintf( interp->result, "1");
++      //sprintf( interp->result, "1");
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("1"));
+    }
+    else{
+-      sprintf( interp->result, "0");
++      //sprintf( interp->result, "0");
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("0"));
+    }
+    return error_check( interp, "vis5d_get_textplot_color_status", n);
+ }
+@@ -4993,7 +5144,7 @@
+    index = atoi(argv[1]);
+    var = varnum(index, argv[2] );
+    n = vis5d_get_isosurface( index, var, &isolevel );
+-   sprintf( interp->result, "%g", isolevel );
++   //sprintf( interp->result, "%g", isolevel );
+    return error_check( interp, "vis5d_get_isosurface", n );
+ }
+ 
+@@ -5107,7 +5258,8 @@
+    if (result) {
+       return error_check( interp, "vis5d_get_hslice", result );
+    }
+-   sprintf( interp->result, "%g %g %g %g", interval, low, high, level );
++   //sprintf( interp->result, "%g %g %g %g", interval, low, high, level );
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%g %g %g %g", interval, low, high, level ));
+    return TCL_OK;
+ }
+ 
+@@ -5187,8 +5339,10 @@
+    if (result) {
+       return error_check( interp, "vis5d_get_vslice", result );
+    }
+-   sprintf( interp->result, "%g %g %g %g %g %g %g", interval, low, high,
+-            r0, c0, r1, c1 );
++   //sprintf( interp->result, "%g %g %g %g %g %g %g", interval, low, high,
++   //         r0, c0, r1, c1 );
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%g %g %g %g %g %g %g", interval, low, high,
++		r0, c0, r1, c1 ));
+    return TCL_OK;
+ }
+ 
+@@ -5278,7 +5432,8 @@
+    if (result) {
+       return error_check( interp, "vis5d_get_chslice", result );
+    }
+-   sprintf( interp->result, "%g", level );
++   //sprintf( interp->result, "%g", level );
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%g", level ));
+    return TCL_OK;
+ }
+ 
+@@ -5342,7 +5497,8 @@
+    if (result) {
+       return error_check( interp, "vis5d_get_cvslice", result );
+    }
+-   sprintf( interp->result, "%g %g %g %g", r0, c0, r1, c1 );
++   //sprintf( interp->result, "%g %g %g %g", r0, c0, r1, c1 );
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%g %g %g %g", r0, c0, r1, c1 ));
+    return TCL_OK;
+ }
+ 
+@@ -5406,7 +5562,8 @@
+    if (result) {
+       return error_check( interp, "vis5d_get_hwindslice", result );
+    }
+-   sprintf( interp->result, "%g %g %g", density, scale, level );
++   //sprintf( interp->result, "%g %g %g", density, scale, level );
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%g %g %g", density, scale, level ));
+    return TCL_OK;
+ }
+ 
+@@ -5470,8 +5627,10 @@
+    if (result) {
+       return error_check( interp, "vis5d_get_vwindslice", result );
+    }
+-   sprintf( interp->result, "%g %g %g %g %g %g", density, scale,
+-            r0, c0, r1, c1 );
++   //sprintf( interp->result, "%g %g %g %g %g %g", density, scale,
++   //         r0, c0, r1, c1 );
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf( "%g %g %g %g %g %g", density, scale,
++			   r0, c0, r1, c1 ));
+    return TCL_OK;
+ }
+ 
+@@ -5533,7 +5692,8 @@
+    if (result) {
+       return error_check( interp, "vis5d_get_hstreamslice", result );
+    }
+-   sprintf( interp->result, "%g %g", density, level );
++   //sprintf( interp->result, "%g %g", density, level );
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%g %g", density, level ));
+    return TCL_OK;
+ }
+ 
+@@ -5598,7 +5758,8 @@
+    if (result) {
+       return error_check( interp, "vis5d_get_vstreamslice", result );
+    }
+-   sprintf( interp->result, "%g %g %g %g %g", density, r0, c0, r1, c1 );
++   //sprintf( interp->result, "%g %g %g %g %g", density, r0, c0, r1, c1 );
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%g %g %g %g %g", density, r0, c0, r1, c1 ));
+    return TCL_OK;
+ }
+ 
+@@ -5669,7 +5830,8 @@
+    if (result) {
+       return error_check( interp, "vis5d_get_traj", result );
+    }
+-   sprintf( interp->result, "%g %g %d", step, length, ribbon );
++   //sprintf( interp->result, "%g %g %d", step, length, ribbon );
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%g %g %d", step, length, ribbon ));
+    return TCL_OK;
+ }
+ 
+@@ -5825,7 +5987,8 @@
+       return TCL_ERROR;
+    }
+    result = vis5d_get_cursor( atoi(argv[1]), &x, &y, &z );
+-   sprintf( interp->result, "%g %g %g", x, y, z );
++   //sprintf( interp->result, "%g %g %g", x, y, z );
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%g %g %g", x, y, z ));
+    return error_check( interp, "vis5d_get_cursor", result );
+ }
+ 
+@@ -5876,7 +6039,8 @@
+       strcat( result, "VIS5D_PPM " );
+    }
+    strcat( result, "}" );
+-   interp->result = result;
++   //interp->result = result;
++   Tcl_SetResult(interp, result, TCL_VOLATILE);
+    return TCL_OK;
+ }
+ 
+@@ -5931,7 +6095,8 @@
+ 	 format = string_to_saveformat(argv[2]);
+       }
+       if (!format) {
+-	   interp->result = "vis5d_save_window: bad format";
++	   //interp->result = "vis5d_save_window: bad format";
++	   Tcl_SetResult(interp,"vis5d_save_window: bad format",TCL_STATIC);
+ 	   return TCL_ERROR;
+       }
+ 
+@@ -5952,7 +6117,8 @@
+       int result;
+       format = string_to_saveformat(argv[3]);
+       if (!format) {
+-	   interp->result = "vis5d_save_snd_window: bad format";
++	   //interp->result = "vis5d_save_snd_window: bad format";
++	   Tcl_SetResult(interp,"vis5d_save_snd_window: bad format",TCL_STATIC);
+ 	   return TCL_ERROR;
+       }
+       result = vis5d_save_snd_window(  atoi(argv[1]), name, format );
+@@ -6117,10 +6283,12 @@
+     /* derive group from display */
+     vis5d_get_display_group(*display_index, group_index);
+     if (*group_index > -1) {
+-      sprintf( interp->result, "%d %d", *display_index, *group_index );
++      //sprintf( interp->result, "%d %d", *display_index, *group_index );
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d %d", *display_index, *group_index ));
+     }
+     else {
+-      sprintf( interp->result, "%d %d", *display_index, 0 );
++      //sprintf( interp->result, "%d %d", *display_index, 0 );
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d %d", *display_index, 0 ));
+     }
+     return TCL_OK;
+   }
+@@ -6151,16 +6319,21 @@
+       /* derive group from display */
+       vis5d_get_display_group(*display_index, group_index);
+       if (*group_index > -1) {
+-        sprintf( interp->result, "%d %d %d", *context_index,
+-                 *display_index, *group_index );
++        //sprintf( interp->result, "%d %d %d", *context_index,
++        //         *display_index, *group_index );
++	Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d %d %d", *context_index,
++	    			*display_index, *group_index ));
+       }
+       else {
+-        sprintf( interp->result, "%d %d %d", *context_index,
+-                 *display_index, 0 );
++        //sprintf( interp->result, "%d %d %d", *context_index,
++        //         *display_index, 0 );
++	Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d %d %d", *context_index,
++				*display_index, 0 ));
+       }
+     }
+     else {
+-      sprintf( interp->result, "%d %d %d", *context_index, 0, 0 );
++      //sprintf( interp->result, "%d %d %d", *context_index, 0, 0 );
++      Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d %d %d", *context_index, 0, 0 ));
+     }
+     return TCL_OK;
+   }
+@@ -6250,7 +6423,8 @@
+     return TCL_ERROR;
+   }
+   get_display_matrix(&rows, &columns);
+-  sprintf( interp->result, "%d %d", rows, columns );
++  //sprintf( interp->result, "%d %d", rows, columns );
++  Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d %d", rows, columns ));
+   return TCL_OK;
+ }
+ 
+@@ -6298,12 +6472,14 @@
+    nv = NameValueHead;
+    while (nv != NULL) {
+      if (strcmp(nv->name, argv[1]) == 0) {
+-       sprintf( interp->result, "%s", nv->value );
++       //sprintf( interp->result, "%s", nv->value );
++       Tcl_SetObjResult(interp,Tcl_ObjPrintf("%s", nv->value ));
+        return TCL_OK;
+      }
+      nv = nv->next;
+    }
+-   sprintf( interp->result, "" );
++   //sprintf( interp->result, "" );
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf(""));
+    return TCL_OK;
+ }
+ 
+@@ -6353,7 +6529,8 @@
+       what1 = VIS5D_VSTREAM;
+    }
+    else {
+-      interp->result = "error in vis5d_link_slices: bad constant";
++      //interp->result = "error in vis5d_link_slices: bad constant";
++      Tcl_SetResult(interp,"error in vis5d_link_slices: bad constant",TCL_STATIC);
+       return TCL_ERROR;
+    }
+ 
+@@ -6396,7 +6573,8 @@
+       what2 = VIS5D_VSTREAM;
+    }
+    else {
+-      interp->result = "error in vis5d_link_slices: bad constant";
++      //interp->result = "error in vis5d_link_slices: bad constant";
++      Tcl_SetResult(interp,"error in vis5d_link_slices: bad constant",TCL_STATIC);
+       return TCL_ERROR;
+    }
+ 
+@@ -6456,7 +6634,8 @@
+       what = VIS5D_VSTREAM;
+    }
+    else {
+-      interp->result = "error in vis5d_unlink_slice: bad constant";
++      //interp->result = "error in vis5d_unlink_slice: bad constant";
++      Tcl_SetResult(interp,"error in vis5d_unlink_slices: bad constant",TCL_STATIC);
+       return TCL_ERROR;
+    }
+ 
+@@ -6489,7 +6668,8 @@
+       strcat( result, "VIS5D_POV " );
+    }
+    strcat( result, "}" );
+-   interp->result = result;
++   //interp->result = result;
++   Tcl_SetResult(interp, result, TCL_VOLATILE);
+    return TCL_OK;
+ }
+ 
+@@ -6514,7 +6694,8 @@
+       format = VIS5D_POV;
+    }
+    else {
+-      interp->result = "vis5d_save_scene: bad format";
++      //interp->result = "vis5d_save_scene: bad format";
++      Tcl_SetResult(interp,"vis5d_save_scene: bad format",TCL_STATIC);
+       return TCL_ERROR;
+    }
+ 
+@@ -6532,7 +6713,8 @@
+       return TCL_ERROR;
+    
+    n = vis5d_stereo_enabled(atoi(argv[1]), &stereo_status);
+-   sprintf(interp->result, "%d", stereo_status);
++   //sprintf(interp->result, "%d", stereo_status);
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d",stereo_status));
+    return error_check( interp, "vis5d_stereo_enabled", n);
+ }
+ 
+@@ -6546,7 +6728,8 @@
+ 	return TCL_ERROR;
+ 
+    n = vis5d_stereo_get(atoi(argv[1]), &stereo_status);
+-   sprintf(interp->result, "%d", stereo_status);
++   //sprintf(interp->result, "%d", stereo_status);
++   Tcl_SetObjResult(interp,Tcl_ObjPrintf("%d", stereo_status));
+ 
+    return error_check(interp, "vis5d_stereo_get",n);
+ }
+@@ -6612,7 +6795,8 @@
+ 	 format = string_to_saveformat(argv[2]);
+       }
+       if (!format) {
+-	   interp->result = "vis5d_save_right_window: bad format";
++	   //interp->result = "vis5d_save_right_window: bad format";
++	   Tcl_SetResult(interp,"vis5d_save_right_window: bad format",TCL_STATIC);
+ 	   return TCL_ERROR;
+       }
+   
+@@ -7047,8 +7231,11 @@
+ 
+    /* Execute the script */
+    code = Tcl_EvalFile( interp, filename );
+-   if (interp->result && interp->result[0]) {
+-      printf("Tcl_EvalFile result: %s\n", interp->result);
++   //if (interp->result && interp->result[0]) {
++   //   printf("Tcl_EvalFile result: %s\n", interp->result);
++   const char *result = Tcl_GetStringResult(interp);
++   if (result && result[0]) {
++      printf("Tcl_EvalFile result: %s\n", result);
+    }
+ 
+    Tcl_DeleteInterp( interp );
+@@ -7108,9 +7295,13 @@
+       fclose(f);
+       code = Tcl_EvalFile( interp, TCL_STARTUP_FILE );
+       if (code!=TCL_OK) {
+-         if (interp->result && interp->result[0]) {
++         //if (interp->result && interp->result[0]) {
++	 //   printf("Error executing %s: %s\n",
++         //          TCL_STARTUP_FILE, interp->result);
++	 const char *result = Tcl_GetStringResult(interp);
++	 if (result && result[0]) {
+             printf("Error executing %s: %s\n",
+-                   TCL_STARTUP_FILE, interp->result);
++                   TCL_STARTUP_FILE, result);
+          }
+          else {
+             printf("Couldn't execute %s\n", TCL_STARTUP_FILE);
+@@ -7139,8 +7330,11 @@
+          break;
+       }
+       (void) Tcl_Eval( interp, cmd );
+-      if (interp->result && interp->result[0]) {
+-         printf("%s\n", interp->result);
++      //if (interp->result && interp->result[0]) {
++      //   printf("%s\n", interp->result);
++      const char *result = Tcl_GetStringResult(interp);
++      if (result && result[0]) {
++         printf("%s\n", result);
+       }
+    }
+ 

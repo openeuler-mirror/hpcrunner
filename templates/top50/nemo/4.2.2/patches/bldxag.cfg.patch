@@ -1,0 +1,12 @@
+--- ./bldxag.cfg	2025-02-25 16:16:21.897456499 +0800
++++ ./bldxag.cfg	2025-03-03 16:35:45.132789048 +0800
+@@ -55,6 +55,9 @@
+ bld::excl_dep        use::mkl_dfti
+ bld::excl_dep        use::cudafor
+ bld::excl_dep        use::openacc
++bld::excl_dep        use::omp_lib
++bld::excl_dep        h::omp_lib.h
++bld::excl_dep        inc::omp_lib.h
+ # Don't generate interface files
+ bld::tool::geninterface none
+ 

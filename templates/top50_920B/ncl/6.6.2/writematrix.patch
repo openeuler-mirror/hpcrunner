@@ -1,0 +1,233 @@
+diff -uprN ncl-6.6.2.bak/ni/src/lib/nfp/writematrixW.c ncl-6.6.2/ni/src/lib/nfp/writematrixW.c
+--- ncl-6.6.2.bak/ni/src/lib/nfp/writematrixW.c	2019-02-28 07:44:39.000000000 +0800
++++ ncl-6.6.2/ni/src/lib/nfp/writematrixW.c	2025-09-01 09:03:21.228142798 +0800
+@@ -21,19 +21,19 @@
+  */
+ 
+ extern void NGCALLF(writematrixb, WRITEMATRIXB)(char *, int *, int *, byte *, char *,
+-                                        char *, int *, int *, int, int, int);
++                                        char *, int *, int *, int *, int *, int *);
+ 
+ extern void NGCALLF(writematrixs, WRITEMATRIXS)(char *, int *, int *, short *, char *,
+-                                        char *, int *, int *, int, int, int);
++                                        char *, int *, int *, int *, int *, int *);
+ 
+ extern void NGCALLF(writematrixi, WRITEMATRIXI)(char *, int *, int *, int *, char *,
+-                                        char *, int *, int *, int, int, int);
++                                        char *, int *, int *, int *, int *, int *);
+ 
+ extern void NGCALLF(writematrixf, WRITEMATRIXF)(char *, int *, int *, float *, char *,
+-                                        char *, int *, int *, int, int, int);
++                                        char *, int *, int *, int *, int *, int *);
+ 
+ extern void NGCALLF(writematrixd, WRITEMATRIXD)(char *, int *, int *, double *, char *,
+-                                        char *, int *, int *, int, int, int);
++                                        char *, int *, int *, int *, int *, int *);
+ 
+ 
+ 
+@@ -77,7 +77,6 @@ NhlErrorTypes   write_matrix_W(void)
+     char    *filename,
+             *format,
+             *title;
+-
+     /*
+      * Retrieve parameters.  Note that any of the pointer parameters
+      * can be set to NULL, indicating you don't care about its value.
+@@ -197,39 +196,42 @@ NhlErrorTypes   write_matrix_W(void)
+ 
+     /* flush buffers before writing */
+     (void) fflush((FILE *) NULL);
+-
+-      /* call FORTRAN function */
++    int formatlen=strlen(format);
++    int filenamelen=strlen(filename);
++    int titlelen=strlen(title);
++    /* call FORTRAN function */
+     switch (data_type) {
+     case NCL_byte:
+       NGCALLF(writematrixb, WRITEMATRIXB)(filename, &idsz0, &idsz1, data,
+-		  format, title, &tspace, &rownumbers, strlen(filename),
+-		  strlen(format), strlen(title));
++		  format, title, &tspace, &rownumbers, &filenamelen,
++		  &formatlen, &titlelen);
+       break;
+ 
+     case NCL_short:
+       NGCALLF(writematrixs, WRITEMATRIXS)(filename, &idsz0, &idsz1, data,
+-                    format, title, &tspace, &rownumbers, strlen(filename),
+-                    strlen(format), strlen(title));
++                    format, title, &tspace, &rownumbers, &filenamelen,
++                  &formatlen, &titlelen);
+       break;
+ 
+     case NCL_int:
+             /* fall through */
+     case NCL_long:
++      //int formatlen=strlen(format);
+       NGCALLF(writematrixi, WRITEMATRIXI)(filename, &idsz0, &idsz1, data,
+-                   format, title, &tspace, &rownumbers,
+-                   strlen(filename), strlen(format), strlen(title));
++                   format, title, &tspace, &rownumbers, &filenamelen,
++                  &formatlen, &titlelen);
+       break;
+ 
+     case NCL_float:
+       NGCALLF(writematrixf, WRITEMATRIXF)(filename, &idsz0, &idsz1, data,
+-                  format, title, &tspace, &rownumbers,
+-                  strlen(filename), strlen(format), strlen(title));
++                  format, title, &tspace, &rownumbers, &filenamelen,
++                  &formatlen, &titlelen);
+       break;
+ 
+     case NCL_double:
+       NGCALLF(writematrixd, WRITEMATRIXD)(filename, &idsz0, &idsz1, data,
+-                  format, title, &tspace, &rownumbers,
+-                  strlen(filename), strlen(format), strlen(title));
++                  format, title, &tspace, &rownumbers, &filenamelen,
++                  &formatlen, &titlelen);
+       break;
+ 
+     default:
+diff -uprN ncl-6.6.2.bak/ni/src/lib/nfpfort/writematrix.f ncl-6.6.2/ni/src/lib/nfpfort/writematrix.f
+--- ncl-6.6.2.bak/ni/src/lib/nfpfort/writematrix.f	2019-02-28 07:44:39.000000000 +0800
++++ ncl-6.6.2/ni/src/lib/nfpfort/writematrix.f	2025-09-01 17:13:02.613837686 +0800
+@@ -1,11 +1,15 @@
+ C NCLFORTSTART
+ 
+-      subroutine writematrixi(fname,nrow,ncol,x,fmtx,title,titsp,iopt)
++      subroutine writematrixi(fname,nrow,ncol,x,fmtx,title,
++     &titsp,iopt,len_fname, len_fmtx, len_title)
++      USE ISO_C_BINDING
+       implicit      none
+ 
+ C NCL procedure: writematrixi(fname, x, fmtx, title, titsp, iopt)
+-
+-      character*(*) title, fname, fmtx
++      integer(c_int),intent(in) :: len_fname, len_fmtx, len_title
++      CHARACTER(KIND=C_CHAR,LEN=len_title):: title
++      CHARACTER(KIND=C_CHAR,LEN=len_fname):: fname
++      CHARACTER(KIND=C_CHAR,LEN=len_fmtx):: fmtx
+       integer       ncol,nrow,iopt,titsp
+       integer       x(ncol,nrow)
+ 
+@@ -70,24 +74,26 @@ c write to standard out
+ 
+ C NCLFORTSTART
+ 
+-      subroutine writematrixf(fname,nrow,ncol,x,fmtx,title,titsp,iopt)
++      subroutine writematrixf(fname,nrow,ncol,x,fmtx,title,
++     &titsp,iopt,len_fname, len_fmtx, len_title)
++      USE ISO_C_BINDING
+       implicit      none
+ 
+-C NCL procedure: writematrixf(fname, x, fmtx, title, titsp, iopt)
+-
+-      character*(*) title, fname, fmtx
+-
++C NCL procedure: writematrixi(fname, x, fmtx, title, titsp, iopt)
++      integer(c_int),intent(in) :: len_fname, len_fmtx, len_title
++      CHARACTER(KIND=C_CHAR,LEN=len_title) :: title
++      CHARACTER(KIND=C_CHAR,LEN=len_fname) :: fname
++      CHARACTER(KIND=C_CHAR,LEN=len_fmtx) :: fmtx
+       integer titsp
+       character*2 titspc
+ 
+       integer       ncol,nrow,iopt
+       real          x(ncol,nrow)
+-
++      
+ C NCLEND
+ 
+       integer       nr, nc
+       character*96  newfmt, titfmt
+-
+       if (titsp.gt.0) then
+           write(titspc,"(i2)") titsp
+           titfmt = "(" // titspc // "x, a)" 
+@@ -145,12 +151,16 @@ c write to standard out
+ 
+ C NCLFORTSTART
+ 
+-      subroutine writematrixd(fname,nrow,ncol,x,fmtx,title,titsp,iopt)
++      subroutine writematrixd(fname,nrow,ncol,x,fmtx,title,
++     &titsp,iopt,len_fname, len_fmtx, len_title)
++      USE ISO_C_BINDING
+       implicit      none
+ 
+-C NCL procedure: writematrixd(fname, x, fmtx, title, titsp, iopt)
+-
+-      character*(*) title, fname, fmtx
++C NCL procedure: writematrixi(fname, x, fmtx, title, titsp, iopt)
++      integer(c_int),intent(in) :: len_fname, len_fmtx, len_title
++      CHARACTER(KIND=C_CHAR,LEN=len_title) :: title
++      CHARACTER(KIND=C_CHAR,LEN=len_fname) :: fname
++      CHARACTER(KIND=C_CHAR,LEN=len_fmtx) :: fmtx
+       character*2   titspc
+       integer       ncol,nrow,iopt,titsp
+       double precision       x(ncol,nrow)
+@@ -158,7 +168,6 @@ C NCL procedure: writematrixd(fname, x,
+ C NCLEND
+       integer       nr, nc
+       character*96  newfmt, titfmt
+-
+       if (titsp.gt.0) then
+           write(titspc,"(i2)") titsp
+           titfmt = "(" // titspc // "x, a)"
+@@ -214,12 +223,16 @@ c write to standard out
+       end
+ 
+ C NCLFORTSTART
+-      subroutine writematrixb(fname,nrow,ncol,x,fmtx,title,titsp,iopt)
++      subroutine writematrixb(fname,nrow,ncol,x,fmtx,title,
++     &titsp,iopt,len_fname, len_fmtx, len_title)
++      USE ISO_C_BINDING
+       implicit      none
+ 
+-C NCL procedure: writematrixb(fname, x, fmtx, title, titsp, iopt)
+-
+-      character*(*) title, fname, fmtx
++C NCL procedure: writematrixi(fname, x, fmtx, title, titsp, iopt)
++      integer(c_int),intent(in) :: len_fname, len_fmtx, len_title
++      CHARACTER(KIND=C_CHAR,LEN=len_title) :: title
++      CHARACTER(KIND=C_CHAR,LEN=len_fname) :: fname
++      CHARACTER(KIND=C_CHAR,LEN=len_fmtx) :: fmtx
+       integer       ncol,nrow,iopt,titsp
+       integer*1     x(ncol,nrow)
+ 
+@@ -234,7 +247,6 @@ c --------------------------------------
+       integer       nr, nc
+       character*96  newfmt, titfmt
+       character*2   titspc
+-
+       if (titsp.gt.0) then
+           write(titspc,"(i2)") titsp
+           titfmt = "(" // titspc // "x, a)"
+@@ -290,12 +302,16 @@ c write to standard out
+ 
+ C NCLFORTSTART
+ 
+-      subroutine writematrixs(fname,nrow,ncol,x,fmtx,title,titsp,iopt)
++      subroutine writematrixs(fname,nrow,ncol,x,fmtx,title,
++     &titsp,iopt,len_fname, len_fmtx, len_title)
++      USE ISO_C_BINDING
+       implicit      none
+ 
+ C NCL procedure: writematrixi(fname, x, fmtx, title, titsp, iopt)
+-
+-      character*(*) title, fname, fmtx
++      integer(c_int),intent(in) :: len_fname, len_fmtx, len_title
++      CHARACTER(KIND=C_CHAR,LEN=len_title) :: title
++      CHARACTER(KIND=C_CHAR,LEN=len_fname) :: fname
++      CHARACTER(KIND=C_CHAR,LEN=len_fmtx) :: fmtx
+       integer       ncol,nrow,iopt,titsp
+       integer*2     x(ncol,nrow)
+ 
+@@ -310,7 +326,6 @@ c --------------------------------------
+       integer       nr, nc
+       character*96  newfmt, titfmt
+       character*2   titspc
+-
+       if (titsp.gt.0) then
+           write(titspc,"(i2)") titsp
+           titfmt = "(" // titspc // "x, a)"

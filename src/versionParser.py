@@ -3,7 +3,7 @@ from typing import Optional, Pattern, Dict
 from installTypes import VersionInfo
 
 class VersionParser:
-    DEFAULT_REGEX: Pattern = re.compile(r'(\d+)\.(\d+)\.(\d+)')
+    DEFAULT_REGEX: Pattern = re.compile(r'\d+(?:\.[a-zA-Z\d]+)*')
 
     @classmethod
     def parse(cls, info: str, pattern: Pattern = DEFAULT_REGEX) -> Optional[VersionInfo]:
@@ -11,7 +11,9 @@ class VersionParser:
         match = pattern.search(info)
         if not match:
             return None
-        return (match.group(1), f"{match[1]}.{match[2]}.{match[3]}")
+        version_str = match.group(0)
+        mversion_str = version_str.split('.')[0] 
+        return (mversion_str, version_str)
 
     @classmethod
     def gen_compiler_profile(cls, name: str, version: VersionInfo) -> Dict:

@@ -1,0 +1,13 @@
+--- bwt.h	2017-10-24 01:13:09.000000000 +0800
++++ bwt.h_opt	2024-08-15 20:32:33.704059420 +0800
+@@ -43,6 +43,8 @@
+ 
+ typedef uint64_t bwtint_t;
+ 
++extern bwtint_t *__sa;
++
+ typedef struct {
+ 	bwtint_t primary; // S^{-1}(0), or the primary index of BWT
+ 	bwtint_t L2[5]; // C(), cumulative count
+
+

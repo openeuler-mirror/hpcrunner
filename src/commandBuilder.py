@@ -13,9 +13,18 @@ class CommandBuilder:
     def env_generate(self) -> str:
         """环境文件生成命令 (模板方法)"""
         env_file = self.ds.get_env_file()
+
         self.tool_service.write_file(env_file, self.ds.env_content)
         print(f"ENV FILE {env_file} GENERATED.")
-        return f'chmod +x {env_file}'
+        shell_env_content=f'cat > $1 <<EOF\n{self.ds.env_content}\nEOF\n'
+        with open(f'{env_file}_gen.sh', 'w', encoding='utf-8') as f:
+            f.write(shell_env_content)
+
+        return self._chain_commands([
+            f'chmod +x {env_file}',
+            f'chmod +x {env_file}_gen.sh'
+        ])
+     
 
     def env_activation(self) -> str:
         """环境激活命令 (模板方法)"""
@@ -77,15 +86,17 @@ class CommandBuilder:
 
     def job_run(self, num):
         job_file_path = self.ds.get_job_run_file()
-        #generate job env file
-        job_env_file = self.ds.get_job_env_file()
-        self.tool_service.write_file(job_env_file, self.ds.env_content)
         print(f"start job run {self.ds.get_app_name()}")
         job_cmd = self.ds.get_job_cmd() if num == 1 else self.ds.get_job2_cmd()
         job_content = f'''
 {self.env_activation()}
 mkdir -p {self.ds.app_config.case_dir}
 cd {self.ds.app_config.case_dir}
+
+cp {self.ds.get_env_file()}_gen.sh ./env_gen.sh -ar
+./env_gen.sh env.sh
+rm -f env_gen.sh
+chmod 755 env.sh
 cat > job_run.sh << \EOF
 {job_cmd}
 EOF

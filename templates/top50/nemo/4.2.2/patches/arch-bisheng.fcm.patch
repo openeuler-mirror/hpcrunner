@@ -1,0 +1,33 @@
+--- ./arch-bisheng.fcm	2025-05-19 15:05:04.000000000 +0800
++++ ./arch-bisheng.fcm	2025-08-29 15:23:55.764025682 +0800
+@@ -30,24 +30,24 @@
+ #  - unix variables "$..." are accpeted and will be evaluated before calling fcm.
+ #  - fcm variables are starting with a % (and not a $)
+ #
+-%HDF5_HOME            /root/test/lrl/share/software/soft/lib/hdf5/1.12.3-bisheng4.1.0-hmpi2.4.2
+-%NCDF_HOME            /root/test/lrl/share/software/soft/lib/netcdf/4.7.4_4.5.3-bisheng4.1.0-hmpi2.4.2
++%HDF5_HOME            /root/test/lrl/share/software/soft/lib/hdf5/1.12.3-bisheng-hmpi
++%NCDF_HOME            /root/test/lrl/share/software/soft/lib/netcdf/4.7.4_4.5.3-bisheng-hmpi
+ %NCDF_INC            -I%NCDF_HOME/include -I%HDF5_HOME/include
+ %NCDF_LIB            -L%HDF5_HOME/lib -L%NCDF_HOME/lib -lnetcdff  -lnetcdf
+-
++%USER_OBJ            /pacific_fs/home/scguest01/swx1313023/nemo-opt/nemo-4.2.2-opt/src/MY/BLD/*.o 
+ 
+ %CPP	             cpp -Dkey_nosignedzero 
+ %FC	             mpif90 -c -cpp
+-%FCFLAGS             -fdefault-real-8 -O3 -fdefault-double-8
++%FCFLAGS             -O3 -fdefault-real-8 -fdefault-double-8 -fopenmp -ffast-math -mcpu=hip11 -mllvm -force-customized-pipeline -msve-vector-bits=512 -mllvm -replace-sqrt-compare-by-square=true -mllvm -aarch64-enable-loop-data-prefetch=false -Wno-incompatible-function-pointer-types -Wno-deprecated-declarations
+ %FFLAGS              %FCFLAGS
+ %LD                  mpif90
+-%LDFLAGS             
++%LDFLAGS             -lstdc++ -fopenmp -O3
+ %FPPFLAGS            -P -traditional
+ %AR                  ar
+ %ARFLAGS             rs
+ %MK                  make
+ %USER_INC            %NCDF_INC
+-%USER_LIB            %NCDF_LIB
++%USER_LIB            %NCDF_LIB %USER_OBJ
+ 
+ %CC                  cc
+ %CFLAGS              -O0

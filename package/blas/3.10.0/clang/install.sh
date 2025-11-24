@@ -9,5 +9,5 @@ tar -xvf ${JARVIS_DOWNLOAD}/blas-3.10.0.tgz
 cd BLAS-3.10.0
 `which flang` -c -O3 -fomit-frame-pointer -funroll-loops *.f
 ar rv libblas.a *.o
-mkdir $1/lib
-cp libblas.a $1/lib
+mkdir -p $1/lib
+cp libblas.a $1/lib -ar

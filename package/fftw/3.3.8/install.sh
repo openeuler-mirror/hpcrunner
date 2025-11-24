@@ -1,18 +1,72 @@
 #!/bin/bash 
 set -x
 set -e
-. ${DOWNLOAD_TOOL} -u http://www.fftw.org/fftw-3.3.8.tar.gz
-cd ${JARVIS_TMP}
-tar -xvf ${JARVIS_DOWNLOAD}/fftw-3.3.8.tar.gz
-cd fftw-3.3.8
 
-./configure --prefix=$1 --enable-single --enable-float --enable-neon --enable-shared --enable-threads --enable-openmp --enable-mpi CFLAGS="-O3 -fomit-frame-pointer -fstrict-aliasing"
+PATH_INSTALL="$1"
+BASENAME=$(basename "$1")
+log_file=tee_install_$(date +%Y%m%d%H%M%S).xlog
+mkdir -p ${JARVIS_DEV_VROOT}/fftw/${BASENAME}
+
+{
+. ${DOWNLOAD_TOOL} -u http://www.fftw.org/fftw-3.3.8.tar.gz
+cd ${JARVIS_DEV_VROOT}/fftw/${BASENAME}
+
+REG_META_HVALUE=$(md5sum ${JARVIS_DOWNLOAD}/fftw-3.3.8.tar.gz | awk '{print $1}')
+REG_META_HTYPE="md5"
+REG_META_PACKAGE="fftw-3.3.8.tar.gz"
+REG_META_TYPE="tgz"
+
+[ -d fftw-3.3.8 ] && echo "Exist DIR:$(pwd)/fftw-3.3.8" && exit 1
+
+
+tar -xvf ${JARVIS_DOWNLOAD}/fftw-3.3.8.tar.gz -C ./
+[ ! $? -eq 0 ] && echo "Invalid file: fftw-3.3.8.tar.gz" && exit 1
+cd fftw-3.3.8
+REG_PROJECT_URL=$(pwd)
+REG_PROJECT_DATE=$(date +%Y%m%d%H%M%S)
+
+echo "BUILD DIR:$(pwd)"
+
+./configure --prefix="${PATH_INSTALL}" --enable-single --enable-float --enable-neon --enable-shared --enable-threads --enable-openmp --enable-mpi CFLAGS="-O3 -fomit-frame-pointer -fstrict-aliasing"
 make -j && make install
+[ -e "${PATH_INSTALL}"/lib/libfftw3f.so ] || {  echo "Failed to Install ${REG_META_PACKAGE},No exist:libfftw3f.so" ; exit 1 ;}
+
 make clean
-./configure --prefix=$1 --enable-long-double --enable-shared --enable-threads --enable-openmp --enable-mpi CFLAGS="-O3 -fomit-frame-pointer -fstrict-aliasing"
+./configure --prefix="${PATH_INSTALL}" --enable-long-double --enable-shared --enable-threads --enable-openmp --enable-mpi CFLAGS="-O3 -fomit-frame-pointer -fstrict-aliasing"
 make -j && make install
+
+[ -e "${PATH_INSTALL}"/lib/libfftw3l.so ] || {  echo "Failed to Install ${REG_META_PACKAGE},No exist:libfftw3l.so" ; exit 1 ;}
 make clean
-./configure --prefix=$1 --enable-shared --enable-threads --enable-openmp --enable-mpi CFLAGS="-O3 -fomit-frame-pointer -fstrict-aliasing"
+./configure --prefix="${PATH_INSTALL}" --enable-shared --enable-threads --enable-openmp --enable-mpi CFLAGS="-O3 -fomit-frame-pointer -fstrict-aliasing"
 make -j && make install
+
+[ -e "${PATH_INSTALL}"/lib/libfftw3.so ] || {  echo "Failed to Install ${REG_META_PACKAGE},No exist:libfftw3.so" ; exit 1 ;}
+
+cat > ${PATH_INSTALL}/install_registry.json << EOF
+{
+    "projectURL": "${REG_PROJECT_URL}",
+    "projectDate": "${REG_PROJECT_DATE}",
+    "packaging": "${REG_META_TYPE}",
+    "package": "${REG_META_PACKAGE}",
+    "hashType": "${REG_META_HTYPE}",
+    "hashValue": "${REG_META_HVALUE}",
+    "dependencies": [
+        {
+            "artifactId": "lapack",
+            "version": "",
+            "scope": "compile",
+            "url": "${LAPACK_PATH}",
+            "packaging": "none"
+        }
+        ]
+}
+EOF
+
+} 2>&1 | tee ${JARVIS_DEV_VROOT}/fftw/${BASENAME}/${log_file}
+res=${PIPESTATUS[0]}
+echo "Install Result:${res}"
+cp ${JARVIS_DEV_VROOT}/fftw/${BASENAME}/${log_file} ${1}
+set +x
+exit ${res}
 
 

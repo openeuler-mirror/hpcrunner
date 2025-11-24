@@ -1,0 +1,94 @@
+ 
+ 
+CC          = mpicc
+FC          = mpif90
+LD          = mpif90
+AR          = ar -r
+
+MPI_PATH        = path1
+GNU_PATH        = path2
+
+
+
+ELPA_VER    = 2019.05.001
+ELPA_INC    = $(ELPA_PATH)/include/elpa_openmp-$(ELPA_VER)
+ELPA_LIB    = $(ELPA_PATH)/lib
+ 
+FFTW_INC    = $(FFTW_PATH)/include
+FFTW_LIB    = $(FFTW_PATH)/lib
+
+ 
+LIBINT_INC  = $(LIBINT_PATH)/include
+LIBINT_LIB  = $(LIBINT_PATH)/lib
+
+ 
+LIBXC_INC   = $(LIBXC_PATH)/include
+LIBXC_LIB   = $(LIBXC_PATH)/lib
+
+ 
+
+GSL_INC     = $(GSL_PATH)/include
+GSL_LIB     = $(GSL_PATH)/lib
+ 
+
+PLUMED_INC  = $(PLUMED_PATH)/include
+PLUMED_LIB  = $(PLUMED_PATH)/lib
+ 
+SPGLIB_INC  = $(SPGLIB_PATH)/include
+SPGLIB_LIB  = $(SPGLIB_PATH)/lib64
+
+ 
+#LIBXSMM_DIR =
+#LIBXSMM_INC = $(LIBXSMM_DIR)/include
+#LIBXSMM_LIB = $(LIBXSMM_DIR)/lib
+
+BLAS_DIR    = $(HPCKIT_KML)/bisheng
+#BLAS_INC    = $(BLAS_DIR)/include
+BLAS_LIB    = $(BLAS_DIR)/lib/sve/kblas/multi
+ 
+LAPACK_DIR    = $(HPCKIT_KML)/bisheng
+#LAPACK_INC    = $(LAPACK_DIR)/include
+LAPACK_LIB    = $(LAPACK_DIR)/lib/sve
+
+SCALAPACK_DIR    = $(HPCKIT_KML)/bisheng
+#SCALAPACK_INC    = $(SCALAPACK_DIR)/include
+SCALAPACK_LIB    = $(SCALAPACK_DIR)/lib/sve
+ 
+MATHLIB_DIR = $(HPCKIT_KML)/bisheng
+#MATHLIB_INC = $(MATHLIB_DIR)/include
+MATHLIB_LIB = $(MATHLIB_DIR)/lib
+    
+
+include       $(PLUMED_LIB)/plumed/src/lib/Plumed.inc.shared
+ 
+CFLAGS      = -O3 -Mbackslash -mcpu=hip11 -ffast-math #-Hx,2,0x400000 -Hx,47,0x1000000
+ 
+DFLAGS      = -D__ELPA -D__FFTW3 -D__LIBINT -D__LIBXC
+DFLAGS     += -D__MPI_VERSION=3 -D__PLUMED2 -D__SPGLIB
+DFLAGS     += -D__parallel -D__SCALAPACK
+#DFLAGS     += -D__LIBXSMM
+
+FCFLAGS     = $(CFLAGS) $(DFLAGS)
+FCFLAGS    += -ffree-form -ffree-line-length-none
+FCFLAGS    += -fopenmp
+FCFLAGS    += -ftree-vectorize -funroll-loops -std=f2008
+FCFLAGS    += -I$(ELPA_INC)/elpa -I$(ELPA_INC)/modules
+FCFLAGS    += -I$(FFTW_INC) -I$(LIBINT_INC) -I$(LIBXC_INC) -I$(GSL_INC) -I$(PLUMED_INC) -I$(SPGLIB_INC) # -I$(LIBXSMM_INC)
+ 
+LDFLAGS     = $(FCFLAGS)
+ 
+LIBS        = -L/usr/lib64 -ldl -lpthread -lstdc++
+LIBS       += -L$(PLUMED_LIB) -lplumedKernel -lplumed
+LIBS       += -L$(GSL_LIB)  -lgsl -lgslcblas -lz
+LIBS       += -L$(ELPA_LIB) -lelpa_openmp
+LIBS       += -L$(LIBXC_LIB) -lxcf03 -lxc
+LIBS       += -L$(LIBINT_LIB) -lint2
+LIBS       += -L$(SPGLIB_LIB) -lsymspg
+LIBS       += -L$(FFTW_LIB) -lfftw3 -lfftw3_omp
+LIBS       += -L$(BLAS_LIB) -lkblas
+LIBS       += -L$(SCALAPACK_LIB) -lkscalapack_full -lkscalapack
+LIBS       += -L$(LAPACK_LIB) -lklapack_full -lklapack
+LIBS       += -L$(MATHLIB_LIB) -L$(MATHLIB_LIB)/noarch -lkml_rt -lkm -lm
+#LIBS       += -L$(LIBXSMM_LIB) -lxsmmf -lxsmmext -lxsmm -ldl
+#LIBS       += -L/home/w30055856/hpcrunner/software/compiler/bisheng/4.1.0/lib -ljemalloc
+

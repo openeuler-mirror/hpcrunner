@@ -1,12 +1,48 @@
 #!/bin/bash
 set -x
 set -e
+PATH_INSTALL="$1"
+BASENAME=$(basename "$1")
+log_file=tee_install_$(date +%Y%m%d%H%M%S).xlog
+mkdir -p ${JARVIS_DEV_VROOT}/libxc/${BASENAME}
+{
 . ${DOWNLOAD_TOOL} -u http://forge.abinit.org/fallbacks/libxc-4.3.4.tar.gz
-cd ${JARVIS_TMP}
-rm -rf libxc-4.3.4
+cd ${JARVIS_DEV_VROOT}/libxc/${BASENAME}
+
+REG_META_HVALUE=$(md5sum ${JARVIS_DOWNLOAD}/libxc-4.3.4.tar.gz | awk '{print $1}')
+REG_META_HTYPE="md5"
+REG_META_PACKAGE="libxc-4.3.4.tar.gz"
+REG_META_TYPE="tgz"
+
+[ -d libxc-4.3.4 ] && echo "Exist DIR:$(pwd)/libxc-4.3.4" && exit 1
+
 tar -xvf ${JARVIS_DOWNLOAD}/libxc-4.3.4.tar.gz
+[ ! $? -eq 0 ] && echo "Invalid file: libxc-4.3.4.tar.gz" && exit 1
 cd libxc-4.3.4
-./configure  --prefix=$1  
+REG_PROJECT_URL=$(pwd)
+REG_PROJECT_DATE=$(date +%Y%m%d%H%M%S)
+
+echo "BUILD DIR:$(pwd)"
+./configure  --prefix=$1 --enable-shared CC=clang FC=flang F77=flang MPICC=mpicc MPIFC=mpifort MPIF77=mpifort AR=ar
+sed -i 's/\\\$wl-soname \\\$wl\\\$soname/-fuse-ld=ld -Wl,-soname,\\\$soname/g' libtool
 make -j
 make install
+cat > ${PATH_INSTALL}/install_registry.json << EOF
+{
+    "projectURL": "${REG_PROJECT_URL}",
+    "projectDate": "${REG_PROJECT_DATE}",
+    "packaging": "${REG_META_TYPE}",
+    "package": "${REG_META_PACKAGE}",
+    "hashType": "${REG_META_HTYPE}",
+    "hashValue": "${REG_META_HVALUE}",
+    "dependencies": [
+        ]
+}
+EOF
 
+} 2>&1 | tee ${JARVIS_DEV_VROOT}/libxc/${BASENAME}/${log_file}
+res=${PIPESTATUS[0]}
+echo "Install Result:${res}"
+cp ${JARVIS_DEV_VROOT}/libxc/${BASENAME}/${log_file} ${1}
+set +x
+exit ${res}

@@ -1,0 +1,11 @@
+FORCE  001
+time shift:     0.0000
+hdurorf0:        5.0
+latorUTM:       2000.0
+longorUTM:      2000.0
+depth:          0.0
+source time function:            0
+factor force source:             1.d18
+component dir vect source E:     1.0d0
+component dir vect source N:     1.1d0
+component dir vect source Z_UP:  1.2d0

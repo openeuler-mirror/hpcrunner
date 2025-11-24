@@ -1,0 +1,72 @@
+--- p2zopt.F90	2025-09-03 15:17:26.630775341 +0800
++++ p2zopt.F90	2025-03-03 16:42:36.012115263 +0800
+@@ -18,7 +18,6 @@
+    USE trc
+    USE sms_pisces
+    USE prtctl          ! Print control for debbuging
+-
+    IMPLICIT NONE
+    PRIVATE
+ 
+@@ -72,6 +71,8 @@
+       REAL(wp) ::   zcoef               ! temporary scalar
+       REAL(wp), DIMENSION(jpi,jpj    ) :: zpar100, zpar0m
+       REAL(wp), DIMENSION(jpi,jpj,jpk) :: zparr, zparg
++      REAL(wp), DIMENSION(jpi,jpj,jpk) :: zkr_exp, zkg_exp,zkr_arr,zkg_arr
++      integer :: ret
+       !!---------------------------------------------------------------------
+       !
+       IF( ln_timing )   CALL timing_start('p2z_opt')
+@@ -94,21 +95,39 @@
+ 
+       !                                          ! Photosynthetically Available Radiation (PAR)
+       zcoef = 12 * redf / rcchl / rpig           ! --------------------------------------
+-      DO_3D( nn_hls, nn_hls, nn_hls, nn_hls, 2, jpk )
++      DO_3D(nn_hls, nn_hls, nn_hls, nn_hls, 1, jpkm1)
+          zpig = LOG(  MAX( TINY(0.), tr(ji,jj,jk-1,jpphy,Kmm) ) * zcoef  )
+          zkr  = xkr0 + xkrp * EXP( xlr * zpig )
+          zkg  = xkg0 + xkgp * EXP( xlg * zpig )
+-         zparr(ji,jj,jk) = zparr(ji,jj,jk-1) * EXP( -zkr * e3t(ji,jj,jk-1,Kmm) )
+-         zparg(ji,jj,jk) = zparg(ji,jj,jk-1) * EXP( -zkg * e3t(ji,jj,jk-1,Kmm) )
++         zkr_arr(ji,jj,jk) = zkr * e3t(ji,jj,jk,Kmm)
++         zkg_arr(ji,jj,jk) = zkg * e3t(ji,jj,jk,Kmm)
++         zkr_exp(ji,jj,jk) = EXP(-zkr_arr(ji,jj,jk))
++         zkg_exp(ji,jj,jk) = EXP(-zkg_arr(ji,jj,jk))
++      END_3D
++      DO_3D( nn_hls, nn_hls, nn_hls, nn_hls, 2, jpk )
++         zparr(ji,jj,jk) = zparr(ji,jj,jk-1) * zkr_exp(ji,jj,jk-1)
++         zparg(ji,jj,jk) = zparg(ji,jj,jk-1) * zkg_exp(ji,jj,jk-1)
+       END_3D
+       DO_3D( nn_hls, nn_hls, nn_hls, nn_hls, 1, jpkm1 ) ! mean par at t-levels
+-         zpig = LOG(  MAX( TINY(0.), tr(ji,jj,jk,jpphy,Kmm) ) * zcoef  )
+-         zkr  = xkr0 + xkrp * EXP( xlr * zpig )
+-         zkg  = xkg0 + xkgp * EXP( xlg * zpig )
+-         zparr(ji,jj,jk) = zparr(ji,jj,jk) / ( zkr * e3t(ji,jj,jk,Kmm) ) * ( 1 - EXP( -zkr * e3t(ji,jj,jk,Kmm) ) )
+-         zparg(ji,jj,jk) = zparg(ji,jj,jk) / ( zkg * e3t(ji,jj,jk,Kmm) ) * ( 1 - EXP( -zkg * e3t(ji,jj,jk,Kmm) ) )
++         zparr(ji,jj,jk) = zparr(ji,jj,jk) / zkr_arr(ji,jj,jk) * ( 1 - zkr_exp(ji,jj,jk) )
++         zparg(ji,jj,jk) = zparg(ji,jj,jk) / zkg_arr(ji,jj,jk) * ( 1 - zkg_exp(ji,jj,jk) )
+          etot (ji,jj,jk) = MAX( zparr(ji,jj,jk) + zparg(ji,jj,jk), 1.e-15 )
+       END_3D
++      !DO_3D( nn_hls, nn_hls, nn_hls, nn_hls, 2, jpk )
++         !zpig = LOG(  MAX( TINY(0.), tr(ji,jj,jk-1,jpphy,Kmm) ) * zcoef  )
++         !zkr  = xkr0 + xkrp * EXP( xlr * zpig )
++         !zkg  = xkg0 + xkgp * EXP( xlg * zpig )
++         !zparr(ji,jj,jk) = zparr(ji,jj,jk-1) * EXP( -zkr * e3t(ji,jj,jk-1,Kmm) )
++         !zparg(ji,jj,jk) = zparg(ji,jj,jk-1) * EXP( -zkg * e3t(ji,jj,jk-1,Kmm) )
++      !END_3D
++      !DO_3D( nn_hls, nn_hls, nn_hls, nn_hls, 1, jpkm1 ) ! mean par at t-levels
++         !zpig = LOG(  MAX( TINY(0.), tr(ji,jj,jk,jpphy,Kmm) ) * zcoef  )
++         !zkr  = xkr0 + xkrp * EXP( xlr * zpig )
++         !zkg  = xkg0 + xkgp * EXP( xlg * zpig )
++         !zparr(ji,jj,jk) = zparr(ji,jj,jk) / ( zkr * e3t(ji,jj,jk,Kmm) ) * ( 1 - EXP( -zkr * e3t(ji,jj,jk,Kmm) ) )
++         !zparg(ji,jj,jk) = zparg(ji,jj,jk) / ( zkg * e3t(ji,jj,jk,Kmm) ) * ( 1 - EXP( -zkg * e3t(ji,jj,jk,Kmm) ) )
++         !etot (ji,jj,jk) = MAX( zparr(ji,jj,jk) + zparg(ji,jj,jk), 1.e-15 )
++      !END_3D
+ 
+       !                                          ! Euphotic layer
+       !                                          ! --------------
+@@ -187,3 +206,4 @@
+ 
+    !!======================================================================
+ END MODULE p2zopt
++
