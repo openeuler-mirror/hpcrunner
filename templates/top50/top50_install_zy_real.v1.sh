@@ -532,9 +532,9 @@ local TOKEN=$1
 local TIME=$2
 local LOGDIR=$3
 echo "${TOKEN}"
-cp templates/${BCH}/ncl/6.6.2/data.ncl-gcc.arm.cpu.config  data.config -ar
+cp templates/${BCH}/ncl/6.3.0/data.config  data.config -ar
 ./config_convert.sh data.config
-cp templates/${BCH}/ncl/6.6.2/dataconfig_patches ./ -ar
+cp templates/${BCH}/ncl/6.3.0/dataconfig_patches ./ -ar
 dotask ${TOKEN} ${TIME} ${LOGDIR} ${LINENO}
 return 0
 }
@@ -545,8 +545,9 @@ local TOKEN=$1
 local TIME=$2
 local LOGDIR=$3
 echo "${TOKEN}"
-cp -Lf templates/${BCH}/nco/5.1.4/data.NCO.arm.cpu.config  ./data.config -ar
+cp templates/${BCH}/nco/5.2.6/data.config  ./data.config -ar
 ./config_convert.sh data.config
+cp templates/${BCH}/ncl/5.2.6/dataconfig_patches ./ -ar
 dotask ${TOKEN} ${TIME} ${LOGDIR} ${LINENO}
 return 0
 }
