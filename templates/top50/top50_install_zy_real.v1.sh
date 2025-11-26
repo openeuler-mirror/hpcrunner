@@ -547,7 +547,7 @@ local LOGDIR=$3
 echo "${TOKEN}"
 cp templates/${BCH}/nco/5.2.6/data.config  ./data.config -ar
 ./config_convert.sh data.config
-cp templates/${BCH}/ncl/5.2.6/dataconfig_patches ./ -ar
+cp templates/${BCH}/nco/5.2.6/dataconfig_patches ./ -ar
 dotask ${TOKEN} ${TIME} ${LOGDIR} ${LINENO}
 return 0
 }
