@@ -545,7 +545,7 @@ local TOKEN=$1
 local TIME=$2
 local LOGDIR=$3
 echo "${TOKEN}"
-cp -Lf templates/${BCH}/nco/5.1.4/data.NCO.arm.cpu.config  ./data.config
+cp -Lf templates/${BCH}/nco/5.1.4/data.NCO.arm.cpu.config  ./data.config -ar
 ./config_convert.sh data.config
 dotask ${TOKEN} ${TIME} ${LOGDIR} ${LINENO}
 return 0
@@ -557,7 +557,7 @@ local TOKEN=$1
 local TIME=$2
 local LOGDIR=$3
 echo "${TOKEN}"	
-cp -Lf templates/${BCH}/cdo/1.9.8/cdo.arm.data.config  ./data.config
+cp -Lf templates/${BCH}/cdo/1.9.8/data.config  ./data.config 
 ./config_convert.sh data.config
 dotask ${TOKEN} ${TIME} ${LOGDIR} ${LINENO}
 return 0
@@ -569,7 +569,7 @@ local TOKEN=$1
 local TIME=$2
 local LOGDIR=$3
 echo "${TOKEN}"	
-cp -Lf templates/${BCH}/gsl/12.3.1/data.gsl.arm.cpu.config  ./data.config
+cp -Lf templates/${BCH}/gsl/12.3.1/data.gsl.arm.cpu.config  ./data.config 
 ./config_convert.sh data.config
 dotask ${TOKEN} ${TIME} ${LOGDIR} ${LINENO}
 return 0
@@ -581,7 +581,7 @@ local TOKEN=$1
 local TIME=$2
 local LOGDIR=$3
 echo "${TOKEN}"
-cp -Lf templates/${BCH}/ncview/2.1.5/data.ncview.arm.cpu.config  ./data.config
+cp -Lf templates/${BCH}/ncview/2.1.5/data.ncview.arm.cpu.config  ./data.config 
 ./config_convert.sh data.config
 dotask ${TOKEN} ${TIME} ${LOGDIR} ${LINENO}
 return 0
