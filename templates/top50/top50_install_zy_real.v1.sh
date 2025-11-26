@@ -28,7 +28,7 @@ T "f_scalapack" 1 "scalapack"		T "f_boost" 1 "boost"			T "f_kml" 1 "kml"			T "f_
 T "f_blas" 1 "blas"			T "f_openblas" 1 "openblas"		T "f_jdk" 1 "jdk"			T "f_wanniertools" 1 "wanniertools"
 T "f_wannier" 1 "wannier"		T "f_multiwfn" 1 "multiwfn"		T "f_gulp" 1 "gulp"			T "f_palabos" 1 "palabos"	
 T "f_cp2k" 1 "cp2k"			T "f_nemo" 1 "nemo"			T "f_namd" 1 "namd"			T "f_ww3" 1 "ww3"
-T "f_openfoa" 1 "openfoa"		T "f_roms" 1 "roms"			T "f_relion" 1 "relion"			T "f_specfem3d" 1 "specfem3d"
+T "f_openfoam" 1 "openfoam"		T "f_roms" 1 "roms"			T "f_relion" 1 "relion"			T "f_specfem3d" 1 "specfem3d"
 T "f_wrf" 1 "wrf"			T "f_camx" 1 "camx"			T "f_vasp" 1 "vasp"			T "f_qe" 1 "qe"
 ###															#	 stage=4001 -->
 T "f_cesm122" 1 "cesm122"		T "f_cesm222" 1 "cesm222"		T "f_gromacs" 1 "gromacs"		T "f_lammps" 1 "lammps"
@@ -332,13 +332,15 @@ echo_error "${TOKEN} [Line:${LINE}] Please add task here!!!" && exit 1
 return 0
 }
 
-function f_openfoa()
+function f_openfoam()
 {
 local TOKEN=$1
 local TIME=$2
 local LOGDIR=$3
 echo "${TOKEN}"
-echo_error "${TOKEN} [Line:${LINE}] Please add task here!!!" && exit 1
+cp templates/${BCH}/openfoam/2412/data.opt.config ./data.config -ar
+./config_convert.sh data.config
+dotask ${TOKEN} ${TIME} ${LOGDIR} ${LINENO}
 return 0
 }
 
@@ -630,9 +632,9 @@ local TOKEN=$1
 local TIME=$2
 local LOGDIR=$3
 echo "${TOKEN}"
-
 cp templates/${BCH}/alphafold/2/data.config data.config -ar
 ./config_convert.sh data.config
+cp templates/${BCH}/alphafold/2/dataconfig_patches ./ -ar
 dotask ${TOKEN} ${TIME} ${LOGDIR} ${LINENO}
 return 0
 }	
