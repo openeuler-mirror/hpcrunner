@@ -1,10 +1,9 @@
 #!/bin/bash
 set -x
 set -e
-cd ${JARVIS_DOWNLOAD}
-rm g2clib-1.6.0-patch.tar.gz -f
-wget http://www.ncl.ucar.edu/Download/files/g2clib-1.6.0-patch.tar.gz
+. ${DOWNLOAD_TOOL} -u http://www.ncl.ucar.edu/Download/files/g2clib-1.6.0-patch.tar.gz
 cd ${JARVIS_TMP}
+rm -rf g2clib-1.6.0-patch
 tar -xvf ${JARVIS_DOWNLOAD}/g2clib-1.6.0-patch.tar.gz
 cd g2clib-1.6.0-patch
 if [ -z "${JASPER_PATH}" ] || [ -z "${LIBPNG_PATH}" ]; then

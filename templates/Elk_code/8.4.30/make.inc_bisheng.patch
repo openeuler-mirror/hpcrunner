@@ -1,0 +1,16 @@
+--- make.inc	2025-11-21 01:50:39.427004790 +0800
++++ make.inc	2025-11-21 01:53:28.149189439 +0800
+@@ -1,9 +1,9 @@
+ 
+ MAKE = make
+-F90 = gfortran
+-F90_OPTS = -O3 -ffast-math -funroll-loops -fopenmp
+-F77 = gfortran
+-F77_OPTS = -O3 -ffast-math -funroll-loops -fopenmp
++F90 = flang
++F90_OPTS = -cpp -O3 -ffast-math -funroll-loops -fopenmp -L${FFTW_LIB} -lfftw3
++F77 = flang
++F77_OPTS = -cpp -O3 -ffast-math -funroll-loops -fopenmp -L${FFTW_LIB} -lfftw3
+ AR = ar
+ LIB_SYS = 
+ # LAPACK and BLAS libraries
