@@ -6,7 +6,7 @@ set -x
 set -e
 version='3.4.6'
 . $CHECK_ROOT && yum install -y texlive* gnuplot perl-Pod-LaTeX perl-HTML-Parser ghostscript
-. ${DOWNLOAD_TOOL} -u https://ftp.mcs.anl.gov/pub/darshan/releases/darshan-${version}.tar.gz
+. ${DOWNLOAD_TOOL} -u https://web.cels.anl.gov/projects/darshan/releases/darshan-${version}.tar.gz
 cd ${JARVIS_TMP}
 tar xvf ${JARVIS_DOWNLOAD}/darshan-${version}.tar.gz
 cd darshan-${version}

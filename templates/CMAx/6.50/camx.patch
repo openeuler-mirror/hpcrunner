@@ -1,0 +1,71 @@
++++ MPI/util/par_assoc_buff.c	2025-12-03 11:09:57.516389780 +0800
+@@ -1,5 +1,13 @@
+ #include "util.h"
+ 
++int flag_msgtag;
++
++MPI_Request mpi_msgtags[MAX_MSGTAG];
++
++char *ibuff;
++int ipos,nbuff;
++
++
+ void par_assoc_buff_(buff,numbuff)
+      int *numbuff;
+      void *buff;
+diff -urN old_MPI/util/par_get_noblock.c MPI/util/par_get_noblock.c
+--- old_MPI/util/par_get_noblock.c	2025-12-03 11:07:40.434489851 +0800
++++ MPI/util/par_get_noblock.c	2025-12-03 11:12:02.202117901 +0800
+@@ -3,6 +3,9 @@
+ void par_get_noblock_(void *buff,int *numbuff,int *mmtype
+                                ,int *ihostnum,int *fmsgtag)
+ {
++   extern void zero_tag_array();
++   extern int par_store_tag(MPI_Request msgtag);
++
+    MPI_Request msgtag;
+    int ierr=0, nbuff;
+ 
+diff -urN old_MPI/util/par_send_noblock.c MPI/util/par_send_noblock.c
+--- old_MPI/util/par_send_noblock.c	2025-12-03 11:07:40.434489851 +0800
++++ MPI/util/par_send_noblock.c	2025-12-03 11:13:51.263629472 +0800
+@@ -2,6 +2,8 @@
+ 
+ void par_send_noblock_(int *mach, int *msgtype, int *fmsgtag)
+ {
++   extern void zero_tag_array();
++   extern int par_store_tag(MPI_Request msgtag);
+ 
+    extern char *ibuff;
+    extern int ipos, nbuff;
+diff -urN old_MPI/util/par_wait.c MPI/util/par_wait.c
+--- old_MPI/util/par_wait.c	2025-12-03 11:07:40.434489851 +0800
++++ MPI/util/par_wait.c	2025-12-03 11:15:08.780703844 +0800
+@@ -2,6 +2,8 @@
+ 
+ void par_wait_(int *fmsgtag,int *ibytes,int *msgtype,int *ihostnum)
+ {
++   extern void zero_tag_array();
++   extern MPI_Request par_retrive_tag(int fmsgtag);
+    MPI_Request msgtag;
+    MPI_Status status;
+    int ierr=0;
+diff -urN old_MPI/util/util.h MPI/util/util.h
+--- old_MPI/util/util.h	2025-12-03 11:07:40.434489851 +0800
++++ MPI/util/util.h	2025-12-03 11:16:18.093664509 +0800
+@@ -8,11 +8,11 @@
+ 
+ #define MPI_request int
+ 
+-int flag_msgtag;
++extern int flag_msgtag;
+ 
+-MPI_Request mpi_msgtags[MAX_MSGTAG];
++extern MPI_Request mpi_msgtags[MAX_MSGTAG];
+ 
+-char *ibuff;
+-int ipos,nbuff;
++extern char *ibuff;
++extern int ipos,nbuff;
+ 
+ #endif
