@@ -3,7 +3,8 @@
 set -x
 set -e
 pnetcdf_ver='1.9.0'
-. ${DOWNLOAD_TOOL} -u https://parallel-netcdf.github.io/Release/parallel-netcdf-1.9.0.tar.gz
+#. ${DOWNLOAD_TOOL} -u https://parallel-netcdf.github.io/Release/parallel-netcdf-1.9.0.tar.gz
+. ${DOWNLOAD_TOOL} -u https://gitee.com/kp-hpc-mod/hpc-src/raw/master/pnetcdf/parallel-netcdf-1.9.0.tar.gz
 cd ${JARVIS_TMP}
 rm -rf pnetcdf-${pnetcdf_ver}
 tar zxvf ${JARVIS_DOWNLOAD}/parallel-netcdf-1.9.0.tar.gz

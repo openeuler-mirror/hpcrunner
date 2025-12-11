@@ -2,7 +2,8 @@
 set -x
 set -e
 pnetcdf_version='1.12.1'
-. ${DOWNLOAD_TOOL} -u http://cucis.ece.northwestern.edu/projects/PnetCDF/Release/pnetcdf-${pnetcdf_version}.tar.gz
+#. ${DOWNLOAD_TOOL} -u http://cucis.ece.northwestern.edu/projects/PnetCDF/Release/pnetcdf-${pnetcdf_version}.tar.gz
+. ${DOWNLOAD_TOOL} -u https://gitee.com/kp-hpc-mod/hpc-src/raw/master/pnetcdf/pnetcdf-1.12.1.tar.gz
 cd ${JARVIS_TMP}
 rm -rf pnetcdf-${pnetcdf_version}
 tar zxvf ${JARVIS_DOWNLOAD}/pnetcdf-${pnetcdf_version}.tar.gz
@@ -22,6 +23,11 @@ if [ "$use_gcc" -eq "1" ]; then
                 FCFLAGS="-fallow-argument-mismatch"
         fi
 fi
-./configure --prefix=$1 --build=aarch64-linux --enable-shared --enable-fortran --enable-large-file-test FFLAGS="$FFLAGS" FCFLAGS="$FCFLAGS"
+if [ x"$(arch)" = xaarch64 ];then
+    build_type='--build=aarch64-linux'
+else
+    build_type=''
+fi
+./configure --prefix=$1 ${build_type} --enable-shared --enable-fortran --enable-large-file-test FFLAGS="$FFLAGS" FCFLAGS="$FCFLAGS"
 make -j16
 make install
