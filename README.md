@@ -56,7 +56,7 @@ source init.sh
 步骤2：生效应用模板
 进入hpcrunner根目录执行如下命令：
 ```
-./jarvis -use /path/xapp.config
+./jarvis -use templates/xapp.config
 ```
 
 注：贾维斯中包含典型HPC应用模板， 位于目录”hpcrunner/template”中，可直接使用。如要新增应用模板，需遵循一定的格式新建自定义文件app.config。
