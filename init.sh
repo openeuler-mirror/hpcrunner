@@ -59,15 +59,7 @@ if [ -e "$file_path" ]; then
     export BISHENG_VERSION=`ls $file_path|grep compiler|awk -F "compiler" '{print $2}'`
     export HMPI_VERSION=`ls $file_path|grep hmpi|awk -F "hmpi" '{print $2}'`
 else
-    echo -e "INFO: 检测到 $HPCKIT_VERSION 版本的 HPCKit 尚未安装，正在安装...\n"
-    ./jarvis -use templates/basic_env/data.hpckit.config
-    ./jarvis -dp
-    install_ret=$?
-    if [ $install_ret -eq 0 ]; then
-        echo -e "INFO: $HPCKIT_VERSION 版本的 HPCKit 安装成功\n"
-    else
-        echo -e "[ERROR]: $HPCKIT_VERSION 版本的 HPCKit 安装失败，请重新安装\n"
-    fi
+    echo -e "INFO: 检测到 $HPCKIT_VERSION 版本的 HPCKit 未进行安装，请继续执行\n"
 fi
 
 
