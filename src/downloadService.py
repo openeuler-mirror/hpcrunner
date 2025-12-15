@@ -5,6 +5,7 @@ from dataService import DataService
 from executeService import ExecuteService
 from toolService import ToolService
 
+
 class DownloadService:
     def __init__(self):
         self.hpc_data = DataService()
@@ -17,7 +18,7 @@ class DownloadService:
 
     def check_network(self):
         print(f"start network checking")
-        network_test_cmd='''
+        network_test_cmd = '''
 wget --spider -T 5 -q -t 2 www.baidu.com | echo $?
 curl -s -o /dev/null www.baidu.com | echo $?
     '''
@@ -53,8 +54,9 @@ yum makecache
             if len(url_list) == 3:
                 filename = url_list[2].strip()
             filename_url_map[filename] = url_link
-            
-        print(filename_url_map)
+
+        if filename_url_map:
+            print(filename_url_map)
         # start download
         for filename, url in filename_url_map.items():
             download_flag = True
@@ -69,4 +71,7 @@ yum makecache
                 os.remove(file_path)
 
         if not download_flag:
-            print("The download list is empty!")
+            print("The download list is empty!\n[WARNING] Due to copyright restrictions and other related "
+                  "considerations, we are unable to download the source code. Please manually upload the source code "
+                  "of the corresponding version to the downloads directory before proceeding with the installation "
+                  "steps.")
