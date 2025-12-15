@@ -9,6 +9,7 @@ if [ -z "${HDF5_PATH}" ] || [ -z "${NETCDF_PATH}" ]; then
 fi
 . ${DOWNLOAD_TOOL} -u https://code.mpimet.mpg.de/attachments/download/30045/cdo-${cdo_ver}.tar.gz 
 cd ${JARVIS_TMP}
+rm -rf cdo-${cdo_ver}
 tar xf ${JARVIS_DOWNLOAD}/cdo-${cdo_ver}.tar.gz
 cd cdo-${cdo_ver}
 ./configure --prefix=$1 --with-hdf5=${HDF5_PATH} --with-netcdf=${NETCDF_PATH}

@@ -7,7 +7,6 @@ rm -rf sundials-5.8.0
 tar -xvf ${JARVIS_DOWNLOAD}/sundials-5.8.0.tar.gz
 cd sundials-5.8.0
 mkdir build && cd build
-echo $1
 cmake -DCMAKE_INSTALL_PREFIX=$1 \
   -DBUILD_SHARED_LIBS=ON \
   -DCMAKE_BUILD_TYPE=Release \

@@ -1,0 +1,19 @@
+--- CodeIftran	2023-03-04 11:21:59.000000000 +0800
++++ CodeIftran-bak	2025-01-14 10:21:05.616800000 +0800
+@@ -9666,6 +9666,7 @@ C
+ C Find the length of the character buffer and initialize it to blanks.
+ C
+         LBUF=LEN(CBUF)
++	CBUF(1:LBUF)=''
+         DO (III=1,LBUF)
+           CBUF(III:III)=' '
+         END DO
+@@ -9790,7 +9791,7 @@ C which requires special action).
+ C
+         IF (NDGS.EQ.0.OR.IEXF.EQ.0)
+           IF (IEXP.GT.0.OR.LMSD.EQ.-10000)
+-            CBUF(1:1)='0'
++            CBUF(1:LBUF)='0'
+             NBUF=1
+             NDGS=1
+             IEVA=0

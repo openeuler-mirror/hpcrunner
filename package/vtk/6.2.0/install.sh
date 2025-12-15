@@ -1,6 +1,7 @@
 #!/bin/bash
 set -x
 set -e
+yum install mesa-libGL-devel mesa-libGLU-devel -y
 . ${DOWNLOAD_TOOL} -u https://vtk.org/files/release/6.2/VTK-6.2.0.tar.gz
 cd ${JARVIS_TMP}
 rm -rf VTK-6.2.0

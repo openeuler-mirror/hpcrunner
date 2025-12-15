@@ -53,10 +53,10 @@ source init.sh
 ```
 
 
-步骤1：生效应用模板
+步骤2：生效应用模板
 进入hpcrunner根目录执行如下命令：
 ```
-./jarvis -use /path/xapp.config
+./jarvis -use templates/xapp.config
 ```
 
 注：贾维斯中包含典型HPC应用模板， 位于目录”hpcrunner/template”中，可直接使用。如要新增应用模板，需遵循一定的格式新建自定义文件app.config。
@@ -91,13 +91,13 @@ source init.sh
 ./jarvis -dp
 ```
 
-步骤8：编译应用
+步骤5：编译应用
 
 ```
 ./jarvis -b
 ```
 
-步骤9：运行应用
+步骤6：运行应用
 
 ```
 ./jarvis -r
@@ -110,7 +110,8 @@ source init.sh
 使用默认的应用配置部署运行应用QE-6.4
 
 ```
-./jarvis -use templates/qe/6.4/data.qe.arm.cpu.config
+source init.sh
+./jarvis -use data.config
 ./jarvis -d
 ./jarvis -dp
 ./jarvis -b
@@ -155,6 +156,11 @@ option支持列表如下所示
 | bisheng+mpi | 使用毕昇和当前生效的mpi进行编译 | software/libs/bisheng/mpi |
 | any         | 安装工具软件                    | software/utils            |
 
+
+
+# 贾维斯支持软件列表
+1. [应用列表](doc/support/templates.md)
+2. [依赖列表](doc/support/packages.md)
 
 
 # FAQ

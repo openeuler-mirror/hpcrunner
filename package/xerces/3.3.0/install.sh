@@ -6,6 +6,6 @@ cd ${JARVIS_TMP}
 rm -rf xerces-c-3.3.0
 tar -xvf ${JARVIS_DOWNLOAD}/xerces-c-3.3.0.tar.gz
 cd xerces-c-3.3.0
-export XERCESCROOT='pwd'
+export XERCESCROOT=$(pwd)
 ./configure --prefix=$1
 make -j all && make install
