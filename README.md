@@ -53,7 +53,16 @@ source init.sh
 ```
 
 
-步骤2：生效应用模板
+步骤2：部署基础环境（目前仅支持HPCKit）
+```
+#生效HPCKit安装模板
+./jarvis -use templates/basic_env/data.hpckit.config
+#执行以下命令，完成基础环境部署
+./jarvis -dp
+```
+
+
+步骤3：生效应用模板
 进入hpcrunner根目录执行如下命令：
 ```
 ./jarvis -use templates/xapp.config
@@ -79,25 +88,25 @@ source init.sh
 
 
 
-步骤3：下载安装包以及相关依赖
+步骤4：下载安装包以及相关依赖
 
 ```
 ./jarvis -d
 ```
 
-步骤4：安装应用依赖
+步骤5：安装应用依赖
 
 ```
 ./jarvis -dp
 ```
 
-步骤5：编译应用
+步骤6：编译应用
 
 ```
 ./jarvis -b
 ```
 
-步骤6：运行应用
+步骤7：运行应用
 
 ```
 ./jarvis -r

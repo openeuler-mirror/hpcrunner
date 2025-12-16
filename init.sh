@@ -53,13 +53,24 @@ else
 fi
 
 #判断hpckit是否安装，更新配套版本
-file_path="software/utils/hpckit/${HPCKIT_VERSION}/HPCKit/${HPCKIT_VERSION}/modulefiles/bisheng"
+file_path="${JARVIS_ROOT}/software/utils/hpckit/${HPCKIT_VERSION}/HPCKit/${HPCKIT_VERSION}/modulefiles/bisheng"
 if [ -e "$file_path" ]; then
     echo -e "你正在使用 $HPCKIT_VERSION 版本的 HPCKit"
     export BISHENG_VERSION=`ls $file_path|grep compiler|awk -F "compiler" '{print $2}'`
     export HMPI_VERSION=`ls $file_path|grep hmpi|awk -F "hmpi" '{print $2}'`
+    module purge
+    module use ${JARVIS_ROOT}/software/utils/hpckit/${HPCKIT_VERSION}/HPCKit/${HPCKIT_VERSION}/modulefiles
+    module load bisheng/compiler${BISHENG_VERSION}/bishengmodule
+    module load bisheng/hmpi${HMPI_VERSION}
+    module load bisheng/kml${HMPI_VERSION}/kml > /dev/null 2>&1
+    export HPCKIT_PATH=${JARVIS_UTILS}/hpckit/${HMPI_VERSION}
+    export KML_LIB_PATH=${HPCKIT_PATH}/HPCKit/${HMPI_VERSION}/kml/bisheng/lib
+    export KML_PATH=${HPCKIT_PATH}/HPCKit/${HMPI_VERSION}/kml
+    echo -e "已自动加载毕昇编译器、Hyper-MPI和鲲鹏数学库："
+    module li
 else
-    echo -e "INFO: 检测到 $HPCKIT_VERSION 版本的 HPCKit 未进行安装，请继续执行\n"
+    echo -e "INFO: 检测到未安装 $HPCKIT_VERSION 版本的 HPCKit，请依次执行以下命令安装："
+    echo -e "./jarvis -use templates/basic_env/data.hpckit.config\n./jarvis -dp"
 fi
 
 
