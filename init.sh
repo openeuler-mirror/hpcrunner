@@ -61,7 +61,7 @@ if [ -e "$file_path" ]; then
     module purge
     module use ${JARVIS_ROOT}/software/utils/hpckit/${HPCKIT_VERSION}/HPCKit/${HPCKIT_VERSION}/modulefiles
     module load bisheng/compiler${BISHENG_VERSION}/bishengmodule
-    module load bisheng/hmpi${HMPI_VERSION}
+    module load bisheng/hmpi${HMPI_VERSION}/release
     module load bisheng/kml${HMPI_VERSION}/kml > /dev/null 2>&1
     export HPCKIT_PATH=${JARVIS_UTILS}/hpckit/${HMPI_VERSION}
     export KML_LIB_PATH=${HPCKIT_PATH}/HPCKit/${HMPI_VERSION}/kml/bisheng/lib
