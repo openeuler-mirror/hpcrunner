@@ -69,8 +69,7 @@ if [ -e "$file_path" ]; then
     echo -e "已自动加载毕昇编译器、Hyper-MPI和鲲鹏数学库："
     module li
 else
-    echo -e "INFO: 检测到 $HPCKIT_VERSION 版本的 HPCKit 未安装"
-    echo -e "INFO: 请依次执行以下命令安装 HPCKit："
+    echo -e "INFO: 检测到未安装 $HPCKIT_VERSION 版本的 HPCKit，请依次执行以下命令安装："
     echo -e "./jarvis -use templates/basic_env/data.hpckit.config\n./jarvis -dp"
 fi
 
