@@ -3,28 +3,28 @@ diff -Nru WRF-4.2.1/arch/configure.defaults WRF-4.2.1-ok/arch/configure.defaults
 +++ WRF-4.2.1-ok/arch/configure.defaults	2024-02-22 20:43:20.842876000 +0800
 @@ -1,3 +1,45 @@
 +############################################################
-+#ARCH   Linux   aarch64,BiSheng HYPERMPI#serial smpar dmpar dm+sm
-+DESCRIPTION     =       BISHENG ($SFC/$SCC)
-+DMPARALLEL      =        1
-+OMPCPP          =        -D_OPENMP
-+OMP             =        -fopenmp
-+OMPCC           =        -fopenmp
++#ARCH   Linux   aarch64,clang HYPERMPI#serial smpar dmpar dm+sm
++DESCRIPTION     =       CLANG ($SFC/$SCC)
++DMPARALLEL      =       1
++OMPCPP          =       -D_OPENMP
++OMP             =       -fopenmp
++OMPCC           =       -fopenmp
 +SFC             =       flang
-+SCC             =       clang
++SCC             =       clang -Wno-implicit-function-declaration -Wno-implicit-int -Wno-deprecated-non-prototype
 +CCOMP           =       clang
 +DM_FC           =       mpif90 -f90=$(SFC)
-+DM_CC           =       mpicc -cc=$(SCC) -DMPI2_SUPPORT
++DM_CC           =       mpicc -cc=$(SCC) -DMPI2_SUPPORT -Wno-implicit-function-declaration -Wno-implicit-int
 +FC              =       CONFIGURE_FC
 +CC              =       CONFIGURE_CC
-+LD              =       $(FC)
++LD              =       $(FC) -L$(KML_LIB) -lkm
 +RWORDSIZE       =       CONFIGURE_RWORDSIZE
 +PROMOTION       =       #-fdefault-real-8
 +ARCH_LOCAL      =       -DNONSTANDARD_SYSTEM_SUBR  -DWRF_USE_CLM
-+CFLAGS_LOCAL    =      -mcpu=linxicore9100 -mllvm -force-customized-pipeline=true -w -O3 -c -fvectorize -funroll-loops -mllvm -unroll-indirect-loads=true -ljemalloc -mllvm -prefetch-loop-depth=3 -mllvm -min-prefetch-stride=16 -mllvm -prefetch-distance=940
-+LDFLAGS_LOCAL   =      -L${KML_LIB} -lkm -ltirpc -ljemalloc
++CFLAGS_LOCAL    =      -mcpu=native -w -O3 -c -march=armv8.2-a
++LDFLAGS_LOCAL   =
 +CPLUSPLUSLIB    =
 +ESMF_LDFLAG     =      $(CPLUSPLUSLIB)
-+FCOPTIM         =       -O3 -funroll-loops -mcpu=linxicore9100 -mllvm -force-customized-pipeline=true -fvectorize -mllvm -unroll-indirect-loads=true -ljemalloc -mllvm -prefetch-loop-depth=3 -mllvm -min-prefetch-stride=16 -mllvm -prefetch-distance=940
++FCOPTIM         =       -O3 -march=armv8.2-a
 +FCREDUCEDOPT    =       $(FCOPTIM)
 +FCNOOPT         =       -O0
 +FCDEBUG         =      -g # -fbacktrace -ggdb-fcheck=bounds,do,mem,pointer -ffpe-trap=invalid,zero,overflow
@@ -33,7 +33,7 @@ diff -Nru WRF-4.2.1/arch/configure.defaults WRF-4.2.1-ok/arch/configure.defaults
 +FCSUFFIX        =
 +BYTESWAPIO      =       -fconvert=big-endian
 +FCBASEOPTS_NO_G =       -w $(FORMAT_FREE) $(BYTESWAPIO)
-+FCBASEOPTS      =       -mcpu=linxicore9100 -mllvm -force-customized-pipeline=true $(OMP) $(FCBASEOPTS_NO_G)
++FCBASEOPTS      =       -mcpu=native $(OMP) $(FCBASEOPTS_NO_G)
 +MODULE_SRCH_FLAG =
 +TRADFLAG        =      -traditional
 +CPP             =      /lib/cpp -P
