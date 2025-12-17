@@ -58,7 +58,7 @@ if [ -e "$file_path" ]; then
     echo -e "你正在使用 $HPCKIT_VERSION 版本的 HPCKit"
     export BISHENG_VERSION=`ls $file_path|grep compiler|awk -F "compiler" '{print $2}'`
     export HMPI_VERSION=`ls $file_path|grep hmpi|awk -F "hmpi" '{print $2}'`
-    module purge
+    #module purge
     module use ${JARVIS_ROOT}/software/utils/hpckit/${HPCKIT_VERSION}/HPCKit/${HPCKIT_VERSION}/modulefiles
     module load bisheng/compiler${BISHENG_VERSION}/bishengmodule
     module load bisheng/hmpi${HMPI_VERSION}/release
