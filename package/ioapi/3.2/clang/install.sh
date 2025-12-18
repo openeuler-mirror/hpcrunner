@@ -13,6 +13,7 @@ sed -i "14c\CC   = mpicc" ioapi/Makeinclude.Linux4_aarch64
 sed -i "15c\CXX  = mpicxx" ioapi/Makeinclude.Linux4_aarch64
 sed -i "16c\FC   = mpifort" ioapi/Makeinclude.Linux4_aarch64
 sed -i "30c\#FSFLAGS   = -save" ioapi/Makeinclude.Linux4_aarch64
+sed -i '50i#include <stdlib.h>' ioapi/sortic.c
 cp ioapi/Makefile.nocpl ioapi/Makefile
 export HOME=${JARVIS_TMP}
 cp m3tools/Makefile.nocpl m3tools/Makefile

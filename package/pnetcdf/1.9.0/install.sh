@@ -24,6 +24,6 @@ if [ "$use_gcc" -eq "1" ]; then
                 FCFLAGS="-fallow-argument-mismatch"
         fi
 fi
-./configure --prefix=$1 --enable-shared --enable-fortran --enable-large-file-test FFLAGS="$FFLAGS" FCFLAGS="$FCFLAGS"
+./configure --prefix=$1 --enable-relax-coord-bound --enable-shared --enable-fortran --enable-large-file-test FFLAGS="$FFLAGS" FCFLAGS="$FCFLAGS"
 make -j16
 make install

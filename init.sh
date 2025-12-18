@@ -31,35 +31,46 @@ ifsve=`lscpu|grep sve`
 ifneon=`lscpu|grep asimd`
 
 if [ -n "$ifsme" ]; then
-    kp=sme
+    export kp=sme
 elif [ -n "$ifsve" ]; then
-    kp=sve
+    export kp=sve
 elif [ -n "$ifneon" ]; then
-    kp=neon
+    export kp=neon
 else
     echo "not in kunpeng architecture"
 fi
 
 #判断hpckit使用版本
 if [ ${UseLatest} -eq 0 ];then
-    HPCKIT_VERSION=25.1.0
-    BISHENG_VERSION=4.1.0
-    HMPI_VERSION=25.1.0
+    export HPCKIT_VERSION=25.1.0
+    export BISHENG_VERSION=4.2.0.2
+    export HMPI_VERSION=25.1.0
 elif [ ${UseLatest} -eq 1 ];then
-    HPCKIT_VERSION=latest
+    export HPCKIT_VERSION=latest
 else
     echo "[ERROR] UseLatest=${UseLatest}, unsupported value."
     exit 1
 fi
 
 #判断hpckit是否安装，更新配套版本
-file_path="software/utils/hpckit/${HPCKIT_VERSION}/HPCKit/${HPCKIT_VERSION}/modulefiles/bisheng"
+file_path="${JARVIS_ROOT}/software/utils/hpckit/${HPCKIT_VERSION}/HPCKit/${HPCKIT_VERSION}/modulefiles/bisheng"
 if [ -e "$file_path" ]; then
-    echo -e "你正在使用 $HPCKIT_VERSION 版本的 HPCKKit"
-    BISHENG_VERSION=`ls $file_path|grep compiler|awk -F "compiler" '{print $2}'`
-    HMPI_VERSION=`ls $file_path|grep hmpi|awk -F "hmpi" '{print $2}'`
+    echo -e "你正在使用 $HPCKIT_VERSION 版本的 HPCKit"
+    export BISHENG_VERSION=`ls $file_path|grep compiler|awk -F "compiler" '{print $2}'`
+    export HMPI_VERSION=`ls $file_path|grep hmpi|awk -F "hmpi" '{print $2}'`
+    #module purge
+#    module use ${JARVIS_ROOT}/software/utils/hpckit/${HPCKIT_VERSION}/HPCKit/${HPCKIT_VERSION}/modulefiles
+#    module load bisheng/compiler${BISHENG_VERSION}/bishengmodule
+#    module load bisheng/hmpi${HMPI_VERSION}/release
+#    module load bisheng/kml${HMPI_VERSION}/kml > /dev/null 2>&1
+#    export HPCKIT_PATH=${JARVIS_UTILS}/hpckit/${HMPI_VERSION}
+#    export KML_LIB_PATH=${HPCKIT_PATH}/HPCKit/${HMPI_VERSION}/kml/bisheng/lib
+#    export KML_PATH=${HPCKIT_PATH}/HPCKit/${HMPI_VERSION}/kml
+#    echo -e "已自动加载毕昇编译器、Hyper-MPI和鲲鹏数学库："
+#    module li
 else
-    echo -e "INFO: 检测到 $HPCKIT_VERSION 版本的 HPCKKit 未进行安装，请继续执行\n"
+    echo -e "INFO: 检测到未安装 $HPCKIT_VERSION 版本的 HPCKit，请依次执行以下命令安装："
+    echo -e "./jarvis -use templates/basic_env/data.hpckit.config\n./jarvis -dp"
 fi
 
 

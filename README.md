@@ -53,10 +53,19 @@ source init.sh
 ```
 
 
-步骤2：生效应用模板
+步骤2：部署基础环境（目前仅支持HPCKit）
+```
+#生效HPCKit安装模板
+./jarvis -use templates/basic_env/data.hpckit.config
+#执行以下命令，完成基础环境部署
+./jarvis -dp
+```
+
+
+步骤3：生效应用模板
 进入hpcrunner根目录执行如下命令：
 ```
-./jarvis -use /path/xapp.config
+./jarvis -use templates/xapp.config
 ```
 
 注：贾维斯中包含典型HPC应用模板， 位于目录”hpcrunner/template”中，可直接使用。如要新增应用模板，需遵循一定的格式新建自定义文件app.config。
@@ -79,25 +88,25 @@ source init.sh
 
 
 
-步骤3：下载安装包以及相关依赖
+步骤4：下载安装包以及相关依赖
 
 ```
 ./jarvis -d
 ```
 
-步骤4：安装应用依赖
+步骤5：安装应用依赖
 
 ```
 ./jarvis -dp
 ```
 
-步骤5：编译应用
+步骤6：编译应用
 
 ```
 ./jarvis -b
 ```
 
-步骤6：运行应用
+步骤7：运行应用
 
 ```
 ./jarvis -r
@@ -156,6 +165,11 @@ option支持列表如下所示
 | bisheng+mpi | 使用毕昇和当前生效的mpi进行编译 | software/libs/bisheng/mpi |
 | any         | 安装工具软件                    | software/utils            |
 
+
+
+# 贾维斯支持软件列表
+1. [应用列表](doc/support/templates.md)
+2. [依赖列表](doc/support/packages.md)
 
 
 # FAQ
