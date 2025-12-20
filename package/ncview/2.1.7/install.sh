@@ -4,7 +4,7 @@
 . $CHECK_ROOT && yum install libX11 libX11-devel libXaw libXaw-devel libpng-devel libpng
 set -x
 set -e
-. ${DOWNLOAD_TOOL} -u ftp://cirrus.ucsd.edu/pub/ncview/ncview-2.1.7.tar.gz 
+. ${DOWNLOAD_TOOL} -u https://src.fedoraproject.org/repo/pkgs/ncview/ncview-2.1.7.tar.gz/debd6ca61410aac3514e53122ab2ba07/ncview-2.1.7.tar.gz
 
 cd ${JARVIS_TMP}
 rm -rf ncview-2.1.7
