@@ -5,6 +5,31 @@ url=
 filename=
 OPTIND=1
 
+function downloadfile(){
+        if [ "$type_" == "wget" ];then
+                if [[ $UseDev -eq 1 ]]; then
+                        echo -e "\033[0;32m[Info]\033[0m:Using commands: wget $url -O $exist_path --no-check-certificate"
+                fi
+                wget $url -O $exist_path --no-check-certificate || rm -rf $exist_path
+        elif [ "$type_" == "git" ];then
+                if [[ $UseDev -eq 1 ]]; then
+                        echo -e "\033[0;32m[Info]\033[0m:Using commands: git clone $url $exist_path"
+                fi
+                git clone $url $exist_path
+        else
+                echo -e "\033[0;31m[Error]\033[0m:Unsupported download mode:"$type_
+                exit 0
+        fi
+
+        #下载失败
+        if [ $? != 0 ];then
+                rm -rf $exist_path
+                echo -e "\033[0;31m[Error]\033[0m:Download failed:"$url
+                exit 0
+        fi
+}
+
+
 while getopts ":u:f:t:" opt;
 do
         case $opt in
@@ -36,23 +61,13 @@ fi
 
 #判断文件是否存在
 if [ ! -e $exist_path ];then
-        if [ "$type_" == "wget" ];then
-                echo -e "\033[0;32m[Info]\033[0m:Using commands: wget $url -O $exist_path --no-check-certificate"
-                wget $url -O $exist_path --no-check-certificate || rm -rf $exist_path
-        elif [ "$type_" == "git" ];then
-                echo -e "\033[0;32m[Info]\033[0m:Using commands: git clone $url $exist_path"
-                git clone $url $exist_path
-        else
-                echo -e "\033[0;31m[Error]\033[0m:Unsupported download mode:"$type_
-                exit 0
-        fi
-
-        #下载失败
-        if [ $? != 0 ];then
-                rm -rf $exist_path
-                echo -e "\033[0;31m[Error]\033[0m:Download failed:"$url
-                exit 0
-        fi
+        downloadfile
 else
-        echo -e "\033[0;32m[Info]\033[0m:"$exist_path" already exist"
+        fileSize=`ll $exist_path |awk  '{print $5}'`
+        if [ "$fileSize" -eq 0 ]; then
+                rm -rf $exist_path
+                downloadfile
+        else
+                echo -e "\033[0;32m[Info]\033[0m:"$exist_path" already exist"
+        fi
 fi

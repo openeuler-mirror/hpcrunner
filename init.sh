@@ -21,6 +21,7 @@ export JARVIS_TMP_DOWNLOAD=${CUR_PATH}/tmp
 export JARVIS_EXE=${CUR_PATH}/exe
 export JARVIS_PROXY=https://github.com #github网络代理，默认使用官方源
 export UseGitee=1 #下载源是否优先使用gitee，1代表优先使用
+export UseDev=0 #确定是否使用开发者模式，1代表使用
 export UseLatest=0 #依赖是否优先安装最新版，1代表优先使用
 export DOWNLOAD_TOOL=${CUR_PATH}/package/common/download.sh
 export CHECK_DEPS=${CUR_PATH}/package/common/check_deps.sh
