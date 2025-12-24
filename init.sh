@@ -87,14 +87,16 @@ function check_network() {
 
 #检查编译器
 function check_com() {
-    ifclang=`cat .meta | awk -F '/' 'END{print $NF}'|grep clang`
-    ifgcc=`cat .meta | awk -F '/' 'END{print $NF}'|grep gcc`
-    if [ -n "$ifclang" ]; then
-        return 1
-    elif [ -n "$ifgcc" ]; then
-        return 2
-    else
-        return 0
+    if [ -e ".meta" ]; then
+        ifclang=`cat .meta | awk -F '/' 'END{print $NF}'|grep clang`
+        ifgcc=`cat .meta | awk -F '/' 'END{print $NF}'|grep gcc`
+        if [ -n "$ifclang" ]; then
+            return 1
+        elif [ -n "$ifgcc" ]; then
+            return 2
+        else
+            return 0
+        fi
     fi
 }
 function check_deps() {
@@ -109,7 +111,7 @@ function check_deps() {
 }
 
 #命令执行
-touch .meta
+
 check_network
 check_deps
 check_com
