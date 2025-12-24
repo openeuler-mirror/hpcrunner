@@ -70,8 +70,10 @@ class DataService(object,metaclass=Singleton):
         if not os.path.exists(DataService.meta_file):
             return DataService.config_file
         return self.tool.read_file(DataService.meta_file)
-        source dep_install/install_hpckit.sh
 
+        os.system('bash -c "source dep_install/install_hpckit.sh"')
+
+        
     def get_data_config(self):
         file_name = self.get_config_file_name()
         file_path = self.get_abspath(file_name)
