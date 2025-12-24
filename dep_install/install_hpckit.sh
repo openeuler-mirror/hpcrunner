@@ -35,8 +35,11 @@ function check_hpckit() {
 function check_com() {
     if [ -e ".meta" ]; then
         ifclang=`cat .meta | awk -F '/' 'END{print $NF}'|grep clang`
+        ifbisheng=`cat .meta | awk -F '/' '{print $(NF-1)}'|grep bisheng`
         ifgcc=`cat .meta | awk -F '/' 'END{print $NF}'|grep gcc`
         if [ -n "$ifclang" ]; then
+            return 1
+        elif [ -n "$ifbisheng" ]; then
             return 1
         elif [ -n "$ifgcc" ]; then
             return 2
