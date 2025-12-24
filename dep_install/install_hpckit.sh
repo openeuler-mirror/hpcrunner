@@ -1,4 +1,5 @@
 #!/bin/bash
+#安装编译器并加载对应的环境变量
 function load_hpckit() {
     export BISHENG_VERSION=`ls $file_path|grep compiler|awk -F "compiler" '{print $2}'`
     export HMPI_VERSION=`ls $file_path|grep hmpi|awk -F "hmpi" '{print $2}'`
@@ -21,8 +22,9 @@ function check_hpckit() {
         load_hpckit
     else
         echo -e "INFO: 检测到未安装 $HPCKIT_VERSION 版本的 HPCKit，正在重新安装："
-        ./jarvis -use templates/basic_env/data.hpckit.config
-		./jarvis -dp
+        #./jarvis -use templates/basic_env/data.hpckit.config
+		#./jarvis -dp
+        ./jarvis -install hpckit/${HPCKIT_VERSION} any  > /dev/null
 		load_hpckit
     fi
 }
