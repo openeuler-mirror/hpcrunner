@@ -415,7 +415,6 @@ setenv    {sname.upper().replace('-','_')}_PATH {install_path}
         other_args_uni = ' '.join(other_args)
         #print(other_args)
         install_cmd = f'''
-source ./init.sh
 cd {abs_software_path}
 chmod +x {install_script}
 ./{install_script} {install_path} {other_args_uni}
@@ -482,7 +481,6 @@ chmod +x {install_script}
         depend_file = 'depend_install.sh'
         print(f"start installing dependendcy of {DataService.app_name}")
         depend_content = f'''
-source ./init.sh
 {DataService.dependency}
 '''
         self.tool.write_file(depend_file, depend_content)

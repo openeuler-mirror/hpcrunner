@@ -114,15 +114,7 @@ function check_deps() {
 
 check_network
 check_deps
-check_com
-if [ $? -eq 1 ]; then
-    echo "using bisheng complier"
-    check_hpckit
-elif [ $? -eq 2 ]; then
-    echo "using gcc complier"
-else
-    echo ""
-fi
+
 
 #Install modules
 if ! type module >/dev/null 2>&1;then
