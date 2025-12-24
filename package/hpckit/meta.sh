@@ -1,5 +1,9 @@
 #!/bin/bash
-set -x
+if [[ $UseDev -eq 1 ]]; then
+    set -x
+else
+    set +x
+fi
 set -e
 #hpckit_ver="24.0.RC1"
 . ${DOWNLOAD_TOOL} -u https://mirrors.huaweicloud.com/kunpeng/archive/HPC/HPCKit/HPCKit_${hpckit_ver}_Linux-aarch64.tar.gz
