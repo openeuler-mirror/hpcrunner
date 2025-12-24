@@ -98,8 +98,8 @@ function check_com() {
     fi
 }
 function check_deps() {
-    ifdep`rpm -qa|grep flex`
-    if [ -n "$ifsme" ]; then
+    ifdep=`rpm -qa|grep flex`
+    if [ -n "$ifdep" ]; then
         echo "[INFO] deps are installed"
     else
         yum -y install git time zlib zlib-devel gcc gcc-c++ environment-modules python python3 python3-devel python3-libs python3-pip 
@@ -109,6 +109,7 @@ function check_deps() {
 }
 
 #命令执行
+touch .meta
 check_network
 check_deps
 check_com
