@@ -24,6 +24,7 @@ function check_hpckit() {
         echo -e "INFO: 检测到未安装 $HPCKIT_VERSION 版本的 HPCKit，正在重新安装："
         #./jarvis -use templates/basic_env/data.hpckit.config
 		#./jarvis -dp
+        set +x
         ./jarvis -install hpckit/${HPCKIT_VERSION} any  > /dev/null
 		load_hpckit
     fi
