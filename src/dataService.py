@@ -71,6 +71,7 @@ class DataService(object,metaclass=Singleton):
             return DataService.config_file
         return self.tool.read_file(DataService.meta_file)
 
+        
     def get_data_config(self):
         file_name = self.get_config_file_name()
         file_path = self.get_abspath(file_name)
