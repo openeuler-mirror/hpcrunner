@@ -55,7 +55,7 @@ fi
 
 
 function check_network() {
-    curl -s --head --request GET https://gitee.com > /dev/null
+    curl -s --connect-timeout 5 --head --request GET https://gitee.com > /dev/null
     if [ $? -ne 0 ]; then
         echo "[WARNNING] 当前网络异常，无法连接gitee，请检查网络"
     fi
