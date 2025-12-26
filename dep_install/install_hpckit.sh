@@ -7,9 +7,13 @@ function load_hpckit() {
     module load bisheng/compiler${BISHENG_VERSION}/bishengmodule
     module load bisheng/hmpi${HMPI_VERSION}/release
     module load bisheng/kml${HMPI_VERSION}/kml > /dev/null 2>&1
+    module load bisheng/kml${HPCKIT_VERSION}/kblas/multi
+    
     export HPCKIT_PATH=${JARVIS_UTILS}/hpckit/${HMPI_VERSION}
     export KML_LIB_PATH=${HPCKIT_PATH}/HPCKit/${HMPI_VERSION}/kml/bisheng/lib
     export KML_PATH=${HPCKIT_PATH}/HPCKit/${HMPI_VERSION}/kml
+    export BLAS_LIBS="-L${JARVIS_ROOT}/software/utils/hpckit/${HPCKIT_VERSION}/HPCKit/${HPCKIT_VERSION}/kml/bisheng/lib/${kp}/kblas/multi -lkblas"
+    export LAPACK_LIBS="-L${JARVIS_ROOT}/software/utils/hpckit/${HPCKIT_VERSION}/HPCKit/${HPCKIT_VERSION}/kml/bisheng/lib/${kp} -lklapack_full"
     echo -e "已自动加载毕昇编译器、Hyper-MPI和鲲鹏数学库："
     module li
 }

@@ -104,11 +104,11 @@ source init.sh
 
 ## 运行示例
 
-使用默认的应用配置部署运行应用QE-6.4
+使用默认的应用配置部署运行应用QE-7.3
 
 ```
 source init.sh
-./jarvis -use data.config
+./jarvis -use templates/qe/7.3/data.qe.arm.cpu.sve.clang.config
 ./jarvis -d
 ./jarvis -dp
 ./jarvis -b
