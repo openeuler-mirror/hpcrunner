@@ -44,15 +44,14 @@ git clone https://gitcode.com/openeuler/hpcrunner.git
 以安装某应用（xapp） 为例：
 
 步骤1：（可选）配置git代理
+执行proxy脚本，并选择合适的git源
 ```
-#执行proxy脚本，并选择合适的git源
 ./proxy.sh
-
 ```
 
 步骤2：初始环境变量，并检查环境
+执行初始化脚本，同步检查配置环境并下载安装基础依赖，*确保初始化成功之后再继续执行*
 ```
-#执行初始化脚本，同步检查配置环境并下载安装基础依赖，*确保初始化成功之后再继续执行*
 source init.sh
 ```
 
@@ -82,25 +81,21 @@ source init.sh
 
 
 步骤4：下载安装包以及相关依赖
-
 ```
 ./jarvis -d
 ```
 
 步骤5：安装应用依赖
-
 ```
 ./jarvis -dp
 ```
 
 步骤6：编译应用
-
 ```
 ./jarvis -b
 ```
 
 步骤7：运行应用
-
 ```
 ./jarvis -r
 ```
