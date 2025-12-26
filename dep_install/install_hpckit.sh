@@ -1,3 +1,8 @@
+if [[ $UseDev -eq 1 ]]; then
+    set -x
+else
+    set +x
+fi
 #!/bin/bash
 #安装编译器并加载对应的环境变量
 function load_hpckit() {
@@ -8,7 +13,7 @@ function load_hpckit() {
     module load bisheng/hmpi${HMPI_VERSION}/release
     module load bisheng/kml${HMPI_VERSION}/kml > /dev/null 2>&1
     module load bisheng/kml${HPCKIT_VERSION}/kblas/multi
-    
+
     export HPCKIT_PATH=${JARVIS_UTILS}/hpckit/${HMPI_VERSION}
     export KML_LIB_PATH=${HPCKIT_PATH}/HPCKit/${HMPI_VERSION}/kml/bisheng/lib
     export KML_PATH=${HPCKIT_PATH}/HPCKit/${HMPI_VERSION}/kml
@@ -28,7 +33,6 @@ function check_hpckit() {
         echo -e "INFO: 检测到未安装 $HPCKIT_VERSION 版本的 HPCKit，正在重新安装："
         #./jarvis -use templates/basic_env/data.hpckit.config
 		#./jarvis -dp
-        set +x
         ./jarvis -install hpckit/${HPCKIT_VERSION} any  > /dev/null
 		load_hpckit
     fi
