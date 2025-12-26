@@ -1,6 +1,6 @@
 测试流程
 1、下载jarvis
-git clone https://gitee.com/openeuler/hpcrunner.git
+git clone https://atomgit.com/openeuler/hpcrunner.git
 cd hpcrunner
 
 2、获取jarvis应用模板

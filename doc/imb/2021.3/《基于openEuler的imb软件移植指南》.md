@@ -150,7 +150,7 @@ mpirun -n $(nproc) IMB-IO
 ### 1.克隆仓库
 
 ```bash
-git clone https://gitee.com/openeuler/hpcrunner.git
+git clone https://atomgit.com/openeuler/hpcrunner.git
 ```
 
 ## 2.初始化hpcrunner 和 安装必要软件包

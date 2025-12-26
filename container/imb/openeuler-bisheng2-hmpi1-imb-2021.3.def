@@ -12,7 +12,7 @@ From: openeuler/openeuler
     # Install the necessary development environment
     source /etc/profile || true
     git config --global http.sslVerify false
-    git clone https://gitee.com/openeuler/hpcrunner
+    git clone https://atomgit.com/openeuler/hpcrunner.git
     cd hpcrunner
     source ./init.sh
     ./jarvis -i

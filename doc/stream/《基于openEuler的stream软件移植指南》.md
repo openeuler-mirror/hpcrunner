@@ -149,7 +149,7 @@ ${JARVIS_LIBS}/stream-1.8/bin/stream_mpi_c && ${JARVIS_LIBS}/stream-1.8/bin/stre
 ### 1.克隆仓库
 
 ```bash
-git clone https://gitee.com/openeuler/hpcrunner.git
+git clone https://atomgit.com/openeuler/hpcrunner.git
 ```
 
 ## 2.初始化hpcrunner 和 安装必要软件包

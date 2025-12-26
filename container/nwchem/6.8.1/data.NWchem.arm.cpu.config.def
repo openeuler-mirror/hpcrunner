@@ -22,7 +22,7 @@ From: helloxusuo/repo/base:oe2203sp2
     git config --global http.sslVerify false
     git status
     
-    git pull https://gitee.com/openeuler/hpcrunner
+    git pull https://atomgit.com/openeuler/hpcrunner.git
     cd ../ 
     mkdir linshi
     cd linshi

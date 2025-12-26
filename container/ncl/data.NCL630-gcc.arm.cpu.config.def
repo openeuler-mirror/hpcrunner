@@ -19,7 +19,7 @@ From: openeuler/openeuler:22.03-lts-sp2
     git config --global http.sslVerify false
     git config --global user.name 'chenshaoheng'
     git config --global user.email 'chenshaoheng3@h-partners.com'
-    git clone https://gitee.com/openeuler/hpcrunner.git
+    git clone https://atomgit.com/openeuler/hpcrunner.git
     cd /hpcrunner
     
     #install mlnx
