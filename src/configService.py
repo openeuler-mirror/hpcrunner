@@ -27,6 +27,6 @@ class ConfigService:
                 return
         self.tool.write_file(self.meta_path, config_file.strip())
         #os.system('bash -c "source dep_install/install_hpckit.sh"')
-        os.system(' "source dep_install/install_hpckit.sh"')
+        os.system(' "source $JARVIS_ROOT/dep_install/install_hpckit.sh"')
         print("Successfully switched. config file saved in file .meta")
 
