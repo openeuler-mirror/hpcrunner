@@ -43,13 +43,13 @@ git clone https://gitcode.com/openeuler/hpcrunner.git
 ## 使用贾维斯安装应用流程
 以安装某应用（xapp） 为例：
 
-步骤1：（可选）配置git代理
+步骤1：（可选）配置git代理\n
 执行proxy脚本，并选择合适的git源
 ```
 ./proxy.sh
 ```
 
-步骤2：初始环境变量，并检查环境
+步骤2：初始环境变量，并检查环境\n
 执行初始化脚本，同步检查配置环境并下载安装基础依赖，<font color="red">&zwnj;**确保初始化成功,无ERROR回显再继续执行**&zwnj;</font>
 ```
 source init.sh
