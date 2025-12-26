@@ -19,7 +19,6 @@ HPC被喻为是IT行业“金字塔上的明珠”，其部署、编译、运行
 ## 下载贾维斯
 执行如下命令安装相关依赖并下载贾维斯
 ```
-yum -y install git time zlib zlib-devel gcc gcc-c++ environment-modules python python3 python3-devel python3-libs python3-pip cmake make numactl numactl-devel numactl-libs rpmdevtools wget libtirpc libtirpc-devel unzip flex tar patch glibc-devel rpcbind csh perl-XML-LibXML xorg-x11-xauth curl curl-devel libcurl-devel
 git clone https://gitee.com/openeuler/hpcrunner.git
 ```
 
@@ -53,7 +52,7 @@ git clone https://gitee.com/openeuler/hpcrunner.git
 
 步骤2：初始环境变量，并检查环境
 ```
-#执行初始化脚本，确保初始化成功之后再继续执行
+#执行初始化脚本，同步检查配置环境并下载安装基础依赖，*确保初始化成功之后再继续执行*
 source init.sh
 ```
 
