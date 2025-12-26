@@ -38,7 +38,7 @@ elif [ -n "$ifsve" ]; then
 elif [ -n "$ifneon" ]; then
     export kp=neon
 else
-    echo "[INFO] 当前非ARM架构"
+    echo "[INFO] 当前运行环境非ARM架构"
 fi
 
 #设置依赖相关环境变量
@@ -79,11 +79,15 @@ function check_network() {
 function check_deps() {
     ifdep=`rpm -qa|grep flex`
     if [ -n "$ifdep" ]; then
-        echo "[INFO] 已完成基础依赖安装"
+        echo "[INFO] 环境已完成基础依赖安装"
     else
         yum -y install git time zlib zlib-devel gcc gcc-c++ environment-modules python python3 python3-devel python3-libs python3-pip 
         yum -y install cmake make numactl numactl-devel numactl-libs rpmdevtools wget libtirpc libtirpc-devel unzip flex 
         yum -y install tar patch glibc-devel rpcbind csh perl-XML-LibXML xorg-x11-xauth curl curl-devel libcurl-devel
+	if [ $? -ne 0 ]; then
+           echo "[ERROR] 基础依赖安装失败"  
+	   exit 1
+	fi
     fi
 }
 
@@ -97,6 +101,10 @@ check_deps
 if ! type module >/dev/null 2>&1;then
     echo "Install environment-modules"
     . $CHECK_ROOT && yum install -y environment-modules || apt install -y environment-modules
+    if [ $? -ne 0 ]; then
+       echo "[ERROR] environment-modules安装失败"
+       exit 1
+    fi
     source /etc/profile
 fi
 
