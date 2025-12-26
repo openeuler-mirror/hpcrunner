@@ -27,7 +27,7 @@ From: {image}
     yum install -y tcsh tcl lsof tk bc 
     source /etc/profile || true
     git config --global http.sslVerify false
-    git clone https://gitee.com/openeuler/hpcrunner
+    git clone https://atomgit.com/openeuler/hpcrunner.git
     cd hpcrunner
     source ./init.sh
     # add your personal files here

@@ -30,7 +30,7 @@
 
 # **代码合入指导**
 
-## **GITEE提交前提工作**
+## **AtomGit提交前提工作**
 
 **1.设置SSH**
 
@@ -40,7 +40,7 @@
 
 ​    cat id_rsa.pub
 
-​    复制内容到Gitee-设置-SSH Key里面
+​    复制内容到AtomGit-设置-SSH Key里面
 
 **2.设置用户名和密码**
 
@@ -54,11 +54,11 @@
 
 **3.Fork主仓库，克隆个人分支(以iotwins为例，以实际的为主)**
 
-​    git clone git@gitee.com:iotwins/hpcrunner.git
+​    git clone git@gitcode.com:iotwins/hpcrunner.git
 
 **4.建立个人仓库和远程主仓库的联系**
 
-git remote add upstream git@gitee.com:openeuler/hpcrunner.git
+git remote add upstream git@gitcode.com:iotwins/hpcrunner.git
 
 
 
@@ -84,9 +84,9 @@ git commit --no-verif -m "Add XXX function"
 
 git push origin new_branch
 
-**5.在gitee创建PR**
+**5.在AtomGit创建PR**
 
-https://gitee.com/iotwins/hpcrunner
+https://atomgit.com/iotwins/hpcrunner
 
 
 ## **FAQ**

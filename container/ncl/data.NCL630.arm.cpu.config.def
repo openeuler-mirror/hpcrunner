@@ -21,7 +21,7 @@ From: helloxusuo/repo/base:oe2203sp2
     git config --global http.sslVerify false
     git status
     
-    #git pull https://gitee.com/openeuler/hpcrunner
+    #git pull https://atomgit.com/openeuler/hpcrunner.git
     mkdir tmpppp
     cd tmpppp
     git clone -b container https://gitee.com/chenshaoheng/hpcrunner.git

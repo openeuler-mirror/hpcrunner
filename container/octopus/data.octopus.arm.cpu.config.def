@@ -19,7 +19,7 @@ From: helloxusuo/repo/base:oe2203sp2
     git init
     git config --global http.sslVerify false
     
-    #git pull https://gitee.com/openeuler/hpcrunner
+    #git pull https://atomgit.com/openeuler/hpcrunner.git
     mkdir tmpppp
     mkdir -p /hpcrunner/templates/octopus/11.4
     cd tmpppp
