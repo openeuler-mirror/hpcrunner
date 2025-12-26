@@ -26,6 +26,7 @@ class ConfigService:
                 print(f"key [{key}] not found in {config_file}, switch failed.")
                 return
         self.tool.write_file(self.meta_path, config_file.strip())
-        os.system('bash -c "source dep_install/install_hpckit.sh"')
+        #os.system('bash -c "source dep_install/install_hpckit.sh"')
+        os.system(' "source dep_install/install_hpckit.sh"')
         print("Successfully switched. config file saved in file .meta")
 
