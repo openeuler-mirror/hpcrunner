@@ -5,17 +5,9 @@ import subprocess
 from dataService import DataService
 from executeService import ExecuteService
 from toolService import ToolService
-def load_env_file(env_file):
-    # 使用subprocess执行source命令
-    result = subprocess.run(['bash', '-c', f'source {env_file} && env'], capture_output=True, text=True)
-    env_vars = dict(line.split('=', 1) for line in result.stdout.splitlines() if '=' in line)
-    return env_vars
-
-def apply_env_to_shell(env_vars):
-    # 将变量应用到当前shell
-    for key, value in env_vars.items():
-        os.environ[key] = value
-        print(f"Applied: {key}={value}")
+def run_command(command):
+    # 使用os.system执行命令
+    os.system(command)
 
 
 
@@ -41,8 +33,6 @@ class ConfigService:
                 return
         self.tool.write_file(self.meta_path, config_file.strip())
         #os.system('bash -c "source dep_install/install_hpckit.sh"')
-        env_file = "dep_install/install_hpckit.sh"  # 替换为实际环境变量文件
-        env_vars = load_env_file(env_file)
-        apply_env_to_shell(env_vars)
+        run_command("source dep_install/install_hpckit.sh")
         print("Successfully switched. config file saved in file .meta")
 

@@ -6,20 +6,21 @@ fi
 #!/bin/bash
 #安装编译器并加载对应的环境变量
 function load_hpckit() {
-    export BISHENG_VERSION=`ls $file_path|grep compiler|awk -F "compiler" '{print $2}'`
-    export HMPI_VERSION=`ls $file_path|grep hmpi|awk -F "hmpi" '{print $2}'`
-    module use ${JARVIS_ROOT}/software/utils/hpckit/${HPCKIT_VERSION}/HPCKit/${HPCKIT_VERSION}/modulefiles
-    module load bisheng/compiler${BISHENG_VERSION}/bishengmodule
-    module load bisheng/hmpi${HMPI_VERSION}/release
-    module load bisheng/kml${HMPI_VERSION}/kml > /dev/null 2>&1
-    module load bisheng/kml${HPCKIT_VERSION}/kblas/multi
+    echo "export BISHENG_VERSION=`ls $file_path|grep compiler|awk -F "compiler" '{print $2}'` " >> ~/.bashrc
+    echo "export HMPI_VERSION=`ls $file_path|grep hmpi|awk -F "hmpi" '{print $2}'` " >> ~/.bashrc
+    echo "module use ${JARVIS_ROOT}/software/utils/hpckit/${HPCKIT_VERSION}/HPCKit/${HPCKIT_VERSION}/modulefiles " >> ~/.bashrc
+    echo "module load bisheng/compiler${BISHENG_VERSION}/bishengmodule " >> ~/.bashrc
+    echo "module load bisheng/hmpi${HMPI_VERSION}/release " >> ~/.bashrc
+    echo "module load bisheng/kml${HMPI_VERSION}/kml " >> ~/.bashrc
+    echo "module load bisheng/kml${HPCKIT_VERSION}/kblas/multi " >> ~/.bashrc
 
-    export HPCKIT_PATH=${JARVIS_UTILS}/hpckit/${HMPI_VERSION}
-    export KML_LIB_PATH=${HPCKIT_PATH}/HPCKit/${HMPI_VERSION}/kml/bisheng/lib
-    export KML_PATH=${HPCKIT_PATH}/HPCKit/${HMPI_VERSION}/kml
-    export BLAS_LIBS="-L${JARVIS_ROOT}/software/utils/hpckit/${HPCKIT_VERSION}/HPCKit/${HPCKIT_VERSION}/kml/bisheng/lib/${kp}/kblas/multi -lkblas"
-    export LAPACK_LIBS="-L${JARVIS_ROOT}/software/utils/hpckit/${HPCKIT_VERSION}/HPCKit/${HPCKIT_VERSION}/kml/bisheng/lib/${kp} -lklapack_full"
-    echo -e "已自动加载毕昇编译器、Hyper-MPI和鲲鹏数学库："
+    echo "export HPCKIT_PATH=${JARVIS_UTILS}/hpckit/${HMPI_VERSION} " >> ~/.bashrc
+    echo "export KML_LIB_PATH=${HPCKIT_PATH}/HPCKit/${HMPI_VERSION}/kml/bisheng/lib " >> ~/.bashrc
+    echo "export KML_PATH=${HPCKIT_PATH}/HPCKit/${HMPI_VERSION}/kml " >> ~/.bashrc
+    echo "export BLAS_LIBS="-L${JARVIS_ROOT}/software/utils/hpckit/${HPCKIT_VERSION}/HPCKit/${HPCKIT_VERSION}/kml/bisheng/lib/${kp}/kblas/multi -lkblas" " >> ~/.bashrc
+    echo "export LAPACK_LIBS="-L${JARVIS_ROOT}/software/utils/hpckit/${HPCKIT_VERSION}/HPCKit/${HPCKIT_VERSION}/kml/bisheng/lib/${kp} -lklapack_full" " >> ~/.bashrc
+
+    echo -e "已自动加载${HPCKIT_VERSION} 版本的hpckit套件"
     module li
 }
 
@@ -67,4 +68,4 @@ elif [ $? -eq 2 ]; then
 else
     echo ""
 fi
-
+source ~/.bashrc
