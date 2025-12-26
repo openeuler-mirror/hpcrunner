@@ -42,25 +42,20 @@ git clone https://gitee.com/openeuler/hpcrunner.git
 | jarvis    | 贾维斯启动入口                     |          |
 
 ## 使用贾维斯安装应用流程
-以安装 xapp 为例：
+以安装某应用（xapp） 为例：
 
-步骤1：配置网络代理
+步骤1：（可选）配置git代理
 ```
-#执行proxy脚本，并选择合适的源
+#执行proxy脚本，并选择合适的git源
 ./proxy.sh
-#执行初始化脚本，完成环境变量配置
+
+```
+
+步骤2：初始环境变量，并检查环境
+```
+#执行初始化脚本，确保初始化成功之后再继续执行
 source init.sh
 ```
-
-
-步骤2：部署基础环境（目前仅支持HPCKit）
-```
-#生效HPCKit安装模板
-./jarvis -use templates/basic_env/data.hpckit.config
-#执行以下命令，完成基础环境部署
-./jarvis -dp
-```
-
 
 步骤3：生效应用模板
 进入hpcrunner根目录执行如下命令：
@@ -69,7 +64,6 @@ source init.sh
 ```
 
 注：贾维斯中包含典型HPC应用模板， 位于目录”hpcrunner/template”中，可直接使用。如要新增应用模板，需遵循一定的格式新建自定义文件app.config。
-
 配置文件格式如下所示
 
 | **配置项**   | **说明**                                                     | **示例**                                                     |
