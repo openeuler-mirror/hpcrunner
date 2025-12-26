@@ -17,9 +17,9 @@ HPC被喻为是IT行业“金字塔上的明珠”，其部署、编译、运行
 
 # 贾维斯使用指导
 ## 下载贾维斯
-执行如下命令安装相关依赖并下载贾维斯
+执行如下命令下载贾维斯
 ```
-git clone https://gitee.com/openeuler/hpcrunner.git
+git clone https://gitcode.com/openeuler/hpcrunner.git
 ```
 
 
