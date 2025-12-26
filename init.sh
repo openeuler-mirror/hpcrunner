@@ -38,7 +38,7 @@ elif [ -n "$ifsve" ]; then
 elif [ -n "$ifneon" ]; then
     export kp=neon
 else
-    echo "not in kunpeng architecture"
+    echo "[INFO] 当前运行环境非ARM架构"
 fi
 
 #设置依赖相关环境变量
@@ -49,7 +49,7 @@ if [ ${UseLatest} -eq 0 ];then
 elif [ ${UseLatest} -eq 1 ];then
     export HPCKIT_VERSION=latest
 else
-    echo "[ERROR] UseLatest=${UseLatest}, unsupported value."
+    echo "[ERROR] UseLatest=${UseLatest}, UseLatest只支持'0'或'1'"
     exit 1
 fi
 
@@ -57,7 +57,20 @@ fi
 function check_network() {
     curl -s --connect-timeout 5 --head --request GET https://gitee.com > /dev/null
     if [ $? -ne 0 ]; then
-        echo "[WARNNING] 当前网络异常，无法连接gitee，请检查网络"
+        echo "[ERROR] 当前网络异常，无法连接gitee，请检查网络"
+    else
+        return 0
+    fi
+
+    env |egrep 'http_proxy|https_proxy'  > /dev/null
+    if [ $? -ne 0 ]; then
+        echo "[WARNING] 未配置proxy代理"
+    fi
+
+    dns_info1=`cat /etc/resolv.conf |grep -v "#" |grep nameserver`
+    dns_info2=`nmcli device show  |grep DNS`
+    if [[ -z ${dns_info1} ]] && [[ -z ${dns_info2} ]]; then
+        echo "[WARNING] 未配置DNS信息"
     fi
 }
 
@@ -66,11 +79,15 @@ function check_network() {
 function check_deps() {
     ifdep=`rpm -qa|grep flex`
     if [ -n "$ifdep" ]; then
-        echo "[INFO] deps are installed"
+        echo "[INFO] 环境已完成基础依赖安装"
     else
         yum -y install git time zlib zlib-devel gcc gcc-c++ environment-modules python python3 python3-devel python3-libs python3-pip 
         yum -y install cmake make numactl numactl-devel numactl-libs rpmdevtools wget libtirpc libtirpc-devel unzip flex 
         yum -y install tar patch glibc-devel rpcbind csh perl-XML-LibXML xorg-x11-xauth curl curl-devel libcurl-devel
+	if [ $? -ne 0 ]; then
+           echo "[ERROR] 基础依赖安装失败"  
+	   exit 1
+	fi
     fi
 }
 
@@ -84,5 +101,12 @@ check_deps
 if ! type module >/dev/null 2>&1;then
     echo "Install environment-modules"
     . $CHECK_ROOT && yum install -y environment-modules || apt install -y environment-modules
+    if [ $? -ne 0 ]; then
+       echo "[ERROR] environment-modules安装失败"
+       exit 1
+    fi
     source /etc/profile
 fi
+
+echo "[INFO] 成功完成初始化"
+
