@@ -50,7 +50,7 @@ git clone https://gitcode.com/openeuler/hpcrunner.git
 ```
 
 步骤2：初始环境变量，并检查环境
-执行初始化脚本，同步检查配置环境并下载安装基础依赖，*确保初始化成功之后再继续执行*
+执行初始化脚本，同步检查配置环境并下载安装基础依赖，<font color="red">&zwnj;**确保初始化成功,无ERROR回显再继续执行**&zwnj;</font>
 ```
 source init.sh
 ```
