@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*- 
 import os
+import subprocess
 from dataService import DataService
 from executeService import ExecuteService
 from toolService import ToolService
+def run_command(command):
+    # 使用os.system执行命令
+    os.system(command)
+
+
 
 class ConfigService:
     def __init__(self):
@@ -26,6 +32,7 @@ class ConfigService:
                 print(f"key [{key}] not found in {config_file}, switch failed.")
                 return
         self.tool.write_file(self.meta_path, config_file.strip())
-        os.system('bash -c "source dep_install/install_hpckit.sh"')
+        #os.system('bash -c "source dep_install/install_hpckit.sh"')
+        run_command("source dep_install/install_hpckit.sh")
         print("Successfully switched. config file saved in file .meta")
 

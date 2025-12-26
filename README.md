@@ -17,10 +17,9 @@ HPC被喻为是IT行业“金字塔上的明珠”，其部署、编译、运行
 
 # 贾维斯使用指导
 ## 下载贾维斯
-执行如下命令安装相关依赖并下载贾维斯
+执行如下命令下载贾维斯
 ```
-yum -y install git time zlib zlib-devel gcc gcc-c++ environment-modules python python3 python3-devel python3-libs python3-pip cmake make numactl numactl-devel numactl-libs rpmdevtools wget libtirpc libtirpc-devel unzip flex tar patch glibc-devel rpcbind csh perl-XML-LibXML xorg-x11-xauth curl curl-devel libcurl-devel
-git clone https://gitee.com/openeuler/hpcrunner.git
+git clone https://gitcode.com/openeuler/hpcrunner.git
 ```
 
 
@@ -42,35 +41,28 @@ git clone https://gitee.com/openeuler/hpcrunner.git
 | jarvis    | 贾维斯启动入口                     |          |
 
 ## 使用贾维斯安装应用流程
-以安装 xapp 为例：
+以安装某应用（xapp） 为例：
 
-步骤1：配置网络代理
+步骤1：（可选）配置git代理  
+执行proxy脚本，并选择合适的git源
 ```
-#执行proxy脚本，并选择合适的源
 ./proxy.sh
-#执行初始化脚本，完成环境变量配置
+```
+
+步骤2：初始环境变量，并检查环境  
+执行初始化脚本，同步检查配置环境并下载安装基础依赖，<font color="red">&zwnj;**确保初始化成功,无ERROR回显再继续执行**&zwnj;</font>
+```
 source init.sh
 ```
 
-
-步骤2：部署基础环境（目前仅支持HPCKit）
-```
-#生效HPCKit安装模板
-./jarvis -use templates/basic_env/data.hpckit.config
-#执行以下命令，完成基础环境部署
-./jarvis -dp
-```
-
-
-步骤3：生效应用模板
+步骤3：生效应用模板  
 进入hpcrunner根目录执行如下命令：
 ```
 ./jarvis -use templates/xapp.config
 ```
-
-注：贾维斯中包含典型HPC应用模板， 位于目录”hpcrunner/template”中，可直接使用。如要新增应用模板，需遵循一定的格式新建自定义文件app.config。
-
-配置文件格式如下所示
+注：贾维斯中包含典型HPC应用模板， 位于目录”hpcrunner/template”中，可直接使用。  
+如要新增应用模板，需遵循一定的格式新建自定义文件app.config。  
+配置文件格式如下所示  
 
 | **配置项**   | **说明**                                                     | **示例**                                                     |
 | ------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
@@ -89,25 +81,21 @@ source init.sh
 
 
 步骤4：下载安装包以及相关依赖
-
 ```
 ./jarvis -d
 ```
 
 步骤5：安装应用依赖
-
 ```
 ./jarvis -dp
 ```
 
 步骤6：编译应用
-
 ```
 ./jarvis -b
 ```
 
 步骤7：运行应用
-
 ```
 ./jarvis -r
 ```
@@ -116,11 +104,11 @@ source init.sh
 
 ## 运行示例
 
-使用默认的应用配置部署运行应用QE-6.4
+使用默认的应用配置部署运行应用QE-7.3
 
 ```
 source init.sh
-./jarvis -use data.config
+./jarvis -use templates/qe/7.3/data.qe.arm.cpu.sve.clang.config
 ./jarvis -d
 ./jarvis -dp
 ./jarvis -b
