@@ -5,6 +5,7 @@ else
 fi
 #!/bin/bash
 #安装编译器并加载对应的环境变量
+rm -rf ~/.bashrc
 function load_hpckit() {
     echo "export BISHENG_VERSION=`ls $file_path|grep compiler|awk -F "compiler" '{print $2}'` " >> ~/.bashrc
     echo "export HMPI_VERSION=`ls $file_path|grep hmpi|awk -F "hmpi" '{print $2}'` " >> ~/.bashrc
@@ -17,8 +18,8 @@ function load_hpckit() {
     echo "export HPCKIT_PATH=${JARVIS_UTILS}/hpckit/${HMPI_VERSION} " >> ~/.bashrc
     echo "export KML_LIB_PATH=${HPCKIT_PATH}/HPCKit/${HMPI_VERSION}/kml/bisheng/lib " >> ~/.bashrc
     echo "export KML_PATH=${HPCKIT_PATH}/HPCKit/${HMPI_VERSION}/kml " >> ~/.bashrc
-    echo "export BLAS_LIBS="-L${JARVIS_ROOT}/software/utils/hpckit/${HPCKIT_VERSION}/HPCKit/${HPCKIT_VERSION}/kml/bisheng/lib/${kp}/kblas/multi -lkblas" " >> ~/.bashrc
-    echo "export LAPACK_LIBS="-L${JARVIS_ROOT}/software/utils/hpckit/${HPCKIT_VERSION}/HPCKit/${HPCKIT_VERSION}/kml/bisheng/lib/${kp} -lklapack_full" " >> ~/.bashrc
+    echo "export BLAS_LIBS=\"-L${JARVIS_ROOT}/software/utils/hpckit/${HPCKIT_VERSION}/HPCKit/${HPCKIT_VERSION}/kml/bisheng/lib/${kp}/kblas/multi -lkblas\" " >> ~/.bashrc
+    echo "export LAPACK_LIBS=\"-L${JARVIS_ROOT}/software/utils/hpckit/${HPCKIT_VERSION}/HPCKit/${HPCKIT_VERSION}/kml/bisheng/lib/${kp} -lklapack_full\" " >> ~/.bashrc
 
     echo -e "已自动加载${HPCKIT_VERSION} 版本的hpckit套件"
     module li
