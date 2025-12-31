@@ -55,23 +55,7 @@ fi
 
 
 function check_network() {
-    curl -s --connect-timeout 5 --head --request GET https://gitee.com > /dev/null
-    if [ $? -ne 0 ]; then
-        echo "[ERROR] 当前网络异常，无法连接gitee，请检查网络"
-    else
-        return 0
-    fi
-
-    env |egrep 'http_proxy|https_proxy'  > /dev/null
-    if [ $? -ne 0 ]; then
-        echo "[WARNING] 未配置proxy代理"
-    fi
-
-    dns_info1=`cat /etc/resolv.conf |grep -v "#" |grep nameserver`
-    dns_info2=`nmcli device show  |grep DNS`
-    if [[ -z ${dns_info1} ]] && [[ -z ${dns_info2} ]]; then
-        echo "[WARNING] 未配置DNS信息"
-    fi
+    ./jarvis -net
 }
 
 #检查编译器
