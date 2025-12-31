@@ -19,11 +19,7 @@ class DownloadService:
     def check_network(self):
         print(f"start network checking")
         network_test_cmd = '''
-if ! curl -s --connect-timeout 5 --head --request GET https://gitee.com > /dev/null; then echo "[ERROR] 当前网络异常，无法连接gitee，请检查网络"; fi
-if ! env | egrep "http_proxy|https_proxy" > /dev/null; then echo "[WARNING] 未配置proxy代理"; fi
-dns_info1=$(cat /etc/resolv.conf | grep -v "#" | grep nameserver)
-dns_info2=$(nmcli device show | grep DNS)
-if [ -z "${dns_info1}" ] && [ -z "${dns_info2}" ]; then echo "[WARNING] 未配置DNS信息"; fi
+curl -s --connect-timeout 5 --head --request GET https://gitee.com > /dev/null; if [ $? -ne 0 ]; then echo "[ERROR] 当前网络异常，无法连接gitee，请检查网络"; env | egrep "http_proxy|https_proxy" > /dev/null; if [ $? -ne 0 ]; then echo "[WARNING] 未配置proxy代理"; fi; dns_info1=$(cat /etc/resolv.conf | grep -v "#" | grep nameserver); dns_info2=$(nmcli device show | grep DNS); if [ -z "${dns_info1}" ] && [ -z "${dns_info2}" ]; then echo "[WARNING] 未配置DNS信息"; fi; fi
     '''
         self.exe.exec_raw(network_test_cmd)
 
