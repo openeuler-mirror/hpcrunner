@@ -18,6 +18,7 @@ class Jarvis:
         parser.add_argument("-loop","--loop", help=f"get loop simulation code", action="store_true")
         #accept software_name/version GCC/GCC+MPI/CLANG/CLANG+MPI
         parser.add_argument("-install","--install", help=f"install dependency", nargs='+')
+        parser.add_argument("-prefix","--prefix", help="custom install root for software (only valid with -install)", default=None)
         #remove
         parser.add_argument("-remove","--remove", help=f"remove software", nargs=1)
         #find
@@ -78,7 +79,7 @@ class Jarvis:
             self.analysis.install_deps()
 
         if self.args.install:
-            self.analysis.install(self.args.install)
+            self.analysis.install(self.args.install, prefix=self.args.prefix)
         
         if self.args.remove:
             self.analysis.remove(self.args.remove[0])
