@@ -1,0 +1,352 @@
+diff -ruN /root/hpcrunner/PWDFT-master/Nwpw/band/lib/cvdw-DF/cvdw_DF.cpp /root/hpcrunner/tmp/PWDFT-master/Nwpw/band/lib/cvdw-DF/cvdw_DF.cpp
+--- /root/hpcrunner/PWDFT-master/Nwpw/band/lib/cvdw-DF/cvdw_DF.cpp	2026-01-01 13:49:53.000000000 +0800
++++ /root/hpcrunner/tmp/PWDFT-master/Nwpw/band/lib/cvdw-DF/cvdw_DF.cpp	2026-01-04 17:28:56.525697390 +0800
+@@ -139,7 +139,7 @@
+  */
+ void cvdw_DF::init_poly()
+ {
+-    std::vector<double> utmp(Nqs);
++    ::std::vector<double> utmp(Nqs);
+     cvdw_DF_init_poly(Nqs, qmesh, ya, ya2, utmp.data());
+ }
+ 
+@@ -177,7 +177,7 @@
+         // qmesh(Nqs) = qmesh[Nqs-1]
+ 
+         double denom = qmesh[Nqs - 1];   // same as (qmesh(1)+Nqs-1)
+-        double nx_f  = std::sqrt(x / denom) * Nqs;
++        double nx_f  = sqrt(x / denom) * Nqs;
+         int nx = static_cast<int>(nx_f);
+ 
+         if (nx < 1)       nx = 1;
+@@ -259,23 +259,23 @@
+                            const int nfft3d,
+                            const double *Gpack,             // [npack0]
+                            const int *nxpack,               // [npack0]
+-                           const std::complex<double> *theta, // [nfft3d * Nqs]
+-                           std::complex<double> *ufunc)       // [nfft3d * Nqs]
++                           const ::std::complex<double> *theta, // [nfft3d * Nqs]
++                           ::std::complex<double> *ufunc)       // [nfft3d * Nqs]
+ {
+     // ---- parallel info (OpenMP-style + 2D decomp over j) ----
+     const int taskid_j  = myparall->taskid_j();   // like Parallel2d_taskid_j()
+     const int np_j      = myparall->np_j();       // like Parallel2d_np_j()
+ 
+     // ---- zero ufunc (all G, all i) ----
+-    std::fill(ufunc, ufunc + static_cast<std::size_t>(nfft3d) * Nqs,
+-              std::complex<double>(0.0, 0.0));
++    ::std::fill(ufunc, ufunc + static_cast<size_t>(nfft3d) * Nqs,
++              ::std::complex<double>(0.0, 0.0));
+ 
+     // Helper lambdas for indexing (Fortran: ufunc(k,i), theta(k,j))
+-    auto U = [=](int k, int i) -> std::complex<double>& {
++    auto U = [=](int k, int i) -> ::std::complex<double>& {
+         // k, i are 0-based; layout is (k, i) with leading dimension nfft3d
+         return ufunc[i * nfft3d + k];
+     };
+-    auto TH = [=](int k, int j) -> const std::complex<double>& {
++    auto TH = [=](int k, int j) -> const ::std::complex<double>& {
+         return theta[j * nfft3d + k];
+     };
+ 
+@@ -295,7 +295,7 @@
+                 // Pointer to φ(:, :, indx) in C layout:
+                 // Fortran: phi(nk1,2,Npairs)
+                 // => C: phi[ (indx-1)*2*nk1 + p*nk1 + k ], p=0,1 ; k=0..nk1-1
+-                const double *phi_block = phi + static_cast<std::size_t>(indx - 1) * 2 * nk1;
++                const double *phi_block = phi + static_cast<size_t>(indx - 1) * 2 * nk1;
+ 
+                 // Loop over packed G indices, split amongst threads
+                 for (int k=0; k<npack0; ++k)   // Fortran k=tid+1,npack0,nthr
+@@ -513,11 +513,11 @@
+     }
+ 
+     // ---- zero local accumulators ----
+-    std::fill(tmpexc, tmpexc + nfft3d, 0.0);
++    ::std::fill(tmpexc, tmpexc + nfft3d, 0.0);
+     for (int ms = 0; ms < ispin; ++ms)
+     {
+-        std::fill(tmpfn  + ms * nfft3d, tmpfn  + (ms + 1) * nfft3d, 0.0);
+-        std::fill(tmpfdn + ms * nfft3d, tmpfdn + (ms + 1) * nfft3d, 0.0);
++        ::std::fill(tmpfn  + ms * nfft3d, tmpfn  + (ms + 1) * nfft3d, 0.0);
++        ::std::fill(tmpfdn + ms * nfft3d, tmpfdn + (ms + 1) * nfft3d, 0.0);
+     }
+ 
+     // NOTE: In the original Fortran, there is a call:
+@@ -736,7 +736,7 @@
+     }
+ 
+     // zero theta
+-    std::fill(theta, theta + size_t(n2ft3d)*Nqs, 0.0);
++    ::std::fill(theta, theta + size_t(n2ft3d)*Nqs, 0.0);
+ 
+     if (nj > 0)
+     {
+@@ -795,11 +795,11 @@
+               double dtsum = 0.0;
+               for (int k = 1; k <= 12; k++) 
+               {
+-                 tsum  += std::pow(q0/qmax, k) / double(k);
+-                 dtsum += std::pow(q0/qmax, k-1);
++                 tsum  += pow(q0/qmax, k) / double(k);
++                 dtsum += pow(q0/qmax, k-1);
+               }
+-              q0sat = qmax * (1.0 - std::exp(-tsum));
+-              double dq0satdq0 = std::exp(-tsum) * dtsum;
++              q0sat = qmax * (1.0 - exp(-tsum));
++              double dq0satdq0 = exp(-tsum) * dtsum;
+ 
+               exc[i] = q0sat;
+               for (int ms = 0; ms < ispin; ++ms)
+@@ -885,7 +885,7 @@
+ 
+    //const std::string nwpw_vdw_qmesh = std::string(Nwpw_LIBRARYVDW_Default) + "/vdw_qmesh.dat";
+    //const char *nwpw_libraryps = Nwpw_LIBRARYPS_Default + "/VDW/vdw_qmesh.dat";
+-   const std::string nwpw_vdw_qmesh = pwdft::resolve_vdw() + "/vdw_qmesh.dat";
++   const ::std::string nwpw_vdw_qmesh = pwdft::resolve_vdw() + "/vdw_qmesh.dat";
+ 
+    char datafile[256];
+    strcpy(datafile, "vdw_kernels.dat");
+@@ -895,7 +895,7 @@
+    int ifound = cfileexists(datafile);
+    if (ifound == 0)
+    {
+-      if (oprint) std::cout << " Generating VDW kernel filename:" << datafile << std::endl;
++      if (oprint) ::std::cout << " Generating VDW kernel filename:" << datafile << ::std::endl;
+       //vdw_DF_kernel_gen_data(datafile)
+       vdw_DF_kernel_gen_data(myparall,datafile,nwpw_vdw_qmesh.c_str());
+    }
+@@ -913,22 +913,22 @@
+    nk1 = nk + 1;
+ 
+ 
+-   theta  = new (std::nothrow) double[Nqs*n2ft3d]();
+-   ufunc  = new (std::nothrow) double[Nqs*n2ft3d]();
++   theta  = new (::std::nothrow) double[Nqs*n2ft3d]();
++   ufunc  = new (::std::nothrow) double[Nqs*n2ft3d]();
+ 
+-   qmesh  = new (std::nothrow) double[Nqs]();
+-   ya     = new (std::nothrow) double[Nqs*Nqs]();
+-   ya2    = new (std::nothrow) double[Nqs*Nqs]();
+-   gphi   = new (std::nothrow) double[nk1]();
+-   phi    = new (std::nothrow) double[nk1*Nqs*(Nqs+1)]();
+-
+-   xcp    = new (std::nothrow) double[2*nfft3d]();
+-   xce    = new (std::nothrow) double[2*nfft3d]();
+-   xxp    = new (std::nothrow) double[2*nfft3d]();
+-   xxe    = new (std::nothrow) double[2*nfft3d]();
+-   rho    = new (std::nothrow) double[2*nfft3d]();
+-   Gpack  = new (std::nothrow) double[npack0]();
+-   nxpack = new (std::nothrow) int[npack0]();
++   qmesh  = new (::std::nothrow) double[Nqs]();
++   ya     = new (::std::nothrow) double[Nqs*Nqs]();
++   ya2    = new (::std::nothrow) double[Nqs*Nqs]();
++   gphi   = new (::std::nothrow) double[nk1]();
++   phi    = new (::std::nothrow) double[nk1*Nqs*(Nqs+1)]();
++
++   xcp    = new (::std::nothrow) double[2*nfft3d]();
++   xce    = new (::std::nothrow) double[2*nfft3d]();
++   xxp    = new (::std::nothrow) double[2*nfft3d]();
++   xxe    = new (::std::nothrow) double[2*nfft3d]();
++   rho    = new (::std::nothrow) double[2*nfft3d]();
++   Gpack  = new (::std::nothrow) double[npack0]();
++   nxpack = new (::std::nothrow) int[npack0]();
+ 
+ 
+    if (myparall->is_master())
+@@ -951,7 +951,7 @@
+    double *Gz = mygrid->Gpackxyz(0,2);
+    for (int k=0; k<npack0; ++k)
+    {
+-      double gg = std::sqrt(Gx[k]*Gx[k] + Gy[k]*Gy[k] + Gz[k]*Gz[k]);
++      double gg = sqrt(Gx[k]*Gx[k] + Gy[k]*Gy[k] + Gz[k]*Gz[k]);
+       Gpack[k] = gg;
+          
+       int nx = gg/dk;
+@@ -1079,8 +1079,8 @@
+ 
+     // 4. ufunc(G,i)
+     generate_ufunc(nk1, Nqs, gphi, phi, npack0, nfft3d, Gpack, nxpack,
+-                   reinterpret_cast<const std::complex<double>*>(theta), 
+-                   reinterpret_cast<std::complex<double>*>(ufunc));
++                   reinterpret_cast<const ::std::complex<double>*>(theta), 
++                   reinterpret_cast<::std::complex<double>*>(ufunc));
+     //std::cout << "rho*ufunc = " << Ffmt(13,9) << mygrid->rr_dot(rho,ufunc) << std::endl;
+ 
+ 
+diff -ruN /root/hpcrunner/PWDFT-master/Nwpw/pspw/lib/vdw-DF/vdw_DF.cpp /root/hpcrunner/tmp/PWDFT-master/Nwpw/pspw/lib/vdw-DF/vdw_DF.cpp
+--- /root/hpcrunner/PWDFT-master/Nwpw/pspw/lib/vdw-DF/vdw_DF.cpp	2026-01-01 13:49:53.000000000 +0800
++++ /root/hpcrunner/tmp/PWDFT-master/Nwpw/pspw/lib/vdw-DF/vdw_DF.cpp	2026-01-04 17:28:56.417697390 +0800
+@@ -104,7 +104,7 @@
+  */
+ void vdw_DF::init_poly()
+ {
+-    std::vector<double> utmp(Nqs);
++    ::std::vector<double> utmp(Nqs);
+     vdw_DF_init_poly(Nqs, qmesh, ya, ya2, utmp.data());
+ }
+ 
+@@ -137,7 +137,7 @@
+         // qmesh(Nqs) = qmesh[Nqs-1]
+ 
+         double denom = qmesh[Nqs - 1];   // same as (qmesh(1)+Nqs-1)
+-        double nx_f  = std::sqrt(x / denom) * Nqs;
++        double nx_f  = sqrt(x / denom) * Nqs;
+         int nx = static_cast<int>(nx_f);
+ 
+         if (nx < 1)       nx = 1;
+@@ -182,23 +182,23 @@
+                            const int nfft3d,
+                            const double *Gpack,             // [npack0]
+                            const int *nxpack,               // [npack0]
+-                           const std::complex<double> *theta, // [nfft3d * Nqs]
+-                           std::complex<double> *ufunc)       // [nfft3d * Nqs]
++                           const ::std::complex<double> *theta, // [nfft3d * Nqs]
++                           ::std::complex<double> *ufunc)       // [nfft3d * Nqs]
+ {
+     // ---- parallel info (OpenMP-style + 2D decomp over j) ----
+     const int taskid_j  = myparall->taskid_j();   // like Parallel2d_taskid_j()
+     const int np_j      = myparall->np_j();       // like Parallel2d_np_j()
+ 
+     // ---- zero ufunc (all G, all i) ----
+-    std::fill(ufunc, ufunc + static_cast<std::size_t>(nfft3d) * Nqs,
+-              std::complex<double>(0.0, 0.0));
++    ::std::fill(ufunc, ufunc + static_cast<size_t>(nfft3d) * Nqs,
++              ::std::complex<double>(0.0, 0.0));
+ 
+     // Helper lambdas for indexing (Fortran: ufunc(k,i), theta(k,j))
+-    auto U = [=](int k, int i) -> std::complex<double>& {
++    auto U = [=](int k, int i) -> ::std::complex<double>& {
+         // k, i are 0-based; layout is (k, i) with leading dimension nfft3d
+         return ufunc[i * nfft3d + k];
+     };
+-    auto TH = [=](int k, int j) -> const std::complex<double>& {
++    auto TH = [=](int k, int j) -> const ::std::complex<double>& {
+         return theta[j * nfft3d + k];
+     };
+ 
+@@ -218,7 +218,7 @@
+                 // Pointer to φ(:, :, indx) in C layout:
+                 // Fortran: phi(nk1,2,Npairs)
+                 // => C: phi[ (indx-1)*2*nk1 + p*nk1 + k ], p=0,1 ; k=0..nk1-1
+-                const double *phi_block = phi + static_cast<std::size_t>(indx - 1) * 2 * nk1;
++                const double *phi_block = phi + static_cast<size_t>(indx - 1) * 2 * nk1;
+ 
+                 // Loop over packed G indices, split amongst threads
+                 for (int k=0; k<npack0; ++k)   // Fortran k=tid+1,npack0,nthr
+@@ -354,11 +354,11 @@
+     }
+ 
+     // ---- zero local accumulators ----
+-    std::fill(tmpexc, tmpexc + n2ft3d, 0.0);
++    ::std::fill(tmpexc, tmpexc + n2ft3d, 0.0);
+     for (int ms = 0; ms < ispin; ++ms)
+     {
+-        std::fill(tmpfn  + ms * n2ft3d, tmpfn  + (ms + 1) * n2ft3d, 0.0);
+-        std::fill(tmpfdn + ms * n2ft3d, tmpfdn + (ms + 1) * n2ft3d, 0.0);
++        ::std::fill(tmpfn  + ms * n2ft3d, tmpfn  + (ms + 1) * n2ft3d, 0.0);
++        ::std::fill(tmpfdn + ms * n2ft3d, tmpfdn + (ms + 1) * n2ft3d, 0.0);
+     }
+ 
+     // NOTE: In the original Fortran, there is a call:
+@@ -503,7 +503,7 @@
+     }
+ 
+     // zero theta
+-    std::fill(theta, theta + size_t(n2ft3d)*Nqs, 0.0);
++    ::std::fill(theta, theta + size_t(n2ft3d)*Nqs, 0.0);
+ 
+     if (nj > 0)
+     {
+@@ -562,11 +562,11 @@
+               double dtsum = 0.0;
+               for (int k = 1; k <= 12; k++) 
+               {
+-                 tsum  += std::pow(q0/qmax, k) / double(k);
+-                 dtsum += std::pow(q0/qmax, k-1);
++                 tsum  += pow(q0/qmax, k) / double(k);
++                 dtsum += pow(q0/qmax, k-1);
+               }
+-              q0sat = qmax * (1.0 - std::exp(-tsum));
+-              double dq0satdq0 = std::exp(-tsum) * dtsum;
++              q0sat = qmax * (1.0 - exp(-tsum));
++              double dq0satdq0 = exp(-tsum) * dtsum;
+ 
+               exc[i] = q0sat;
+               for (int ms = 0; ms < ispin; ++ms)
+@@ -646,7 +646,7 @@
+ 
+    //const std::string nwpw_vdw_qmesh = std::string(Nwpw_LIBRARYVDW_Default) + "/vdw_qmesh.dat";
+    //const char *nwpw_libraryps = Nwpw_LIBRARYPS_Default + "/VDW/vdw_qmesh.dat";
+-   const std::string nwpw_vdw_qmesh = pwdft::resolve_vdw() + "/vdw_qmesh.dat";
++   const ::std::string nwpw_vdw_qmesh = pwdft::resolve_vdw() + "/vdw_qmesh.dat";
+ 
+    char datafile[256];
+    strcpy(datafile, "vdw_kernels.dat");
+@@ -656,7 +656,7 @@
+    int ifound = cfileexists(datafile);
+    if (ifound == 0)
+    {
+-      if (oprint) std::cout << " Generating VDW kernel filename:" << datafile << std::endl;
++      if (oprint) ::std::cout << " Generating VDW kernel filename:" << datafile << ::std::endl;
+       //vdw_DF_kernel_gen_data(datafile)
+       vdw_DF_kernel_gen_data(myparall,datafile,nwpw_vdw_qmesh.c_str());
+    }
+@@ -674,22 +674,22 @@
+    nk1 = nk + 1;
+ 
+ 
+-   theta  = new (std::nothrow) double[Nqs*n2ft3d]();
+-   ufunc  = new (std::nothrow) double[Nqs*n2ft3d]();
++   theta  = new (::std::nothrow) double[Nqs*n2ft3d]();
++   ufunc  = new (::std::nothrow) double[Nqs*n2ft3d]();
+ 
+-   qmesh  = new (std::nothrow) double[Nqs]();
+-   ya     = new (std::nothrow) double[Nqs*Nqs]();
+-   ya2    = new (std::nothrow) double[Nqs*Nqs]();
+-   gphi   = new (std::nothrow) double[nk1]();
+-   phi    = new (std::nothrow) double[nk1*Nqs*(Nqs+1)]();
+-
+-   xcp    = new (std::nothrow) double[2*n2ft3d]();
+-   xce    = new (std::nothrow) double[2*n2ft3d]();
+-   xxp    = new (std::nothrow) double[2*n2ft3d]();
+-   xxe    = new (std::nothrow) double[2*n2ft3d]();
+-   rho    = new (std::nothrow) double[2*n2ft3d]();
+-   Gpack  = new (std::nothrow) double[npack0]();
+-   nxpack = new (std::nothrow) int[npack0]();
++   qmesh  = new (::std::nothrow) double[Nqs]();
++   ya     = new (::std::nothrow) double[Nqs*Nqs]();
++   ya2    = new (::std::nothrow) double[Nqs*Nqs]();
++   gphi   = new (::std::nothrow) double[nk1]();
++   phi    = new (::std::nothrow) double[nk1*Nqs*(Nqs+1)]();
++
++   xcp    = new (::std::nothrow) double[2*n2ft3d]();
++   xce    = new (::std::nothrow) double[2*n2ft3d]();
++   xxp    = new (::std::nothrow) double[2*n2ft3d]();
++   xxe    = new (::std::nothrow) double[2*n2ft3d]();
++   rho    = new (::std::nothrow) double[2*n2ft3d]();
++   Gpack  = new (::std::nothrow) double[npack0]();
++   nxpack = new (::std::nothrow) int[npack0]();
+ 
+ 
+    if (myparall->is_master())
+@@ -712,7 +712,7 @@
+    double *Gz = mygrid->Gpackxyz(0,2);
+    for (int k=0; k<npack0; ++k)
+    {
+-      double gg = std::sqrt(Gx[k]*Gx[k] + Gy[k]*Gy[k] + Gz[k]*Gz[k]);
++      double gg = sqrt(Gx[k]*Gx[k] + Gy[k]*Gy[k] + Gz[k]*Gz[k]);
+       Gpack[k] = gg;
+          
+       int nx = gg/dk;
+@@ -796,8 +796,8 @@
+ 
+     // 4. ufunc(G,i)
+     generate_ufunc(nk1, Nqs, gphi, phi, npack0, nfft3d, Gpack, nxpack,
+-                   reinterpret_cast<const std::complex<double>*>(theta), 
+-                   reinterpret_cast<std::complex<double>*>(ufunc));
++                   reinterpret_cast<const ::std::complex<double>*>(theta), 
++                   reinterpret_cast<::std::complex<double>*>(ufunc));
+     //std::cout << "rho*ufunc = " << Ffmt(13,9) << mygrid->rr_dot(rho,ufunc) << std::endl;
+ 
+     //std::cout << "pre xce = " << Ffmt(13,9) << mygrid->rr_dot(rho,xce) << std::endl;
