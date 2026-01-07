@@ -426,6 +426,12 @@ chmod +x {install_script}
             print("install failed")
             sys.exit(1)
 
+     def ensure_symlink(self, real_path, logical_path):
+ 	         if os.path.islink(logical_path) or os.path.exists(logical_path):
+ 	             return
+ 	         self.tool.mkdirs(os.path.dirname(logical_path))
+ 	         os.symlink(real_path, logical_path)
+ 	 
     def add_install_info(self, software_info, install_path):
         software_dict = {}
         software_dict['name'] = software_info['sname']
@@ -440,7 +446,7 @@ chmod +x {install_script}
             software_path = software_path.replace('package/', '', 1)
         return software_path
 
-    def install(self, install_args):
+    def install(self, install_args, prefix=None):
         software_path = install_args[0]
         compiler_mpi_info = install_args[1]
         other_args = install_args[2:]
@@ -468,14 +474,20 @@ chmod +x {install_script}
                 print(f"Use Compiler: {env_info['cname']} {cfullver}")
         
         # get install path
-        install_path = self.get_install_path(software_info, env_info)
-        if not install_path: return
+        logical_install_path = self.get_install_path(software_info, env_info)
+ 	    if not logical_install_path: return
+ 	    if prefix:
+ 	        real_install_path = logical_install_path.replace(self.SOFTWARE_PATH, os.path.join(prefix, "software"), 1)
+ 	    else:
+ 	        real_install_path = logical_install_path
         # get install script
-        self.install_package(abs_software_path, install_path, other_args)
+        self.install_package(abs_software_path, real_install_path, other_args)
+ 	    # create soft link from realpath to hpcrunner/software
+ 	    self.ensure_symlink(real_install_path, logical_install_path)
         # add install info
-        self.add_install_info(software_info, install_path)
+        self.add_install_info(software_info, logical_install_path)
         # gen module file
-        self.gen_module_file( install_path, software_info, env_info)
+        self.gen_module_file(logical_install_path, software_info, env_info)
 
     def install_depend(self):
         depend_file = 'depend_install.sh'

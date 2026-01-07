@@ -80,8 +80,8 @@ class AnalysisService:
     def env(self):
         self.jenv.env()
     
-    def install(self,install_args):
-        self.jinstall.install(install_args)
+    def install(self,install_args, prefix=None):
+        self.jinstall.install(install_args, prefix)
     
     def get_install_list(self):
         self.jinstall.list()
