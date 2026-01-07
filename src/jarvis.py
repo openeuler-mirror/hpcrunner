@@ -63,7 +63,7 @@ class Jarvis:
 
     def main(self):
         if self.args.version:
-            print("V1.0")
+            print("V2.4.1.RC1")
         
         if self.args.info:
             self.analysis.get_machine_info()
