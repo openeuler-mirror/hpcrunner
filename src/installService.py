@@ -488,7 +488,8 @@ chmod +x {install_script}
         # add install info
         self.add_install_info(software_info, logical_install_path)
         # gen module file
-        self.gen_module_file(logical_install_path, software_info, env_info)
+        if 'hpckit' not in software_path:
+            self.gen_module_file(logical_install_path, software_info, env_info)
 
     def install_depend(self):
         depend_file = 'depend_install.sh'
