@@ -159,9 +159,9 @@ option支持列表如下所示
 |-------------|--------------------|---------------------------|
 | com         | 安装编译器              | software/compiler         |
 | gcc         | 使用gcc进行编译          | software/libs/gcc         |
-| gcc+mpi     | 使用gcc和当前生效的mpi进行编译 | software/libs/gcc/mpi     |
+| gcc+mpi     | 使用gcc和当前生效的mpi进行编译 | software/libs/gcc-mpi     |
 | bisheng     | 使用毕昇进行编译           | software/libs/bisheng     |
-| bisheng+mpi | 使用毕昇和当前生效的mpi进行编译  | software/libs/bisheng/mpi |
+| bisheng+mpi | 使用毕昇和当前生效的mpi进行编译  | software/libs/bisheng-mpi |
 | any         | 安装工具软件             | software/utils            |
 
 # 贾维斯支持软件列表
