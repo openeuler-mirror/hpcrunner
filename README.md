@@ -1,44 +1,43 @@
 # HPCRunner : 贾维斯智能助手，一站式部署调优HPC应用
 
 ![贾维斯](./images/jarvis-logo.png)
+
 ### 项目背景
+
 HPC被喻为是IT行业“金字塔上的明珠”，其部署、编译、运行、性能采集分析的门槛非常高，不同的机器上部署HPC应用耗费大量精力，而且很多情况下需要同时部署ARM/X86两套环境进行验证，增加了很多的重复性工作，无法聚焦核心算法优化。
-
-
-
-
 
 ## 环境依赖
 
-- X86/ARM架构 + LinuxOS 
+- X86/ARM架构 + LinuxOS
 - python3
 - environment-modules
 - cmake
 
 # 贾维斯使用指导
+
 ## 下载贾维斯
 执行如下命令下载贾维斯
 ```
 git clone https://gitcode.com/openeuler/hpcrunner.git
 ```
 
-
 ## 贾维斯目录结构
 
-| 目录/文件 | 说明                               | 备注     |
-| --------- | ---------------------------------- | -------- |
-| benchmark | HPL、Stream、矩阵运算、OpenMP、MPI、P2P等性能测试 |          |
-| doc       | 文档                               |          |
-| downloads | 存放依赖库源码包/压缩包            |          |
-| examples  | 性能小实验                         |          |
-| package   | 存放安装脚本和FAQ                  |          |
-| software  | 依赖库二进制仓库(内置精度分析工具)         | 自动生成 |
-| src       | 贾维斯源码                         |          |
-| templates | 常用HPC应用的配置模板              |          |
-| test      | 贾维斯测试用例                     |          |
-| workloads  | 常用HPC应用的算例合集              |          |
-| init.sh   | 贾维斯初始化文件                   |          |
-| jarvis    | 贾维斯启动入口                     |          |
+| 目录/文件     | 说明                                  | 备注                                                   |
+|-----------|-------------------------------------|------------------------------------------------------|
+| benchmark | HPL、Stream、矩阵运算、OpenMP、MPI、P2P等性能测试 |                                                      |
+| doc       | 文档                                  |                                                      |
+| downloads | 存放依赖库源码包/压缩包                        |                                                      |
+| examples  | 性能小实验                               |                                                      |
+| package   | 存放安装脚本和FAQ                          |                                                      |
+| software  | 软件安装目录(内置精度分析工具)                    | 自动生成<br>apps为应用软件安装目录<br>其他目录参考[option介绍](#option介绍) |
+| src       | 贾维斯源码                               |                                                      |
+| templates | 常用HPC应用的配置模板                        |                                                      |
+| test      | 贾维斯测试用例                             |                                                      |
+| workloads | 常用HPC应用的算例合集和测试目录                   |                                                      |
+| init.sh   | 贾维斯初始化文件                            |                                                      |
+| jarvis    | 贾维斯启动入口                             |                                                      |
+| tmp       | 软件编译目录和解压后源码存放目录                    |                                                      |
 
 ## 使用贾维斯安装应用流程
 以安装某应用（xapp） 为例：
@@ -57,6 +56,7 @@ source init.sh
 
 步骤3：生效应用模板  
 进入hpcrunner根目录执行如下命令：
+
 ```
 ./jarvis -use templates/xapp.config
 ```
@@ -64,21 +64,19 @@ source init.sh
 如要新增应用模板，需遵循一定的格式新建自定义文件app.config。  
 配置文件格式如下所示  
 
-| **配置项**   | **说明**                                                     | **示例**                                                     |
-| ------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [SERVER]     | 指定节点列表，按行书写，用于自动生成hostfile                 | 11.11.11.11<br>22.22.22.22                                   |
-| [DOWNLOAD]   | 格式：app/appversion download_url [alias]<br>**注：**在没有网络场景下，可提前将下载好的安装包放置在hpcrunner/downloads目录下 | cp2k/8.2 https://github.com/extdomains/github.com/cp2k/cp2k/releases/download/v8.2.0/cp2k-8.2.tar.bz2 |
-| [DEPENDENCY] | HPC应用所需安装的依赖软件                                    | ./jarvis -install gmp/6.2.0 clang<br>./jarvis -install boost/1.72.0 clang |
-| [ENV]        | HPC应用编译运行所需的环境配置                                | module use ./software/modulefiles<br>module load bisheng/3.2.0<br>module load boost/1.72.0 |
-| [APP]        | HPC应用信息，包括应用名、构建路径、二进制路径、算例路径      | app_name = CP2K <br>build_dir = /home/cp2k-8.2/ <br>binary_dir = /home/CP2K/cp2k-8.2/bin/ case_dir = /home/CP2K/cp2k-8.2/benchmarks/QS/ |
-| [BUILD]      | HPC应用构建脚本                                              | ./configure <br>make -j<br>make install                      |
-| [CLEAN]      | HPC应用编译清理脚本                                          | make clean                                                   |
-| [RUN]        | HPC应用运行配置，包括前置命令、应用命令和节点个数            | run = mpirun -np 2 <br>binary = cp2k.psmp H2O-256.inp <br>nodes = 1 |
-| [JOB]        | HPC应用作业调度运行配置                                      | 多瑙作业调度脚本                                             |
-| [BATCH]      | HPC应用批量运行命令****                                      | #!/bin/bash <br>mpirun -np 2 cp2k.psmp H2O-256.inp mpirun -np 2 cp2k.psmp H2O-512.inp |
-| [PERF]       | 性能分析采集工具额外参数配置                                 | perf= -o <br>nsys= <br>ncu=--target-processes all --launch-skip 71434 --launch-count 1 |
-
-
+| **配置项**      | **说明**                                                                                        | **示例**                                                                                                                                  |
+|--------------|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
+| [SERVER]     | 指定节点列表，按行书写，用于自动生成hostfile                                                                    | 11.11.11.11<br>22.22.22.22                                                                                                              |
+| [DOWNLOAD]   | 格式：app/appversion download_url [alias]<br>**注：**在没有网络场景下，可提前将下载好的安装包放置在hpcrunner/downloads目录下 | cp2k/8.2 https://github.com/extdomains/github.com/cp2k/cp2k/releases/download/v8.2.0/cp2k-8.2.tar.bz2                                   |
+| [DEPENDENCY] | HPC应用所需安装的依赖软件                                                                                | ./jarvis -install gmp/6.2.0 clang<br>./jarvis -install boost/1.72.0 clang                                                               |
+| [ENV]        | HPC应用编译运行所需的环境配置                                                                              | module use ./software/modulefiles<br>module load bisheng/3.2.0<br>module load boost/1.72.0                                              |
+| [APP]        | HPC应用信息，包括应用名、构建路径、二进制路径、算例路径                                                                 | app_name = CP2K <br>build_dir = /home/cp2k-8.2/ <br>binary_dir = /home/CP2K/cp2k-8.2/bin/ case_dir = /home/CP2K/cp2k-8.2/benchmarks/QS/ |
+| [BUILD]      | HPC应用构建脚本                                                                                     | ./configure <br>make -j<br>make install                                                                                                 |
+| [CLEAN]      | HPC应用编译清理脚本                                                                                   | make clean                                                                                                                              |
+| [RUN]        | HPC应用运行配置，包括前置命令、应用命令和节点个数                                                                    | run = mpirun -np 2 <br>binary = cp2k.psmp H2O-256.inp <br>nodes = 1                                                                     |
+| [JOB]        | HPC应用作业调度运行配置                                                                                 | 多瑙作业调度脚本                                                                                                                                |
+| [BATCH]      | HPC应用批量运行命令****                                                                               | #!/bin/bash <br>mpirun -np 2 cp2k.psmp H2O-256.inp mpirun -np 2 cp2k.psmp H2O-512.inp                                                   |
+| [PERF]       | 性能分析采集工具额外参数配置                                                                                | perf= -o <br>nsys= <br>ncu=--target-processes all --launch-skip 71434 --launch-count 1                                                  |
 
 步骤4：下载安装包以及相关依赖
 ```
@@ -100,8 +98,6 @@ source init.sh
 ./jarvis -r
 ```
 
-
-
 ## 运行示例
 
 使用默认的应用配置部署运行应用QE-7.3
@@ -115,9 +111,8 @@ source init.sh
 ./jarvis -r
 ```
 
-
-
 # 贾维斯运行指令
+
 ## 功能指令介绍
 
 | **功能**                        | **命令**                                                     | **示例/说明**                                                |
@@ -142,40 +137,43 @@ source init.sh
 | 更新依赖库的路径                | ./jarvis -u                                                  | 如果移动了贾维斯的路径，将自动更新software/modulefiles的路径 |
 
 ## option介绍
+
 option支持列表如下所示
 
-| **选项值**  | **解释**                        | **安装目录**              |
-| ----------- | ------------------------------- | ------------------------- |
-| com         | 安装编译器                      | software/compiler         |
-| gcc         | 使用gcc进行编译                 | software/libs/gcc         |
-| gcc+mpi     | 使用gcc和当前生效的mpi进行编译  | software/libs/gcc/mpi     |
-| bisheng     | 使用毕昇进行编译                | software/libs/bisheng     |
-| bisheng+mpi | 使用毕昇和当前生效的mpi进行编译 | software/libs/bisheng/mpi |
-| any         | 安装工具软件                    | software/utils            |
-
-
+| **选项值**     | **解释**             | **安装目录**                  |
+|-------------|--------------------|---------------------------|
+| com         | 安装编译器              | software/compiler         |
+| gcc         | 使用gcc进行编译          | software/libs/gcc         |
+| gcc+mpi     | 使用gcc和当前生效的mpi进行编译 | software/libs/gcc-mpi     |
+| bisheng     | 使用毕昇进行编译           | software/libs/bisheng     |
+| bisheng+mpi | 使用毕昇和当前生效的mpi进行编译  | software/libs/bisheng-mpi |
+| any         | 安装工具软件             | software/utils            |
 
 # 贾维斯支持软件列表
+
 1. [应用列表](doc/support/templates.md)
 2. [依赖列表](doc/support/packages.md)
-
 
 # FAQ
 
 Q1：如何在没有网络的环境或者网速很慢的环境下，使用贾维斯完成软件安装部署？
 
-```
 A：
-步骤1：寻找一台有外网链接的服务器环境B，执行jarvis -d命令，下载相关依赖
-步骤2：将事先下载好的安装包即环境B下downloads目录里所有内容，放置到原环境的downloads目录下
-步骤3：在原来环境下进行后续安装操作
-```
+> 步骤1：寻找一台有外网链接的服务器环境B，执行jarvis -d命令，下载相关依赖
+>
+> 步骤2：将事先下载好的安装包即环境B下downloads目录里所有内容，放置到原环境的downloads目录下
+>
+> 步骤3：在原来环境下进行后续安装操作
 
 Q2：软件安装目录在哪里？
 
-A：参考[option介绍](#option介绍)的安装目录
+A：
+> package中的依赖软件：参考[option介绍](#option介绍)的安装目录
+>
+> templates中的应用软件：安装到software/apps，命名规范：使用BiSheng编译器+HMPI编译templates/wrf/4.7.1/data.wrf.arm.cpu.config的安装路径为software/apps/bisheng${BISHENG_VERSION}-hmpi${HMPI_VERSION}/wrf/4.7.1
 
 # 欢迎贡献
+
 小的改进或修复总是值得赞赏的，可以提交一个issue或者在hpc.openeuler.org进行讨论。
 [查看Jarvis贡献方法](README_CONTRIBUTING.md)
 
