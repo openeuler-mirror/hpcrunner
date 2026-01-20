@@ -489,7 +489,7 @@ chmod +x {install_script}
         # add install info
         self.add_install_info(software_info, logical_install_path)
         # gen module file
-        if software_name is 'hpckit':
+        if software_name == 'hpckit':
             return
         self.gen_module_file(logical_install_path, software_info, env_info)
 
