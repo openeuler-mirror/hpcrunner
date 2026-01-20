@@ -453,7 +453,7 @@ chmod +x {install_script}
         self.tool.prt_content("INSTALL " + software_path)
         compilers = {"GCC":self.get_gcc_info, "CLANG":self.get_clang_info,
                      "NVC":self.get_nvc_info, "ICC":self.get_icc_info,
-		             "BISHENG":self.get_clang_info}
+                     "BISHENG":self.get_clang_info}
         software_path = self.remove_prefix(software_path)
         # software_path should exists
         abs_software_path = self.check_software_path(software_path)
@@ -461,6 +461,7 @@ chmod +x {install_script}
         compiler_mpi_info = self.check_compiler_mpi(compilers.keys(), compiler_mpi_info)
         if not compiler_mpi_info: return
         software_info = self.get_software_info(software_path, compiler_mpi_info)
+        software_name = software_info.get('sname')
         stype = software_info['type']
         # get compiler name and version
         env_info = self.get_compiler_info(compilers, compiler_mpi_info)
@@ -488,8 +489,9 @@ chmod +x {install_script}
         # add install info
         self.add_install_info(software_info, logical_install_path)
         # gen module file
-        if 'hpckit' not in software_path:
-            self.gen_module_file(logical_install_path, software_info, env_info)
+        if software_name is 'hpckit':
+            return
+        self.gen_module_file(logical_install_path, software_info, env_info)
 
     def install_depend(self):
         depend_file = 'depend_install.sh'
