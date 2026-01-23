@@ -15,7 +15,7 @@ mkdir root_build
 cd root_build/
 #CC=mpicc CXX=mpicxx cmake .. -DCMAKE_INSTALL_PREFIX=$1 -DCMAKE_C_FLAGS="-fPIC" -DCMAKE_CXX_FLAGS="-fPIC"
 export CC=mpicc CXX=mpicxx
-cmake .. -DCMAKE_INSTALL_PREFIX=$1 -Dclad=OFF -Dxrootd=OFF -DCMAKE_CXX_FLAGS=" -Wno-enum-constexpr-conversion"
+cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$1 -Dclad=OFF -Dxrootd=OFF -DCMAKE_CXX_FLAGS=" -Wno-enum-constexpr-conversion"
 
 sed -i "5c #include <cstring>" ../tmva/sofie/src/RModel.cxx
 sed -i "3c #include <cstring>" ../tmva/sofie/inc/TMVA/SOFIE_common.hxx
