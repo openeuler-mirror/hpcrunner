@@ -1,5 +1,5 @@
 #!/bin/bash
-. $CHECK_ROOT && yum install -y bzip2-devel cairo-devel fontconfig-devel freetype-devel fribidi-devel gcc gcc-gfortran gcc-c++ gettext-devel harfbuzz-devel lapack-devel blas-devel libX11-devel libXext-devel libXt-devel libcurl-devel libicu-devel libjpeg-devel libpng-devel libtiff-devel libtirpc-devel libxcrypt-devel ncurses-devel pango-devel pkgconf-devel pcre2-devel readline-devel tcl-devel tk-devel xz-devel zlib-devel texlive texlive-inconsolata texinfo firefox java-1.8.0-openjdk-devel imake libpng-tools openssl-devel
+. $CHECK_ROOT && yum install -y bzip2-devel cairo-devel fontconfig-devel freetype-devel fribidi-devel gcc gcc-gfortran gcc-c++ gettext-devel harfbuzz-devel lapack-devel blas-devel libX11-devel libXext-devel libXt-devel libcurl-devel libicu-devel libjpeg-devel libpng-devel libtiff-devel libtirpc-devel libxcrypt-devel ncurses-devel pango-devel pkgconf-devel pcre2-devel readline-devel tcl-devel tk-devel xz-devel zlib-devel texlive texlive-inconsolata texinfo firefox java-1.8.0-openjdk-devel imake libpng-tools openssl-devel openblas-devel
 set -x
 set -e
 . ${DOWNLOAD_TOOL} -u https://cloud.r-project.org/src/base/R-4/R-4.2.0.tar.gz
