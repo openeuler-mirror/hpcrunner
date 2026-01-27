@@ -426,12 +426,12 @@ chmod +x {install_script}
             print("install failed")
             sys.exit(1)
 
-     def ensure_symlink(self, real_path, logical_path):
- 	         if os.path.islink(logical_path) or os.path.exists(logical_path):
- 	             return
- 	         self.tool.mkdirs(os.path.dirname(logical_path))
- 	         os.symlink(real_path, logical_path)
- 	 
+    def ensure_symlink(self, real_path, logical_path):
+        if os.path.islink(logical_path) or os.path.exists(logical_path):
+            return
+        self.tool.mkdirs(os.path.dirname(logical_path))
+        os.symlink(real_path, logical_path)
+
     def add_install_info(self, software_info, install_path):
         software_dict = {}
         software_dict['name'] = software_info['sname']
@@ -453,7 +453,7 @@ chmod +x {install_script}
         self.tool.prt_content("INSTALL " + software_path)
         compilers = {"GCC":self.get_gcc_info, "CLANG":self.get_clang_info,
                      "NVC":self.get_nvc_info, "ICC":self.get_icc_info,
-		             "BISHENG":self.get_clang_info}
+                     "BISHENG":self.get_clang_info}
         software_path = self.remove_prefix(software_path)
         # software_path should exists
         abs_software_path = self.check_software_path(software_path)
@@ -461,6 +461,7 @@ chmod +x {install_script}
         compiler_mpi_info = self.check_compiler_mpi(compilers.keys(), compiler_mpi_info)
         if not compiler_mpi_info: return
         software_info = self.get_software_info(software_path, compiler_mpi_info)
+        software_name = software_info.get('sname')
         stype = software_info['type']
         # get compiler name and version
         env_info = self.get_compiler_info(compilers, compiler_mpi_info)
@@ -475,18 +476,21 @@ chmod +x {install_script}
         
         # get install path
         logical_install_path = self.get_install_path(software_info, env_info)
- 	    if not logical_install_path: return
- 	    if prefix:
- 	        real_install_path = logical_install_path.replace(self.SOFTWARE_PATH, os.path.join(prefix, "software"), 1)
- 	    else:
- 	        real_install_path = logical_install_path
+        if not logical_install_path:
+            return
+        if prefix:
+            real_install_path = logical_install_path.replace(self.SOFTWARE_PATH, os.path.join(prefix, "software"), 1)
+        else:
+            real_install_path = logical_install_path
         # get install script
         self.install_package(abs_software_path, real_install_path, other_args)
- 	    # create soft link from realpath to hpcrunner/software
- 	    self.ensure_symlink(real_install_path, logical_install_path)
+        # create soft link from realpath to hpcrunner/software
+        self.ensure_symlink(real_install_path, logical_install_path)
         # add install info
         self.add_install_info(software_info, logical_install_path)
         # gen module file
+        if software_name == 'hpckit':
+            return
         self.gen_module_file(logical_install_path, software_info, env_info)
 
     def install_depend(self):
