@@ -6,6 +6,4 @@ cd ${JARVIS_ROOT}
 rm -rf spack spack-1.0.0-alpha.4
 tar -xvf ${JARVIS_DOWNLOAD}/spack-1.0.0.tar.gz
 mv spack-1.0.0-alpha.4 spack
-cd spack
-source ./share/spack/setup-env.sh
 cd ${JARVIS_ROOT}
