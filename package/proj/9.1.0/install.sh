@@ -7,7 +7,7 @@ rm -rf proj-9.1.0
 tar -xvf ${JARVIS_DOWNLOAD}/proj-9.1.0.tar.gz
 cd proj-9.1.0
 mkdir build && cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$1
+cmake .. -DCMAKE_INSTALL_PREFIX=$1 -DCMAKE_EXE_LINKER_FLAGS="-lm"
 make all -j
 make install
 
