@@ -7,7 +7,7 @@ set -e
 . ${DOWNLOAD_TOOL} -u https://raw.githubusercontent.com/jratcliff63367/sse2neon/refs/heads/master/SSE2NEON.h
 cd ${JARVIS_TMP}
 rm -rf bowtie2-2.4.1
-tar -xvf bowtie2-2.4.1.tar.gz
+tar -xvf ${JARVIS_DOWNLOAD}/bowtie2-2.4.1.tar.gz
 cd bowtie2-2.4.1
 mkdir -p third_party/simde/simde/x86
 export NO_TBB=1
