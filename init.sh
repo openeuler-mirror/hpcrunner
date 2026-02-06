@@ -9,25 +9,25 @@ mkdir -p tmp
 
 #设置hpcrunner相关环境变量
 
-export JARVIS_ROOT=${CUR_PATH} #hpcrunner所在路径
-export JARVIS_COMPILER=${CUR_PATH}/software/compiler
-export JARVIS_MPI=${CUR_PATH}/software/mpi
-export JARVIS_LIBS=${CUR_PATH}/software/libs
-export JARVIS_UTILS=${CUR_PATH}/software/utils
-export JARVIS_DOWNLOAD=${CUR_PATH}/downloads #应用包下载存放路径
-export JARVIS_MODULES=${CUR_PATH}/software/modulefiles
-export JARVIS_MODULEDEPS=${CUR_PATH}/software/moduledeps
-export JARVIS_TMP=/tmp #应用安装路径
-export JARVIS_TMP_DOWNLOAD=${CUR_PATH}/tmp
-export JARVIS_EXE=${CUR_PATH}/exe
+export JARVIS_ROOT=$(dirname "$(realpath "$0")") #hpcrunner所在路径
+export JARVIS_COMPILER=${JARVIS_ROOT}/software/compiler
+export JARVIS_MPI=${JARVIS_ROOT}/software/mpi
+export JARVIS_LIBS=${JARVIS_ROOT}/software/libs
+export JARVIS_UTILS=${JARVIS_ROOT}/software/utils
+export JARVIS_DOWNLOAD=${JARVIS_ROOT}/downloads #应用包下载存放路径
+export JARVIS_MODULES=${JARVIS_ROOT}/software/modulefiles
+export JARVIS_MODULEDEPS=${JARVIS_ROOT}/software/moduledeps
+export JARVIS_TMP=${JARVIS_ROOT}/tmp #应用安装路径
+export JARVIS_TMP_DOWNLOAD=${JARVIS_ROOT}/tmp
+export JARVIS_EXE=${JARVIS_ROOT}/exe
 export JARVIS_PROXY=https://github.com #github网络代理，默认使用官方源
 export UseGitee=1 #下载源是否优先使用gitee，1代表优先使用
 export UseDev=0 #确定是否使用开发者模式，1代表使用
 export UseLatest=0 #依赖是否优先安装最新版，1代表优先使用
 export JARVIS_ENV=${JARVIS_ROOT}/bashrc #jarvis环境变量文件
-export DOWNLOAD_TOOL=${CUR_PATH}/package/common/download.sh
-export CHECK_DEPS=${CUR_PATH}/package/common/check_deps.sh
-export CHECK_ROOT=${CUR_PATH}/package/common/check_root.sh
+export DOWNLOAD_TOOL=${JARVIS_ROOT}/package/common/download.sh
+export CHECK_DEPS=${JARVIS_ROOT}/package/common/check_deps.sh
+export CHECK_ROOT=${JARVIS_ROOT}/package/common/check_root.sh
 export kp=neon
 ifsme=`lscpu|grep sme`
 ifsve=`lscpu|grep sve`
@@ -67,13 +67,14 @@ function check_deps() {
     if [ -n "$ifdep" ]; then
         echo "[INFO] 环境已完成基础依赖安装"
     else
-        yum -y install git time zlib zlib-devel gcc gcc-c++ environment-modules python python3 python3-devel python3-libs python3-pip 
-        yum -y install cmake make numactl numactl-devel numactl-libs rpmdevtools wget libtirpc libtirpc-devel unzip flex 
-        yum -y install tar patch glibc-devel rpcbind csh perl-XML-LibXML xorg-x11-xauth curl curl-devel libcurl-devel
-	if [ $? -ne 0 ]; then
-           echo "[ERROR] 基础依赖安装失败"  
-	   exit 1
-	fi
+        yum -y install git time zlib zlib-devel gcc gcc-c++ environment-modules python python3 python3-devel \
+               python3-libs python3-pip cmake make numactl numactl-devel numactl-libs rpmdevtools wget libtirpc \
+               libtirpc-devel unzip flex tar patch glibc-devel rpcbind csh perl-XML-LibXML xorg-x11-xauth curl \
+               curl-devel libcurl-devel
+        if [ $? -ne 0 ]; then
+            echo "[ERROR] 基础依赖安装失败"
+            exit 1
+        fi
     fi
 }
 
