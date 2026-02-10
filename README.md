@@ -106,7 +106,7 @@ source init.sh
 
 若目标服务器无法访问外网，请按照以下流程操作：
 
-![图片3.png](https://raw.atomgit.com/user-images/assets/8782283/778c4f58-55f0-427e-9cb9-979ccfffea1b/图片3.png '图片3.png')
+
 
 ### 2.2.2 操作步骤(以WRF应用为例)
 
@@ -138,9 +138,7 @@ cd hpcrunner && source init.sh && ./jarvis -use templates/wrf/4.7.1/data.wrf.arm
 
 由于目标机无法连接外部yum仓库，必须预先设置好本地或内部软件源，以安装基础系统依赖，详细步骤请参考[链接](https://www.hikunpeng.com/document/detail/zh/kunpengdbs/ecosystemEnable/MariaDB/openmind_mariadb1039_02_0005.html)。
 
-（3）	安装基础依赖：
-
-在目标服务器上安装基础依赖，详细步骤请参考[2.1.2](https://atomgit.com/wmrd/hpcrunner/blob/master/README.md#212-%E5%AE%89%E8%A3%85%E5%9F%BA%E7%A1%80%E4%BE%9D%E8%B5%96)
+（3）	在目标服务器上安装基础依赖，详细步骤请参考[2.1.2](https://atomgit.com/wmrd/hpcrunner/blob/master/README.md#212-%E5%AE%89%E8%A3%85%E5%9F%BA%E7%A1%80%E4%BE%9D%E8%B5%96)
 
 （4）	在目标服务器上使用hpcrunner安装应用参考[2.1.4](https://atomgit.com/wmrd/hpcrunner/blob/master/README.md#214-%E4%BD%BF%E7%94%A8hpcrunner%E5%AE%89%E8%A3%85%E5%BA%94%E7%94%A8-%E4%BB%A5wrf%E5%BA%94%E7%94%A8%E4%B8%BA%E4%BE%8B)
 
