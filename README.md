@@ -11,9 +11,9 @@ HPC被喻为是IT行业“金字塔上的明珠”，其部署、编译、运行
 ## 1.2 部署场景说明
 
 ### 1.2.1 网络环境
-- 推荐使用具备外网访问能力的服务器（可ping通百度、GitHub等），便于自动下载应用安装包与算例，安装步骤请参考[2.1](https://atomgit.com/wmrd/hpcrunner/blob/master/README.md#21-%E5%9C%BA%E6%99%AF1%E5%9C%A8%E5%85%B7%E5%A4%87%E5%A4%96%E7%BD%91%E8%AE%BF%E9%97%AE%E8%83%BD%E5%8A%9B%E7%9A%84%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E4%BD%BF%E7%94%A8hpcrunner)；
+- 推荐使用具备外网访问能力的服务器（可ping通百度、GitHub等），便于自动下载应用安装包与算例，安装步骤请参考[2.1](#21-场景1在具备外网访问能力的服务器上使用hpcrunner)；
 
-- 若服务器无法访问外网，则需要自行下载安装包上传到服务器，详细步骤请参考[2.2](https://atomgit.com/wmrd/hpcrunner/blob/master/README.md#22-%E5%9C%BA%E6%99%AF2%E5%9C%A8%E4%B8%8D%E5%85%B7%E5%A4%87%E5%A4%96%E7%BD%91%E8%AE%BF%E9%97%AE%E8%83%BD%E5%8A%9B%E7%9A%84%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E4%BD%BF%E7%94%A8hpcrunner)。
+- 若服务器无法访问外网，则需要自行下载安装包上传到服务器，详细步骤请参考[2.2](#22-场景2在不具备外网访问能力的服务器上使用hpcrunner)。
 
 ### 1.2.2 执行环境
 
@@ -112,7 +112,7 @@ source init.sh
 
 1、	找到一台可联网的服务器，在该服务器上执行以下步骤：
 
-（1）	安装基础依赖并下载hpcrunner，详细步骤请参考[2.1.2](https://atomgit.com/wmrd/hpcrunner/blob/master/README.md#212-%E5%AE%89%E8%A3%85%E5%9F%BA%E7%A1%80%E4%BE%9D%E8%B5%96)和[2.1.3](https://atomgit.com/wmrd/hpcrunner/blob/master/README.md#213-%E4%B8%8B%E8%BD%BDhpcrunner)
+（1）	安装基础依赖并下载hpcrunner，详细步骤请参考[2.1.2](#212-安装基础依赖)和[2.1.3](#213-下载hpcrunner)
 
 （2）	执行以下步骤，下载所有的源码包：
 
@@ -138,9 +138,9 @@ cd hpcrunner && source init.sh && ./jarvis -use templates/wrf/4.7.1/data.wrf.arm
 
 由于目标机无法连接外部yum仓库，必须预先设置好本地或内部软件源，以安装基础系统依赖，详细步骤请参考[链接](https://www.hikunpeng.com/document/detail/zh/kunpengdbs/ecosystemEnable/MariaDB/openmind_mariadb1039_02_0005.html)。
 
-（3）	在目标服务器上安装基础依赖，详细步骤请参考[2.1.2](https://atomgit.com/wmrd/hpcrunner/blob/master/README.md#212-%E5%AE%89%E8%A3%85%E5%9F%BA%E7%A1%80%E4%BE%9D%E8%B5%96)
+（3）	在目标服务器上安装基础依赖，详细步骤请参考[2.1.2](#212-安装基础依赖)
 
-（4）	在目标服务器上使用hpcrunner安装应用参考[2.1.4](https://atomgit.com/wmrd/hpcrunner/blob/master/README.md#214-%E4%BD%BF%E7%94%A8hpcrunner%E5%AE%89%E8%A3%85%E5%BA%94%E7%94%A8-%E4%BB%A5wrf%E5%BA%94%E7%94%A8%E4%B8%BA%E4%BE%8B)
+（4）	在目标服务器上使用hpcrunner安装应用参考[2.1.4](#214-使用hpcrunner安装应用-以wrf应用为例)
 
 
 ## 3 hpcrunner详细功能介绍 
@@ -224,12 +224,12 @@ cd hpcrunner && source init.sh && ./jarvis -use templates/wrf/4.7.1/data.wrf.arm
 
 Q1：如何在没有网络的环境或者网速很慢的环境下，使用贾维斯完成软件安装部署？
 
-A：参考[2.2](https://atomgit.com/wmrd/hpcrunner/blob/master/README.md#22-%E5%9C%BA%E6%99%AF2%E5%9C%A8%E4%B8%8D%E5%85%B7%E5%A4%87%E5%A4%96%E7%BD%91%E8%AE%BF%E9%97%AE%E8%83%BD%E5%8A%9B%E7%9A%84%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E4%BD%BF%E7%94%A8hpcrunner)
+A：参考[2.2](#22-场景2：在不具备外网访问能力的服务器上使用hpcrunner)
 
 Q2：软件安装目录在哪里？
 
 A：
-> package中的依赖软件：参考[option介绍](#option介绍)的安装目录
+> package中的依赖软件：参考[option介绍](#34-option介绍)的安装目录
 >
 > templates中的应用软件：安装到software/apps，命名规范：使用BiSheng编译器+HMPI编译templates/wrf/4.7.1/data.wrf.arm.cpu.config的安装路径为software/apps/bisheng${BISHENG_VERSION}-hmpi${HMPI_VERSION}/wrf/4.7.1
 
