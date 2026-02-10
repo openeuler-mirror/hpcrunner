@@ -1,28 +1,92 @@
-# HPCRunner : 贾维斯智能助手，一站式部署调优HPC应用
+# HPCRunner : 智能助手，一站式部署调优HPC应用
 
 ![贾维斯](./images/jarvis-logo.png)
 
-### 项目背景
+# 1 概述
 
-HPC被喻为是IT行业“金字塔上的明珠”，其部署、编译、运行、性能采集分析的门槛非常高，不同的机器上部署HPC应用耗费大量精力，而且很多情况下需要同时部署ARM/X86两套环境进行验证，增加了很多的重复性工作，无法聚焦核心算法优化。
+## 1.1 项目背景
 
-## 环境依赖
+HPC被喻为是IT行业“金字塔上的明珠”，其部署、编译、运行及性能分析门槛较高。在不同机器上部署HPC应用往往耗时费力，且常需同时维护ARM和X86两套环境进行验证，导致大量重复工作，影响核心算法的优化效率。本项目旨在提供一套跨架构的统一部署工具，简化多环境部署流程，提升整体开发效率。
 
-- X86/ARM架构 + LinuxOS
-- python3
-- environment-modules
-- cmake
+## 1.2 部署场景说明
 
-# 贾维斯使用指导
+### 1.2.1 网络环境
+- 推荐使用具备外网访问能力的服务器（可ping通百度、GitHub等），便于自动下载应用安装包与算例，安装步骤请参考2.1；
+- 若服务器无法访问外网，则需要自行下载安装包上传到服务器，详细步骤请参考2.2。
 
-## 下载贾维斯
+### 1.2.2 执行环境
 
-执行如下命令安装相关依赖并下载贾维斯
+使用工具部署时需根据配置文件（config）名称中的关键字段匹配对应的执行环境，示例如下：
 
+| 配置文件示例 | 关键字段 | 执行说明 |
+|--|--|--|
+| data.qe.arm.cpu.config | arm | 需在 ARM 环境执行 |
+| data.qe.arm-sve.cpu.config | arm-sve | 需在支持 SVE 的 ARM 服务器执行 |
+| data.qe.arm.gpu.config | arm+gpu | 需在配备 GPU 的 ARM 服务器执行 |
+| data.qe.x86.gpu.config | x86 | 需在 x86 架构服务器上执行 |
+| data.qe.x86.gpu.config | x86+gpu | 需在配备 GPU 的 x86 服务器执行 |
+
+### 1.2.3 内存和磁盘要求
+- 内存：建议在32G空闲内存的设备上进行安装；
+- 磁盘：建议/tmp目录剩余可用磁盘空间大于100G。
+
+### 1.2.4 OS和内核要求
+- 已验证环境：当前应用已在ARM服务器 搭配openEuler 22.03 SP4系统（内核版本 5.10）上完成编译部署验证；
+- 其他环境：如需在其他操作系统或内核版本中部署，请根据实际编译与安装需求对相关脚本进行相应修改。
+
+# 2 hpcrunner使用指导
+
+请根据目标服务器的网络环境，选择对应的使用指导。
+
+## 2.1 场景1：在具备外网访问能力的服务器上使用hpcrunner
+
+### 2.1.1 使用流程
+
+若用户的目标服务器具备外网访问能力，请按照以下流程操作。
+![image.png](https://raw.atomgit.com/user-images/assets/8782283/71280310-5bbc-471f-b0f9-68ca3ac72b8e/image.png 'image.png')
+
+### 2.1.2 安装基础依赖
+
+使用hpcrunner需要安装基础依赖，执行如下命令进行安装：
 ```
 yum -y install git time zlib zlib-devel gcc gcc-c++ environment-modules python python3 python3-devel python3-libs python3-pip cmake make numactl numactl-devel numactl-libs rpmdevtools wget libtirpc libtirpc-devel unzip flex tar patch glibc-devel rpcbind csh perl-XML-LibXML xorg-x11-xauth curl curl-devel libcurl-devel
-git clone https://gitee.com/openeuler/hpcrunner.git
 ```
+
+### 2.1.3 下载hpcrunner
+
+执行如下命令下载hpcrunner并完成安装：
+```
+git clone https://atomgit.com/openeuler/hpcrunner.git
+```
+
+### 2.1.4 使用hpcrunner安装应用 (以WRF应用为例)
+
+![image.png](https://raw.atomgit.com/user-images/assets/8782283/cd792f94-257c-4bf0-b474-c20a89035c7f/image.png 'image.png')
+本章节以WRF为例，介绍如何使用hpcrunner安装应用：
+
+（1）	进入hpcrunner目录
+```
+cd hpcrunner
+```
+（2）	加载环境变量，编译安装WRF
+```
+source init.sh
+./jarvis -use templates/wrf/4.7.1/data.wrf.arm.cpu.config 
+./jarvis -d
+./jarvis -dp
+./jarvis -b
+./jarvis -r
+```
+详细解释请参考：WRF-hpcrunner工具自动化构建与跨平台安装
+注：应用模板(即templates/wrf/4.7.1/data.wrf.arm.cpu.config)根据实际需要安装的软件进行选择替换，其他应用模板请参考链接。
+
+（3）	配置网络代理（可选）
+
+如具备外网访问能力的服务器下载软件安装包失败，可尝试切换下载源，执行proxy.sh脚本，输入数字选择合适的源。
+```
+./proxy.sh
+```
+
 
 ## 贾维斯目录结构
 
