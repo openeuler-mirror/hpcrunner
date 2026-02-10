@@ -43,6 +43,7 @@ HPC被喻为是IT行业“金字塔上的明珠”，其部署、编译、运行
 ### 2.1.1 使用流程
 
 若用户的目标服务器具备外网访问能力，请按照以下流程操作。
+
 ![image.png](https://raw.atomgit.com/user-images/assets/8782283/71280310-5bbc-471f-b0f9-68ca3ac72b8e/image.png 'image.png')
 
 ### 2.1.2 安装基础依赖
@@ -59,16 +60,22 @@ yum -y install git time zlib zlib-devel gcc gcc-c++ environment-modules python p
 git clone https://atomgit.com/openeuler/hpcrunner.git
 ```
 
+
+
 ### 2.1.4 使用hpcrunner安装应用 (以WRF应用为例)
 
 ![image.png](https://raw.atomgit.com/user-images/assets/8782283/cd792f94-257c-4bf0-b474-c20a89035c7f/image.png 'image.png')
+
 本章节以WRF为例，介绍如何使用hpcrunner安装应用：
 
 （1）	进入hpcrunner目录
+
 ```
 cd hpcrunner
 ```
+
 （2）	加载环境变量，编译安装WRF
+
 ```
 source init.sh
 ./jarvis -use templates/wrf/4.7.1/data.wrf.arm.cpu.config 
@@ -77,15 +84,18 @@ source init.sh
 ./jarvis -b
 ./jarvis -r
 ```
+
 详细解释请参考：WRF-hpcrunner工具自动化构建与跨平台安装
 注：应用模板(即templates/wrf/4.7.1/data.wrf.arm.cpu.config)根据实际需要安装的软件进行选择替换，其他应用模板请参考链接。
 
 （3）	配置网络代理（可选）
 
 如具备外网访问能力的服务器下载软件安装包失败，可尝试切换下载源，执行proxy.sh脚本，输入数字选择合适的源。
+
 ```
 ./proxy.sh
 ```
+
 
 
 ## 贾维斯目录结构
