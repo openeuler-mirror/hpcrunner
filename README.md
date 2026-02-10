@@ -106,7 +106,7 @@ source init.sh
 
 若目标服务器无法访问外网，请按照以下流程操作：
 
-
+![图片3.jpg](https://raw.atomgit.com/user-images/assets/8782283/fa2a5828-94ca-48ea-b286-1eb95178d907/图片3.jpg '图片3.jpg')
 
 ### 2.2.2 操作步骤(以WRF应用为例)
 
