@@ -135,13 +135,13 @@ cd hpcrunner && source init.sh && ./jarvis -use templates/wrf/4.7.1/data.wrf.arm
 
 （2）	配置本地yum源：
 
-由于目标机无法连接外部yum仓库，必须预先设置好本地或内部软件源，以安装基础系统依赖，详细步骤请参考链接。
+由于目标机无法连接外部yum仓库，必须预先设置好本地或内部软件源，以安装基础系统依赖，详细步骤请参考[链接](https://www.hikunpeng.com/document/detail/zh/kunpengdbs/ecosystemEnable/MariaDB/openmind_mariadb1039_02_0005.html)。
 
 （3）	安装基础依赖：
 
-在目标服务器上安装基础依赖，详细步骤请参考2.1.2
+在目标服务器上安装基础依赖，详细步骤请参考[2.1.2](https://atomgit.com/wmrd/hpcrunner/blob/master/README.md#212-%E5%AE%89%E8%A3%85%E5%9F%BA%E7%A1%80%E4%BE%9D%E8%B5%96)
 
-（4）	在目标服务器上使用hpcrunner安装应用参考2.1.4
+（4）	在目标服务器上使用hpcrunner安装应用参考[2.1.4](https://atomgit.com/wmrd/hpcrunner/blob/master/README.md#214-%E4%BD%BF%E7%94%A8hpcrunner%E5%AE%89%E8%A3%85%E5%BA%94%E7%94%A8-%E4%BB%A5wrf%E5%BA%94%E7%94%A8%E4%B8%BA%E4%BE%8B)
 
 
 ## 3 hpcrunner详细功能介绍 
@@ -225,7 +225,7 @@ cd hpcrunner && source init.sh && ./jarvis -use templates/wrf/4.7.1/data.wrf.arm
 
 Q1：如何在没有网络的环境或者网速很慢的环境下，使用贾维斯完成软件安装部署？
 
-A：参考2.3
+A：参考[2.2](https://atomgit.com/wmrd/hpcrunner/blob/master/README.md#22-%E5%9C%BA%E6%99%AF2%E5%9C%A8%E4%B8%8D%E5%85%B7%E5%A4%87%E5%A4%96%E7%BD%91%E8%AE%BF%E9%97%AE%E8%83%BD%E5%8A%9B%E7%9A%84%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E4%BD%BF%E7%94%A8hpcrunner)
 
 Q2：软件安装目录在哪里？
 
