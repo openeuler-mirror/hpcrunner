@@ -154,7 +154,7 @@ cd hpcrunner && source init.sh && ./jarvis -use templates/wrf/4.7.1/data.wrf.arm
 | downloads | 存放依赖库源码包/压缩包                        |                                                      |
 | examples  | 性能小实验                               |                                                      |
 | package   | 存放安装脚本和FAQ                          |                                                      |
-| software  | 软件安装目录(内置精度分析工具)                    | 自动生成<br>apps为应用软件安装目录<br>其他目录参考[option介绍](#option介绍) |
+| software  | 软件安装目录(内置精度分析工具)                    | 自动生成<br>apps为应用软件安装目录<br>其他目录参考[option介绍](#34-option介绍) |
 | src       | 贾维斯源码                               |                                                      |
 | templates | 常用HPC应用的配置模板                        |                                                      |
 | test      | 贾维斯测试用例                             |                                                      |
