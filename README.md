@@ -11,8 +11,9 @@ HPC被喻为是IT行业“金字塔上的明珠”，其部署、编译、运行
 ## 1.2 部署场景说明
 
 ### 1.2.1 网络环境
-- 推荐使用具备外网访问能力的服务器（可ping通百度、GitHub等），便于自动下载应用安装包与算例，安装步骤请参考2.1；
-- 若服务器无法访问外网，则需要自行下载安装包上传到服务器，详细步骤请参考2.2。
+- 推荐使用具备外网访问能力的服务器（可ping通百度、GitHub等），便于自动下载应用安装包与算例，安装步骤请参考[2.1](https://atomgit.com/wmrd/hpcrunner/blob/master/README.md#21-%E5%9C%BA%E6%99%AF1%E5%9C%A8%E5%85%B7%E5%A4%87%E5%A4%96%E7%BD%91%E8%AE%BF%E9%97%AE%E8%83%BD%E5%8A%9B%E7%9A%84%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E4%BD%BF%E7%94%A8hpcrunner)；
+
+- 若服务器无法访问外网，则需要自行下载安装包上传到服务器，详细步骤请参考[2.2](https://atomgit.com/wmrd/hpcrunner/blob/master/README.md#22-%E5%9C%BA%E6%99%AF2%E5%9C%A8%E4%B8%8D%E5%85%B7%E5%A4%87%E5%A4%96%E7%BD%91%E8%AE%BF%E9%97%AE%E8%83%BD%E5%8A%9B%E7%9A%84%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E4%BD%BF%E7%94%A8hpcrunner)。
 
 ### 1.2.2 执行环境
 
