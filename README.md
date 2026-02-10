@@ -86,7 +86,7 @@ source init.sh
 ```
 
 详细解释请参考：WRF-hpcrunner工具自动化构建与跨平台安装
-注：应用模板(即templates/wrf/4.7.1/data.wrf.arm.cpu.config)根据实际需要安装的软件进行选择替换，其他应用模板请参考链接。
+注：应用模板(即templates/wrf/4.7.1/data.wrf.arm.cpu.config)根据实际需要安装的软件进行选择替换，其他应用模板请[参考链接](https://www.hikunpeng.com/zh/developer/techArticles/20251223-1)。
 
 （3）	配置网络代理（可选）
 
