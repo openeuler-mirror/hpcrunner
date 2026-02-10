@@ -86,6 +86,7 @@ source init.sh
 ```
 
 详细解释请参考：[WRF-hpcrunner工具自动化构建与跨平台安装](https://www.hikunpeng.com/zh/developer/techArticles/20251223-1)
+
 注：应用模板(即templates/wrf/4.7.1/data.wrf.arm.cpu.config)根据实际需要安装的软件进行选择替换，其他应用模板请[参考链接](https://atomgit.com/openeuler/hpcrunner/tree/master/templates)。
 
 （3）	配置网络代理（可选）
@@ -110,7 +111,7 @@ source init.sh
 
 1、	找到一台可联网的服务器，在该服务器上执行以下步骤：
 
-（1）	安装基础依赖并下载hpcrunner，详细步骤请参考2.1.2和2.1.3
+（1）	安装基础依赖并下载hpcrunner，详细步骤请参考[2.1.2](https://atomgit.com/wmrd/hpcrunner/blob/master/README.md#212-%E5%AE%89%E8%A3%85%E5%9F%BA%E7%A1%80%E4%BE%9D%E8%B5%96)和[2.1.3](https://atomgit.com/wmrd/hpcrunner/blob/master/README.md#213-%E4%B8%8B%E8%BD%BDhpcrunner)
 
 （2）	执行以下步骤，下载所有的源码包：
 
