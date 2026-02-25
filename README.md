@@ -1,30 +1,151 @@
-# HPCRunner : 贾维斯智能助手，一站式部署调优HPC应用
+# HPCRunner : 智能助手，一站式部署调优HPC应用
 
 ![贾维斯](./images/jarvis-logo.png)
 
-### 项目背景
+# 1 概述
 
-HPC被喻为是IT行业“金字塔上的明珠”，其部署、编译、运行、性能采集分析的门槛非常高，不同的机器上部署HPC应用耗费大量精力，而且很多情况下需要同时部署ARM/X86两套环境进行验证，增加了很多的重复性工作，无法聚焦核心算法优化。
+## 1.1 项目背景
 
-## 环境依赖
+HPC被喻为是IT行业“金字塔上的明珠”，其部署、编译、运行及性能分析门槛较高。在不同机器上部署HPC应用往往耗时费力，且常需同时维护ARM和X86两套环境进行验证，导致大量重复工作，影响核心算法的优化效率。本项目旨在提供一套跨架构的统一部署工具，简化多环境部署流程，提升整体开发效率。
 
-- X86/ARM架构 + LinuxOS
-- python3
-- environment-modules
-- cmake
+## 1.2 部署场景说明
 
-# 贾维斯使用指导
+### 1.2.1 网络环境
+- 推荐使用具备外网访问能力的服务器（可ping通百度、GitHub等），便于自动下载应用安装包与算例，安装步骤请参考[2.1](#21-场景1在具备外网访问能力的服务器上使用hpcrunner)；
 
-## 下载贾维斯
+- 若服务器无法访问外网，则需要自行下载安装包上传到服务器，详细步骤请参考[2.2](#22-场景2在不具备外网访问能力的服务器上使用hpcrunner)。
 
-执行如下命令安装相关依赖并下载贾维斯
+### 1.2.2 执行环境
 
+使用工具部署时需根据配置文件（config）名称中的关键字段匹配对应的执行环境，示例如下：
+
+| 配置文件示例 | 关键字段 | 执行说明 |
+|--|--|--|
+| data.qe.arm.cpu.config | arm | 需在 ARM 环境执行 |
+| data.qe.arm-sve.cpu.config | arm-sve | 需在支持 SVE 的 ARM 服务器执行 |
+| data.qe.arm.gpu.config | arm+gpu | 需在配备 GPU 的 ARM 服务器执行 |
+| data.qe.x86.gpu.config | x86 | 需在 x86 架构服务器上执行 |
+| data.qe.x86.gpu.config | x86+gpu | 需在配备 GPU 的 x86 服务器执行 |
+
+### 1.2.3 内存和磁盘要求
+- 内存：建议在32G空闲内存的设备上进行安装；
+- 磁盘：建议/tmp目录剩余可用磁盘空间大于100G。
+
+### 1.2.4 OS和内核要求
+- 已验证环境：当前应用已在ARM服务器 搭配openEuler 22.03 SP4系统（内核版本 5.10）上完成编译部署验证；
+- 其他环境：如需在其他操作系统或内核版本中部署，请根据实际编译与安装需求对相关脚本进行相应修改。
+
+# 2 hpcrunner使用指导
+
+请根据目标服务器的网络环境，选择对应的使用指导。
+
+## 2.1 场景1：在具备外网访问能力的服务器上使用hpcrunner
+
+### 2.1.1 使用流程
+
+若用户的目标服务器具备外网访问能力，请按照以下流程操作。
+
+![image.png](https://raw.atomgit.com/user-images/assets/8782283/71280310-5bbc-471f-b0f9-68ca3ac72b8e/image.png 'image.png')
+
+### 2.1.2 安装基础依赖
+
+使用hpcrunner需要安装基础依赖，执行如下命令进行安装：
 ```
 yum -y install git time zlib zlib-devel gcc gcc-c++ environment-modules python python3 python3-devel python3-libs python3-pip cmake make numactl numactl-devel numactl-libs rpmdevtools wget libtirpc libtirpc-devel unzip flex tar patch glibc-devel rpcbind csh perl-XML-LibXML xorg-x11-xauth curl curl-devel libcurl-devel
-git clone https://gitee.com/openeuler/hpcrunner.git
 ```
 
-## 贾维斯目录结构
+### 2.1.3 下载hpcrunner
+
+执行如下命令下载hpcrunner并完成安装：
+```
+git clone https://atomgit.com/openeuler/hpcrunner.git
+```
+
+![图片1.png](https://raw.atomgit.com/user-images/assets/8782283/a1e81840-a09b-45dc-8776-763325e6bf0e/图片1.png '图片1.png')
+
+### 2.1.4 使用hpcrunner安装应用 (以WRF应用为例)
+
+![image.png](https://raw.atomgit.com/user-images/assets/8782283/cd792f94-257c-4bf0-b474-c20a89035c7f/image.png 'image.png')
+
+本章节以WRF为例，介绍如何使用hpcrunner安装应用：
+
+（1）	进入hpcrunner目录
+
+```
+cd hpcrunner
+```
+
+（2）	加载环境变量，编译安装WRF
+
+```
+source init.sh
+./jarvis -use templates/wrf/4.7.1/data.wrf.arm.cpu.config 
+./jarvis -d
+./jarvis -dp
+./jarvis -b
+./jarvis -r
+```
+
+详细解释请参考：[WRF-hpcrunner工具自动化构建与跨平台安装](https://www.hikunpeng.com/zh/developer/techArticles/20251223-1)
+
+注：应用模板(即templates/wrf/4.7.1/data.wrf.arm.cpu.config)根据实际需要安装的软件进行选择替换，其他应用模板请[参考链接](https://atomgit.com/openeuler/hpcrunner/tree/master/templates)。
+
+（3）	配置网络代理（可选）
+
+如具备外网访问能力的服务器下载软件安装包失败，可尝试切换下载源，执行proxy.sh脚本，输入数字选择合适的源。
+
+```
+./proxy.sh
+```
+
+![图片2.png](https://raw.atomgit.com/user-images/assets/8782283/925da12e-4499-4981-a191-7e357563800d/图片2.png '图片2.png')
+
+## 2.2 场景2：在不具备外网访问能力的服务器上使用hpcrunner
+
+### 2.2.1 使用流程
+
+若目标服务器无法访问外网，请按照以下流程操作：
+
+![图片3.jpg](https://raw.atomgit.com/user-images/assets/8782283/fa2a5828-94ca-48ea-b286-1eb95178d907/图片3.jpg '图片3.jpg')
+
+### 2.2.2 操作步骤(以WRF应用为例)
+
+1、	找到一台可联网的服务器，在该服务器上执行以下步骤：
+
+（1）	安装基础依赖并下载hpcrunner，详细步骤请参考[2.1.2](#212-安装基础依赖)和[2.1.3](#213-下载hpcrunner)
+
+（2）	执行以下步骤，下载所有的源码包：
+
+  切换到hpcrunner目录，加载环境变量，指定应用模板
+
+```
+cd hpcrunner && source init.sh && ./jarvis -use templates/wrf/4.7.1/data.wrf.arm.cpu.config
+```
+
+下载应用和依赖软件源码
+
+```
+./jarvis -d && ./jarvis -dp
+```
+
+2、将整个hpcrunner目录拷贝至不具备外网访问能力的目标服务器
+
+3、在不可访问外网的目标服务器上，继续执行以下步骤：
+
+（1）	登录目标服务器，进入压缩包所在目录并解压
+
+（2）	配置本地yum源：
+
+由于目标机无法连接外部yum仓库，必须预先设置好本地或内部软件源，以安装基础系统依赖，详细步骤请参考[链接](https://www.hikunpeng.com/document/detail/zh/kunpengdbs/ecosystemEnable/MariaDB/openmind_mariadb1039_02_0005.html)。
+
+（3）	在目标服务器上安装基础依赖，详细步骤请参考[2.1.2](#212-安装基础依赖)
+
+（4）	在目标服务器上使用hpcrunner安装应用参考[2.1.4](#214-使用hpcrunner安装应用-以wrf应用为例)
+
+
+## 3 hpcrunner详细功能介绍 
+
+### 3.1 目录结构
 
 | 目录/文件     | 说明                                  | 备注                                                   |
 |-----------|-------------------------------------|------------------------------------------------------|
@@ -33,47 +154,16 @@ git clone https://gitee.com/openeuler/hpcrunner.git
 | downloads | 存放依赖库源码包/压缩包                        |                                                      |
 | examples  | 性能小实验                               |                                                      |
 | package   | 存放安装脚本和FAQ                          |                                                      |
-| software  | 软件安装目录(内置精度分析工具)                    | 自动生成<br>apps为应用软件安装目录<br>其他目录参考[option介绍](#option介绍) |
-| src       | 贾维斯源码                               |                                                      |
+| software  | 软件安装目录(内置精度分析工具)                    | 自动生成<br>apps为应用软件安装目录<br>其他目录参考[option介绍](#34-option介绍) |
+| src       | hpcrunner源码                               |                                                      |
 | templates | 常用HPC应用的配置模板                        |                                                      |
-| test      | 贾维斯测试用例                             |                                                      |
+| test      | hpcrunner测试用例                             |                                                      |
 | workloads | 常用HPC应用的算例合集和测试目录                   |                                                      |
-| init.sh   | 贾维斯初始化文件                            |                                                      |
-| jarvis    | 贾维斯启动入口                             |                                                      |
+| init.sh   | hpcrunner初始化文件                            |                                                      |
+| jarvis    | hpcrunner启动入口                             |                                                      |
 | tmp       | 软件编译目录和解压后源码存放目录                    |                                                      |
 
-## 使用贾维斯安装应用流程
-
-以安装 xapp 为例：
-
-步骤1：配置网络代理
-
-```
-#执行proxy脚本，并选择合适的源
-./proxy.sh
-#执行初始化脚本，完成环境变量配置
-source init.sh
-```
-
-步骤2：部署基础环境（目前仅支持HPCKit）
-
-```
-#生效HPCKit安装模板
-./jarvis -use templates/basic_env/data.hpckit.config
-#执行以下命令，完成基础环境部署
-./jarvis -dp
-```
-
-步骤3：生效应用模板
-进入hpcrunner根目录执行如下命令：
-
-```
-./jarvis -use templates/xapp.config
-```
-
-注：贾维斯中包含典型HPC应用模板， 位于目录”hpcrunner/template”中，可直接使用。如要新增应用模板，需遵循一定的格式新建自定义文件app.config。
-
-配置文件格式如下所示
+### 3.2 配置文件（config文件）
 
 | **配置项**      | **说明**                                                                                        | **示例**                                                                                                                                  |
 |--------------|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
@@ -89,51 +179,12 @@ source init.sh
 | [BATCH]      | HPC应用批量运行命令****                                                                               | #!/bin/bash <br>mpirun -np 2 cp2k.psmp H2O-256.inp mpirun -np 2 cp2k.psmp H2O-512.inp                                                   |
 | [PERF]       | 性能分析采集工具额外参数配置                                                                                | perf= -o <br>nsys= <br>ncu=--target-processes all --launch-skip 71434 --launch-count 1                                                  |
 
-步骤4：下载安装包以及相关依赖
-
-```
-./jarvis -d
-```
-
-步骤5：安装应用依赖
-
-```
-./jarvis -dp
-```
-
-步骤6：编译应用
-
-```
-./jarvis -b
-```
-
-步骤7：运行应用
-
-```
-./jarvis -r
-```
-
-## 运行示例
-
-使用默认的应用配置部署运行应用QE-6.4
-
-```
-source init.sh
-./jarvis -use data.config
-./jarvis -d
-./jarvis -dp
-./jarvis -b
-./jarvis -r
-```
-
-# 贾维斯运行指令
-
-## 功能指令介绍
+### 3.3 运行指令
 
 | **功能**                | **命令**                                                                           | **示例/说明**                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 |-----------------------|----------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | 帮助信息                  | ./jarvis -h                                                                      |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| 生效应用模板                | ./jarvis -use /path/app.config                                                   | 由高到低，模板使用优先级顺序：<br>1.通过环境变量JARVIS_CONFIG指定模板, 支持多用户并行使用贾维斯。<br>export JARVIS_CONFIG=/path/app.config<br>2.通过命令”./jarvis -use /path/app.config”指定模板。<br>3.贾维斯根目录下默认模板data.config。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| 生效应用模板                | ./jarvis -use /path/app.config                                                   | 由高到低，模板使用优先级顺序：<br>1.通过环境变量JARVIS_CONFIG指定模板, 支持多用户并行使用hpcrunner。<br>export JARVIS_CONFIG=/path/app.config<br>2.通过命令”./jarvis -use /path/app.config”指定模板。<br>3.hpcrunner根目录下默认模板data.config。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | 一键下载HPC应用             | ./jarvis -d                                                                      | 应用将自动下载[DOWNLOAD]中指定的安装包到downloads目录。<br>**注：**在没有网络场景下，可提前将下载好的安装包放置到downloads目录下                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | 安装依赖                  | ./jarvis -install [package/][name/version/other] [option]                        | 支持安装的软件清单位于package目录下，可在package目录下获取[name/version/other]各字段信息，精确到”install.sh”的上一层目录<br>各参数具体含义：<br>package：可选<br>name：软件名<br>version：软件版本<br>other：子版本，”install.sh”的上一层目录<br>option：指定依赖的编译工具，支持的选项如下表<br>示例如下：<br>1. 安装编译器<br>./jarvis -install hpckit/x.x.x any<br>module use xxx<br>module load bisheng/xxx<br>2. 安装mpi<br>./jarvis -install hpckit/x.x.x any<br>module use xxx<br>module load hmpi/xxx<br>3. 安装依赖<br>module use software/module*<br>module load bisheng/x.x.x<br>module load hmpi/x.x.x<br>export CC=mpicc CXX=mpicxx FC=mpifort <br>./jarvis -install hdf5/1.8.20/clang bisheng+mpi<br>4. 安装工具<br>./jarvis -install hpckit/2025.3.30 any<br>./jarvis -install go/1.18 any |
 | 一键卸载依赖                | ./jarvis -remove xxx                                                             | 支持模糊查询 ./jarvis -remove openblas/0.3.18                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
@@ -149,11 +200,11 @@ source init.sh
 | 一键输出服务器信息             | ./jarvis -i                                                                      | 输出CPU、网卡、OS、内存等信息                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | 一键评测服务器性能             | ./jarvis -bench all ./jarvis -bench mpi ./jarvis -bench omp ./jarvis -bench gemm | 包括HPL、Stream、MPI、OMP、P2P等评测benchmark支持清单位于目录“hpcrunner/benchmark”                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | 一键生成Singularity容器定义文件 | ./jarvis -container docker-hub-address                                           | 需要事先指定应用配置./jarvis -use data.config <br>参数"docker-hub-address"指定基础镜像<br>示例：./jarvis -container openeuler/openeuler                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| 更新依赖库的路径              | ./jarvis -u                                                                      | 如果移动了贾维斯的路径，将自动更新software/modulefiles的路径                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| 更新依赖库的路径              | ./jarvis -u                                                                      | 如果移动了hpcrunner的路径，将自动更新software/modulefiles的路径                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 
-## option介绍
+### 3.4 option介绍
 
-option支持列表如下所示
+./jarvis -install [package/][name/version/other] [option]命令中[option]的使用介绍
 
 | **选项值**     | **解释**             | **安装目录**                  |
 |-------------|--------------------|---------------------------|
@@ -164,26 +215,21 @@ option支持列表如下所示
 | bisheng+mpi | 使用毕昇和当前生效的mpi进行编译  | software/libs/bisheng-mpi |
 | any         | 安装工具软件             | software/utils            |
 
-# 贾维斯支持软件列表
+# 4 hpcrunner支持软件列表
 
 1. [应用列表](doc/support/templates.md)
 2. [依赖列表](doc/support/packages.md)
 
-# FAQ
+# 5 FAQ
 
-Q1：如何在没有网络的环境或者网速很慢的环境下，使用贾维斯完成软件安装部署？
+Q1：如何在没有网络的环境或者网速很慢的环境下，使用hpcrunner完成软件安装部署？
 
-A：
-> 步骤1：寻找一台有外网链接的服务器环境B，执行jarvis -d命令，下载相关依赖
->
-> 步骤2：将事先下载好的安装包即环境B下downloads目录里所有内容，放置到原环境的downloads目录下
->
-> 步骤3：在原来环境下进行后续安装操作
+A：参考[2.2](#22-场景2：在不具备外网访问能力的服务器上使用hpcrunner)
 
 Q2：软件安装目录在哪里？
 
 A：
-> package中的依赖软件：参考[option介绍](#option介绍)的安装目录
+> package中的依赖软件：参考[option介绍](#34-option介绍)的安装目录
 >
 > templates中的应用软件：安装到software/apps，命名规范：使用BiSheng编译器+HMPI编译templates/wrf/4.7.1/data.wrf.arm.cpu.config的安装路径为software/apps/bisheng${BISHENG_VERSION}-hmpi${HMPI_VERSION}/wrf/4.7.1
 
