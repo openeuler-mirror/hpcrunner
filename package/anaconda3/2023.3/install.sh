@@ -1,8 +1,12 @@
 #!/bin/bash
 set -x
 set -e
-. ${DOWNLOAD_TOOL} -u https://repo.anaconda.com/archive/Anaconda3-2023.03-Linux-aarch64.sh
+CUR_ARCH=$(arch)
+if [[ ${CUR_ARCH} != "aarch64" ]]; then
+  CUR_ARCH=x86_64
+fi
+. ${DOWNLOAD_TOOL} -u https://repo.anaconda.com/archive/Anaconda3-2023.03-Linux-${CUR_ARCH}.sh
 yum install libXcomposite libXcursor libXi libXtst libXrandr alsa-lib mesa-libEGL libXdamage mesa-libGL libXScrnSaver -y
-bash ${JARVIS_DOWNLOAD}/Anaconda3-2023.03-Linux-aarch64.sh -u -b -p $1
+bash ${JARVIS_DOWNLOAD}/Anaconda3-2023.03-Linux-${CUR_ARCH}.sh -u -b -p $1
 source $1/etc/profile.d/conda.sh
 conda config --set auto_activate_base false
