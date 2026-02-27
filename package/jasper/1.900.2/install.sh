@@ -12,9 +12,20 @@ tar -xvf ${JARVIS_DOWNLOAD}/${jasper_ver}.tar.gz
 cd ${jasper_ver}
 ./configure --prefix=$1
 
-if command -v clang &> /dev/null; then
-  CLANG_VERSION=$(clang -v 2>&1 | grep -oP 'clang version \K\d+\.\d+\.\d+')
-  if [[ ${CLANG_VERSION} == 17.* ]]; then
+if [ -n "$CC" ] && [ "$($CC --version | grep clang)" ] ; then
+  CLANG_VERSION_LINE=$($CC --version 2>/dev/null | head -n1)
+  if [ -z "$CLANG_VERSION_LINE" ]; then
+    echo "Error: Unable to get version info from $CC" >&2
+    exit 1
+  fi
+  if [[ $CLANG_VERSION_LINE =~ version[[:space:]]+([0-9]+)\. ]]; then
+    CLANG_VERSION=${BASH_REMATCH[1]}
+    echo "CLANG_VERSION"
+  else
+    echo "Error: Failed to parse major version from: $CLANG_VERSION_LINE" >&2
+    exit 1
+  fi
+  if [[ ${CLANG_VERSION} -ge 17 ]]; then
     sed -i '76a #include "jasper/jas_debug.h"' ./src/libjasper/base/jas_getopt.c
     sed -i '76a #include "jasper/jas_debug.h"' ./src/libjasper/bmp/bmp_dec.c
     sed -i '76a #include "jasper/jas_debug.h"' ./src/libjasper/jpc/jpc_t1dec.c
