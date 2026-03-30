@@ -1,0 +1,31 @@
+[SERVER]
+11.11.11.11
+
+[DOWNLOAD]
+
+[DEPENDENCY]
+./jarvis -install hpckit/${HPCKIT_VERSION} any
+module purge
+module use ${JARVIS_ROOT}/software/modulefiles
+module load hpckit${HPCKIT_VERSION}/bisheng/compiler${BISHENG_VERSION}/bishengmodule
+
+[ENV]
+module purge
+module use ${JARVIS_ROOT}/software/modulefiles
+module add hpckit${HPCKIT_VERSION}/bisheng/compiler${BISHENG_VERSION}/bishengmodule
+export CC=clang CXX=clang++ FC=flang
+
+[APP]
+app_name = zlib
+build_dir = ${JARVIS_ROOT}
+binary_dir =
+case_dir =
+
+[BUILD]
+./jarvis -install boost/1.72.0/clang clang
+
+[RUN]
+run = ls ${JARVIS_ROOT}/software/libs/bisheng${BISHENG_VERSION}/boost-clang/1.72.0/*
+binary =
+nodes = 1
+
