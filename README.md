@@ -61,8 +61,6 @@ yum -y install git time zlib zlib-devel gcc gcc-c++ environment-modules python p
 git clone https://atomgit.com/openeuler/hpcrunner.git
 ```
 
-![图片1](./images/图片1_EN.png)
-
 ![图片1.png](https://raw.atomgit.com/user-images/assets/8782283/a1e81840-a09b-45dc-8776-763325e6bf0e/图片1.png '图片1.png')
 
 ### 2.1.4 使用hpcrunner安装应用 (以WRF应用为例)
