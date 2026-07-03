@@ -1,0 +1,1068 @@
+diff -uNr ori/dyn_em/module_advect_em.F opt/dyn_em/module_advect_em.F
+--- ori/dyn_em/module_advect_em.F       2025-03-26 17:51:46.199740760 +0800
++++ opt/dyn_em/module_advect_em.F       2025-03-26 17:50:06.259740760 +0800
+@@ -1353,8 +1353,13 @@
+       IF ( config_flags%periodic_x ) i_end = ite
+
+    DO i = i_start, i_end
++#ifdef BiSheng_MEMSET0
++     vflux(i,kts)=0
++     vflux(i,kte)=0
++#else
+      vflux(i,kts)=0.
+      vflux(i,kte)=0.
++#endif
+    ENDDO
+
+    vert_order_test : IF (vert_order == 6) THEN
+@@ -1762,7 +1767,11 @@
+         IF ( config_flags%polar .AND. (j == jds+1) ) THEN
+           DO k=kts,ktf
+           DO i = i_start, i_end
++#ifdef BiSheng_MEMSET0
++            tendency(i,k,j-1) = 0
++#else
+             tendency(i,k,j-1) = 0.
++#endif
+           END DO
+           END DO
+         ! If j_end were set to jde in a special if statement apart from
+@@ -1772,7 +1781,11 @@
+         ELSE IF( config_flags%polar .AND. (j == jde+1) ) THEN
+           DO k=kts,ktf
+           DO i = i_start, i_end
++#ifdef BiSheng_MEMSET0
++            tendency(i,k,j-1) = 0
++#else
+             tendency(i,k,j-1) = 0.
++#endif
+           END DO
+           END DO
+         ELSE  ! Normal code
+@@ -2031,7 +2044,11 @@
+         IF ( config_flags%polar .AND. (j == jds+1) ) THEN
+           DO k=kts,ktf
+           DO i = i_start, i_end
++#ifdef BiSheng_MEMSET0
++            tendency(i,k,j-1) = 0
++#else
+             tendency(i,k,j-1) = 0.
++#endif
+           END DO
+           END DO
+         ! If j_end were set to jde in a special if statement apart from
+@@ -2041,7 +2058,11 @@
+         ELSE IF( config_flags%polar .AND. (j == jde+1) ) THEN
+           DO k=kts,ktf
+           DO i = i_start, i_end
++#ifdef BiSheng_MEMSET0
++            tendency(i,k,j-1) = 0
++#else
+             tendency(i,k,j-1) = 0.
++#endif
+           END DO
+           END DO
+         ELSE  ! Normal code
+@@ -2268,7 +2289,11 @@
+       IF ( config_flags%polar .AND. (j == jds+1) ) THEN
+         DO k=kts,ktf
+         DO i = i_start, i_end
++#ifdef BiSheng_MEMSET0
++          tendency(i,k,j-1) = 0
++#else
+           tendency(i,k,j-1) = 0.
++#endif
+         END DO
+         END DO
+       ! If j_end were set to jde in a special if statement apart from
+@@ -2278,7 +2303,11 @@
+       ELSE IF( config_flags%polar .AND. (j == jde+1) ) THEN
+         DO k=kts,ktf
+         DO i = i_start, i_end
++#ifdef BiSheng_MEMSET0
++          tendency(i,k,j-1) = 0
++#else
+           tendency(i,k,j-1) = 0.
++#endif
+         END DO
+         END DO
+       ELSE  ! Normal code
+@@ -2469,7 +2498,11 @@
+       IF ( config_flags%polar .AND. (j == jds+1) ) THEN
+         DO k=kts,ktf
+         DO i = i_start, i_end
++#ifdef BiSheng_MEMSET0
++          tendency(i,k,j-1) = 0
++#else
+           tendency(i,k,j-1) = 0.
++#endif
+         END DO
+         END DO
+       ! If j_end were set to jde in a special if statement apart from
+@@ -2479,7 +2512,11 @@
+       ELSE IF( config_flags%polar .AND. (j == jde+1) ) THEN
+         DO k=kts,ktf
+         DO i = i_start, i_end
++#ifdef BiSheng_MEMSET0
++          tendency(i,k,j-1) = 0
++#else
+           tendency(i,k,j-1) = 0.
++#endif
+         END DO
+         END DO
+       ELSE  ! Normal code
+@@ -2608,14 +2645,22 @@
+          IF (jts == jds) THEN
+             DO k=kts,ktf
+             DO i = i_start, i_end
++#ifdef BiSheng_MEMSET0
++               tendency(i,k,jds) = 0
++#else
+                tendency(i,k,jds) = 0.
++#endif
+             END DO
+             END DO
+          END IF
+          IF (jte == jde) THEN
+             DO k=kts,ktf
+             DO i = i_start, i_end
++#ifdef BiSheng_MEMSET0
++               tendency(i,k,jde) = 0
++#else
+                tendency(i,k,jde) = 0.
++#endif
+             END DO
+             END DO
+          END IF
+@@ -2695,14 +2740,22 @@
+    IF ( config_flags%polar .AND. (jts == jds) ) THEN
+       DO i=its,ite
+       DO k=kts,ktf
++#ifdef BiSheng_MEMSET0
++         tendency(i,k,jts)=0
++#else
+          tendency(i,k,jts)=0.
++#endif
+       END DO
+       END DO
+    END IF
+    IF ( config_flags%polar .AND. (jte == jde) ) THEN
+       DO i=its,ite
+       DO k=kts,ktf
++#ifdef BiSheng_MEMSET0
++         tendency(i,k,jts)=0
++#else
+          tendency(i,k,jte)=0.
++#endif
+       END DO
+       END DO
+    END IF
+@@ -2824,8 +2877,13 @@
+       j_end   = jte
+
+       DO i = i_start, i_end
++#ifdef BiSheng_MEMSET0
++         vflux(i,kts)=0
++         vflux(i,kte)=0
++#else
+          vflux(i,kts)=0.
+          vflux(i,kte)=0.
++#endif
+       ENDDO
+
+       ! Polar boundary conditions are like open or specified
+@@ -4188,8 +4246,13 @@
+       j_end   = MIN(jte,jde-1)
+
+       DO i = i_start, i_end
++#ifdef BiSheng_MEMSET0
++         vflux(i,kts)=0
++         vflux(i,kte)=0
++#else
+          vflux(i,kts)=0.
+          vflux(i,kte)=0.
++#endif
+       ENDDO
+
+     vert_order_test : IF (vert_order == 6) THEN
+@@ -5856,8 +5919,13 @@
+       j_end   = MIN(jte,jde-1)
+
+       DO i = i_start, i_end
++#ifdef BiSheng_MEMSET0
++         vflux(i,kts)=0
++         vflux(i,kte)=0
++#else
+          vflux(i,kts)=0.
+          vflux(i,kte)=0.
++#endif
+       ENDDO
+
+     vert_order_test : IF (vert_order == 6) THEN
+@@ -6198,12 +6266,21 @@
+
+     ! Empty arrays just in case:
+     IF (config_flags%polar) THEN
++#ifdef BiSheng_MEMSET0
++       fqx(:,:,:)  = 0
++       fqy(:,:,:)  = 0
++       fqz(:,:,:)  = 0
++       fqxl(:,:,:) = 0
++       fqyl(:,:,:) = 0
++       fqzl(:,:,:) = 0
++#else
+        fqx(:,:,:)  = 0.
+        fqy(:,:,:)  = 0.
+        fqz(:,:,:)  = 0.
+        fqxl(:,:,:) = 0.
+        fqyl(:,:,:) = 0.
+        fqzl(:,:,:) = 0.
++#endif
+     END IF
+
+   ktf=MIN(kte,kde-1)
+@@ -7388,10 +7465,17 @@
+       DO j = j_start, j_end
+
+          DO i = i_start, i_end
++#ifdef BiSheng_MEMSET0
++           fqz(i,1,j)  = 0
++           fqzl(i,1,j) = 0
++           fqz(i,kde,j)  = 0
++           fqzl(i,kde,j) = 0
++#else
+            fqz(i,1,j)  = 0.
+            fqzl(i,1,j) = 0.
+            fqz(i,kde,j)  = 0.
+            fqzl(i,kde,j) = 0.
++#endif
+          ENDDO
+
+          DO k=kts+3,ktf-2
+@@ -7461,10 +7545,17 @@
+       DO j = j_start, j_end
+
+          DO i = i_start, i_end
++#ifdef BiSheng_MEMSET0
++           fqz(i,1,j)  = 0
++           fqzl(i,1,j) = 0
++           fqz(i,kde,j)  = 0
++           fqzl(i,kde,j) = 0
++#else
+            fqz(i,1,j)  = 0.
+            fqzl(i,1,j) = 0.
+            fqz(i,kde,j)  = 0.
+            fqzl(i,kde,j) = 0.
++#endif
+          ENDDO
+
+          DO k=kts+3,ktf-2
+@@ -7534,10 +7625,17 @@
+       DO j = j_start, j_end
+
+          DO i = i_start, i_end
++#ifdef BiSheng_MEMSET0
++           fqz(i,1,j)  = 0
++           fqzl(i,1,j) = 0
++           fqz(i,kde,j)  = 0
++           fqzl(i,kde,j) = 0
++#else
+            fqz(i,1,j)  = 0.
+            fqzl(i,1,j) = 0.
+            fqz(i,kde,j)  = 0.
+            fqzl(i,kde,j) = 0.
++#endif
+          ENDDO
+
+          DO k=kts+2,ktf-1
+@@ -7585,10 +7683,17 @@
+       DO j = j_start, j_end
+
+          DO i = i_start, i_end
++#ifdef BiSheng_MEMSET0
++           fqz(i,1,j)  = 0
++           fqzl(i,1,j) = 0
++           fqz(i,kde,j)  = 0
++           fqzl(i,kde,j) = 0
++#else
+            fqz(i,1,j)  = 0.
+            fqzl(i,1,j) = 0.
+            fqz(i,kde,j)  = 0.
+            fqzl(i,kde,j) = 0.
++#endif
+          ENDDO
+
+          DO k=kts+2,ktf-1
+@@ -7637,10 +7742,17 @@
+       DO j = j_start, j_end
+
+          DO i = i_start, i_end
++#ifdef BiSheng_MEMSET0
++           fqz(i,1,j)  = 0
++           fqzl(i,1,j) = 0
++           fqz(i,kde,j)  = 0
++           fqzl(i,kde,j) = 0
++#else
+            fqz(i,1,j)  = 0.
+            fqzl(i,1,j) = 0.
+            fqz(i,kde,j)  = 0.
+            fqzl(i,kde,j) = 0.
++#endif
+          ENDDO
+
+          DO k=kts+1,ktf
+@@ -8475,8 +8587,13 @@
+       j_end   = MIN(jte,jde-1)
+
+       DO i = i_start, i_end
++#ifdef BiSheng_MEMSET0
++         vflux(i,kts)=0
++         vflux(i,kte)=0
++#else
+          vflux(i,kts)=0.
+          vflux(i,kte)=0.
++#endif
+       ENDDO
+
+
+@@ -8700,12 +8817,21 @@
+
+     ! Empty arrays just in case:
+     IF (config_flags%polar) THEN
+-       fqx(:,:,:)  = 0.
+-       fqy(:,:,:)  = 0.
+-       fqz(:,:,:)  = 0.
+-       fqxl(:,:,:) = 0.
+-       fqyl(:,:,:) = 0.
+-       fqzl(:,:,:) = 0.
++#ifdef BiSheng_MEMSET0
++           fqx(:,:,:)  = 0
++           fqy(:,:,:)  = 0
++           fqz(:,:,:)  = 0
++           fqxl(:,:,:) = 0
++           fqyl(:,:,:) = 0
++           fqzl(:,:,:) = 0
++#else
++           fqx(:,:,:)  = 0.
++           fqy(:,:,:)  = 0.
++           fqz(:,:,:)  = 0.
++           fqxl(:,:,:) = 0.
++           fqyl(:,:,:) = 0.
++           fqzl(:,:,:) = 0.
++#endif
+     END IF
+
+   ktf=MIN(kte,kde-1)
+@@ -9207,10 +9333,17 @@
+       DO j = j_start, j_end
+
+          DO i = i_start, i_end
++#ifdef BiSheng_MEMSET0
++           fqz(i,1,j)  = 0
++           fqzl(i,1,j) = 0
++           fqz(i,kde,j)  = 0
++           fqzl(i,kde,j) = 0
++#else
+            fqz(i,1,j)  = 0.
+            fqzl(i,1,j) = 0.
+            fqz(i,kde,j)  = 0.
+            fqzl(i,kde,j) = 0.
++#endif
+          ENDDO
+
+          DO k=kts+3,ktf-2
+@@ -9613,12 +9746,21 @@
+     qmax(i,k,j) = field_old(i,k,j)
+     scale_in(i,k,j) = 1.
+     scale_out(i,k,j) = 1.
+-    fqx(i,k,j) = 0.
+-    fqy(i,k,j) = 0.
+-    fqz(i,k,j) = 0.
+-    fqxl(i,k,j) = 0.
+-    fqyl(i,k,j) = 0.
+-    fqzl(i,k,j) = 0.
++#ifdef BiSheng_MEMSET0
++           fqx(i,k,j) = 0
++           fqy(i,k,j) = 0
++           fqz(i,k,j) = 0
++           fqxl(i,k,j) = 0
++           fqyl(i,k,j) = 0
++           fqzl(i,k,j) = 0
++#else
++           fqx(i,k,j) = 0.
++           fqy(i,k,j) = 0.
++           fqz(i,k,j) = 0.
++           fqxl(i,k,j) = 0.
++           fqyl(i,k,j) = 0.
++           fqzl(i,k,j) = 0.
++#endif
+   enddo
+   enddo
+   enddo
+@@ -10108,10 +10250,17 @@
+       DO j = j_start, j_end
+
+          DO i = i_start, i_end
++#ifdef BiSheng_MEMSET0
++           fqz(i,1,j)  = 0
++           fqzl(i,1,j) = 0
++           fqz(i,kde,j)  = 0
++           fqzl(i,kde,j) = 0
++#else
+            fqz(i,1,j)  = 0.
+            fqzl(i,1,j) = 0.
+            fqz(i,kde,j)  = 0.
+            fqzl(i,kde,j) = 0.
++#endif
+          ENDDO
+
+          DO k=kts+2,ktf-1
+@@ -10177,10 +10326,17 @@
+       DO j = j_start, j_end
+
+          DO i = i_start, i_end
++#ifdef BiSheng_MEMSET0
++           fqz(i,1,j)  = 0
++           fqzl(i,1,j) = 0
++           fqz(i,kde,j)  = 0
++           fqzl(i,kde,j) = 0
++#else
+            fqz(i,1,j)  = 0.
+            fqzl(i,1,j) = 0.
+            fqz(i,kde,j)  = 0.
+            fqzl(i,kde,j) = 0.
++#endif
+          ENDDO
+
+          DO k=kts+3,ktf-2
+@@ -11396,8 +11552,13 @@
+       IF ( config_flags%periodic_x ) i_end = ite
+
+    DO i = i_start, i_end
++#ifdef BiSheng_MEMSET0
++     vflux(i,kts)=0
++     vflux(i,kte)=0
++#else
+      vflux(i,kts)=0.
+      vflux(i,kte)=0.
++#endif
+    ENDDO
+
+ !   vert_order_test : IF (vert_order == 6) THEN
+@@ -11773,7 +11934,11 @@
+         IF ( config_flags%polar .AND. (j == jds+1) ) THEN
+           DO k=kts,ktf
+           DO i = i_start, i_end
+-            tendency(i,k,j-1) = 0.
++#ifdef BiSheng_MEMSET0
++           tendency(i,k,j-1) = 0
++#else
++           tendency(i,k,j-1) = 0.
++#endif
+           END DO
+           END DO
+         ! If j_end were set to jde in a special if statement apart from
+@@ -11783,7 +11948,11 @@
+         ELSE IF( config_flags%polar .AND. (j == jde+1) ) THEN
+           DO k=kts,ktf
+           DO i = i_start, i_end
+-            tendency(i,k,j-1) = 0.
++#ifdef BiSheng_MEMSET0
++           tendency(i,k,j-1) = 0
++#else
++           tendency(i,k,j-1) = 0.
++#endif
+           END DO
+           END DO
+         ELSE  ! Normal code
+@@ -11950,14 +12119,22 @@
+    IF ( config_flags%polar .AND. (jts == jds) ) THEN
+       DO i=its,ite
+       DO k=kts,ktf
++#ifdef BiSheng_MEMSET0
++         tendency(i,k,jts)=0
++#else
+          tendency(i,k,jts)=0.
++#endif
+       END DO
+       END DO
+    END IF
+    IF ( config_flags%polar .AND. (jte == jde) ) THEN
+       DO i=its,ite
+       DO k=kts,ktf
++#ifdef BiSheng_MEMSET0
++         tendency(i,k,jte)=0
++#else
+          tendency(i,k,jte)=0.
++#endif
+       END DO
+       END DO
+    END IF
+@@ -12079,8 +12256,13 @@
+       j_end   = jte
+
+       DO i = i_start, i_end
++#ifdef BiSheng_MEMSET0
++         vflux(i,kts)=0
++         vflux(i,kte)=0
++#else
+          vflux(i,kts)=0.
+          vflux(i,kte)=0.
++#endif
+       ENDDO
+
+       ! Polar boundary conditions are like open or specified
+@@ -12910,8 +13092,13 @@
+       j_end   = MIN(jte,jde-1)
+
+       DO i = i_start, i_end
++#ifdef BiSheng_MEMSET0
++         vflux(i,kts)=0
++         vflux(i,kte)=0
++#else
+          vflux(i,kts)=0.
+          vflux(i,kte)=0.
++#endif
+       ENDDO
+
+ !    vert_order_test : IF (vert_order == 6) THEN
+diff -uNr ori/dyn_em/module_small_step_em.F opt/dyn_em/module_small_step_em.F
+--- ori/dyn_em/module_small_step_em.F   2025-03-26 17:51:46.199740760 +0800
++++ opt/dyn_em/module_small_step_em.F   2025-03-26 17:49:44.979740760 +0800
+@@ -130,9 +130,15 @@
+       DO j=j_start, j_end
+       DO i=i_start, i_end
+         MU_1(i,j)=MU_2(i,j)
++#ifdef BiSheng_MEMSET0
++        ww_save(i,kde,j) = 0
++        ww_save(i,1,j) = 0
++        MUDF(i,j) = 0  !  initialize external mode div damp to zero
++#else
+         ww_save(i,kde,j) = 0.
+         ww_save(i,1,j) = 0.
+         MUDF(i,j) = 0.  !  initialize external mode div damp to zero
++#endif
+       ENDDO
+       ENDDO
+
+@@ -187,7 +193,11 @@
+     DO j=j_start, j_end
+       DO i=i_start, i_end
+         MU_SAVE(i,j)=MU_2(i,j)
++#ifdef BiSheng_MEMSET0
++        MU_2(i,j)=0
++#else
+         MU_2(i,j)=0.
++#endif
+       ENDDO
+     ENDDO
+
+@@ -222,8 +232,13 @@
+
+       DO j=j_start, j_end
+       DO i=i_start, i_end
++#ifdef BiSheng_MEMSET0
++        ww_save(i,kde,j) = 0
++        ww_save(i,1,j) = 0
++#else
+         ww_save(i,kde,j) = 0.
+         ww_save(i,1,j) = 0.
++#endif
+       ENDDO
+       ENDDO
+
+@@ -622,9 +637,17 @@
+         k = kde-1
+         DO i = i_start, i_end
+           cof(i)  = (.5*dts*g*(1.+epssm))**2
++#ifdef BiSheng_MEMSET0
++          a(i, 2 ,j) = 0
++#else
+           a(i, 2 ,j) = 0.
++#endif
+           a(i,kde,j) =-2.*cof(i)*rdnw(kde-1)**2*c2a(i,kde-1,j)*lid_flag/((c1h(k)*MUT(i,j)+c2h(k))*(c1f(k)*MUT(i,j)+c2f(k)))
++#ifdef BiSheng_MEMSET0
++          gamma(i,1 ,j) = 0
++#else
+           gamma(i,1 ,j) = 0.
++#endif
+         ENDDO
+         DO kk=3,kde-1
+         k=kk-1
+@@ -644,7 +667,11 @@
+         k=kde
+         DO i=i_start, i_end
+           b = 1.+2.*cof(i)*rdnw(kde-1)**2*c2a(i,kde-1,j)/((c1h(k-1)*MUT(i,j)+c2h(k-1))*(c1f(k)*MUT(i,j)+c2f(k)))
++#ifdef BiSheng_MEMSET0
++          c = 0
++#else
+           c = 0.
++#endif
+           alpha(i,kde,j) = 1./(b-a(i,kde,j)*gamma(i,kde-1,j))
+           gamma(i,kde,j) = c*alpha(i,kde,j)
+         ENDDO
+@@ -717,6 +744,9 @@
+       REAL, DIMENSION (its:ite, kts:kte) :: dpn, dpxy
+       REAL, DIMENSION (its:ite) :: mudf_xy
+       REAL                      :: dx, dy
++#ifdef BiSheng_HOIST
++      REAL, DIMENSION( ims:ime) :: tmp
++#endif
+       INTEGER :: i,j,k, i_start, i_end, j_start, j_end, k_start, k_end
+       INTEGER :: i_endu, j_endv, k_endw
+       INTEGER :: i_start_up, i_end_up, j_start_up, j_end_up
+@@ -808,6 +838,11 @@
+    DO i = i_start_up, i_end_up
+      MUDF_XY(i)= -emdiv*dx*(MUDF(i,j)-MUDF(i-1,j))/msfuy(i,j)
+    ENDDO
++#ifdef BiSheng_HOIST
++   DO i = i_start_up, i_end_up
++        tmp(i) = msfux(i,j)/msfuy(i,j)*.5*rdx
++   ENDDO
++#endif
+    DO k = k_start, k_end
+    DO i = i_start_up, i_end_up
+ !     Comments on map scale factors:
+@@ -825,7 +860,11 @@
+ !     since we want tendency to fit ADT eqn 44 (coupled) we need to
+ !     multiply by (mx/my):
+ !
++#ifdef BiSheng_HOIST
++     dpxy(i,k)= tmp(i)*(c1h(k)*muu(i,j)+c2h(k))*(         &
++#else
+      dpxy(i,k)= (msfux(i,j)/msfuy(i,j))*.5*rdx*(c1h(k)*muu(i,j)+c2h(k))*(         &
++#endif
+        ((ph (i,k+1,j)-ph (i-1,k+1,j))+(ph (i,k,j)-ph (i-1,k,j)))  &
+       +(alt(i,k  ,j)+alt(i-1,k  ,j))*(p  (i,k,j)-p  (i-1,k,j))  &
+       +(al (i,k  ,j)+al (i-1,k  ,j))*(pb (i,k,j)-pb (i-1,k,j)) )
+@@ -856,9 +895,18 @@
+ !    php, dpn, mu not coupled
+ !    since we want tendency to fit ADT eqn 44 (coupled) we need to
+ !    multiply by (mx/my):
++#ifdef BiSheng_HOIST
++     DO i = i_start_up, i_end_up
++       tmp(i) = msfux(i,j)/msfuy(i,j)*rdx
++     ENDDO
++#endif
+      DO k = k_start, k_end
+        DO i = i_start_up, i_end_up
++#ifdef BiSheng_HOIST
++         dpxy(i,k)=dpxy(i,k) + tmp(i)*(php(i,k,j)-php(i-1,k,j))*        &
++#else
+          dpxy(i,k)=dpxy(i,k) + (msfux(i,j)/msfuy(i,j))*rdx*(php(i,k,j)-php(i-1,k,j))*        &
++#endif
+            (rdnw(k)*(dpn(i,k+1)-dpn(i,k))-.5*((c1h(k)*mu(i-1,j))+(c1h(k)*mu(i,j))))
+        ENDDO
+      ENDDO
+@@ -881,6 +929,11 @@
+    ENDDO
+      IF (     ( j >= j_start_vp)  &
+        .and.( j <= j_end_vp  ) )  THEN
++#ifdef BiSheng_HOIST
++         DO i = i_start, i_end
++           tmp(i) = msfvy(i,j)/msfvx(i,j)*.5*rdy
++         ENDDO
++#endif
+          DO k = k_start, k_end
+   DO i = i_start, i_end
+ !      Comments on map scale factors:
+@@ -899,7 +952,11 @@
+ !      multiply by (my/mx):
+ !      mudf_xy is NOT a map scale factor coupling
+ !      it is some sort of divergence damping
++#ifdef BiSheng_HOIST
++       dpxy(i,k)= tmp(i)*(c1h(k)*muv(i,j)+c2h(k))*(       &
++#else
+        dpxy(i,k)= (msfvy(i,j)/msfvx(i,j))*.5*rdy*(c1h(k)*muv(i,j)+c2h(k))*(       &
++#endif
+         ((ph(i,k+1,j)-ph(i,k+1,j-1))+(ph (i,k,j)-ph (i,k,j-1)))   &
+         +(alt(i,k  ,j)+alt(i,k  ,j-1))*(p  (i,k,j)-p  (i,k,j-1))  &
+         +(al (i,k  ,j)+al (i,k  ,j-1))*(pb (i,k,j)-pb (i,k,j-1)) )
+@@ -910,7 +967,11 @@
+          dpn(i,1) = .5*( cf1*(p(i,1,j)+p(i,1,j-1))  &
+                         +cf2*(p(i,2,j)+p(i,2,j-1))  &
+                         +cf3*(p(i,3,j)+p(i,3,j-1)) )
++#ifdef BiSheng_MEMSET0
++         dpn(i,kde) = 0
++#else
+          dpn(i,kde) = 0.
++#endif
+        ENDDO
+      IF (top_lid) THEN
+        DO i = i_start, i_end
+@@ -930,9 +991,18 @@
+ !      php, dpn, mu not coupled
+ !      since we want tendency to fit ADT eqn 45 (coupled) we need to
+ !      multiply by (my/mx):
++#ifdef BiSheng_HOIST
++       DO i = i_start, i_end
++        tmp(i) = msfvy(i,j)/msfvx(i,j)*rdy
++       ENDDO
++#endif
+        DO k = k_start, k_end
+          DO i = i_start, i_end
++#ifdef BiSheng_HOIST
++           dpxy(i,k)=dpxy(i,k) + tmp(i)*(php(i,k,j)-php(i,k,j-1))*    &
++#else
+            dpxy(i,k)=dpxy(i,k) + (msfvy(i,j)/msfvx(i,j))*rdy*(php(i,k,j)-php(i,k,j-1))*    &
++#endif
+              (rdnw(k)*(dpn(i,k+1)-dpn(i,k))-.5*((c1h(k)*mu(i,j-1))+(c1h(k)*mu(i,j))))
+          ENDDO
+        ENDDO
+@@ -952,14 +1022,22 @@
+      IF (jts == jds) THEN
+         DO k = k_start, k_end
+         DO i = i_start, i_end
++#ifdef BiSheng_MEMSET0
++           v(i,k,jds) = 0
++#else
+            v(i,k,jds) = 0.
++#endif
+         ENDDO
+         ENDDO
+      END IF
+      IF (jte == jde) THEN
+         DO k = k_start, k_end
+         DO i = i_start, i_end
++#ifdef BiSheng_MEMSET0
++           v(i,k,jde) = 0
++#else
+            v(i,k,jde) = 0.
++#endif
+         ENDDO
+         ENDDO
+      END IF
+@@ -1036,6 +1114,10 @@
+   INTEGER :: i, j, k, kk, i_start, i_end, j_start, j_end, k_start, k_end
+   INTEGER :: i_endu, j_endv
+   REAL    :: acc
++#ifdef BiSheng_HOIST
++  REAL, DIMENSION( ims:ime ) :: tmp, tmp1
++#endif
++
+ !<DESCRIPTION>
+ !
+ !  advance_mu_t advances the explicit perturbation theta equation and the mass
+@@ -1066,7 +1148,11 @@
+ !        CALCULATION OF WW (dETA/dt)
+    DO j = j_start, j_end
+      DO i=i_start, i_end
++#ifdef BiSheng_MEMSET0
++            DMDT(i) = 0
++#else
+             DMDT(i) = 0.
++#endif
+      ENDDO
+ !  NOTE:  mu is not coupled with the map scale factor.
+ !         ww (omega) IS coupled with the map scale factor.
+@@ -1089,9 +1175,18 @@
+ !
+ !  [don't divide the below by msfty until find ww, since dmdt is used in
+ !   the meantime]
++#ifdef BiSheng_HOIST
++     DO i=i_start, i_end
++       tmp(i) = msftx(i,j)*msfty(i,j)
++     ENDDO
++#endif
+      DO k=k_start, k_end
+      DO i=i_start, i_end
++#ifdef BiSheng_HOIST
++         dvdxi(i,k) = tmp(i)*(                                                     &
++#else
+          dvdxi(i,k) = msftx(i,j)*msfty(i,j)*(                                      &
++#endif
+                      rdy*( (v(i,k,j+1)+(c1h(k)*muv(i,j+1)+c2h(k))*v_1(i,k,j+1)*msfvx_inv(i,j+1))   &
+                           -(v(i,k,j  )+(c1h(k)*muv(i,j  )+c2h(k))*v_1(i,k,j  )*msfvx_inv(i,j  )) ) &
+                     +rdx*( (u(i+1,k,j)+(c1h(k)*muu(i+1,j)+c2h(k))*u_1(i+1,k,j)/msfuy(i+1,j))       &
+@@ -1136,17 +1231,31 @@
+ ! (had been divided by msfty)
+ ! need to uncouple before updating uncoupled Theta (by adding)
+    DO j=j_start, j_end
++#ifdef BiSheng_HOIST
++     DO i=i_start, i_end
++       tmp(i) = msfty(i,j)*dts
++     ENDDO
++#endif
+      DO k=1,k_end
+      DO i=i_start, i_end
+        t_ave(i,k,j) = t(i,k,j)
++#ifdef BiSheng_HOIST
++       t   (i,k,j) = t(i,k,j) + tmp(i)*ft(i,k,j)
++#else
+        t   (i,k,j) = t(i,k,j) + msfty(i,j)*dts*ft(i,k,j)
++#endif
+      END DO
+      END DO
+    ENDDO
+    DO j=j_start, j_end
+      DO i=i_start, i_end
++#ifdef BiSheng_MEMSET0
++       wdtn(i,1  )=0
++       wdtn(i,kde)=0
++#else
+        wdtn(i,1  )=0.
+        wdtn(i,kde)=0.
++#endif
+      ENDDO
+      DO k=2,k_end
+      DO i=i_start, i_end
+@@ -1156,9 +1265,25 @@
+      ENDDO
+ ! scalar eqn, RHS terms 1, 2 and 3
+ ! multiply by msfty to uncouple result for Theta from map scale factor
++#ifdef BiSheng_HOIST
++     DO i=i_start, i_end
++        tmp(i) = dts*msfty(i,j)
++        tmp1(i) = tmp(i) * msftx(i,j) * .5
++     ENDDO
++#endif
+      DO k=1,k_end
+      DO i=i_start, i_end
+        ! multiplication by msfty uncouples result for Theta
++#ifdef BiSheng_HOIST
++       t(i,k,j) = t(i,k,j) - (              &
++                      tmp1(i)*rdy*                                     &
++                     ( v(i,k,j+1)*(t_1(i,k,j+1)+t_1(i,k, j ))     &
++                      -v(i,k,j  )*(t_1(i,k, j )+t_1(i,k,j-1)) )   &
++                    + tmp1(i)*rdx*                                     &
++                     ( u(i+1,k,j)*(t_1(i+1,k,j)+t_1(i  ,k,j))     &
++                      -u(i  ,k,j)*(t_1(i  ,k,j)+t_1(i-1,k,j)) )  &
++                    + tmp(i)*rdnw(k)*( wdtn(i,k+1)-wdtn(i,k) ) )
++#else
+        t(i,k,j) = t(i,k,j) - dts*msfty(i,j)*(              &
+                           ! multiplication by mx needed for RHS terms 1 & 2
+                           msftx(i,j)*(                     &
+@@ -1168,7 +1293,8 @@
+              + .5*rdx*                                     &
+               ( u(i+1,k,j)*(t_1(i+1,k,j)+t_1(i  ,k,j))     &
+                -u(i  ,k,j)*(t_1(i  ,k,j)+t_1(i-1,k,j)) ) ) &
+-             + rdnw(k)*( wdtn(i,k+1)-wdtn(i,k) ) )
++             + rdnw(k)*( wdtn(i,k+1)-wdtn(i,k) ) )
++#endif
+      ENDDO
+      ENDDO
+    ENDDO
+@@ -1303,7 +1429,11 @@
+ !
+ !  'u,v,w' sent here must be coupled variables (= rho w/my etc.) by their usage
+     DO i=i_start, i_end
++#ifdef BiSheng_MEMSET0
++      rhs(i,1) = 0
++#else
+       rhs(i,1) = 0.
++#endif
+     ENDDO
+   j_loop_w:  DO j = j_start, j_end
+     DO i=i_start, i_end
+@@ -1516,7 +1646,29 @@
+   minj = min(jde-1,jte)
+   mink = min(kde-1,kte)
+
+-
++#ifdef BiSheng_LS
++    DO  j = jts, minj
++    DO  k = kts, mink
++    DO  i = its, mini
++      ru_m(i,k,j)  = ru_m(i,k,j) + ru(i,k,j)
++    ENDDO
++    ENDDO
++    ENDDO
++    DO  j = jts, minj
++    DO  k = kts, mink
++    DO  i = its, mini
++      rv_m(i,k,j)  = rv_m(i,k,j) + rv(i,k,j)
++    ENDDO
++    ENDDO
++    ENDDO
++    DO  j = jts, minj
++    DO  k = kts, mink
++    DO  i = its, mini
++      ww_m(i,k,j)  = ww_m(i,k,j) + ww(i,k,j)
++    ENDDO
++    ENDDO
++    ENDDO
++#else
+     DO  j = jts, minj
+     DO  k = kts, mink
+     DO  i = its, mini
+@@ -1526,6 +1678,7 @@
+     ENDDO
+     ENDDO
+     ENDDO
++#endif
+
+     IF (ite .GT. mini) THEN
+       DO  j = jts, minj
+@@ -1556,7 +1709,32 @@
+     END IF
+
+   IF (iteration == number_of_small_timesteps) THEN
+-
++#ifdef BiSheng_LS
++    DO  j = jts, minj
++    DO  k = kts, mink
++    DO  i = its, mini
++      ru_m(i,k,j)  = ru_m(i,k,j) / number_of_small_timesteps   &
++                     + (c1h(k)*muu(i,j)+c2h(k))*u_lin(i,k,j)/msfuy(i,j)
++    ENDDO
++    ENDDO
++    ENDDO
++    DO  j = jts, minj
++    DO  k = kts, mink
++    DO  i = its, mini
++      rv_m(i,k,j)  = rv_m(i,k,j) / number_of_small_timesteps   &
++                     + (c1h(k)*muv(i,j)+c2h(k))*v_lin(i,k,j)*msfvx_inv(i,j)
++    ENDDO
++    ENDDO
++    ENDDO
++    DO  j = jts, minj
++    DO  k = kts, mink
++    DO  i = its, mini
++      ww_m(i,k,j)  = ww_m(i,k,j) / number_of_small_timesteps   &
++                     + ww_lin(i,k,j)
++    ENDDO
++    ENDDO
++    ENDDO
++#else
+     DO  j = jts, minj
+     DO  k = kts, mink
+     DO  i = its, mini
+@@ -1569,6 +1747,7 @@
+     ENDDO
+     ENDDO
+     ENDDO
++#endif
+
+
+     IF (ite .GT. mini) THEN
+diff -uNr ori/phys/module_ra_rrtmg_sw.F opt/phys/module_ra_rrtmg_sw.F
+--- ori/phys/module_ra_rrtmg_sw.F       2025-03-26 17:51:46.203740760 +0800
++++ opt/phys/module_ra_rrtmg_sw.F       2025-03-26 17:50:19.083740760 +0800
+@@ -7978,7 +7978,11 @@
+       integer(kind=im) :: ikp, ikx, jk
+
+       real(kind=rb) :: zreflect
+-      real(kind=rb) :: ztdn(klev+1)
++      real(kind=rb) :: ztdn(klev+1)
++
++#ifdef BiSheng_PC
++      real(kind=rb) :: prup1, prupd1, ztdn0, prdnd0
++#endif
+
+ ! Definitions
+ !
+@@ -8002,7 +8006,22 @@
+                     prefd(klev+1) * zreflect
+
+ ! Pass from bottom to top
+-
++#ifdef BiSheng_PC
++      prup1 = prup(klev)
++      prupd1 = prupd(klev)
++      do jk = 1,klev-1
++         ikp = klev+1-jk
++         ikx = ikp-1
++         zreflect = 1._rb / (1._rb -prupd1 * prefd(ikx))
++         prup(ikx) = pref(ikx) + (ptrad(ikx) * &
++                   ((ptra(ikx) - pdbt(ikx)) * prupd1 + &
++                     pdbt(ikx) * prup1)) * zreflect
++         prupd(ikx) = prefd(ikx) + ptrad(ikx) * ptrad(ikx) * &
++                      prupd1 * zreflect
++         prup1 = prup(ikx)
++         prupd1 = prupd(ikx)
++      enddo
++#else
+       do jk = 1,klev-1
+          ikp = klev+1-jk
+          ikx = ikp-1
+@@ -8013,7 +8032,8 @@
+          prupd(ikx) = prefd(ikx) + ptrad(ikx) * ptrad(ikx) * &
+                       prupd(ikp) * zreflect
+       enddo
+-
++#endif
++
+ ! Upper boundary conditions
+
+       ztdn(1) = 1._rb
+@@ -8022,7 +8042,21 @@
+       prdnd(2) = prefd(1)
+
+ ! Pass from top to bottom
+-
++#ifdef BiSheng_PC
++      ztdn0 = ztdn(2)
++      prdnd0 = prdnd(2)
++      do jk = 2,klev
++         ikp = jk+1
++         zreflect = 1._rb / (1._rb - prefd(jk) * prdnd0)
++         ztdn(ikp) = ptdbt(jk) * ptra(jk) + &
++                    (ptrad(jk) * ((ztdn0 - ptdbt(jk)) + &
++                     ptdbt(jk) * pref(jk) * prdnd0)) * zreflect
++         prdnd(ikp) = prefd(jk) + ptrad(jk) * ptrad(jk) * &
++                      prdnd0 * zreflect
++         ztdn0 = ztdn(ikp)
++         prdnd0 = prdnd(ikp)
++      enddo
++#else
+       do jk = 2,klev
+          ikp = jk+1
+          zreflect = 1._rb / (1._rb - prefd(jk) * prdnd(jk))
+@@ -8032,6 +8066,7 @@
+          prdnd(ikp) = prefd(jk) + ptrad(jk) * ptrad(jk) * &
+                       prdnd(jk) * zreflect
+       enddo
++#endif
+
+ ! Up and down-welling fluxes at levels
+
+@@ -8300,6 +8335,10 @@
+ !     real(kind=rb) :: zbbfd(nlayers+1), zbbfu(nlayers+1)
+ !     real(kind=rb) :: zbbfddir(nlayers+1), zbbcddir(nlayers+1)
+
++#ifdef BiSheng_PC
++      real(kind=rb) :: ztdbtc_nodel0
++#endif
++
+ ! ------------------------------------------------------------------
+
+ ! Initializations
+@@ -8409,7 +8448,11 @@
+             zrefd(klev+1)=palbd(ibm)
+             zrup(klev+1) =palbp(ibm)
+             zrupd(klev+1)=palbd(ibm)
+-
++
++#ifdef BiSheng_PC
++            ztdbtc_nodel0 = ztdbtc_nodel(1)
++#endif
++
+ ! Top of layer loop
+             do jk=1,klev
+
+@@ -8465,8 +8508,11 @@
+                endif
+
+                zdbtc_nodel(jk) = zdbtmc
++#ifdef BiSheng_PC
++               ztdbtc_nodel(jk+1) = zdbtc_nodel(jk) * ztdbtc_nodel0
++#else
+                ztdbtc_nodel(jk+1) = zdbtc_nodel(jk) * ztdbtc_nodel(jk)
+-
++#endif
+ ! Clear + Cloud
+                tauorig = ztauc(jk) + ptaormc(ikl,iw)
+ !                zdbtmo = exp(-tauorig / prmu0)
+@@ -8522,7 +8568,9 @@
+                   zomco(jk) = (zomco(jk) - zwf) / (1.0_rb - zwf)
+                   zgco (jk) = (zgco(jk) - zf) / (1.0_rb - zf)
+                endif
+-
++#ifdef BiSheng_PC
++               ztdbtc_nodel0 = ztdbtc_nodel(jk+1)
++#endif
+ ! End of layer loop
+             enddo
+
+
+
