@@ -1,5 +1,7 @@
 # HPCRunner : 智能助手，一站式部署调优HPC应用
 
+简体中文 | [English](./README.md)
+
 ![贾维斯](./images/jarvis-logo.png)
 
 # 1 概述
@@ -224,7 +226,7 @@ cd hpcrunner && source init.sh && ./jarvis -use templates/wrf/4.7.1/data.wrf.arm
 
 Q1：如何在没有网络的环境或者网速很慢的环境下，使用hpcrunner完成软件安装部署？
 
-A：参考[2.2](#22-场景2：在不具备外网访问能力的服务器上使用hpcrunner)
+A：参考[2.2](#22-场景2在不具备外网访问能力的服务器上使用hpcrunner)
 
 Q2：软件安装目录在哪里？
 

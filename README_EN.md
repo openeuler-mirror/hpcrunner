@@ -1,5 +1,7 @@
 # HPCRunner: An Intelligent, One-Stop Deployment and Tuning Tool for HPC Applications
 
+English | [简体中文](./README.md)
+
 ![Jarvis](./images/jarvis-logo.png)
 
 # 1 Overview

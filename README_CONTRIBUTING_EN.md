@@ -1,5 +1,7 @@
 # HPCRunner Contribution Guide
 
+English | [简体中文](./README_CONTRIBUTING.md)
+
 The HPCRunner project welcomes your expertise and enthusiasm!
 
 Small improvements or bug fixes are always appreciated. Updating documentation is a great place to start. If you are considering a major contribution, please open an issue or start a discussion at [HPCRunner](https://atomgit.com/openeuler/hpcrunner/issues).
