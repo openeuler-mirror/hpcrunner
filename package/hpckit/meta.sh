@@ -3,6 +3,13 @@ set -x
 set -e
 #hpckit_ver="24.0.RC1"
 . ${DOWNLOAD_TOOL} -u https://mirrors.huaweicloud.com/kunpeng/archive/HPC/HPCKit/HPCKit_${hpckit_ver}_Linux-aarch64.tar.gz
+. ${DOWNLOAD_TOOL} -u https://mirrors.huaweicloud.com/kunpeng/archive/HPC/HPCKit/HPCKit_${hpckit_ver}_Linux-aarch64.tar.gz.sha256sum
+
+cd $JARVIS_DOWNLOAD
+sed 's|hpckit/||g' HPCKit_${hpckit_ver}_Linux-aarch64.tar.gz.sha256sum | sha256sum -c - || {
+    echo "Error - HPCKit_${hpckit_ver}_Linux-aarch64.tar.gz 完整性校验失败。"
+    exit 1
+}
 
 cd $JARVIS_TMP
 if [ ! -d HPCKit_${hpckit_ver}_Linux-aarch64 ];then
